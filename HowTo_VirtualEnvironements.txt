@@ -1,0 +1,19 @@
+Léa's Notes -- 
+
+Virtual environement setup for Mac:
+https://mnzel.medium.com/how-to-activate-python-venv-on-a-mac-a8fa1c3cb511
+
+General: 
+https://towardsdatascience.com/virtual-environments-for-absolute-beginners-what-is-it-and-how-to-create-one-examples-a48da8982d4b
+
+Multi-processing:
+https://towardsdatascience.com/applying-python-multiprocessing-in-2-lines-of-code-3ced521bac8f
+
+Creating a package that we can distribute via GitHub --  (Feb 21) I'm at stage 3: create setup.py
+https://towardsdatascience.com/create-your-custom-python-package-that-you-can-pip-install-from-your-git-repository-f90465867893
+
+Another ressource for creating a package (this time not necessarily on git):
+https://betterscientificsoftware.github.io/python-for-hpc/tutorials/python-pypi-packaging/
+
+For real package:
+https://github.com/MichaelKim0407/tutorial-pip-package
