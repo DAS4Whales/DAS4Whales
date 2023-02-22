@@ -3,3 +3,4 @@
 *.png
 .idea
 venv/
+requirements.txt
