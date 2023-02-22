@@ -5,4 +5,5 @@
 venv/
 requirements.txt
 *.egg-info
-
+*.pyc
+*.h5

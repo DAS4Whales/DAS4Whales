@@ -25,7 +25,7 @@ def plot_tx(trace, tx, dist, fs, selected_channels, file_begin_time_utc):
     bar.set_label('Strain (x$10^{-9}$)')
 
     plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
-
+    plt.show()
 
 def plot_fx(trace, dist, fs, fileBeginTimeUTC, plotsavefolder, win_s=2, nfft=4096):
     ### Save 2s-long FX-plot of the FK filtered data
