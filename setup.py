@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='das4whales',
-    version='0.0.0',
+    version='0.1.0',
     description='Distributed acoustic sensing analysis tools for Bioacoustics',
     long_description=long_description,
     url='https://github.com/leabouffaut/DAS4Whales',

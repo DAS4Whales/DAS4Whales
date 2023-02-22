@@ -4,3 +4,5 @@
 .idea
 venv/
 requirements.txt
+*.egg-info
+
