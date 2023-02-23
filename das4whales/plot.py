@@ -3,7 +3,7 @@ import numpy as np
 from das4whales.transform import get_fx
 
 
-def plot_tx(trace, tx, dist, fs, selected_channels, file_begin_time_utc):
+def plot_tx(trace, tx, dist, fs, selected_channels, file_begin_time_utc, vmin=0, vmax=0.2):
     """
     TX plot of the strain data
 
@@ -18,7 +18,7 @@ def plot_tx(trace, tx, dist, fs, selected_channels, file_begin_time_utc):
 
     fig = plt.figure(figsize=(12, 10))
     shw = plt.imshow(abs(trace) * 10 ** 9, extent=[tx[0], tx[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
-                     origin='lower', cmap='jet', vmin=0, vmax=0.2)
+                     origin='lower', cmap='jet', vmin=vmin, vmax=vmax)
     plt.ylabel('Distance (km)')
     plt.xlabel('Time (s)')
     bar = plt.colorbar(shw, aspect=20)
