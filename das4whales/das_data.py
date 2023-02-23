@@ -56,7 +56,7 @@ def raw2strain(trace, scale_factor):
     return trace
 
 
-def load_DASdata(filename, fs, dx, selected_channels, scale_factor):
+def load_das_data(filename, fs, dx, selected_channels, scale_factor):
     """
     Load the DAS data corresponding to the input file name as strain according to the selected channels.
 
