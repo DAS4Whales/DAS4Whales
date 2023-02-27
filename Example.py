@@ -17,7 +17,7 @@ import numpy as np
 filename = 'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T022302Z.h5'
 
 # Get the acquisition parameters for the data folder
-fs, dx, nx, ns, scale_factor = dw.das_data.get_acquisition_parameters(filename)
+fs, dx, nx, ns, gauge_length, scale_factor = dw.data_handle.get_acquisition_parameters(filename)
 
 # Select desired channels
 selected_channels_m = [20000, 65000, 10]  # list of values in meters corresponding to the starting,
@@ -25,29 +25,34 @@ selected_channels_m = [20000, 65000, 10]  # list of values in meters correspondi
 # selected_channels_m = [ChannelStart_m, ChannelStop_m, ChannelStep_m]
 # in meters
 selected_channels = [int(np.floor(selected_channels_m / dx)) for selected_channels_m in
-                     selected_channels_m]  # list of values in channel number (spatial sample) corresponding to the starting, ending and step wanted
+                     selected_channels_m]  # list of values in channel number (spatial sample) corresponding
+# to the starting, ending and step wanted
 # channels along the FO Cable
 # selected_channels = [ChannelStart, ChannelStop, ChannelStep] in channel
 # numbers
 # Create conditioning for the signal
+
 # Create high-pass filter
-sos_hpfilt = dw.preprocess.butterworth_filter([2, 5, 'hp'], fs)
+sos_hpfilt = dw.dsp.butterworth_filter([2, 5, 'hp'], fs)
 
 # Create band-pass filter for the TX plots
-sos_bpfilt = dw.preprocess.butterworth_filter([5, [10, 30], 'bp'], fs)
+sos_bpfilt = dw.dsp.butterworth_filter([5, [10, 30], 'bp'], fs)
 
 # Load DAS data
-tr, tx, dist, fileBeginTimeUTC = dw.das_data.load_das_data(filename, fs, dx, selected_channels, scale_factor)
+tr, tx, dist, fileBeginTimeUTC = dw.data_handle.load_das_data(filename, fs, dx, selected_channels, scale_factor)
 
 # apply the high-pass filter
 trf = sp.sosfiltfilt(sos_hpfilt, tr, axis=1)
 
 # FK filter
 # loop is taking 1.4s - not much to crunch there
-trf_fk = dw.preprocess.fk_filtering(trf, selected_channels, dx, fs, cmin=1450, cmax=3000)
+trf_fk = dw.dsp.fk_filtering(trf, selected_channels, dx, fs, c_min=1450, c_max=3000)
 
 # TX-plot of the FK filtered data, additionally band-pass filtered
 trff = sp.sosfiltfilt(sos_bpfilt, trf_fk, axis=1)
 
-# start_time = time.time()
-dw.plot.plot_tx(trff, tx, dist, fs, selected_channels, fileBeginTimeUTC)
+# Spatio-temporal plot
+dw.plot.plot_tx(trff, tx, dist, fileBeginTimeUTC)
+
+# Spatio-spectral plot
+dw.plot.plot_fx(trff, dist, fs)
