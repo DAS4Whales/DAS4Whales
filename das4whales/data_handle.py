@@ -88,3 +88,4 @@ def load_das_data(filename, fs, dx, selected_channels, scale_factor):
         dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * dx
 
     return trace, tx, dist, file_begin_time_utc
+

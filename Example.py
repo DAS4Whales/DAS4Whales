@@ -39,7 +39,7 @@ sos_hpfilt = dw.dsp.butterworth_filter([2, 5, 'hp'], fs)
 sos_bpfilt = dw.dsp.butterworth_filter([5, [10, 30], 'bp'], fs)
 
 # Load DAS data
-tr, tx, dist, fileBeginTimeUTC = dw.data_handle.load_das_data(filename, fs, dx, selected_channels, scale_factor)
+tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_das_data(filename, fs, dx, selected_channels, scale_factor)
 
 # apply the high-pass filter
 trf = sp.sosfiltfilt(sos_hpfilt, tr, axis=1)
@@ -52,7 +52,10 @@ trf_fk = dw.dsp.fk_filtering(trf, selected_channels, dx, fs, c_min=1450, c_max=3
 trff = sp.sosfiltfilt(sos_bpfilt, trf_fk, axis=1)
 
 # Spatio-temporal plot
-dw.plot.plot_tx(trff, tx, dist, fileBeginTimeUTC)
+dw.plot.plot_tx(trff, time, dist, fileBeginTimeUTC)
 
 # Spatio-spectral plot
-dw.plot.plot_fx(trff, dist, fs, win_s=10)
+# dw.plot.plot_fx(trff, dist, fs, win_s=5,  nfft=512, f_min=0, f_max=50)
+
+# Make audio
+trf
