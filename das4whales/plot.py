@@ -55,7 +55,7 @@ def plot_fx(trace, dist, fs, win_s=2, nfft=4096, f_min=0, f_max=100, v_min=0, v_
     rows = 3
     cols = int(np.ceil(nb_subplots/rows))
 
-    fig, axes = plt.subplots(rows, cols, figsize=(8, 10))
+    fig, axes = plt.subplots(rows, cols, figsize=(8, 10*cols))
     # Run through the data
     for ind in range(nb_subplots):
         fx = get_fx(trace[:, int(ind * win_s * fs):int((ind + 1) * win_s * fs):1], nfft)

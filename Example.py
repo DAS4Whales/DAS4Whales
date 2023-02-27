@@ -5,22 +5,25 @@
 # import wget
 # url = 'http://piweb.ooirsn.uw.edu/das/data/Optasense/NorthCable/TransmitFiber/' \
 #      'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-03T15_06_51-0700/' \
-#      'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T022302Z.h5'
+#      'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5'
 # das_example_file = wget.download(url) # This re-download each we run the code
 # print(['Downloaded: ', das_example_file])
+
+# November 2, 2021, 10:36:09 UT
+# November 4, 2021, 02:00:27 UT
 
 import das4whales as dw
 import scipy.signal as sp
 import numpy as np
 
 # Read HDF5 files and accessing metadata
-filename = 'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T022302Z.h5'
+filename = 'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5'
 
 # Get the acquisition parameters for the data folder
 fs, dx, nx, ns, gauge_length, scale_factor = dw.data_handle.get_acquisition_parameters(filename)
 
 # Select desired channels
-selected_channels_m = [20000, 65000, 10]  # list of values in meters corresponding to the starting,
+selected_channels_m = [20000, 65000, 10] # [20000, 65000, 10]  # list of values in meters corresponding to the starting,
 # ending and step wanted channels along the FO Cable
 # selected_channels_m = [ChannelStart_m, ChannelStop_m, ChannelStep_m]
 # in meters
@@ -58,4 +61,3 @@ dw.plot.plot_tx(trff, time, dist, fileBeginTimeUTC)
 # dw.plot.plot_fx(trff, dist, fs, win_s=5,  nfft=512, f_min=0, f_max=50)
 
 # Make audio
-trf
