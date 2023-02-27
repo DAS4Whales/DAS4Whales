@@ -29,7 +29,7 @@ def plot_tx(trace, time, dist, file_begin_time_utc, v_min=0, v_max=0.2):
     plt.show()
 
 
-def plot_fx(trace, dist, fs, win_s=2, nfft=4096, f_min=0, f_max=200, v_min=0, v_max=0.1):
+def plot_fx(trace, dist, fs, win_s=2, nfft=4096, f_min=0, f_max=100, v_min=0, v_max=0.1):
     """
     Spatio-spectral (f-k plot) of the strain data
 
@@ -46,7 +46,8 @@ def plot_fx(trace, dist, fs, win_s=2, nfft=4096, f_min=0, f_max=200, v_min=0, v_
 
     """
     # Evaluate the number of subplots
-    nb_subplots = int(np.floor(trace.shape[1] / (win_s * fs))) - 1
+    nb_subplots = int(np.ceil(trace.shape[1] / (win_s * fs)))
+    print(nb_subplots)
 
     # Create the frequency axis
     freq = np.fft.fftshift(np.fft.fftfreq(nfft, d=1 / fs))
@@ -54,23 +55,27 @@ def plot_fx(trace, dist, fs, win_s=2, nfft=4096, f_min=0, f_max=200, v_min=0, v_
     # Prepare the plot
     rows = 4
     cols = int(np.ceil(nb_subplots/rows))
+    print('rows: ', rows, 'cols: ', cols)
+
     fig, axes = plt.subplots(rows, cols, figsize=(rows*4, cols*4))
 
     # Run through the data
     for ind in range(nb_subplots):
-        fx = get_fx(trace[:, int(ind * win_s * fs):int((ind + 1) * win_s * fs):1], nfft)
+        print(ind, '/', nb_subplots)
+        print(int(ind * win_s * fs), '/', int((ind + 1) * win_s * fs))
+        #fx = get_fx(trace[:, int(ind * win_s * fs):int((ind + 1) * win_s * fs):1], nfft)
 
-        # Plot
-        r = ind // cols
-        c = ind % cols
-        ax = axes[r][c]
-        shw = ax.imshow(fx, extent=[freq[0], freq[-1], dist[0] * 1e-3, dist[-1] * 1e-3], aspect='auto',
-                        origin='lower', cmap='jet', vmin=v_min, vmax=v_max)
-
-        plt.xlim([f_min, f_max])
-        plt.xlabel('Frequency (Hz)')
-        plt.ylabel('Distance (km)')
-
-        # Colorbar
-        bar = plt.colorbar(shw, aspect=50)
-        bar.set_label('Strain (x$10^{-9}$)')
+    #     # Plot
+    #     r = ind // cols
+    #     c = ind % cols
+    #     ax = axes[r][c]
+    #     shw = ax.imshow(fx, extent=[freq[0], freq[-1], dist[0] * 1e-3, dist[-1] * 1e-3], aspect='auto',
+    #                     origin='lower', cmap='jet', vmin=v_min, vmax=v_max)
+    #
+    #     plt.xlim([f_min, f_max])
+    #     plt.xlabel('Frequency (Hz)')
+    #     plt.ylabel('Distance (km)')
+    #
+    #     # Colorbar
+    #     bar = plt.colorbar(shw, aspect=50)
+    #     bar.set_label('Strain (x$10^{-9}$)')

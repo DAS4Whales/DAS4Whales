@@ -2,12 +2,12 @@
 # https://oceanobservatories.org/pi-instrument/ \
 # rapid-a-community-test-of-distributed-acoustic-sensing-on-the-ocean-observatories-initiative-regional-cabled-array/
 # Files are ~850 MB so the download can take a while
-#import wget
-#url = 'http://piweb.ooirsn.uw.edu/das/data/Optasense/NorthCable/TransmitFiber/' \
+# import wget
+# url = 'http://piweb.ooirsn.uw.edu/das/data/Optasense/NorthCable/TransmitFiber/' \
 #      'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-03T15_06_51-0700/' \
 #      'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T022302Z.h5'
-#das_example_file = wget.download(url) # This re-download each we run the code
-#print(['Downloaded: ', das_example_file])
+# das_example_file = wget.download(url) # This re-download each we run the code
+# print(['Downloaded: ', das_example_file])
 
 import das4whales as dw
 import scipy.signal as sp
@@ -55,4 +55,4 @@ trff = sp.sosfiltfilt(sos_bpfilt, trf_fk, axis=1)
 dw.plot.plot_tx(trff, tx, dist, fileBeginTimeUTC)
 
 # Spatio-spectral plot
-dw.plot.plot_fx(trff, dist, fs)
+dw.plot.plot_fx(trff, dist, fs, win_s=10)
