@@ -3,7 +3,7 @@ import numpy as np
 from das4whales.dsp import get_fx
 
 
-def plot_tx(trace, time, dist, file_begin_time_utc, v_min=0, v_max=0.2):
+def plot_tx(trace, time, dist, file_begin_time_utc, fig_size=(12, 10),  v_min=0, v_max=0.2):
     """
     Spatio-temporal representation (t-x plot) of the strain data
 
@@ -17,7 +17,7 @@ def plot_tx(trace, time, dist, file_begin_time_utc, v_min=0, v_max=0.2):
 
     """
 
-    fig = plt.figure(figsize=(12, 10))
+    fig = plt.figure(figsize=fig_size)
     shw = plt.imshow(abs(trace) * 10 ** 9, extent=[time[0], time[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
                      origin='lower', cmap='jet', vmin=v_min, vmax=v_max)
     plt.ylabel('Distance (km)')
@@ -29,7 +29,7 @@ def plot_tx(trace, time, dist, file_begin_time_utc, v_min=0, v_max=0.2):
     plt.show()
 
 
-def plot_fx(trace, dist, fs, win_s=2, nfft=4096, f_min=0, f_max=100, v_min=0, v_max=0.1):
+def plot_fx(trace, dist, fs, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0, f_max=100, v_min=0, v_max=0.1):
     """
     Spatio-spectral (f-k plot) of the strain data
 
@@ -55,7 +55,7 @@ def plot_fx(trace, dist, fs, win_s=2, nfft=4096, f_min=0, f_max=100, v_min=0, v_
     rows = 3
     cols = int(np.ceil(nb_subplots/rows))
 
-    fig, axes = plt.subplots(rows, cols, figsize=(8*cols, 10))
+    fig, axes = plt.subplots(rows, cols, figsize=fig_size)
     # Run through the data
     for ind in range(nb_subplots):
         fx = get_fx(trace[:, int(ind * win_s * fs):int((ind + 1) * win_s * fs):1], nfft)
