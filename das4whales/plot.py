@@ -69,8 +69,10 @@ def plot_fx(trace, dist, fs, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0, f_m
                         origin='lower', cmap='jet', vmin=v_min, vmax=v_max)
 
         ax.set_xlim([f_min, f_max])
-        ax.set_xlabel('Frequency (Hz)')
-        ax.set_ylabel('Distance (km)')
+        if r == rows-1:
+            ax.set_xlabel('Frequency (Hz)')
+        if c == 0:
+            ax.set_ylabel('Distance (km)')
 
     # Colorbar
     bar = fig.colorbar(shw, ax=axes.ravel().tolist())
