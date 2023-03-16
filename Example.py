@@ -4,6 +4,9 @@
 
 import wget
 import os
+import das4whales as dw
+import scipy.signal as sp
+import numpy as np
 
 filename = 'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5'
 
@@ -20,13 +23,7 @@ else:
     das_example_file = wget.download(url)
     print(['Downloaded: ', das_example_file])
 
-import das4whales as dw
-import scipy.signal as sp
-import numpy as np
-
 # Read HDF5 files and accessing metadata
-filename = 'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5'
-
 # Get the acquisition parameters for the data folder
 fs, dx, nx, ns, gauge_length, scale_factor = dw.data_handle.get_acquisition_parameters(filename)
 
@@ -57,14 +54,17 @@ tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_das_data(filename, fs, dx
 trf = sp.sosfiltfilt(sos_hpfilt, tr, axis=1)
 
 # FK filter
-# loop is taking 1.4s - not much to crunch there
-trf_fk = dw.dsp.fk_filtering(trf, selected_channels, dx, fs, cp_min=1450, cp_max=3000)
+# Create the f-k filter
+fk_filter = dw.dsp.fk_filter_design((trf.shape[0],trf.shape[1]), selected_channels, dx, fs, cs_min=1400, cp_min=1480, cp_max=3400, cs_max=3500)
 
-# TX-plot of the FK filtered data, additionally band-pass filtered
-trff = sp.sosfiltfilt(sos_bpfilt, trf_fk, axis=1)
+# Apply the f-k filter to the data
+trf_fk = dw.dsp.fk_filter_filt(trf,fk_filter)
+
+# Plot
+dw.plot.plot_tx(trf_fk, time, dist, fileBeginTimeUTC, fig_size=(12, 10))
 
 # Spatio-temporal plot
-dw.plot.plot_tx(trff, time, dist, fileBeginTimeUTC)
+dw.plot.plot_tx(trf_fk, time, dist, fileBeginTimeUTC)
 
 # Spatio-spectral plot
 # dw.plot.plot_fx(trff, dist, fs, win_s=5,  nfft=512, f_min=0, f_max=50)

@@ -23,6 +23,7 @@ setup(
                       'h5py',
                       'idna',
                       'kiwisolver',
+                      'librosa',
                       'matplotlib',
                       'numpy',
                       'packaging',
