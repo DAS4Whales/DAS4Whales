@@ -1,6 +1,7 @@
 certifi==2022.12.7
 charset-normalizer==3.0.1
 cycler==0.11.0
+das4whales==0.1.0
 DateTime==5.0
 fonttools==4.38.0
 h5py==3.8.0
@@ -18,4 +19,5 @@ scipy==1.7.3
 six==1.16.0
 typing_extensions==4.5.0
 urllib3==1.26.14
+wget==3.2
 zope.interface==5.5.2

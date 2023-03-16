@@ -1,16 +1,24 @@
 # Download directly from the OOI DAS experiment - details here:
 # https://oceanobservatories.org/pi-instrument/ \
 # rapid-a-community-test-of-distributed-acoustic-sensing-on-the-ocean-observatories-initiative-regional-cabled-array/
-# Files are ~850 MB so the download can take a while
-# import wget
-# url = 'http://piweb.ooirsn.uw.edu/das/data/Optasense/NorthCable/TransmitFiber/' \
-#      'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-03T15_06_51-0700/' \
-#      'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5'
-# das_example_file = wget.download(url) # This re-download each we run the code
-# print(['Downloaded: ', das_example_file])
 
-# November 2, 2021, 10:36:09 UT
-# November 4, 2021, 02:00:27 UT
+import wget
+import os
+
+filename = 'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5'
+
+# Check if the file exists otherwise download it
+# Files are ~850 MB so the download can take a while
+
+if os.path.exists(filename):
+    print(filename, ' already exists in path')
+else:
+    url = 'http://piweb.ooirsn.uw.edu/das/data/Optasense/NorthCable/TransmitFiber/' \
+          'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-03T15_06_51-0700/' \
+          'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T022302Z.h5'
+
+    das_example_file = wget.download(url)
+    print(['Downloaded: ', das_example_file])
 
 import das4whales as dw
 import scipy.signal as sp
@@ -23,7 +31,8 @@ filename = 'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5'
 fs, dx, nx, ns, gauge_length, scale_factor = dw.data_handle.get_acquisition_parameters(filename)
 
 # Select desired channels
-selected_channels_m = [20000, 65000, 10] # [20000, 65000, 10]  # list of values in meters corresponding to the starting,
+selected_channels_m = [20000, 65000,
+                       10]  # [20000, 65000, 10]  # list of values in meters corresponding to the starting,
 # ending and step wanted channels along the FO Cable
 # selected_channels_m = [ChannelStart_m, ChannelStop_m, ChannelStep_m]
 # in meters
@@ -49,7 +58,7 @@ trf = sp.sosfiltfilt(sos_hpfilt, tr, axis=1)
 
 # FK filter
 # loop is taking 1.4s - not much to crunch there
-trf_fk = dw.dsp.fk_filtering(trf, selected_channels, dx, fs, c_min=1450, c_max=3000)
+trf_fk = dw.dsp.fk_filtering(trf, selected_channels, dx, fs, cp_min=1450, cp_max=3000)
 
 # TX-plot of the FK filtered data, additionally band-pass filtered
 trff = sp.sosfiltfilt(sos_bpfilt, trf_fk, axis=1)
