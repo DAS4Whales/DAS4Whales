@@ -8,12 +8,16 @@ def plot_tx(trace, time, dist, file_begin_time_utc, fig_size=(12, 10),  v_min=0,
     Spatio-temporal representation (t-x plot) of the strain data
 
     Inputs:
-    - trace, a [channel x time sample] nparray containing the strain data in the spatio-temporal domain
-    - tx, the corresponding time vector
-    - dist, the corresponding distance along the FO cable vector
-    - file_begin_time_utc, the time stamp of the represented file
-    - v_min and v_max, set the min and max nano strain amplitudes of the colorbar
+    :param trace: a [channel x time sample] nparray containing the strain data in the spatio-temporal domain
+    :param time: the corresponding time vector
+    :param dist: the corresponding distance along the FO cable vector
+    :param file_begin_time_utc: the time stamp of the represented file
+    :param fig_size: Tuple of the figure dimensions. Default fig_size=(12, 10)
+    :param v_min: sets the min nano strain amplitudes of the colorbar. Default v_min=0
+    :param v_max: sets the max nano strain amplitudes of the colorbar, Default v_max=0.2
 
+    Outputs:
+    :return: a tx plot
 
     """
 
@@ -34,17 +38,22 @@ def plot_fx(trace, dist, fs, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0, f_m
     Spatio-spectral (f-k plot) of the strain data
 
     Inputs:
-    - trace, a [channel x time sample] nparray containing the strain data in the spatio-temporal domain
-    - dist, the corresponding distance along the FO cable vector
-    - fs, the sampling frequency (Hz)
-    - win_s, the duration of each f-k plot (s)
-    - nfft, number of time samples used for the FFT
-    - f_min=0, f_max=200, displayed frequency interval (Hz)
-    - v_min=0, v_max=0.03, set the min and max nano strain amplitudes of the colorbar
-    - file_begin_time_utc, the time stamp of the represented file
+    :param trace: a [channel x time sample] nparray containing the strain data in the spatio-temporal domain
+    :param dist: the corresponding distance along the FO cable vector
+    :param fs: the sampling frequency (Hz)
+    :param win_s: the duration of each f-k plot (s). Default 2 s
+    :param nfft: number of time samples used for the FFT. Default 4096
+    :param fig_size: Tuple of the figure dimensions. Default fig_size=(12, 10)
+    :param f_min: displayed minimum frequency interval (Hz). Default 0 Hz
+    :param f_max: displayed maxumum frequency interval (Hz). Default 100 Hz
+    :param v_min: set the min nano strain amplitudes of the colorbar. Default 0
+    :param v_max: set the max nano strain amplitudes of the colorbar. Default 0.2
 
+    Outputs:
+    :return: fx plot
 
     """
+
     # Evaluate the number of subplots
     nb_subplots = int(np.ceil(trace.shape[1] / (win_s * fs)))
 

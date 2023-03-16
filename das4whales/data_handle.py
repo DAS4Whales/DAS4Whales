@@ -13,15 +13,15 @@ def get_acquisition_parameters(filename):
     Gets DAS acquisition parameters
 
     Inputs:
-    - filename, a string containing the full path to the data to load
+    :param filename: a string containing the full path to the data to load
 
     Outputs:
-    - fs, the sampling frequency (Hz)
-    - dx, interval between two virtual sensing points also called channel spacing (m)
-    - nx, the number of spatial samples also called channels
-    - ns, the number of time samples
-    - gauge_length, the gauge length (m)
-    - scale_factor, the value to convert DAS data from strain rate to strain
+    :return: fs: the sampling frequency (Hz)
+    :return: dx: interval between two virtual sensing points also called channel spacing (m)
+    :return: nx: the number of spatial samples also called channels
+    :return: ns: the number of time samples
+    :return: gauge_length: the gauge length (m)
+    :return: scale_factor: the value to convert DAS data from strain rate to strain
 
     """
 
@@ -55,14 +55,18 @@ def load_das_data(filename, fs, dx, selected_channels, scale_factor):
     Load the DAS data corresponding to the input file name as strain according to the selected channels.
 
     Inputs:
-    - filename, a string containing the full path to the data to load
+    :param filename: a string containing the full path to the data to load
+    :param fs: the sampling frequency (Hz)
+    :param dx: interval between two virtual sensing points also called channel spacing (m)
+    :param selected_channels:
+    :param scale_factor: the value to convert DAS data from strain rate to strain
 
     Outputs:
-    - trace, a [channel x sample] nparray containing the strain data
-    - tx, the corresponding time axis (s)
-    - dist, the corresponding distance along the FO cable axis (m)
-    - file_begin_time_utc, the beginning time of the file, can be printed using file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S")
-
+    :return: trace: a [channel x sample] nparray containing the strain data
+    :return: tx: the corresponding time axis (s)
+    :return: dist: the corresponding distance along the FO cable axis (m)
+    :return: file_begin_time_utc: the beginning time of the file, can be printed using
+    file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S")
     """
 
     with h5py.File(filename, 'r') as fp:
