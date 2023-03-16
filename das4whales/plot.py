@@ -88,3 +88,24 @@ def plot_fx(trace, dist, fs, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0, f_m
     bar.set_label('Strain (x$10^{-9}$)')
     plt.show()
 
+
+def plot_spectrogram(p, tt, ff, fig_size=(25, 5)):
+    """
+
+    :param p: spectrogram values in dB
+    :param tt: associated time vector (s)
+    :param ff: associated frequency vector (Hz)
+    :param fig_size: Tuple of the figure dimensions. Default fig_size=(12, 10)
+
+    :return:
+
+    """
+    fig, ax = plt.subplots(figsize=fig_size)
+
+    shw = ax.pcolormesh(tt, ff, p, cmap="jet", vmin=-0, vmax=10)
+    ax.set_ylim(0, 50)
+
+    # Colorbar
+    bar = fig.colorbar(shw, aspect=20)
+    bar.set_label('Strain (x$10^{-9}$)')
+    plt.show()

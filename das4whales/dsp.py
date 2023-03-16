@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.signal as sp
+import librosa
 
 
 # Transformations
@@ -20,6 +21,37 @@ def get_fx(trace, nfft):
     fx /= nfft
     fx *= 10 ** 9
     return fx
+
+
+def get_spectrogram(waveform, fs, nfft=128, overlap_pct=0.8):
+    """
+    Get the spectrogram of a single channel
+
+    Inputs:
+    :param waveform: single channel temporal signal
+    :param fs: the sampling frequency (Hz)
+    :param nfft: number of time samples used for the STFT. Default 128
+    :param overlap_pct: percentage of overlap in the spectrogram. Default 0.8
+
+    Outputs:
+    :return: a spectrogram and associated time & frequency vectors
+
+    """
+
+    spectrogram = np.abs(librosa.stft(
+        y=waveform, n_fft=nfft,
+        hop_length=int(np.floor(nfft * (1 - overlap_pct)))))
+
+    # Axis
+    height = spectrogram.shape[0]
+    width = spectrogram.shape[1]
+
+    tt = np.linspace(0, len(waveform)/fs, num=width)
+    ff = np.linspace(0, fs / 2, num=height)
+
+    p = 10 * np.log10(spectrogram * 10 ** 9)
+
+    return p, tt, ff
 
 
 # Filters
