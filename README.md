@@ -18,7 +18,7 @@ For the specific application of DAS for whale bioacoustics (we will use the same
 * Bouffaut, L., Taweesintananon, K., Kriesell, H. J., Rørstadbotnen, R. A., Potter, J. R., Landrø, M., Johansen, S. E., Brenne, J. K., Haukanes, A., Schjelderup, O., & Storvik, F. (2022). Eavesdropping at the Speed of Light: Distributed Acoustic Sensing of Baleen Whales in the Arctic. Frontiers in Marine Science, 9, 901348. https://doi.org/10.3389/fmars.2022.901348
 
 # How-to use the das4whale module 
-This Jupyter notebook provides an illustration of the current functionalities of the DAS4Whale python module, available on GitHub https://github.com/leabouffaut/DAS4Whales. For now, the module enables basic manipulations and visualizations of DAS data such as:
+[This Jupyter notebook](https://github.com/leabouffaut/DAS4Whales/blob/main/DAS4Whales_ExampleNotebook.ipynb) provides an illustration of the current functionalities of the DAS4Whale python module, available on [GitHub](https://github.com/leabouffaut/DAS4Whales). For now, the module enables basic manipulations and visualizations of DAS data such as:
 
 * high-pass, band-pass and frequency-wavenumber (f-k) filtering,
 * spatio-temporal (t-x plot) and spatio-spectral (f-x plot) representations,
@@ -28,7 +28,7 @@ If you don't have DAS data, we've got you covered! This notebook is set to autom
 
 * Wilcock, W., & Ocean Observatories Initiative. (2023). Rapid: A Community Test of Distributed Acoustic Sensing on the Ocean Observatories Initiative Regional Cabled Array [Data set]. Ocean Observatories Initiative. https://doi.org/10.58046/5J60-FJ89
 
-# Contact
+# Get in touch!
 Please, report any bugs or issues you may have using this module and notebook either through GitHub or directly by email. This is my first python module and I'm always keen on learning how to make my work more inclusive, accessible and polyvalent. New contritibutors are Welcome!
 
 
