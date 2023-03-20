@@ -3,7 +3,7 @@ import numpy as np
 from datetime import datetime
 
 
-def hello_world_das_data():
+def hello_world_das_package():
     print("Yepee! You now have access to all the functionalities of the das4whale python package!")
 
 
