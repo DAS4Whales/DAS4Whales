@@ -31,7 +31,7 @@ setup(
                       #'pyparsing',
                       #'python-dateutil',
                       #'pytz',
-                      #'requests',
+                      'requests',
                       'scipy',
                       #'six',
                       #'typing_extensions',
