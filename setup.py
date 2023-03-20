@@ -26,7 +26,7 @@ setup(
                       'librosa',
                       'matplotlib',
                       'numpy',
-                      #'packaging',
+                      'packaging',
                       #'Pillow',
                       #'pyparsing',
                       #'python-dateutil',
