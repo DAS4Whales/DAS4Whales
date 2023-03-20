@@ -5,7 +5,7 @@ Léa Bouffaut, Ph.D
 
 K. Lisa Yang Center for Conservation Bioacoustics, Cornell Lab of Ornithology, Cornell University. Ithaca (NY), USA
 
-[Contact](mailto:lb736'cornell.edu) | [Webpage](https://www.birds.cornell.edu/ccb/lea-bouffaut/) | [Twitter](https://twitter.com/LeaBouffaut)
+[Contact](mailto:lb736@cornell.edu) | [Webpage](https://www.birds.cornell.edu/ccb/lea-bouffaut/) | [Twitter](https://twitter.com/LeaBouffaut)
 
 ## Background
 Distributed acoustic sensing or DAS, offers exciting new opportunities to eavesdrop on whales by converting existing fiber optic cables into dense listening arrays of strain sensors. It exploits the physics of Raileigh backscattering following the introduction of a interrogating pulse in the fiber, converting time-delays (or phase changes) of the backscattered pulses into strain measurements, analogus to acoustic pressure. DAS is also known as Distributed Fiber Optic Sensing (DFOS), coherent backscattering, phase Optical Time Domain Reflectometry (phase-OTDR).
