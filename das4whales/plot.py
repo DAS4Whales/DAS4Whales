@@ -68,6 +68,7 @@ def plot_fx(trace, dist, fs, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0, f_m
     # Run through the data
     for ind in range(nb_subplots):
         fx = get_fx(trace[:, int(ind * win_s * fs):int((ind + 1) * win_s * fs):1], nfft)
+        fx = fx - np.median(fx, axis=0)
 
         # Plot
         r = ind // cols
