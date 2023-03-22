@@ -40,6 +40,6 @@ If you don't have DAS data, we've got you covered! This notebook is set to autom
 >Wilcock, W., & Ocean Observatories Initiative. (2023). Rapid: A Community Test of Distributed Acoustic Sensing on the Ocean Observatories Initiative Regional Cabled Array [Data set]. Ocean Observatories Initiative. https://doi.org/10.58046/5J60-FJ89
 
 ## A final word
-Please, report any bugs or issues you may have using this package and notebook either through GitHub or directly by email. This is my first python module and I'm always keen on learning how to make my work more inclusive, accessible and polyvalent. New contritibutors are Welcome!
+Please, report any bugs or issues you may have using this package and notebook either through GitHub or directly by email. This is my first python package and I'm always keen on learning how to make my work more inclusive, accessible and polyvalent. New contritibutors are Welcome!
 
 
