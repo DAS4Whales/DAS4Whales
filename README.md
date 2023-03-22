@@ -12,8 +12,8 @@ K. Lisa Yang Center for Conservation Bioacoustics, Cornell Lab of Ornithology, C
 [Contact](mailto:lb736@cornell.edu) | [Webpage](https://www.birds.cornell.edu/ccb/lea-bouffaut/) | [Twitter](https://twitter.com/LeaBouffaut)
 
 
->**Note**
->Please cite this package as: Léa Bouffaut. (2023). DAS4Whales: A Python package to analyze Distributed Acoustic Sensing (DAS) data for marine bioacoustics (v0.1.0). Zenodo. https://doi.org/10.5281/zenodo.7760187
+> **Note**
+> Please cite this package as: Léa Bouffaut. (2023). DAS4Whales: A Python package to analyze Distributed Acoustic Sensing (DAS) data for marine bioacoustics (v0.1.0). Zenodo. https://doi.org/10.5281/zenodo.7760187
 
 ---
 
