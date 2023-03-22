@@ -1,5 +1,7 @@
-# DAS4Whales
+# DAS4Whales 
+
 Python library to analyze Distributed Acoustic Sensing (DAS) data for marine bioacoustics
+[![DOI](https://zenodo.org/badge/604782489.svg)](https://zenodo.org/badge/latestdoi/604782489)
 
 Léa Bouffaut, Ph.D 
 
