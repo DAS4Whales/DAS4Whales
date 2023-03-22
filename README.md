@@ -4,7 +4,7 @@ A Python package to analyze Distributed Acoustic Sensing (DAS) data for marine b
 
 [![DOI](https://zenodo.org/badge/604782489.svg)](https://zenodo.org/badge/latestdoi/604782489)
 
-Author: Léa Bouffaut, Ph.D 
+Author: Léa Bouffaut, Ph.D   
 K. Lisa Yang Center for Conservation Bioacoustics, Cornell Lab of Ornithology, Cornell University. Ithaca (NY), USA
 
 [Contact](mailto:lb736@cornell.edu) | [Webpage](https://www.birds.cornell.edu/ccb/lea-bouffaut/) | [Twitter](https://twitter.com/LeaBouffaut)
