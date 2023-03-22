@@ -1,6 +1,6 @@
 # DAS4Whales 
 
-Python library to analyze Distributed Acoustic Sensing (DAS) data for marine bioacoustics
+A Python package to analyze Distributed Acoustic Sensing (DAS) data for marine bioacoustics
 
 [![DOI](https://zenodo.org/badge/604782489.svg)](https://zenodo.org/badge/latestdoi/604782489)
 
@@ -11,12 +11,18 @@ K. Lisa Yang Center for Conservation Bioacoustics, Cornell Lab of Ornithology, C
 
 [Contact](mailto:lb736@cornell.edu) | [Webpage](https://www.birds.cornell.edu/ccb/lea-bouffaut/) | [Twitter](https://twitter.com/LeaBouffaut)
 
+---
+**NOTE**
+Please cite this package as:
 
+Léa Bouffaut. (2023). DAS4Whales: A Python package to analyze Distributed Acoustic Sensing (DAS) data for marine bioacoustics (v0.1.0). Zenodo. https://doi.org/10.5281/zenodo.7760187
+
+---
 
 ## Background
 Distributed acoustic sensing or DAS, offers exciting new opportunities to eavesdrop on whales by converting existing fiber optic cables into dense listening arrays of strain sensors. It exploits the physics of Raileigh backscattering following the introduction of a interrogating pulse in the fiber, converting time-delays (or phase changes) of the backscattered pulses into strain measurements, analogus to acoustic pressure. DAS is also known as Distributed Fiber Optic Sensing (DFOS), coherent backscattering, phase Optical Time Domain Reflectometry (phase-OTDR).
 
-![Distributed acoustic sensing (DAS) for baleen whale monitoring illustration](https://twitter.com/LeaBouffaut/status/1504548393628094471/photo/1)
+![Distributed acoustic sensing (DAS) for baleen whale monitoring illustration](https://www.frontiersin.org/files/Articles/901348/fmars-09-901348-HTML/image_m/fmars-09-901348-g003.jpg)
 
 For a complete DAS technical overview see:
 >Hartog, A. H. (2017). An Introduction to Distributed Optical Fibre Sensors (1st ed.). CRC Press. https://doi.org/10.1201/9781315119014
