@@ -16,7 +16,7 @@ K. Lisa Yang Center for Conservation Bioacoustics, Cornell Lab of Ornithology, C
 ## Background
 Distributed acoustic sensing or DAS, offers exciting new opportunities to eavesdrop on whales by converting existing fiber optic cables into dense listening arrays of strain sensors. It exploits the physics of Raileigh backscattering following the introduction of a interrogating pulse in the fiber, converting time-delays (or phase changes) of the backscattered pulses into strain measurements, analogus to acoustic pressure. DAS is also known as Distributed Fiber Optic Sensing (DFOS), coherent backscattering, phase Optical Time Domain Reflectometry (phase-OTDR).
 
-![Distributed acoustic sensing (DAS) for baleen whale monitoring illustration](https://twitter.com/LeaBouffaut/status/1504548393628094471?s=20)
+![Distributed acoustic sensing (DAS) for baleen whale monitoring illustration](https://twitter.com/LeaBouffaut/status/1504548393628094471/photo/1)
 
 For a complete DAS technical overview see:
 >Hartog, A. H. (2017). An Introduction to Distributed Optical Fibre Sensors (1st ed.). CRC Press. https://doi.org/10.1201/9781315119014
