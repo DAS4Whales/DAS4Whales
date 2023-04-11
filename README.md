@@ -3,6 +3,7 @@
 A Python package to analyze Distributed Acoustic Sensing (DAS) data for marine bioacoustics
 
 [![DOI](https://zenodo.org/badge/604782489.svg)](https://zenodo.org/badge/latestdoi/604782489)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/gist/leabouffaut/e66b5a741493c4bd13aa07f39586ec4b/das4whales_examplenotebook.ipynb)
 
 Author: Léa Bouffaut, Ph.D   
 K. Lisa Yang Center for Conservation Bioacoustics, Cornell Lab of Ornithology, Cornell University. Ithaca (NY), USA
@@ -25,9 +26,7 @@ For the specific application of DAS for whale bioacoustics (we will use the same
 >Bouffaut, L., Taweesintananon, K., Kriesell, H. J., Rørstadbotnen, R. A., Potter, J. R., Landrø, M., Johansen, S. E., Brenne, J. K., Haukanes, A., Schjelderup, O., & Storvik, F. (2022). Eavesdropping at the Speed of Light: Distributed Acoustic Sensing of Baleen Whales in the Arctic. Frontiers in Marine Science, 9, 901348. https://doi.org/10.3389/fmars.2022.901348
 
 ## How-to use the das4whales package 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/gist/leabouffaut/e66b5a741493c4bd13aa07f39586ec4b/das4whales_examplenotebook.ipynb)
-
-[This Jupyter notebook](https://github.com/leabouffaut/DAS4Whales/blob/main/DAS4Whales_ExampleNotebook.ipynb) provides an illustration of the current functionalities of the DAS4Whales python package, available on GitHub https://github.com/leabouffaut/DAS4Whales. For now, the package enables basic manipulations and visualizations of DAS data such as:
+[This Jupyter notebook](https://github.com/leabouffaut/DAS4Whales/blob/main/DAS4Whales_ExampleNotebook.ipynb) available in [Colab](https://colab.research.google.com/gist/leabouffaut/e66b5a741493c4bd13aa07f39586ec4b/das4whales_examplenotebook.ipynb)  provides an illustration of the current functionalities of the DAS4Whales python package, available on GitHub https://github.com/leabouffaut/DAS4Whales. For now, the package enables basic manipulations and visualizations of DAS data such as:
 
 * reading the metadata and loading DAS strain data from a hdf5 file -- functionalities available in the module `das4whales.data_handle`,
 * high-pass, band-pass and frequency-wavenumber (f-k) filtering -- functionalities available in the module `das4whales.ds`,
