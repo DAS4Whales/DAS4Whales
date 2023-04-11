@@ -1,7 +1,4 @@
 from setuptools import setup
-import das4whales
-
-# from das4whales import __version__
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -17,10 +14,11 @@ setup(
     license='Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International',
     py_modules=['das4whales.data_handle', 'das4whales.dsp', 'das4whales.plot'],
     packages=['das4whales'],
-    install_requires=['h5py',
-                      'numpy',
-                      'DateTime',
-                      'scipy',
-                      'librosa',
-                      'matplotlib']
+    install_requires=[
+        'h5py',
+        'numpy',
+        'DateTime',
+        'scipy',
+        'librosa',
+        'matplotlib'],
 )

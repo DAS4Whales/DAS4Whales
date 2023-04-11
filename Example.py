@@ -55,10 +55,11 @@ trf = sp.sosfiltfilt(sos_hpfilt, tr, axis=1)
 
 # FK filter
 # Create the f-k filter
-fk_filter = dw.dsp.fk_filter_design((trf.shape[0],trf.shape[1]), selected_channels, dx, fs, cs_min=1400, cp_min=1480, cp_max=3400, cs_max=3500)
+fk_filter = dw.dsp.fk_filter_design((trf.shape[0], trf.shape[1]), selected_channels, dx, fs, cs_min=1400, cp_min=1480,
+                                    cp_max=3400, cs_max=3500)
 
 # Apply the f-k filter to the data
-trf_fk = dw.dsp.fk_filter_filt(trf,fk_filter)
+trf_fk = dw.dsp.fk_filter_filt(trf, fk_filter)
 
 # Plot
 dw.plot.plot_tx(trf_fk, time, dist, fileBeginTimeUTC, fig_size=(12, 10))
