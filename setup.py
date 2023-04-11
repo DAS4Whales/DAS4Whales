@@ -15,7 +15,7 @@ setup(
     author='Léa Bouffaut',
     author_email='lea.bouffaut@cornell.edu',
     license='Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International',
-    # py_modules=['data_handle','dsp','plot'],
+    py_modules=['data_handle', 'dsp', 'plot'],
     packages=['das4whales'],
     install_requires=['h5py',
                       'numpy',
