@@ -1,5 +1,9 @@
 from setuptools import setup
 
+import sys
+if sys.version_info[0:2] != (3, 7):
+    raise Exception('Requires python 2.8')
+
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
