@@ -15,10 +15,11 @@ filename = 'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5'
 
 if os.path.exists(filename):
     print(filename, ' already exists in path')
+
 else:
     url = 'http://piweb.ooirsn.uw.edu/das/data/Optasense/NorthCable/TransmitFiber/' \
           'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-03T15_06_51-0700/' \
-          'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T022302Z.h5'
+          'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5'
 
     das_example_file = wget.download(url)
     print(['Downloaded: ', das_example_file])
@@ -61,13 +62,12 @@ fk_filter = dw.dsp.fk_filter_design((trf.shape[0], trf.shape[1]), selected_chann
 # Apply the f-k filter to the data
 trf_fk = dw.dsp.fk_filter_filt(trf, fk_filter)
 
-# Plot
-dw.plot.plot_tx(trf_fk, time, dist, fileBeginTimeUTC, fig_size=(12, 10))
+# Spatio-temporal plot high-pass filtered data
+dw.plot.plot_tx(trf, time, dist, fileBeginTimeUTC, fig_size=(12, 10), v_min=0, v_max=0.2)
 
-# Spatio-temporal plot
-dw.plot.plot_tx(trf_fk, time, dist, fileBeginTimeUTC)
+# Spatio-temporal plot high-pass + f-k filtered data
+dw.plot.plot_tx(trf_fk, time, dist, fileBeginTimeUTC, fig_size=(12, 10), v_min=0, v_max=0.2)
 
 # Spatio-spectral plot
-# dw.plot.plot_fx(trff, dist, fs, win_s=5,  nfft=512, f_min=0, f_max=50)
-
-# Make audio
+dw.plot.plot_fx(trf_fk, dist, fs, file_begin_time_utc=fileBeginTimeUTC, win_s=2, nfft=512,  f_min=10, f_max=35,
+                fig_size=(25, 10), v_min=0, v_max=0.08)
