@@ -37,7 +37,8 @@ def plot_tx(trace, time, dist, file_begin_time_utc=float("nan"), fig_size=(12, 1
     plt.show()
 
 
-def plot_fx(trace, dist, fs, win_s=2, nfft=4096, file_begin_time_utc=float("nan"), fig_size=(12, 10), f_min=0, f_max=100, v_min=None, v_max=None):
+def plot_fx(trace, dist, fs, win_s=2, nfft=4096, file_begin_time_utc=float("nan"), fig_size=(12, 10), f_min=0,
+            f_max=100, v_min=None, v_max=None):
     """
     Spatio-spectral (f-k plot) of the strain data
 
