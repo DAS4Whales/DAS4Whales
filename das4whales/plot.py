@@ -3,7 +3,7 @@ import numpy as np
 from das4whales.dsp import get_fx
 
 
-def plot_tx(trace, time, dist, file_begin_time_utc, fig_size=(12, 10),  v_min=0, v_max=0.2):
+def plot_tx(trace, time, dist, file_begin_time_utc=float("nan"), fig_size=(12, 10),  v_min=None, v_max=None):
     """
     Spatio-temporal representation (t-x plot) of the strain data
 
@@ -29,11 +29,15 @@ def plot_tx(trace, time, dist, file_begin_time_utc, fig_size=(12, 10),  v_min=0,
     bar = fig.colorbar(shw, aspect=20)
     bar.set_label('Strain (x$10^{-9}$)')
 
-    plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
+    if np.isnan(file_begin_time_utc):
+        plt.title("", loc='right')
+    else:
+        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
+
     plt.show()
 
 
-def plot_fx(trace, dist, fs, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0, f_max=100, v_min=0, v_max=0.1):
+def plot_fx(trace, dist, fs, win_s=2, nfft=4096, file_begin_time_utc=float("nan"), fig_size=(12, 10), f_min=0, f_max=100, v_min=None, v_max=None):
     """
     Spatio-spectral (f-k plot) of the strain data
 
@@ -43,6 +47,7 @@ def plot_fx(trace, dist, fs, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0, f_m
     :param fs: the sampling frequency (Hz)
     :param win_s: the duration of each f-k plot (s). Default 2 s
     :param nfft: number of time samples used for the FFT. Default 4096
+    :param file_begin_time_utc: the time stamp of the represented file
     :param fig_size: Tuple of the figure dimensions. Default fig_size=(12, 10)
     :param f_min: displayed minimum frequency interval (Hz). Default 0 Hz
     :param f_max: displayed maxumum frequency interval (Hz). Default 100 Hz
@@ -82,8 +87,20 @@ def plot_fx(trace, dist, fs, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0, f_m
         ax.set_xlim([f_min, f_max])
         if r == rows-1:
             ax.set_xlabel('Frequency (Hz)')
+        else:
+            ax.set_xticks([])
+            ax.xaxis.set_tick_params(labelbottom=False)
+
         if c == 0:
             ax.set_ylabel('Distance (km)')
+        else:
+            ax.set_yticks([])
+            ax.yaxis.set_tick_params(labelleft=False)
+
+    if np.isnan(file_begin_time_utc):
+        plt.title("", loc='right')
+    else:
+        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
 
     # Colorbar
     bar = fig.colorbar(shw, ax=axes.ravel().tolist())
@@ -91,13 +108,15 @@ def plot_fx(trace, dist, fs, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0, f_m
     plt.show()
 
 
-def plot_spectrogram(p, tt, ff, fig_size=(25, 5)):
+def plot_spectrogram(p, tt, ff, fig_size=(25, 5), ymin=None, ymax=None):
     """
 
     :param p: spectrogram values in dB
     :param tt: associated time vector (s)
     :param ff: associated frequency vector (Hz)
     :param fig_size: Tuple of the figure dimensions. Default fig_size=(12, 10)
+    :param ymin: minimum frequency for the spectrogram display
+    :param ymax: maximum frequency for the spectrogram display
 
     :return:
 
@@ -105,7 +124,7 @@ def plot_spectrogram(p, tt, ff, fig_size=(25, 5)):
     fig, ax = plt.subplots(figsize=fig_size)
 
     shw = ax.pcolormesh(tt, ff, p, cmap="jet", vmin=-0, vmax=10)
-    ax.set_ylim(0, 50)
+    ax.set_ylim(ymin, ymax)
 
     # Colorbar
     bar = fig.colorbar(shw, aspect=20)
