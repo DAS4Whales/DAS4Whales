@@ -4,7 +4,7 @@ from das4whales.dsp import get_fx
 from datetime import datetime
 
 
-def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10),  v_min=None, v_max=None):
+def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=None, v_max=None):
     """
     Spatio-temporal representation (t-x plot) of the strain data
 
@@ -36,7 +36,7 @@ def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10),  v_min=
     plt.show()
 
 
-def plot_fx(trace, dist, fs, win_s=2, nfft=4096, file_begin_time_utc=0, fig_size=(12, 10), f_min=0,
+def plot_fx(trace, dist, fs, file_begin_time_utc=0, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0,
             f_max=100, v_min=None, v_max=None):
     """
     Spatio-spectral (f-k plot) of the strain data
@@ -45,9 +45,9 @@ def plot_fx(trace, dist, fs, win_s=2, nfft=4096, file_begin_time_utc=0, fig_size
     :param trace: a [channel x time sample] nparray containing the strain data in the spatio-temporal domain
     :param dist: the corresponding distance along the FO cable vector
     :param fs: the sampling frequency (Hz)
+    :param file_begin_time_utc: the time stamp of the represented file
     :param win_s: the duration of each f-k plot (s). Default 2 s
     :param nfft: number of time samples used for the FFT. Default 4096
-    :param file_begin_time_utc: the time stamp of the represented file
     :param fig_size: Tuple of the figure dimensions. Default fig_size=(12, 10)
     :param f_min: displayed minimum frequency interval (Hz). Default 0 Hz
     :param f_max: displayed maxumum frequency interval (Hz). Default 100 Hz
@@ -106,15 +106,15 @@ def plot_fx(trace, dist, fs, win_s=2, nfft=4096, file_begin_time_utc=0, fig_size
     plt.show()
 
 
-def plot_spectrogram(p, tt, ff, fig_size=(25, 5), ymin=None, ymax=None):
+def plot_spectrogram(p, tt, ff, fig_size=(25, 5), f_min=None, f_max=None):
     """
 
     :param p: spectrogram values in dB
     :param tt: associated time vector (s)
     :param ff: associated frequency vector (Hz)
     :param fig_size: Tuple of the figure dimensions. Default fig_size=(12, 10)
-    :param ymin: minimum frequency for the spectrogram display
-    :param ymax: maximum frequency for the spectrogram display
+    :param f_min: minimum frequency for the spectrogram display
+    :param f_max: maximum frequency for the spectrogram display
 
     :return:
 
@@ -122,7 +122,7 @@ def plot_spectrogram(p, tt, ff, fig_size=(25, 5), ymin=None, ymax=None):
     fig, ax = plt.subplots(figsize=fig_size)
 
     shw = ax.pcolormesh(tt, ff, p, cmap="jet", vmin=-0, vmax=10)
-    ax.set_ylim(ymin, ymax)
+    ax.set_ylim(f_min, f_max)
 
     # Colorbar
     bar = fig.colorbar(shw, aspect=20)
