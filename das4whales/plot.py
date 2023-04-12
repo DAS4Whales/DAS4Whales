@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from das4whales.dsp import get_fx
+from datetime import datetime
 
 
-def plot_tx(trace, time, dist, file_begin_time_utc=float("nan"), fig_size=(12, 10),  v_min=None, v_max=None):
+def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10),  v_min=None, v_max=None):
     """
     Spatio-temporal representation (t-x plot) of the strain data
 
@@ -29,15 +30,13 @@ def plot_tx(trace, time, dist, file_begin_time_utc=float("nan"), fig_size=(12, 1
     bar = fig.colorbar(shw, aspect=20)
     bar.set_label('Strain (x$10^{-9}$)')
 
-    if np.isnan(file_begin_time_utc):
-        plt.title("", loc='right')
-    else:
+    if isinstance(file_begin_time_utc, datetime):
         plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
 
     plt.show()
 
 
-def plot_fx(trace, dist, fs, win_s=2, nfft=4096, file_begin_time_utc=float("nan"), fig_size=(12, 10), f_min=0,
+def plot_fx(trace, dist, fs, win_s=2, nfft=4096, file_begin_time_utc=0, fig_size=(12, 10), f_min=0,
             f_max=100, v_min=None, v_max=None):
     """
     Spatio-spectral (f-k plot) of the strain data
@@ -98,9 +97,7 @@ def plot_fx(trace, dist, fs, win_s=2, nfft=4096, file_begin_time_utc=float("nan"
             ax.set_yticks([])
             ax.yaxis.set_tick_params(labelleft=False)
 
-    if np.isnan(file_begin_time_utc):
-        plt.title("", loc='right')
-    else:
+    if isinstance(file_begin_time_utc, datetime):
         plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
 
     # Colorbar
