@@ -51,8 +51,8 @@ def plot_fx(trace, dist, fs, file_begin_time_utc=0, win_s=2, nfft=4096, fig_size
     :param fig_size: Tuple of the figure dimensions. Default fig_size=(12, 10)
     :param f_min: displayed minimum frequency interval (Hz). Default 0 Hz
     :param f_max: displayed maxumum frequency interval (Hz). Default 100 Hz
-    :param v_min: set the min nano strain amplitudes of the colorbar. Default 0
-    :param v_max: set the max nano strain amplitudes of the colorbar. Default 0.2
+    :param v_min: set the min nano strain amplitudes of the colorbar.
+    :param v_max: set the max nano strain amplitudes of the colorbar.
 
     Outputs:
     :return: fx plot
@@ -106,13 +106,15 @@ def plot_fx(trace, dist, fs, file_begin_time_utc=0, win_s=2, nfft=4096, fig_size
     plt.show()
 
 
-def plot_spectrogram(p, tt, ff, fig_size=(25, 5), f_min=None, f_max=None):
+def plot_spectrogram(p, tt, ff, fig_size=(25, 5), v_min=None, v_max=None, f_min=None, f_max=None):
     """
 
     :param p: spectrogram values in dB
     :param tt: associated time vector (s)
     :param ff: associated frequency vector (Hz)
     :param fig_size: Tuple of the figure dimensions. Default fig_size=(12, 10)
+    :param v_min: set the min dB strain amplitudes of the colorbar.
+    :param v_max: set the max dB strain amplitudes of the colorbar.
     :param f_min: minimum frequency for the spectrogram display
     :param f_max: maximum frequency for the spectrogram display
 
@@ -121,7 +123,7 @@ def plot_spectrogram(p, tt, ff, fig_size=(25, 5), f_min=None, f_max=None):
     """
     fig, ax = plt.subplots(figsize=fig_size)
 
-    shw = ax.pcolormesh(tt, ff, p, cmap="jet", vmin=-0, vmax=10)
+    shw = ax.pcolormesh(tt, ff, p, cmap="jet", vmin=v_min, vmax=v_max)
     ax.set_ylim(f_min, f_max)
 
     # Colorbar
