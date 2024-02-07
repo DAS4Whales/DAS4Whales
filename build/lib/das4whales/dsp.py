@@ -124,50 +124,6 @@ def fk_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min
     return fk_filter_matrix
 
 
-
-def generate_hybrid_filter_matrix(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min=1450, cp_max=3400, cs_max=3500, fmin=15, fmax=25):
-    nnx, nns = trace_shape
-
-    freq = np.fft.fftshift(np.fft.fftfreq(nns, d=1 / fs))
-    knum = np.fft.fftshift(np.fft.fftfreq(nnx, d=selected_channels[2] * dx))
-
-    np.seterr(invalid='ignore')
-
-    # Find indices corresponding to the frequency range of interest
-    kmin_idx = np.argmax(knum >= fmin / cs_min)
-    kmax_idx = np.argmax(knum >= fmax / cs_min)
-
-    # Create the filter
-    # Wave phase speed is the ratio between the frequency and the wavenumber
-    # fk_filter_matrix = np.zeros(shape=(len(knum), len(freq)), dtype=float, order='F')
-
-    b, a = sp.butter(8,[fmin/(fs/2),fmax/(fs/2)],'bp')
-    w, h = sp.freqz(b, a, worN=freq)
-    fk_filter_matrix = np.tile(np.abs(h), (len(knum), 1))
-    print(np.shape(fk_filter_matrix))
-
-    for i in range(kmin_idx, kmax_idx):
-        if abs(knum[i]) >= 0.005 :
-            speed = abs(freq / knum[i])
-            filter_line = np.ones_like(freq, dtype=float, order='F')
-
-            # Filter transition band, ramping up from cs_min to cp_min
-            mask_ramp_up = (cs_min <= speed) & (speed <= cp_min)
-            filter_line[mask_ramp_up] = np.sin(0.5 * np.pi * (speed[mask_ramp_up] - cs_min) / (cp_min - cs_min))
-
-            # Filter transition band, going down from cp_max to cs_max
-            mask_ramp_down = (cp_max >= speed) & (speed >= cs_max)
-            filter_line[mask_ramp_down] = 1 - np.sin(0.5 * np.pi * (speed[mask_ramp_down] - cp_max) / (cs_max - cp_max))
-
-            # Stopband
-            filter_line[speed > cs_max] = 0
-            filter_line[speed < cs_min] = 0
-
-            fk_filter_matrix[i, :] *= filter_line
-
-    return fk_filter_matrix
-
-
 def fk_filter_filt(trace, fk_filter_matrix):
     """
     Applies a pre-calculated f-k filter to DAS strain data
