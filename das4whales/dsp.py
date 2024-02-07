@@ -124,46 +124,71 @@ def fk_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min
     return fk_filter_matrix
 
 
-
 def generate_hybrid_filter_matrix(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min=1450, cp_max=3400, cs_max=3500, fmin=15, fmax=25):
+    """
+    Designs a f-k filter for DAS strain data
+    Keeps by default data with propagation speed [1450-3400] m/s
+
+    The transition band is inspired and adapted from Yi Lin's matlab fk function
+    https://github.com/nicklinyi/seismic_utils/blob/master/fkfilter.m
+
+    Inputs:
+    :param trace_shape: a tuple with the dimensions of the strain data in the spatio-temporal domain such as
+    trace_shape = (trace.shape[0], trace.shape[1]) where dimensions are [channel x time sample]
+    :param selected_channels: a list of the selected channels number  [start, end, step]
+    :param dx: the channel spacing (m)
+    :param fs: the sampling frequency (Hz)
+    :param cs_min: the minimum selected sound speeds for the f-k passband filtering (m/s). Default 1400 m/s
+    :param cp_min: the minimum selected sound speed for the f-k stopband filtering, values should frame
+    [c_min and c_max] (m/s). Default 1450 m/s.
+    :param cp_max: the maximum selected sound speeds for the f-k passband filtering (m/s). Default 3400 m/s
+    :param cs_max: the maximumselected sound speed for the f-k stopband filtering, values should frame
+    [c_min and c_max] (m/s). Default 3500 m/s
+
+    Outputs:
+    :return: fk_filter_matrix, a [channel x time sample] nparray containing the f-k-filter
+
+    """
+
+    # Note that the chosen ChannelStep limits the bandwidth frequency obtained with fmax = 1500/ChannelStep*dx
+
+    # Get the dimensions of the trace data
     nnx, nns = trace_shape
 
+    # Define frequency and wavenumber axes
     freq = np.fft.fftshift(np.fft.fftfreq(nns, d=1 / fs))
     knum = np.fft.fftshift(np.fft.fftfreq(nnx, d=selected_channels[2] * dx))
 
+    # Supress/hide the warning
     np.seterr(invalid='ignore')
 
-    # Find indices corresponding to the frequency range of interest
-    kmin_idx = np.argmax(knum >= fmin / cs_min)
-    kmax_idx = np.argmax(knum >= fmax / cs_min)
-
     # Create the filter
-    # Wave phase speed is the ratio between the frequency and the wavenumber
-    # fk_filter_matrix = np.zeros(shape=(len(knum), len(freq)), dtype=float, order='F')
+    # Wave speed is the ratio between the frequency and the wavenumber
+    fk_filter_matrix = np.ndarray(shape=(len(knum), len(freq)), dtype=float, order='F')
 
-    b, a = sp.butter(8,[fmin/(fs/2),fmax/(fs/2)],'bp')
-    w, h = sp.freqz(b, a, worN=freq)
-    fk_filter_matrix = np.tile(np.abs(h), (len(knum), 1))
-    print(np.shape(fk_filter_matrix))
-
-    for i in range(kmin_idx, kmax_idx):
-        if abs(knum[i]) >= 0.005 :
+    # Going through wavenumbers
+    for i in range(len(knum)):
+        # Taking care of very small wavenumber to avoid 0 division
+        if abs(knum[i]) < 0.005:
+            fk_filter_matrix[i, :] = np.zeros(shape=[len(freq)], dtype=float, order='F')
+        else:
+            filter_line = np.ones(shape=[len(freq)], dtype=float, order='F')
             speed = abs(freq / knum[i])
-            filter_line = np.ones_like(freq, dtype=float, order='F')
 
             # Filter transition band, ramping up from cs_min to cp_min
-            mask_ramp_up = (cs_min <= speed) & (speed <= cp_min)
-            filter_line[mask_ramp_up] = np.sin(0.5 * np.pi * (speed[mask_ramp_up] - cs_min) / (cp_min - cs_min))
-
+            selected_speed_mask = ((speed >= cs_min) & (speed <= cp_min))
+            filter_line[selected_speed_mask] = np.sin(0.5 * np.pi *
+                                                      (speed[selected_speed_mask] - cs_min) / (cp_min - cs_min))
             # Filter transition band, going down from cp_max to cs_max
-            mask_ramp_down = (cp_max >= speed) & (speed >= cs_max)
-            filter_line[mask_ramp_down] = 1 - np.sin(0.5 * np.pi * (speed[mask_ramp_down] - cp_max) / (cs_max - cp_max))
-
+            selected_speed_mask = ((speed >= cp_max) & (speed <= cs_max))
+            filter_line[selected_speed_mask] = 1 - np.sin(0.5 * np.pi *
+                                                          (speed[selected_speed_mask] - cp_max) / (cs_max - cp_max))
             # Stopband
-            filter_line[speed > cs_max] = 0
+            filter_line[speed >= cs_max] = 0
             filter_line[speed < cs_min] = 0
 
-            fk_filter_matrix[i, :] *= filter_line
+            # Fill the filter matrix
+            fk_filter_matrix[i, :] = filter_line
 
     return fk_filter_matrix
 
