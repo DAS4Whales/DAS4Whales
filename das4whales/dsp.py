@@ -169,6 +169,7 @@ def generate_hybrid_filter_matrix(trace_shape, selected_channels, dx, fs, cs_min
     kmin_idx = np.argmax(knum >= - fmax / cs_min)
     kmax_idx = np.argmax(knum >= fmax / cs_min)
 
+    # Supress/hide the warning
     np.seterr(invalid='ignore')
 
     # Create the filter
