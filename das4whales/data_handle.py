@@ -1,4 +1,6 @@
 import h5py
+import wget
+import os
 import numpy as np
 from datetime import datetime
 
@@ -92,4 +94,29 @@ def load_das_data(filename, fs, dx, selected_channels, scale_factor):
         dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * dx
 
     return trace, tx, dist, file_begin_time_utc
+
+
+def dl_file(url):
+    """Download the file at the given url
+
+    Parameters
+    ----------
+    url : string
+        url location of the file
+
+    Returns
+    -------
+    filepath : string
+        local path destination of the file
+    """    
+    filename = url.split('/')[-1]
+    filepath = os.path.join('data',filename)
+    if os.path.exists(filepath) == True:
+        print(f'{filename} already stored locally')
+    else:
+        # Create the data subfolder if it doesn't exist
+        os.makedirs('data', exist_ok=True)
+        wget.download(url, out='data', bar=wget.bar_adaptive)
+        print(f'Downloaded {filename}')
+    return filepath
 
