@@ -1,6 +1,9 @@
 # Jupyter notebooks
 .ipynb_checkpoints
 
+# Development jupyter notebooks
+dev.ipynb
+
 # macOS system file
 .DS_Store
 
