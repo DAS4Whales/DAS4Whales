@@ -10,34 +10,83 @@ def hello_world_das_package():
 
 
 # Definition of the functions for DAS data conditioning
-def get_acquisition_parameters(filename):
+def get_acquisition_parameters(filepath, interrogator='optasense'):
     """
-    Gets DAS acquisition parameters
+    Retrieve acquisition parameters based on the specified interrogator.
 
-    Inputs:
-    :param filename: a string containing the full path to the data to load
+    Parameters
+    ----------
+    filepath : str
+        The file path to the data file.
+    interrogator : str, optional
+        The interrogator type, one of {'optasense', 'silixa', 'mars', 'alcatel'}.
+        Defaults to 'optasense'.
 
-    Outputs:
-    :return: fs: the sampling frequency (Hz)
-    :return: dx: interval between two virtual sensing points also called channel spacing (m)
-    :return: nx: the number of spatial samples also called channels
-    :return: ns: the number of time samples
-    :return: gauge_length: the gauge length (m)
-    :return: scale_factor: the value to convert DAS data from strain rate to strain
+    Returns
+    -------
+    metadata : dict or None
+        Metadata related to the acquisition parameters. Returns None if no matching
+        interrogator is found.
 
+    Raises
+    ------
+    ValueError
+        If the interrogator name is not in the predefined list.
     """
 
-    fp = h5py.File(filename, 'r')
+    interrogator_list = ['optasense', 'silixa', 'mars', 'alcatel']
+    if interrogator in interrogator_list:
+        if interrogator == 'optasense':
+            metadata = get_metadata_optasense(filepath)
 
-    fs = fp['Acquisition']['Raw[0]'].attrs['OutputDataRate']  # sampling rate in Hz
-    dx = fp['Acquisition'].attrs['SpatialSamplingInterval']  # channel spacing in m
-    nx = fp['Acquisition']['Raw[0]'].attrs['NumberOfLoci']  # number of channels
-    ns = fp['Acquisition']['Raw[0]']['RawDataTime'].attrs['Count']  # number of samples
-    gauge_length = fp['Acquisition'].attrs['GaugeLength']  # gauge length in m
-    n = fp['Acquisition']['Custom'].attrs['Fibre Refractive Index']  # refractive index of the fiber
-    scale_factor = (2 * np.pi) / 2 ** 16 * (1550.12 * 1e-9) / (0.78 * 4 * np.pi * n * gauge_length)
+        elif interrogator == 'silixa':
+            metadata = get_metadata_silixa(filepath)
 
-    return fs, dx, nx, ns, gauge_length, scale_factor
+        elif interrogator == 'mars':
+            metadata = get_metadata_mars(filepath)
+
+        elif interrogator == 'alcatel':
+            metadata = get_metadata_alcatel(filepath)
+
+    else:
+        raise ValueError('Interrogator name incorrect')
+
+    return metadata
+
+
+def get_metadata_optasense(filepath):
+    """Gets DAS acquisition parameters for the optasense interrogator 
+
+    Parameters
+    ----------
+    filepath : string
+        a string containing the full path to the data to load
+
+    Returns
+    -------
+    metadata : dict
+        a dictionary filled with data's metadata, key's breakdown:\n
+        fs: the sampling frequency (Hz)\n
+        dx: interval between two virtual sensing points also called channel spacing (m)\n
+        nx: the number of spatial samples also called channels\n
+        ns: the number of time samples\n
+        n: refractive index of the fiber\n
+        GL: the gauge length (m)\n
+        scale_factor: the value to convert DAS data from strain rate to strain
+
+    """
+    fp1 = h5py.File(filepath, 'r')
+
+    fs = fp1['Acquisition']['Raw[0]'].attrs['OutputDataRate'] # sampling rate in Hz
+    dx = fp1['Acquisition'].attrs['SpatialSamplingInterval'] # channel spacing in m
+    ns = fp1['Acquisition']['Raw[0]']['RawDataTime'].attrs['Count']
+    n = fp1['Acquisition']['Custom'].attrs['Fibre Refractive Index'] # refractive index
+    GL = fp1['Acquisition'].attrs['GaugeLength'] # gauge length in m
+    nx = fp1['Acquisition']['Raw[0]'].attrs['NumberOfLoci'] # number of channels
+    scale_factor = (2 * np.pi) / 2 ** 16 * (1550.12 * 1e-9) / (0.78 * 4 * np.pi * n * GL)
+
+    meta_data = {'fs': fs, 'dx': dx, 'ns': ns,'n': n,'GL': GL, 'nx':nx , 'scale_factor': scale_factor}
+    return meta_data
 
 
 def raw2strain(trace, scale_factor):
