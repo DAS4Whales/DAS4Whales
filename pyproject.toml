@@ -7,7 +7,7 @@ name = "das4whales"
 dynamic = ["version"]
 description = "Distributed acoustic sensing analysis tools for Bioacoustics"
 readme = "README.md"
-license = "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International"
+license.file = "LICENSE"
 authors = [
     { name = "Léa Bouffaut", email = "lea.bouffaut@cornell.edu" },
     { name = "Quentin Goestchel", email = "qgoestch@uw.edu"}
