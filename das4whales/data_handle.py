@@ -66,7 +66,7 @@ def get_metadata_optasense(filepath):
     Returns
     -------
     metadata : dict
-        a dictionary filled with data's metadata, key's breakdown:\n
+        dictionary filled with metadata, key's breakdown:\n
         fs: the sampling frequency (Hz)\n
         dx: interval between two virtual sensing points also called channel spacing (m)\n
         nx: the number of spatial samples also called channels\n
@@ -97,28 +97,37 @@ def get_metadata_optasense(filepath):
     return meta_data
 
 
-def raw2strain(trace, scale_factor):
-    """
-    Transform the amplitude of raw das data from strain-rate to strain according to scale factor
+def raw2strain(trace, metadata):
+    """Transform the amplitude of raw das data from strain-rate to strain according to scale factor
 
-    """
+
+    Parameters
+    ----------
+    trace : array-like
+        a [channel x time sample] nparray containing the raw data in the spatio-temporal domain
+    metadata : dict
+        dictionary filled with metadata (fs, dx, nx, ns, n, GL, scale_factor)
+
+    Returns
+    -------
+    trace : array-like
+        a [channel x time sample] nparray containing the strain data in the spatio-temporal domain
+    """    
     # Remove the mean trend from each channel and scale
-    mn = np.tile(np.mean(trace, axis=1), (trace.shape[1], 1)).T
-    trace = trace - mn
-    trace *= scale_factor
+
+    trace -= np.mean(trace, axis=1, keepdims=True)
+    trace *= metadata["scale_factor"] 
     return trace
 
 
-def load_das_data(filename, fs, dx, selected_channels, scale_factor):
+def load_das_data(filename, selected_channels, metadata):
     """
     Load the DAS data corresponding to the input file name as strain according to the selected channels.
 
     Inputs:
     :param filename: a string containing the full path to the data to load
-    :param fs: the sampling frequency (Hz)
-    :param dx: interval between two virtual sensing points also called channel spacing (m)
     :param selected_channels:
-    :param scale_factor: the value to convert DAS data from strain rate to strain
+    :param metadata: dictionary filled with metadata (sampling frequency, channel spacing, scale factor...)
 
     Outputs:
     :return: trace: a [channel x sample] nparray containing the strain data
@@ -127,28 +136,31 @@ def load_das_data(filename, fs, dx, selected_channels, scale_factor):
     :return: file_begin_time_utc: the beginning time of the file, can be printed using
     file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S")
     """
+    if os.path.exists(filename):
+        with h5py.File(filename, 'r') as fp:
+            # Data matrix
+            raw_data = fp['Acquisition']['Raw[0]']['RawData']
 
-    with h5py.File(filename, 'r') as fp:
-        # Data matrix
-        raw_data = fp['Acquisition']['Raw[0]']['RawData']
+            # Selection the traces corresponding to the desired channels
+            # Loaded as float64, float 32 might be sufficient? 
+            trace = raw_data[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
+            trace = raw2strain(trace, metadata)
 
-        # Selection the traces corresponding to the desired channels
-        trace = raw_data[selected_channels[0]:selected_channels[1]:selected_channels[2], :]
-        trace = raw2strain(trace, scale_factor)
+            # UTC Time vector for naming
+            raw_data_time = fp['Acquisition']['Raw[0]']['RawDataTime']
 
-        # UTC Time vector for naming
-        raw_data_time = fp['Acquisition']['Raw[0]']['RawDataTime']
+            # For future save
+            file_begin_time_utc = datetime.utcfromtimestamp(raw_data_time[0] * 1e-6)
 
-        # For future save
-        file_begin_time_utc = datetime.utcfromtimestamp(raw_data_time[0] * 1e-6)
+            # Store the following as the dimensions of our data block
+            nnx = trace.shape[0]
+            nns = trace.shape[1]
 
-        # Store the following as the dimensions of our data block
-        nnx = trace.shape[0]
-        nns = trace.shape[1]
-
-        # Define new time and distance axes
-        tx = np.arange(nns) / fs
-        dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * dx
+            # Define new time and distance axes
+            tx = np.arange(nns) / metadata["fs"]
+            dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * metadata["dx"]
+    else:
+        raise ValueError('File not found')
 
     return trace, tx, dist, file_begin_time_utc
 
