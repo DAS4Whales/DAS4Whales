@@ -20,5 +20,6 @@ setup(
         'DateTime',
         'scipy',
         'librosa',
-        'matplotlib'],
+        'matplotlib',
+        'wget'],
 )

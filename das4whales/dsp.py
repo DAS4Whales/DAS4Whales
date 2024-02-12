@@ -129,7 +129,6 @@ def fk_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min
     return fk_filter_matrix
 
 
-
 def generate_hybrid_filter_matrix(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min=1450, cp_max=3400, cs_max=3500, fmin=15, fmax=25):
     """
     Designs a f-k filter for DAS strain data
@@ -191,18 +190,17 @@ def generate_hybrid_filter_matrix(trace_shape, selected_channels, dx, fs, cs_min
         else:
             filter_line = np.ones(shape=[len(freq)], dtype=float, order='F')
             speed = abs(freq / knum[i])
-            filter_line = np.ones_like(freq, dtype=float, order='F')
 
             # Filter transition band, ramping up from cs_min to cp_min
-            mask_ramp_up = (cs_min <= speed) & (speed <= cp_min)
-            filter_line[mask_ramp_up] = np.sin(0.5 * np.pi * (speed[mask_ramp_up] - cs_min) / (cp_min - cs_min))
-
+            selected_speed_mask = ((speed >= cs_min) & (speed <= cp_min))
+            filter_line[selected_speed_mask] = np.sin(0.5 * np.pi *
+                                                      (speed[selected_speed_mask] - cs_min) / (cp_min - cs_min))
             # Filter transition band, going down from cp_max to cs_max
-            mask_ramp_down = (cp_max >= speed) & (speed >= cs_max)
-            filter_line[mask_ramp_down] = 1 - np.sin(0.5 * np.pi * (speed[mask_ramp_down] - cp_max) / (cs_max - cp_max))
-
+            selected_speed_mask = ((speed >= cp_max) & (speed <= cs_max))
+            filter_line[selected_speed_mask] = 1 - np.sin(0.5 * np.pi *
+                                                          (speed[selected_speed_mask] - cp_max) / (cs_max - cp_max))
             # Stopband
-            filter_line[speed > cs_max] = 0
+            filter_line[speed >= cs_max] = 0
             filter_line[speed < cs_min] = 0
 
             # Fill the filter matrix
@@ -214,7 +212,7 @@ def generate_hybrid_filter_matrix(trace_shape, selected_channels, dx, fs, cs_min
     # plt.plot(freq, np.tile(H, (len(knum), 0))[kmin_idx+10,:])
     plt.show()
     # fk_filter_matrix * 
-    return np.tile(H, (len(knum), 1))
+    return fk_filter_matrix
 
 
 def fk_filter_filt(trace, fk_filter_matrix):
