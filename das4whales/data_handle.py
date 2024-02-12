@@ -33,9 +33,10 @@ def get_acquisition_parameters(filepath, interrogator='optasense'):
     ValueError
         If the interrogator name is not in the predefined list.
     """
-
+    # List the known used interrogators:
     interrogator_list = ['optasense', 'silixa', 'mars', 'alcatel']
     if interrogator in interrogator_list:
+
         if interrogator == 'optasense':
             metadata = get_metadata_optasense(filepath)
 
@@ -75,17 +76,24 @@ def get_metadata_optasense(filepath):
         scale_factor: the value to convert DAS data from strain rate to strain
 
     """
-    fp1 = h5py.File(filepath, 'r')
+    # Make sure the file exists
+    if os.path.exists(filepath):
+        # Ensure the closure of the file after reading
+        with h5py.File(filepath, 'r') as fp1:
+            fp1 = h5py.File(filepath, 'r')
 
-    fs = fp1['Acquisition']['Raw[0]'].attrs['OutputDataRate'] # sampling rate in Hz
-    dx = fp1['Acquisition'].attrs['SpatialSamplingInterval'] # channel spacing in m
-    ns = fp1['Acquisition']['Raw[0]']['RawDataTime'].attrs['Count']
-    n = fp1['Acquisition']['Custom'].attrs['Fibre Refractive Index'] # refractive index
-    GL = fp1['Acquisition'].attrs['GaugeLength'] # gauge length in m
-    nx = fp1['Acquisition']['Raw[0]'].attrs['NumberOfLoci'] # number of channels
-    scale_factor = (2 * np.pi) / 2 ** 16 * (1550.12 * 1e-9) / (0.78 * 4 * np.pi * n * GL)
+            fs = fp1['Acquisition']['Raw[0]'].attrs['OutputDataRate'] # sampling rate in Hz
+            dx = fp1['Acquisition'].attrs['SpatialSamplingInterval'] # channel spacing in m
+            ns = fp1['Acquisition']['Raw[0]']['RawDataTime'].attrs['Count']
+            n = fp1['Acquisition']['Custom'].attrs['Fibre Refractive Index'] # refractive index
+            GL = fp1['Acquisition'].attrs['GaugeLength'] # gauge length in m
+            nx = fp1['Acquisition']['Raw[0]'].attrs['NumberOfLoci'] # number of channels
+            scale_factor = (2 * np.pi) / 2 ** 16 * (1550.12 * 1e-9) / (0.78 * 4 * np.pi * n * GL)
 
-    meta_data = {'fs': fs, 'dx': dx, 'ns': ns,'n': n,'GL': GL, 'nx':nx , 'scale_factor': scale_factor}
+        meta_data = {'fs': fs, 'dx': dx, 'ns': ns,'n': n,'GL': GL, 'nx':nx , 'scale_factor': scale_factor}
+    else:
+        raise ValueError('File not found')
+
     return meta_data
 
 
