@@ -120,11 +120,12 @@ def fk_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min
 
             # Fill the filter matrix
             fk_filter_matrix[i, :] = filter_line
-            
-    import matplotlib.pyplot as plt
-    plt.figure()
-    plt.imshow(fk_filter_matrix, extent=[min(freq),max(freq),min(knum),max(knum)],aspect='auto')
-    plt.show()
+    
+    # Display the filter
+    # import matplotlib.pyplot as plt
+    # plt.figure()
+    # plt.imshow(fk_filter_matrix, extent=[min(freq),max(freq),min(knum),max(knum)],aspect='auto')
+    # plt.show()
 
     return fk_filter_matrix
 
