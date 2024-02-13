@@ -122,15 +122,17 @@ def fk_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min
             fk_filter_matrix[i, :] = filter_line
     
     # Display the filter
-    # import matplotlib.pyplot as plt
-    # plt.figure()
-    # plt.imshow(fk_filter_matrix, extent=[min(freq),max(freq),min(knum),max(knum)],aspect='auto')
-    # plt.show()
+    import matplotlib.pyplot as plt
+    plt.figure()
+    plt.imshow(fk_filter_matrix, extent=[min(freq),max(freq),min(knum),max(knum)],aspect='auto')
+    plt.figure()
+    plt.plot(freq, fk_filter_matrix[2000, :])
+    plt.show()
 
     return fk_filter_matrix
 
 
-def generate_hybrid_filter_matrix(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min=1450, cp_max=3400, cs_max=3500, fmin=15, fmax=25):
+def generate_hybrid_filter_matrix(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min=1450, cp_max=3400, cs_max=3500, fmin=15, fmax=25, display_filter=False):
     """
     Designs a f-k filter for DAS strain data
     Keeps by default data with propagation speed [1450-3400] m/s
@@ -172,17 +174,40 @@ def generate_hybrid_filter_matrix(trace_shape, selected_channels, dx, fs, cs_min
     # Supress/hide the warning
     np.seterr(invalid='ignore')
 
-    # Create the filter
+    # Create the filter in two steps
     # Wave speed is the ratio between the frequency and the wavenumber
     fk_filter_matrix = np.zeros(shape=(len(knum), len(freq)), dtype=float, order='F')
 
-    sos = sp.butter(8,[fmin/(fs/2),fmax/(fs/2)],'bp', output='sos')
-    w, h = sp.sosfreqz(sos, worN=len(freq)//2)
-    H = np.concatenate([np.flip(np.abs(h)), np.abs(h)])
-    
-    # fk_filter_matrix = np.tile(H, (len(knum), 1))
-    # print(trace_shape)
+    # 1st step: frequency bandpass filtering
+    H = np.zeros_like(freq)
+    # set the width of the frequency range tapers
+    df_taper = 5 # Hz
+    # Apply it to the frequencies of interest
+    fpmax = fmax + df_taper
+    fpmin = fmin - df_taper
 
+    # Filter transition band, ramping up from -fpmax to -fmax
+    lup_mask = ((freq >= -fpmax) & (freq <= -fmax))
+    H[lup_mask] = np.sin(0.5 * np.pi *(freq[lup_mask] + fpmax) / (fpmax - fmax))
+    # Filter passband
+    H[(freq >= -fmax) & (freq <= -fmin)] = 1
+    # Filter transition band, ramping down from -fmin to -fpmin
+    ldo_mask = ((freq >= -fmin) & (freq <= -fpmin))
+    H[ldo_mask] = np.cos(0.5 * np.pi *(freq[ldo_mask] + fmin) / (fpmin - fmin))
+    # Filter transition band, ramping up from fpmin to fmin
+    rup_mask = ((freq >= fpmin) & (freq <= fmin))
+    H[rup_mask] = np.sin(0.5 * np.pi * (freq[rup_mask] - fpmin) / (fmin - fpmin))
+    # Filter passband
+    H[(freq >= fmin) & (freq <= fmax)] = 1
+    # Filter transition band, ramping down from fmax to fpmax
+    rdo_mask = ((freq >= fmax) & (freq <= fpmax))
+    H[rdo_mask] = np.cos(0.5 * np.pi * (freq[rdo_mask] - fmax) / (fmax - fpmax))
+
+    # Another way using a butter filter, kinda denaturing it: 
+    # sos = sp.butter(8,[fmin/(fs/2),fmax/(fs/2)],'bp', output='sos')
+    # w, h = sp.sosfreqz(sos, worN=len(freq)//2)
+    # H = np.concatenate([np.flip(np.abs(h)), np.abs(h)])
+    
     # Going through wavenumbers
     for i in range(kmin_idx, kmax_idx):
         # Taking care of very small wavenumber to avoid 0 division
@@ -197,22 +222,33 @@ def generate_hybrid_filter_matrix(trace_shape, selected_channels, dx, fs, cs_min
             filter_line[selected_speed_mask] = np.sin(0.5 * np.pi *
                                                       (speed[selected_speed_mask] - cs_min) / (cp_min - cs_min))
             # Filter transition band, going down from cp_max to cs_max
-            selected_speed_mask = ((speed >= cp_max) & (speed <= cs_max))
-            filter_line[selected_speed_mask] = 1 - np.sin(0.5 * np.pi *
-                                                          (speed[selected_speed_mask] - cp_max) / (cs_max - cp_max))
+            # selected_speed_mask = ((speed >= cp_max) & (speed <= cs_max))
+            # filter_line[selected_speed_mask] = 1 - np.sin(0.5 * np.pi *
+            #                                               (speed[selected_speed_mask] - cp_max) / (cs_max - cp_max))
             # Stopband
-            filter_line[speed >= cs_max] = 0
+            # filter_line[speed >= cs_max] = 0
             filter_line[speed < cs_min] = 0
 
             # Fill the filter matrix
-            fk_filter_matrix[i, :] = filter_line * H
-            
-    import matplotlib.pyplot as plt
-    plt.figure()
-    plt.imshow(np.tile(H, (len(knum), 1)), extent=[min(freq),max(freq),min(knum),max(knum)],aspect='auto')
-    # plt.plot(freq, np.tile(H, (len(knum), 0))[kmin_idx+10,:])
-    plt.show()
-    # fk_filter_matrix * 
+            fk_filter_matrix[i, :] = H * filter_line
+    
+    # fk_filter_matrix = np.tile(H, (len(knum), 1))
+    # Filter display, optional
+    if display_filter: 
+            import matplotlib.pyplot as plt
+            plt.figure(figsize=(14,2))
+            plt.plot(freq, H)
+            plt.xlabel('f [Hz]')
+            plt.ylabel('Gain []')
+            plt.xlim([min(freq), max(freq)])
+            plt.grid()
+            plt.show()
+
+            plt.figure(figsize=(10,4))
+            plt.imshow(fk_filter_matrix, extent=[min(freq),max(freq),min(knum),max(knum)], aspect='auto')
+            plt.ylabel('k [m$^{-1}$]')
+            plt.xlabel('f [Hz]')
+            plt.show()
     return fk_filter_matrix
 
 
