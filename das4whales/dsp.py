@@ -243,6 +243,10 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
     if display_filter: 
         import matplotlib.pyplot as plt
         import matplotlib.gridspec as gridspec
+        plt.rc('font', size=20) 
+        plt.rc('xtick', labelsize=16)  
+        plt.rc('ytick', labelsize=16)
+
         fig = plt.figure(figsize=(18, 10))
         gs = gridspec.GridSpec(2, 2, width_ratios=[5, 1], height_ratios=[6, 2])
 
@@ -252,14 +256,14 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
         ax1.set_xlabel('f [Hz]')
         
         ax2 = plt.subplot(gs[2], sharex=ax1)
-        ax2.plot(freq, H)
+        ax2.plot(freq, H, lw=3)
         ax2.set_xlabel('f [Hz]')
         ax2.set_ylabel('Gain []')
         ax2.set_xlim([min(freq), max(freq)])
         ax2.grid()
 
         ax3 = plt.subplot(gs[1], sharey=ax1)
-        ax3.plot(fk_filter_matrix[:, fmin_idx + 250], knum)
+        ax3.plot(fk_filter_matrix[:, fmin_idx + 250], knum, lw=3)
         ax3.set_xlabel('Gain []')
         ax3.set_ylabel('k [m$^{-1}$]')
         ax3.yaxis.set_label_position("right")
