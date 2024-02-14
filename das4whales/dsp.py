@@ -122,12 +122,12 @@ def fk_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min
             fk_filter_matrix[i, :] = filter_line
     
     # Display the filter
-    import matplotlib.pyplot as plt
-    plt.figure()
-    plt.imshow(fk_filter_matrix, extent=[min(freq),max(freq),min(knum),max(knum)],aspect='auto')
-    plt.figure()
-    plt.plot(freq, fk_filter_matrix[2000, :])
-    plt.show()
+    # import matplotlib.pyplot as plt
+    # plt.figure()
+    # plt.imshow(fk_filter_matrix, extent=[min(freq),max(freq),min(knum),max(knum)],aspect='auto')
+    # plt.figure()
+    # plt.plot(freq, fk_filter_matrix[2000, :])
+    # plt.show()
 
     return fk_filter_matrix
 
@@ -277,7 +277,25 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
     return fk_filter_matrix
 
 
-def fk_filter_filt(trace, fk_filter_matrix):
+def taper_data(trace):
+    """
+    Apply window to each line (time series) of the input matrix.
+
+    Parameters:
+    - matrix: 2D numpy array, where each column represents a time series.
+
+    Returns:
+    - Tapered matrix with the same shape as the input.
+    """
+    nt = trace.shape[1]
+    window = np.hanning(nt)
+
+    tap_trace = trace * window[np.newaxis, :]
+
+    return tap_trace
+
+
+def fk_filter_filt(trace, fk_filter_matrix, tapering=False):
     """
     Applies a pre-calculated f-k filter to DAS strain data
 
@@ -290,6 +308,8 @@ def fk_filter_filt(trace, fk_filter_matrix):
     domain
 
     """
+    if tapering:
+        trace = taper_data(trace)
 
     # Calculate the frequency-wavenumber spectrum
     fk_trace = np.fft.fftshift(np.fft.fft2(trace))
