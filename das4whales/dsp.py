@@ -270,9 +270,15 @@ def taper_data(trace):
     Returns:
     - Tapered matrix with the same shape as the input.
     """
-    #TODO: Improve taper
+    
+    taper_percentage = 5
     nt = trace.shape[1]
-    window = np.hanning(nt)
+    taper_length = int(nt * taper_percentage / 100)
+    tapl = np.hanning(2 * taper_length)[:taper_length]
+    tapr = np.hanning(2 * taper_length)[-taper_length:]
+    window = np.ones(nt)
+    window[:taper_length] = tapl
+    window[-taper_length:] = tapr
 
     tap_trace = trace * window[np.newaxis, :]
 
