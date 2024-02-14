@@ -179,17 +179,8 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
     fpmax = fmax + df_taper
     fpmin = fmin - df_taper
     # Find the corresponding indexes
-    fmin_idx = np.argmax(freq >= - fpmax)
+    fmin_idx = np.argmax(freq >= fpmin)
     fmax_idx = np.argmax(freq >= fpmax)
-
-    # Filter transition band, ramping up from -fpmax to -fmax
-    lup_mask = ((freq >= -fpmax) & (freq <= -fmax))
-    H[lup_mask] = np.sin(0.5 * np.pi *(freq[lup_mask] + fpmax) / (fpmax - fmax))
-    # Filter passband
-    H[(freq >= -fmax) & (freq <= -fmin)] = 1
-    # Filter transition band, ramping down from -fmin to -fpmin
-    ldo_mask = ((freq >= -fmin) & (freq <= -fpmin))
-    H[ldo_mask] = np.cos(0.5 * np.pi *(freq[ldo_mask] + fmin) / (fpmin - fmin))
 
     # Filter transition band, ramping up from fpmin to fmin
     rup_mask = ((freq >= fpmin) & (freq <= fmin))
@@ -200,7 +191,7 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
     rdo_mask = ((freq >= fmax) & (freq <= fpmax))
     H[rdo_mask] = np.cos(0.5 * np.pi * (freq[rdo_mask] - fmax) / (fmax - fpmax))
 
-    # Replicate the bandpass frequency response along the k-axis
+    # Replicate the bandpass frequency response along the k-axis to initialize the filter
     fk_filter_matrix = np.tile(H, (len(knum), 1))
     
     # 2nd step: filtering waves whose speeds are below cmin, with a taper between csmin and cpmin
@@ -212,32 +203,24 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
         # Filter transition bands, ramping up from cs_min to cp_min
         ks = freq[i] / cs_min
         kp = freq[i] / cp_min
-        # Remove the NaN created by the implementation when ks == kp
-        if ks != kp:
-            # f- k+ quadrant 
-            selected_k_mask = ((knum >= ks) & (knum <= kp))
-            filter_col[selected_k_mask] = np.sin(0.5 * np.pi * (knum[selected_k_mask] - ks) / (kp - ks))
 
-            # f+ k+ quadrant                                             
-            selected_k_mask = ((knum >= -ks) & (knum <= -kp))
-            filter_col[selected_k_mask] = -np.sin(0.5 * np.pi * (knum[selected_k_mask] + ks) / (kp - ks))
+        # f+ k+ quadrant                                             
+        selected_k_mask = ((knum >= -ks) & (knum <= -kp))
+        filter_col[selected_k_mask] = -np.sin(0.5 * np.pi * (knum[selected_k_mask] + ks) / (kp - ks))
 
-            # f+ k- quadrant
-            selected_k_mask = ((-knum >= -ks) & (-knum <= -kp))
-            filter_col[selected_k_mask] = np.sin(0.5 * np.pi * (knum[selected_k_mask] - ks) / (kp - ks))
+        # f+ k- quadrant
+        selected_k_mask = ((-knum >= -ks) & (-knum <= -kp))
+        filter_col[selected_k_mask] = np.sin(0.5 * np.pi * (knum[selected_k_mask] - ks) / (kp - ks))
 
-            # f- k - quadrant
-            selected_k_mask = ((-knum >= ks) & (-knum <= kp))
-            filter_col[selected_k_mask] = -np.sin(0.5 * np.pi * (knum[selected_k_mask] + ks) / (kp - ks))
-
-            # Passbands
-            # Negative frequencies (ks is negative):
-            filter_col[(knum > kp) & (knum < -kp)] = 1
-            # Positive frequencies (ks is positive):
-            filter_col[(knum < kp) & (knum > -kp)] = 1
+        # Passband
+        # Positive frequencies (kp is positive):
+        filter_col[(knum < kp) & (knum > -kp)] = 1
 
         # Fill the filter matrix by multiplication 
         fk_filter_matrix[:, i] *= filter_col 
+
+    # Symmetrize the filter
+    fk_filter_matrix += np.fliplr(fk_filter_matrix)
 
     # Filter display, optional
     if display_filter: 
@@ -256,7 +239,7 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
         ax1.set_xlabel('f [Hz]')
         
         ax2 = plt.subplot(gs[2], sharex=ax1)
-        ax2.plot(freq, H, lw=3)
+        ax2.plot(freq, fk_filter_matrix[len(knum)//2, :], lw=3)
         ax2.set_xlabel('f [Hz]')
         ax2.set_ylabel('Gain []')
         ax2.set_xlim([min(freq), max(freq)])
@@ -287,6 +270,7 @@ def taper_data(trace):
     Returns:
     - Tapered matrix with the same shape as the input.
     """
+    #TODO: Improve taper
     nt = trace.shape[1]
     window = np.hanning(nt)
 
