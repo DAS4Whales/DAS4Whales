@@ -262,7 +262,7 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
 
 def taper_data(trace):
     """
-    Apply window to each line (time series) of the input matrix.
+    Apply a Tukey window to each line (time series) of the input matrix.
 
     Parameters:
     - matrix: 2D numpy array, where each column represents a time series.
@@ -270,19 +270,10 @@ def taper_data(trace):
     Returns:
     - Tapered matrix with the same shape as the input.
     """
-    
-    taper_percentage = 5
     nt = trace.shape[1]
-    taper_length = int(nt * taper_percentage / 100)
-    tapl = np.hanning(2 * taper_length)[:taper_length]
-    tapr = np.hanning(2 * taper_length)[-taper_length:]
-    window = np.ones(nt)
-    window[:taper_length] = tapl
-    window[-taper_length:] = tapr
-
-    tap_trace = trace * window[np.newaxis, :]
-
-    return tap_trace
+    # Change alpha to increase the tapering ratio
+    trace *= sp.tukey(nt, alpha=0.025)[np.newaxis, :]
+    return trace
 
 
 def fk_filter_filt(trace, fk_filter_matrix, tapering=False):
