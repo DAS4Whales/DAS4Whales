@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.signal as sp
+import scipy.sparse as sps
 import librosa
 
 
@@ -159,8 +160,8 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
 
     Returns
     -------
-    fk_filter_matrix : ndarray
-        [channel x time sample] nparray containing the f-k-filter
+    fk_filter_matrix : array-like
+        [channel x time sample] a scipy sparse array containing the f-k-filter
     """    
 
     # Note that the chosen ChannelStep limits the bandwidth frequency obtained with fmax = 1500/ChannelStep*dx
@@ -203,14 +204,16 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
         # Filter transition bands, ramping up from cs_min to cp_min
         ks = freq[i] / cs_min
         kp = freq[i] / cp_min
+        
+        # Avoid zero division
+        if ks != kp:
+            # f+ k+ quadrant                                             
+            selected_k_mask = ((knum >= -ks) & (knum <= -kp))
+            filter_col[selected_k_mask] = -np.sin(0.5 * np.pi * (knum[selected_k_mask] + ks) / (kp - ks))
 
-        # f+ k+ quadrant                                             
-        selected_k_mask = ((knum >= -ks) & (knum <= -kp))
-        filter_col[selected_k_mask] = -np.sin(0.5 * np.pi * (knum[selected_k_mask] + ks) / (kp - ks))
-
-        # f+ k- quadrant
-        selected_k_mask = ((-knum >= -ks) & (-knum <= -kp))
-        filter_col[selected_k_mask] = np.sin(0.5 * np.pi * (knum[selected_k_mask] - ks) / (kp - ks))
+            # f+ k- quadrant
+            selected_k_mask = ((-knum >= -ks) & (-knum <= -kp))
+            filter_col[selected_k_mask] = np.sin(0.5 * np.pi * (knum[selected_k_mask] - ks) / (kp - ks))
 
         # Passband
         # Positive frequencies (kp is positive):
@@ -257,7 +260,7 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
         plt.tight_layout()
         plt.show()
 
-    return fk_filter_matrix
+    return sps.csr_array(fk_filter_matrix)
 
 
 def taper_data(trace):
@@ -297,9 +300,35 @@ def fk_filter_filt(trace, fk_filter_matrix, tapering=False):
 
     # Apply the filter
     fk_filtered_trace = fk_trace * fk_filter_matrix
-
     # Back to the t-x domain
     trace = np.fft.ifft2(np.fft.ifftshift(fk_filtered_trace))
+
+    return trace.real
+
+
+def fk_filter_sparsefilt(trace, fk_filter_matrix, tapering=False):
+    """
+    Applies a pre-calculated f-k filter to DAS strain data
+
+    Inputs:
+    :param trace: a [channel x time sample] nparray containing the strain data in the spatio-temporal domain
+    :param fk_filter_matrix: a [channel x time sample] nparray containing the f-k-filter
+
+    Outputs:
+    :return: trace, a [channel x time sample] nparray containing the f-k-filtered strain data in the spatio-temporal
+    domain
+
+    """
+    if tapering:
+        trace = taper_data(trace)
+
+    # Calculate the frequency-wavenumber spectrum
+    fk_trace = np.fft.fftshift(np.fft.fft2(trace))
+
+    # Apply the filter
+    fk_filtered_trace = fk_trace * fk_filter_matrix
+    # Back to the t-x domain
+    trace = np.fft.ifft2(np.fft.ifftshift(fk_filtered_trace.toarray()))
 
     return trace.real
 
