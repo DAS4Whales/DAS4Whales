@@ -182,20 +182,32 @@ def load_das_data_dask(filename, selected_channels, metadata):
     :return: file_begin_time_utc: the beginning time of the file, can be printed using
     file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S")
     """
-    if os.path.exists(filename):
-        with h5py.File(filename, 'r') as fp:
-            # Data matrix
-            raw_data = fp['Acquisition/Raw[0]/RawData'] # pointer to the data
-            # Creating a daskarray
-            tr = da.from_array(raw_data, chunks=tuple(size * 10 for size in raw_data.chunks))
-
-            # Selection the traces corresponding to the desired channels
-            # Loaded as float64, float 32 might be sufficient? 
-            trace = raw_data[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
-    else:
+    if not os.path.exists(filename):
         raise ValueError('File not found')
 
-    return trace
+    f = h5py.File(filename) # HDF5 file
+    d = f['Acquisition/Raw[0]/RawData']   # Pointer on on-disk array f
+
+    tr = da.from_array(d, chunks=tuple(size * 10 for size in d.chunks)) # Create a dask array
+
+    trace = tr[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
+    trace -= da.mean(trace, axis=1, keepdims=True) #demeaning using dask mean function
+    trace *= metadata["scale_factor"] 
+
+    # UTC Time vector for naming
+    raw_data_time = f['Acquisition/Raw[0]/RawDataTime']
+
+    # For future save
+    file_begin_time_utc = datetime.utcfromtimestamp(raw_data_time[0] * 1e-6)
+
+    # Store the following as the dimensions of our data block
+    nnx = trace.shape[0]
+    nns = trace.shape[1]
+
+    # Define new time and distance axes
+    tx = np.arange(nns) / metadata["fs"]
+    dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * metadata["dx"]
+    return trace, tx, dist, file_begin_time_utc
 
 
 def dl_file(url):
