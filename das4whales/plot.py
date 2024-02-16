@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.signal as sp
 from das4whales.dsp import get_fx
 from datetime import datetime
 
@@ -23,6 +24,8 @@ def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=N
     """
 
     fig = plt.figure(figsize=fig_size)
+    #TODO determine if the envelope should be implemented here rather than just abs
+    # Replace abs(trace) per abs(sp.hilbert(trace, axis=1)) ? 
     shw = plt.imshow(abs(trace) * 10 ** 9, extent=[time[0], time[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
                      origin='lower', cmap='jet', vmin=v_min, vmax=v_max)
     plt.ylabel('Distance (km)')

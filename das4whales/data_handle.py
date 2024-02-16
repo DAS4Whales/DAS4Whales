@@ -2,6 +2,7 @@ import h5py
 import wget
 import os
 import numpy as np
+import dask.array as da
 from datetime import datetime
 
 
@@ -163,6 +164,38 @@ def load_das_data(filename, selected_channels, metadata):
         raise ValueError('File not found')
 
     return trace, tx, dist, file_begin_time_utc
+
+
+def load_das_data_dask(filename, selected_channels, metadata):
+    """
+    Load the DAS data corresponding to the input file name as strain according to the selected channels.
+
+    Inputs:
+    :param filename: a string containing the full path to the data to load
+    :param selected_channels:
+    :param metadata: dictionary filled with metadata (sampling frequency, channel spacing, scale factor...)
+
+    Outputs:
+    :return: trace: a [channel x sample] nparray containing the strain data
+    :return: tx: the corresponding time axis (s)
+    :return: dist: the corresponding distance along the FO cable axis (m)
+    :return: file_begin_time_utc: the beginning time of the file, can be printed using
+    file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S")
+    """
+    if os.path.exists(filename):
+        with h5py.File(filename, 'r') as fp:
+            # Data matrix
+            raw_data = fp['Acquisition/Raw[0]/RawData'] # pointer to the data
+            # Creating a daskarray
+            tr = da.from_array(raw_data, chunks=tuple(size * 10 for size in raw_data.chunks))
+
+            # Selection the traces corresponding to the desired channels
+            # Loaded as float64, float 32 might be sufficient? 
+            trace = raw_data[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
+    else:
+        raise ValueError('File not found')
+
+    return trace
 
 
 def dl_file(url):

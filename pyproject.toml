@@ -31,6 +31,7 @@ dependencies = [
     "numpy",
     "scipy",
     "wget",
+    "dask[complete]"
 ]
 
 [project.urls]
