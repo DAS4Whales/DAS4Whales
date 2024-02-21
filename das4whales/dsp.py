@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.signal as sp
-import scipy.sparse as sps
 import librosa
 import sparse
 
