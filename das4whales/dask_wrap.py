@@ -2,9 +2,16 @@
 import dask
 import das4whales as dw
 
-def fk_filt(data,tint,fs,xint,dx,c_min,c_max):
 
-    kwargs = {'tint':tint, 'fs':fs, 'xint':xint, 'dx':dx, 'c_min':c_min, 'c_max':c_max}
-    data_gx = data.map_blocks(dw.dsp.hybrid_filter_design, kwargs=kwargs, template=data)
+def fk_filt(data, fk_filter_matrix, tapering):
+
+    kwargs = {'fk_filter_matrix':fk_filter_matrix, 'tapering':tapering}
+    data_gx = data.map_blocks(dw.dsp.fk_filter_filt, kwargs=kwargs, template=data)
 
     return data_gx
+
+
+
+# fk_filter = dw.dsp.hybrid_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, 
+#                                     cs_min=1350, cp_min=1450, fmin=17, fmax=25, display_filter=False)
+
