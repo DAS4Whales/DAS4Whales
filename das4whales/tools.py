@@ -54,7 +54,7 @@ def fk_filt_chunk(data,tint,fs,xint,dx,c_min,c_max):
     #return f,k,g,data_fft_g,data_g
     
     # construct new DataArray
-    data_gx = xr.DataArray(data_g, dims=['distance','time'], coords=data.coords)
+    data_gx = xr.DataArray(data_g.real, dims=['distance','time'], coords=data.coords)
     return data_gx
 
 

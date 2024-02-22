@@ -137,76 +137,32 @@ def load_das_data(filename, selected_channels, metadata):
     :return: file_begin_time_utc: the beginning time of the file, can be printed using
     file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S")
     """
-    if os.path.exists(filename):
-        with h5py.File(filename, 'r') as fp:
-            # Data matrix
-            raw_data = fp['Acquisition']['Raw[0]']['RawData']
-
-            # Selection the traces corresponding to the desired channels
-            # Loaded as float64, float 32 might be sufficient? 
-            trace = raw_data[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
-            trace = raw2strain(trace, metadata)
-
-            # UTC Time vector for naming
-            raw_data_time = fp['Acquisition']['Raw[0]']['RawDataTime']
-
-            # For future save
-            file_begin_time_utc = datetime.utcfromtimestamp(raw_data_time[0] * 1e-6)
-
-            # Store the following as the dimensions of our data block
-            nnx = trace.shape[0]
-            nns = trace.shape[1]
-
-            # Define new time and distance axes
-            tx = np.arange(nns) / metadata["fs"]
-            dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * metadata["dx"]
-    else:
-        raise ValueError('File not found')
-
-    return trace, tx, dist, file_begin_time_utc
-
-
-def load_das_data_dask(filename, selected_channels, metadata):
-    """
-    Load the DAS data corresponding to the input file name as strain according to the selected channels.
-
-    Inputs:
-    :param filename: a string containing the full path to the data to load
-    :param selected_channels:
-    :param metadata: dictionary filled with metadata (sampling frequency, channel spacing, scale factor...)
-
-    Outputs:
-    :return: trace: a [channel x sample] nparray containing the strain data
-    :return: tx: the corresponding time axis (s)
-    :return: dist: the corresponding distance along the FO cable axis (m)
-    :return: file_begin_time_utc: the beginning time of the file, can be printed using
-    file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S")
-    """
     if not os.path.exists(filename):
         raise ValueError('File not found')
 
-    f = h5py.File(filename) # HDF5 file
-    d = f['Acquisition/Raw[0]/RawData']   # Pointer on on-disk array f
+    with h5py.File(filename, 'r') as fp:
+        # Data matrix
+        raw_data = fp['Acquisition']['Raw[0]']['RawData']
 
-    tr = da.from_array(d, chunks=tuple(size * 10 for size in d.chunks)) # Create a dask array
+        # Selection the traces corresponding to the desired channels
+        # Loaded as float64, float 32 might be sufficient? 
+        trace = raw_data[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
+        trace = raw2strain(trace, metadata)
 
-    trace = tr[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
-    trace -= da.mean(trace, axis=1, keepdims=True) #demeaning using dask mean function
-    trace *= metadata["scale_factor"] 
+        # UTC Time vector for naming
+        raw_data_time = fp['Acquisition']['Raw[0]']['RawDataTime']
 
-    # UTC Time vector for naming
-    raw_data_time = f['Acquisition/Raw[0]/RawDataTime']
+        # For future save
+        file_begin_time_utc = datetime.utcfromtimestamp(raw_data_time[0] * 1e-6)
 
-    # For future save
-    file_begin_time_utc = datetime.utcfromtimestamp(raw_data_time[0] * 1e-6)
+        # Store the following as the dimensions of our data block
+        nnx = trace.shape[0]
+        nns = trace.shape[1]
 
-    # Store the following as the dimensions of our data block
-    nnx = trace.shape[0]
-    nns = trace.shape[1]
+        # Define new time and distance axes
+        tx = np.arange(nns) / metadata["fs"]
+        dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * metadata["dx"]        
 
-    # Define new time and distance axes
-    tx = np.arange(nns) / metadata["fs"]
-    dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * metadata["dx"]
     return trace, tx, dist, file_begin_time_utc
 
 
