@@ -46,3 +46,26 @@ def load_das_data(filename, selected_channels, metadata):
     tx = np.arange(nns) / metadata["fs"]
     dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * metadata["dx"]
     return d, tx, dist, file_begin_time_utc
+
+
+def raw2strain(tr, metadata, selected_channels):
+    """Convert a daskarray filled of int32 to a 
+
+    Parameters
+    ----------
+    tr : dask.array.core.Array
+        daskarray built on the HDF5 pointer
+    metadata : dict
+        dictionary of metadata
+    selected_channels : list
+        list of selected spatial indexes and spatial step
+
+    Returns
+    -------
+    dask.array.core.Array
+        daskarray filled with scaled float64
+    """    
+    trace = tr[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
+    trace -= da.mean(trace, axis=1, keepdims=True) #demeaning using dask mean function
+    trace *= metadata["scale_factor"]
+    return trace
