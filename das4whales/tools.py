@@ -237,6 +237,13 @@ def __spec_chunk(da):
 
 
 def disp_comprate(fk_filter):
+    """Display the sizes of the f-k filter matrix (sparse and dense version) and print the compression ratio
+
+    Parameters
+    ----------
+    fk_filter : sparse.COO
+        f-k filter sparse matrix designed by function dsp.hybrid_filter_design()
+    """    
     # Print some info about the f-k filter and the sparse matrix compression
     size_sprfilt_coo = fk_filter.data.nbytes/ (1024 ** 3)
     # If the matrix is a scipy.sparse.csr matrix: 
