@@ -44,7 +44,7 @@ def load_das_data(filename, selected_channels, metadata):
 
     # Define new time and distance axes
     tx = np.arange(nns) / metadata["fs"]
-    dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * metadata["dx"]
+    dist = (np.arange(nnx)[selected_channels[0]:selected_channels[1]:selected_channels[2]]) * metadata["dx"] 
     return d, tx, dist, file_begin_time_utc
 
 
