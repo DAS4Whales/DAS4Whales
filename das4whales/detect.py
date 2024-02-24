@@ -29,3 +29,17 @@ def gen_template_fincall(time, fs, fmin = 15., fmax = 25., duration = 1.):
     template = np.zeros(np.shape(time))
     template[:len(chirp_signal)] = chirp_signal * np.hanning(len(chirp_signal))
     return template
+
+
+def compute_correlation_matrix(data, template):
+    # Normalize data along axis 1 by its maximum
+    norm_data = data / np.max(data, axis=1, keepdims=True)
+
+    # Compute correlation along axis 1
+    correlation_matrix = np.zeros_like(data)
+
+    for i in range(data.shape[0]):
+        corr = sp.correlate(norm_data[i, :], template, mode='full', method='fft')
+        correlation_matrix[i, :] = corr[len(corr) // 2 :]
+
+    return correlation_matrix
