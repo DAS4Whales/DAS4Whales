@@ -33,13 +33,15 @@ def gen_template_fincall(time, fs, fmin = 15., fmax = 25., duration = 1.):
 
 def compute_correlation_matrix(data, template):
     # Normalize data along axis 1 by its maximum
-    norm_data = data / np.max(data, axis=1, keepdims=True)
+    norm_data = (data - np.mean(data, axis=1, keepdims=True)) / np.std(data, axis=1, keepdims=True)
+    template = (template - np.mean(template)) / np.std(template)
 
     # Compute correlation along axis 1
     correlation_matrix = np.zeros_like(data)
 
     for i in range(data.shape[0]):
-        corr = sp.correlate(norm_data[i, :], template, mode='full', method='fft')
+
+        corr = sp.correlate(norm_data[i, :], template, mode='full', method='fft') / len(template)
         correlation_matrix[i, :] = corr[len(corr) // 2 :]
 
     return correlation_matrix
