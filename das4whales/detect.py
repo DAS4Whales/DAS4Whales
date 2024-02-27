@@ -8,7 +8,7 @@ def gen_linear_chirp(fmin, fmax, duration, sampling_rate):
     return y
 
 
-def gen_template_fincall(time, fs, fmin = 15., fmax = 25., duration = 1.):
+def gen_template_fincall(time, fs, fmin = 15., fmax = 25., duration = 1., window=True):
     """ generate template of a fin whale call
 
     Parameters
@@ -24,10 +24,14 @@ def gen_template_fincall(time, fs, fmin = 15., fmax = 25., duration = 1.):
     duration : float, optional
         Duration of the chirp signal in seconds, by default 1.
     """
-
-    chirp_signal = gen_linear_chirp(fmin, fmax, duration, fs)
+    # 1 Hz frequency buffer to compensate the windowing
+    df = 1
+    chirp_signal = gen_linear_chirp(fmin-df, fmax + df, duration, fs)
     template = np.zeros(np.shape(time))
-    template[:len(chirp_signal)] = chirp_signal * np.hanning(len(chirp_signal))
+    if window:
+        template[:len(chirp_signal)] = chirp_signal * np.hanning(len(chirp_signal))
+    else: 
+        template[:len(chirp_signal)] = chirp_signal
     return template
 
 
