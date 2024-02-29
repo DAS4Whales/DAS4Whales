@@ -1,6 +1,7 @@
 # Detection module of DAS4whales package
 import numpy as np
 import scipy.signal as sp
+from tqdm import tqdm
 
 def gen_linear_chirp(fmin, fmax, duration, sampling_rate):
     t = np.arange(0, duration, 1/sampling_rate)
@@ -49,3 +50,13 @@ def compute_correlation_matrix(data, template):
         correlation_matrix[i, :] = corr[len(corr) // 2 :]
 
     return correlation_matrix
+
+
+def pick_times(corr_m, IPI, fs, threshold=0.3):
+    peaks_indexes_m = []
+
+    for corr in tqdm(corr_m, desc="Processing corr_m"):
+        peaks_indexes = sp.find_peaks(abs(sp.hilbert(corr)), prominence=threshold)[0] # sp.argrelmax(corr, order=int(IPI * fs))
+        peaks_indexes_m.append(peaks_indexes)
+    
+    return peaks_indexes_m
