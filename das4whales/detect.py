@@ -26,7 +26,7 @@ def gen_template_fincall(time, fs, fmin = 15., fmax = 25., duration = 1., window
         Duration of the chirp signal in seconds, by default 1.
     """
     # 1 Hz frequency buffer to compensate the windowing
-    df = 1
+    df = 2
     chirp_signal = gen_linear_chirp(fmin-df, fmax + df, duration, fs)
     template = np.zeros(np.shape(time))
     if window:
@@ -56,7 +56,24 @@ def pick_times(corr_m, IPI, fs, threshold=0.3):
     peaks_indexes_m = []
 
     for corr in tqdm(corr_m, desc="Processing corr_m"):
-        peaks_indexes = sp.find_peaks(abs(sp.hilbert(corr)), prominence=threshold)[0] # sp.argrelmax(corr, order=int(IPI * fs))
+        # slow : sp.argrelmax(corr, order=int(IPI * fs))
+        # dB values : sp.find_peaks(20 * np.log10(abs(sp.hilbert(corr))), prominence=threshold)[0]
+        peaks_indexes = sp.find_peaks(abs(sp.hilbert(corr)), prominence=threshold)[0]
         peaks_indexes_m.append(peaks_indexes)
     
     return peaks_indexes_m
+
+
+def convert_pick_times(peaks_indexes_m):
+    peaks_indexes_tp = ([], [])
+
+    for i in range(len(peaks_indexes_m)):
+        nb_el = len(peaks_indexes_m[i])
+        for j in range(nb_el):
+            peaks_indexes_tp[0].append(i)
+        for el in peaks_indexes_m[i]:
+            peaks_indexes_tp[1].append(el)
+
+    peaks_indexes_tp = np.asarray(peaks_indexes_tp)
+    
+    return peaks_indexes_tp
