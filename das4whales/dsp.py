@@ -357,3 +357,18 @@ def butterworth_filter(filterspec, fs):
     filter_sos = sp.butter(filter_order, wn, btype=filter_type_str, output='sos')
 
     return filter_sos
+
+
+def compute_f_instant(channel, fs):
+    # Compute the instantaneous frequency
+    fi = np.diff(np.unwrap(np.angle(sp.hilbert(channel)))) / (2.0 * np.pi) * fs
+    # Sliding window filtering to smooth out the fi
+    window_size = 50
+    ffi = np.convolve(fi, np.ones(window_size)/window_size, mode='same')
+    # Compute the instantaneous median frequency
+    f, t, Zxx = sp.spectrogram(channel, fs, nperseg=140, noverlap=0.99)
+    cumulative_sum = np.cumsum(Zxx, axis=0)
+    # Find the index corresponding to the median frequency at each time point
+    median_index = np.argmax(cumulative_sum >= 0.5 * cumulative_sum[-1], axis=0)
+    fm = f[median_index]
+    return fi, ffi, t, fm

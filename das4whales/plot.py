@@ -133,3 +133,38 @@ def plot_spectrogram(p, tt, ff, fig_size=(25, 5), v_min=None, v_max=None, f_min=
     bar = fig.colorbar(shw, aspect=20)
     bar.set_label('Strain (x$10^{-9}$)')
     plt.show()
+
+
+def plot_3calls(channel, time, t1, t2, t3):
+
+    plt.figure(figsize=(12,4))
+
+    plt.subplot(211)
+    plt.plot(time, channel, ls='-')
+    plt.xlim([time[0], time[-1]])
+    plt.ylabel('strain [-]')
+    plt.grid()
+
+    plt.subplot(234)
+    plt.plot(time, channel)
+    plt.ylabel('strain [-]')
+    plt.xlabel('time [s]')
+    plt.xlim([t1, t1+2.])
+    plt.grid()
+
+    plt.subplot(235)
+    plt.plot(time, channel)   
+    plt.xlim([t2, t2+2.])
+    plt.xlabel('time [s]')
+    plt.grid()
+
+    plt.subplot(236)
+    plt.plot(time, channel)   
+    plt.xlim([t3, t3+2.])
+    plt.xlabel('time [s]')
+    plt.grid()
+    plt.tight_layout()
+
+    plt.show()
+
+    return
