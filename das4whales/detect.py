@@ -1,6 +1,7 @@
 # Detection module of DAS4whales package
 import numpy as np
 import scipy.signal as sp
+import scipy.stats as st
 from tqdm import tqdm
 
 def gen_linear_chirp(fmin, fmax, duration, sampling_rate):
@@ -36,7 +37,7 @@ def gen_template_fincall(time, fs, fmin = 15., fmax = 25., duration = 1., window
     chirp_signal = gen_hyperbolic_chirp(fmin-df, fmax + df, duration, fs)
     template = np.zeros(np.shape(time))
     if window:
-        template[:len(chirp_signal)] = chirp_signal * np.hanning(len(chirp_signal))
+        template[:len(chirp_signal)] = chirp_signal * np.hamming(len(chirp_signal))
     else: 
         template[:len(chirp_signal)] = chirp_signal
     return template
@@ -44,15 +45,14 @@ def gen_template_fincall(time, fs, fmin = 15., fmax = 25., duration = 1., window
 
 def compute_correlation_matrix(data, template):
     # Normalize data along axis 1 by its maximum
-    norm_data = (data - np.mean(data, axis=1, keepdims=True)) / np.std(data, axis=1, keepdims=True)
-    template = (template - np.mean(template)) / np.std(template)
+    norm_data = (data - np.mean(data, axis=1, keepdims=True)) / np.max(np.abs(data), axis=1, keepdims=True)
+    template = (template - np.mean(template)) / np.max(np.abs(template))
 
     # Compute correlation along axis 1
     correlation_matrix = np.zeros_like(data)
 
     for i in range(data.shape[0]):
-
-        corr = sp.correlate(norm_data[i, :], template, mode='full', method='fft') / len(template)
+        corr = sp.correlate(norm_data[i, :], template, mode='full', method='fft')
         correlation_matrix[i, :] = corr[len(corr) // 2 :]
 
     return correlation_matrix
