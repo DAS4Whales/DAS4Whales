@@ -142,7 +142,7 @@ def load_das_data(filename, selected_channels, metadata):
 
     with h5py.File(filename, 'r') as fp:
         # Data matrix
-        raw_data = fp['Acquisition']['Raw[0]']['RawData']
+        raw_data = fp['Acquisition/Raw[0]/RawData']
 
         # Selection the traces corresponding to the desired channels
         # Loaded as float64, float 32 might be sufficient? 
@@ -188,5 +188,5 @@ def dl_file(url):
         os.makedirs('data', exist_ok=True)
         wget.download(url, out='data', bar=wget.bar_adaptive)
         print(f'Downloaded {filename}')
-    return filepath
+    return filepath #TODO: add filenames as output to create large daskarrays
 

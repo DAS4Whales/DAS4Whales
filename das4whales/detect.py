@@ -9,6 +9,12 @@ def gen_linear_chirp(fmin, fmax, duration, sampling_rate):
     return y
 
 
+def gen_hyperbolic_chirp(fmin, fmax, duration, sampling_rate):
+    t = np.arange(0, duration, 1/sampling_rate)
+    y = sp.chirp(t, f0=fmax, f1=fmin, t1=duration, method='hyperbolic')
+    return y
+
+
 def gen_template_fincall(time, fs, fmin = 15., fmax = 25., duration = 1., window=True):
     """ generate template of a fin whale call
 
@@ -26,8 +32,8 @@ def gen_template_fincall(time, fs, fmin = 15., fmax = 25., duration = 1., window
         Duration of the chirp signal in seconds, by default 1.
     """
     # 1 Hz frequency buffer to compensate the windowing
-    df = 2
-    chirp_signal = gen_linear_chirp(fmin-df, fmax + df, duration, fs)
+    df = 0
+    chirp_signal = gen_hyperbolic_chirp(fmin-df, fmax + df, duration, fs)
     template = np.zeros(np.shape(time))
     if window:
         template[:len(chirp_signal)] = chirp_signal * np.hanning(len(chirp_signal))
