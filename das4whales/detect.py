@@ -37,13 +37,13 @@ def gen_template_fincall(time, fs, fmin = 15., fmax = 25., duration = 1., window
     chirp_signal = gen_hyperbolic_chirp(fmin-df, fmax + df, duration, fs)
     template = np.zeros(np.shape(time))
     if window:
-        template[:len(chirp_signal)] = chirp_signal * np.hamming(len(chirp_signal))
+        template[:len(chirp_signal)] = chirp_signal * np.hanning(len(chirp_signal))
     else: 
         template[:len(chirp_signal)] = chirp_signal
     return template
 
 
-def shift_cross_corr(x, y):
+def shift_xcorr(x, y):
     """compute the shifted (positive lags only) cross correlation between two 1D arrays
 
     Parameters
@@ -62,8 +62,8 @@ def shift_cross_corr(x, y):
     return corr[len(x)-1 :]
 
 
-def shift_ncc(x, y):
-    """Compute the normalized cross-correlation with zero-lag autocorrelation normalization.
+def shift_nxcorr(x, y):
+    """Compute the shifted (positive lags only) normalized cross-correlation with standard deviation normalization.
 
     Parameters
     ----------
@@ -81,28 +81,22 @@ def shift_ncc(x, y):
     # Compute cross-correlation
     cross_corr = sp.correlate(x, y, mode='full', method='fft')
 
-    # Compute zero-lag autocorrelation
-    auto_corr_x = sp.correlate(x, x, mode='valid', method='fft')
-    auto_corr_y = sp.correlate(y, y, mode='valid', method='fft')
-
-    # Normalize using zero-lag autocorrelation
-
-    normalization_factor = np.sqrt(max(auto_corr_x) * max(auto_corr_y))
-    normalized_corr = cross_corr / normalization_factor
+    # Normalize using standard deviation
+    normalized_corr = cross_corr / (np.std(x) * np.std(y) * len(x))
     
     return normalized_corr[len(x)-1 :]
 
 
 def compute_cross_correlogram(data, template):
     # Normalize data along axis 1 by its maximum (peak normalization)
-    norm_data = data / np.max(np.abs(data), axis=1, keepdims=True)
-    template = template / np.max(np.abs(template))
+    norm_data = (data - np.mean(data, axis=1, keepdims=True)) / np.max(np.abs(data), axis=1, keepdims=True)
+    template = (template - np.mean(template)) / np.max(np.abs(template))
 
     # Compute correlation along axis 1
     cross_correlogram = np.empty_like(data)
 
     for i in range(data.shape[0]):
-        cross_correlogram[i, :] = shift_cross_corr(norm_data[i, :], template)
+        cross_correlogram[i, :] = shift_xcorr(norm_data[i, :], template)
 
     return cross_correlogram / np.max(cross_correlogram)
 

@@ -175,7 +175,7 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
     # 1st step: frequency bandpass filtering
     H = np.zeros_like(freq)
     # set the width of the frequency range tapers
-    df_taper = 5 # Hz
+    df_taper = 4 # Hz
     # Apply it to the frequencies of interest
     fpmax = fmax + df_taper
     fpmin = fmin - df_taper
