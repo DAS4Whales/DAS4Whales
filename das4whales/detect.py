@@ -59,41 +59,38 @@ def shift_cross_corr(x, y):
         1D array cross-correlation betweem x and y, only for positive lags
     """
     corr = sp.correlate(x, y, mode='full', method='fft')
-    return corr[len(corr) // 2 :]
+    return corr[len(x)-1 :]
 
 
-def shift_modified_ncc(x, y):
-    """
-    Compute the Modified Normalized Cross-Correlation (MNCC) between two signals.
+def shift_ncc(x, y):
+    """Compute the normalized cross-correlation with zero-lag autocorrelation normalization.
 
-    Parameters:
-    - x (array-like): The first input signal.
-    - y (array-like): The second input signal.
+    Parameters
+    ----------
+    x : numpy.ndarray
+        first input signal.
+    y : numpy.ndarray
+        second input signal
 
-    Returns:
-    float: The Modified Normalized Cross-Correlation between the two signals.
-           The result is scaled between 0 and 1, with 1 indicating strong alignment.
+    Returns
+    -------
+    numpy.ndarray
+        The normalized cross-correlation between the two signals
+    """    
 
-    Notes:
-    - The MNCC formula ensures that the result is between 0 and 1, focusing on alignment.
-    - The formula is given by: MNCC(tau) = 0.5 * (1 + cross_corr / (std_x * std_y * len(x))),
-      where cross_corr is the cross-correlation, std_x and std_y are the standard deviations of x and y.
-    """
-    # Calculate means
-    mean_x = np.mean(x)
-    mean_y = np.mean(y)
+    # Compute cross-correlation
+    cross_corr = sp.correlate(x, y, mode='full', method='fft')
+
+    # Compute zero-lag autocorrelation
+    auto_corr_x = sp.correlate(x, x, mode='valid', method='fft')
+    auto_corr_y = sp.correlate(y, y, mode='valid', method='fft')
+
+    # Normalize using zero-lag autocorrelation
+
+    normalization_factor = np.sqrt(max(auto_corr_x) * max(auto_corr_y))
+    normalized_corr = cross_corr / normalization_factor
     
-    # Calculate cross-correlation
-    cross_corr = sp.correlate(x - mean_x, y - mean_y, mode='full', method='fft')
-    
-    # Calculate standard deviations
-    std_x = np.std(x)
-    std_y = np.std(y)
-    
-    # Calculate modified normalized cross-correlation
-    modified_ncc = 0.5 * (1 + cross_corr / (std_x * std_y * len(x)))
-    
-    return modified_ncc[len(modified_ncc) // 2 :]
+    return normalized_corr[len(x)-1 :]
 
 
 def compute_cross_correlogram(data, template):
@@ -107,7 +104,7 @@ def compute_cross_correlogram(data, template):
     for i in range(data.shape[0]):
         cross_correlogram[i, :] = shift_cross_corr(norm_data[i, :], template)
 
-    return cross_correlogram #/ np.max(correlation_matrix)
+    return cross_correlogram / np.max(cross_correlogram)
 
 
 def pick_times(corr_m, IPI, fs, threshold=0.3):
