@@ -137,65 +137,33 @@ def load_das_data(filename, selected_channels, metadata):
     :return: file_begin_time_utc: the beginning time of the file, can be printed using
     file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S")
     """
-    if os.path.exists(filename):
-        with h5py.File(filename, 'r') as fp:
-            # Data matrix
-            raw_data = fp['Acquisition']['Raw[0]']['RawData']
-
-            # Selection the traces corresponding to the desired channels
-            # Loaded as float64, float 32 might be sufficient? 
-            trace = raw_data[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
-            trace = raw2strain(trace, metadata)
-
-            # UTC Time vector for naming
-            raw_data_time = fp['Acquisition']['Raw[0]']['RawDataTime']
-
-            # For future save
-            file_begin_time_utc = datetime.utcfromtimestamp(raw_data_time[0] * 1e-6)
-
-            # Store the following as the dimensions of our data block
-            nnx = trace.shape[0]
-            nns = trace.shape[1]
-
-            # Define new time and distance axes
-            tx = np.arange(nns) / metadata["fs"]
-            dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * metadata["dx"]
-    else:
+    if not os.path.exists(filename):
         raise ValueError('File not found')
+
+    with h5py.File(filename, 'r') as fp:
+        # Data matrix
+        raw_data = fp['Acquisition/Raw[0]/RawData']
+
+        # Selection the traces corresponding to the desired channels
+        # Loaded as float64, float 32 might be sufficient? 
+        trace = raw_data[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
+        trace = raw2strain(trace, metadata)
+
+        # UTC Time vector for naming
+        raw_data_time = fp['Acquisition']['Raw[0]']['RawDataTime']
+
+        # For future save
+        file_begin_time_utc = datetime.utcfromtimestamp(raw_data_time[0] * 1e-6)
+
+        # Store the following as the dimensions of our data block
+        nnx = trace.shape[0]
+        nns = trace.shape[1]
+
+        # Define new time and distance axes
+        tx = np.arange(nns) / metadata["fs"]
+        dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * metadata["dx"]        
 
     return trace, tx, dist, file_begin_time_utc
-
-
-def load_das_data_dask(filename, selected_channels, metadata):
-    """
-    Load the DAS data corresponding to the input file name as strain according to the selected channels.
-
-    Inputs:
-    :param filename: a string containing the full path to the data to load
-    :param selected_channels:
-    :param metadata: dictionary filled with metadata (sampling frequency, channel spacing, scale factor...)
-
-    Outputs:
-    :return: trace: a [channel x sample] nparray containing the strain data
-    :return: tx: the corresponding time axis (s)
-    :return: dist: the corresponding distance along the FO cable axis (m)
-    :return: file_begin_time_utc: the beginning time of the file, can be printed using
-    file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S")
-    """
-    if os.path.exists(filename):
-        with h5py.File(filename, 'r') as fp:
-            # Data matrix
-            raw_data = fp['Acquisition/Raw[0]/RawData'] # pointer to the data
-            # Creating a daskarray
-            tr = da.from_array(raw_data, chunks=tuple(size * 10 for size in raw_data.chunks))
-
-            # Selection the traces corresponding to the desired channels
-            # Loaded as float64, float 32 might be sufficient? 
-            trace = raw_data[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
-    else:
-        raise ValueError('File not found')
-
-    return trace
 
 
 def dl_file(url):
@@ -220,5 +188,5 @@ def dl_file(url):
         os.makedirs('data', exist_ok=True)
         wget.download(url, out='data', bar=wget.bar_adaptive)
         print(f'Downloaded {filename}')
-    return filepath
+    return filepath #TODO: add filenames as output to create large daskarrays
 

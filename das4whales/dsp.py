@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.signal as sp
-import scipy.sparse as sps
 import librosa
+import sparse
 
 
 # Transformations
@@ -175,7 +175,7 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
     # 1st step: frequency bandpass filtering
     H = np.zeros_like(freq)
     # set the width of the frequency range tapers
-    df_taper = 5 # Hz
+    df_taper = 4 # Hz
     # Apply it to the frequencies of interest
     fpmax = fmax + df_taper
     fpmin = fmin - df_taper
@@ -260,7 +260,7 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
         plt.tight_layout()
         plt.show()
 
-    return sps.csr_array(fk_filter_matrix)
+    return sparse.COO.from_numpy(fk_filter_matrix)
 
 
 def taper_data(trace):
@@ -275,7 +275,7 @@ def taper_data(trace):
     """
     nt = trace.shape[1]
     # Change alpha to increase the tapering ratio
-    trace *= sp.tukey(nt, alpha=0.025)[np.newaxis, :]
+    trace *= sp.tukey(nt, alpha=0.03)[np.newaxis, :]
     return trace
 
 
@@ -328,7 +328,7 @@ def fk_filter_sparsefilt(trace, fk_filter_matrix, tapering=False):
     # Apply the filter
     fk_filtered_trace = fk_trace * fk_filter_matrix
     # Back to the t-x domain
-    trace = np.fft.ifft2(np.fft.ifftshift(fk_filtered_trace.toarray()))
+    trace = np.fft.ifft2(np.fft.ifftshift(fk_filtered_trace.todense()))
 
     return trace.real
 
@@ -357,3 +357,32 @@ def butterworth_filter(filterspec, fs):
     filter_sos = sp.butter(filter_order, wn, btype=filter_type_str, output='sos')
 
     return filter_sos
+
+
+def instant_freq(channel, fs):
+    """Compute the instantaneous frequency
+
+    Parameters
+    ----------
+    channel : numpy.ndarray
+        1D time series channel trace
+    fs : float
+        sampling frequency
+
+    Returns
+    -------
+    numpy.ndarray
+        instantaneous frequency along time[1:]
+    """    
+    # Compute the instantaneous frequency
+    fi = np.diff(np.unwrap(np.angle(sp.hilbert(channel)))) / (2.0 * np.pi) * fs
+    # Sliding window filtering to smooth out the fi
+    # window_size = 50
+    # ffi = np.convolve(fi, np.ones(window_size)/window_size, mode='same')
+    # Compute the instantaneous median frequency
+    # f, t, Zxx = sp.spectrogram(channel, fs, nperseg=140, noverlap=0.99)
+    # cumulative_sum = np.cumsum(Zxx, axis=0)
+    # Find the index corresponding to the median frequency at each time point
+    # median_index = np.argmax(cumulative_sum >= 0.5 * cumulative_sum[-1], axis=0)
+    # fm = f[median_index]
+    return fi #, ffi, t, fm
