@@ -165,6 +165,7 @@ def plot_3calls(channel, time, t1, t2, t3):
     plt.grid()
     plt.tight_layout()
 
+    # plt.savefig('3calls.pdf', format='pdf')
     plt.show()
 
     return
