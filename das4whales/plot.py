@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.signal as sp
-from das4whales.dsp import get_fx
+from das4whales.dsp import get_fx, instant_freq
 from datetime import datetime
 
 
@@ -166,6 +166,86 @@ def plot_3calls(channel, time, t1, t2, t3):
     plt.tight_layout()
 
     # plt.savefig('3calls.pdf', format='pdf')
+    plt.show()
+
+    return
+
+
+def design_mf(trace, hnote, lnote, th, tl, time, fs):
+    """Plot to design the matched filter 
+
+    Parameters
+    ----------
+    trace : numpy.ndarray
+        1D time series channel trace
+    hnote : numpy.ndarray
+        1D time series high frequency note template
+    lnote : numpy.ndarray
+        1D time series low frequency note template
+    th : float
+        start time of the high frequency note
+    tl : float
+        start time of the low frequency note
+    time : numpy.ndarray
+        1D vector of time values
+    fs : float
+        sampling frequency
+    """    
+
+    nf = int(th * fs)
+    nl = int(tl * fs)
+    # Create a dummy channel made of two notes at given times (not robust)
+    dummy_chan = np.zeros_like(hnote)
+    dummy_chan[nf:] = hnote[:-nf]
+    dummy_chan[nl:] = lnote[:-nl]
+
+    # Matched filter instantaneous freq
+    fi = instant_freq(trace, fs)
+    fi_mf = instant_freq(dummy_chan, fs)
+
+    # Plot the generated linear chirp signal
+    plt.figure(figsize=(18, 4))
+    plt.subplot(121)
+    plt.plot(time, (trace) / (np.max(abs(trace))), label='normalized measured fin call')
+    plt.plot(time, (dummy_chan) / (np.max(abs(dummy_chan))), label='template')
+    plt.title('fin whale call template - HF note')
+    plt.xlabel('Time (seconds)')
+    plt.ylabel('Amplitude')
+    plt.xlim(th-0.5, th+1.5)
+    plt.grid()
+    plt.legend()
+
+    plt.subplot(122)
+    plt.plot(time[1:], fi, label='measured fin call')
+    plt.plot(time[1:], fi_mf, label='template')
+    plt.xlim([th-0.5, th+1.5])
+    plt.ylim([15., 35])
+    plt.xlabel('Time (seconds)')
+    plt.ylabel('Instantaneous frequency [Hz]')
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+    plt.figure(figsize=(18, 4))
+    plt.subplot(121)
+    plt.plot(time, (trace - np.mean(trace)) / (np.max(abs(trace))), label='normalized measured fin call')
+    plt.plot(time, (dummy_chan - np.mean(dummy_chan)) / (np.max(abs(dummy_chan))), label='template')
+    plt.title('fin whale call template - LF note')
+    plt.xlabel('Time (seconds)')
+    plt.ylabel('Amplitude')
+    plt.xlim([tl-0.5, tl+1.5])
+    plt.grid()
+    plt.legend()
+
+    plt.subplot(122)
+    plt.plot(time[1:], fi, label='measured fin call')
+    plt.plot(time[1:], fi_mf, label='template')
+    plt.xlim([tl-0.5, tl+1.5])
+    plt.ylim([12., 28.])
+    plt.xlabel('Time (seconds)')
+    plt.ylabel('Instantaneous frequency [Hz]')
+    plt.legend()
+    plt.grid()
     plt.show()
 
     return
