@@ -3,6 +3,7 @@ import scipy.signal as sp
 import librosa
 import sparse
 from scipy import ndimage
+from numpy.fft import fft2, fftfreq, fftshift, ifft2, ifftshift
 
 
 # Transformations
@@ -510,3 +511,82 @@ def instant_freq(channel, fs):
     # median_index = np.argmax(cumulative_sum >= 0.5 * cumulative_sum[-1], axis=0)
     # fm = f[median_index]
     return fi #, ffi, t, fm
+
+
+def bp_filt(data,fs,fmin,fmax):
+    b, a = sp.butter(8,[fmin/(fs/2),fmax/(fs/2)],'bp')
+    tr_filt = sp.filtfilt(b,a,data,axis = 1)
+    return tr_filt
+
+
+def fk_filt(data,tint,fs,xint,dx,c_min,c_max):
+    """fk_filt - perform fk filtering on an array of DAS data   
+
+    Parameters
+    ----------
+    data : array-like
+        array containing wave signal from DAS data
+    tint : float
+        decimation time interval between considered samples
+    fs : float
+        sampling frequency
+    xint : float
+        decimation space interval between considered samples
+    dx : float
+        spatial resolution
+    c_min : float
+        minimum phase speed for the pass-band filter in f-k domain
+    c_max : float
+        maximum phase speed for the pass-band filter in f-k domain
+
+    Returns
+    -------
+    f : array-like
+        vector of frequencies
+
+    k : array-like
+        vector of wavenumbers   
+    g : array-like
+        2D designed gaussian filter
+    data_fft_g: array-like
+        2D Fourier transformed data, filtered by g
+    data_g.real: array-like
+        Real value of spatiotemporal filtered data
+    """    
+
+    # Perform 2D Fourier Transform on the detrended input data
+    data_fft = np.fft.fft2(data)
+    # Make freq and wavenum vectors
+    nx = data_fft.shape[0]
+    ns = data_fft.shape[1]
+    f = fftshift(fftfreq(ns, d = tint/fs))
+    k = fftshift(fftfreq(nx, d = xint*dx))
+    ff,kk = np.meshgrid(f,k)
+
+    #  Define a filter in the f-k domain
+    # Soundwaves have f/k = c so f = k*c
+
+    g = 1.0*((ff < kk*c_min) & (ff < -kk*c_min))
+    g2 = 1.0*((ff < kk*c_max) & (ff < -kk*c_max))
+
+    # Symmetrize the filter
+    g += np.fliplr(g)
+    # g2 += np.fliplr(g2)
+    g -= g2 + np.fliplr(g2) # combine to have g = g - g2
+    
+    # Apply Gaussian filter to the f-k filter
+    # Tuning the standard deviation of the filter can improve computational efficiency
+    g = ndimage.gaussian_filter(g, 20)
+    # epsilon = 0.0001
+    # g = np.exp (-epsilon*( ff-kk*c)**2 )
+
+    # Normalize the filter to values between 0 and 1
+    g = (g - np.min(g)) / (np.max(g) - np.min(g))
+
+    # Apply the filter to the 2D Fourier-transformed data
+    data_fft_g = fftshift(data_fft) * g
+    # Perform inverse Fourier Transform to obtain the filtered data in t-x domain
+    data_g = ifft2(ifftshift(data_fft_g))
+    
+    # return f, k, g, data_fft_g, data_g.real
+    return data_g.real
