@@ -348,7 +348,7 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
         if ks_max != kp_max:
             # f+ k+ quadrant ramp up
             selected_k_mask = ((knum >= -kp_max) & (knum <= -ks_max))
-            filter_col[selected_k_mask] = np.sin(0.5 * np.pi * (knum[selected_k_mask] - kp_max) / (ks_max - kp_max))
+            filter_col[selected_k_mask] = np.cos(0.5 * np.pi * (knum[selected_k_mask] + kp_max) / (ks_max - kp_max))
 
         # Passband
         # Positive frequencies (kp_min is positive):
@@ -358,8 +358,8 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
         fk_filter_matrix[:, i] *= filter_col 
 
     # Symmetrize the filter
-    # fk_filter_matrix += np.fliplr(fk_filter_matrix)
-    # fk_filter_matrix += np.flipud(fk_filter_matrix)
+    fk_filter_matrix += np.fliplr(fk_filter_matrix)
+    fk_filter_matrix += np.flipud(fk_filter_matrix)
 
     # Filter display, optional
     if display_filter: 
