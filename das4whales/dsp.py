@@ -482,7 +482,7 @@ def hybrid_gs_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400.
 
     # Symmetrize the filter
     fk_filter_matrix += np.fliplr(fk_filter_matrix)
-    fk_filter_matrix = ndimage.gaussian_filter(fk_filter_matrix, 40)
+    fk_filter_matrix = ndimage.gaussian_filter(fk_filter_matrix, 20)
 
     # Filter display, optional
     if display_filter: 
@@ -599,7 +599,7 @@ def hybrid_ninf_gs_filter_design(trace_shape, selected_channels, dx, fs, cs_min=
         fk_filter_matrix[:, i] *= filter_col 
 
     # Symmetrize the filter
-    fk_filter_matrix = ndimage.gaussian_filter(fk_filter_matrix, 40)
+    fk_filter_matrix = ndimage.gaussian_filter(fk_filter_matrix, 20)
     fk_filter_matrix += np.fliplr(fk_filter_matrix)
     fk_filter_matrix += np.flipud(fk_filter_matrix)
 
