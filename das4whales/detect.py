@@ -100,6 +100,7 @@ def compute_cross_correlogram(data, template):
 
     return cross_correlogram
 
+
 def pick_times(corr_m, fs, threshold=0.3):
     peaks_indexes_m = []
 

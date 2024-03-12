@@ -251,7 +251,7 @@ def disp_comprate(fk_filter):
 
     densefk_filter = fk_filter.todense() # fk_filter.toarray() 
     sizefilt = densefk_filter.size * densefk_filter.itemsize / (1024**3)
-
+    # TODO: add the relative ratio
     print(f'The size of the sparse filter is {size_sprfilt_coo:.4f} Gib')
     print(f'The size of the dense filter is {sizefilt:.2f} Gib')
     print(f'The compression ratio is {sizefilt / size_sprfilt_coo:.2f}')
