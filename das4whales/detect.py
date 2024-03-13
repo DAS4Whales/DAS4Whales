@@ -98,14 +98,13 @@ def compute_cross_correlogram(data, template):
     for i in range(data.shape[0]):
         cross_correlogram[i, :] = shift_xcorr(norm_data[i, :], template)
 
-    return cross_correlogram / np.max(cross_correlogram)
+    return cross_correlogram
 
 
 def pick_times(corr_m, fs, threshold=0.3):
     peaks_indexes_m = []
 
     for corr in tqdm(corr_m, desc="Processing corr_m"):
-        # dB values : sp.find_peaks(20 * np.log10(abs(sp.hilbert(corr))), prominence=threshold)[0]
         peaks_indexes = sp.find_peaks(abs(sp.hilbert(corr)), prominence=threshold)[0]
         peaks_indexes_m.append(peaks_indexes)
     
