@@ -293,3 +293,29 @@ def detection_mf(trace, peaks_idx_HF, peaks_idx_LF, time, dist, fs, dx, selected
     plt.show()
 
     return
+
+
+def snr_matrix(snr_m, time, dist, vmax):
+    """Matrix plot of the local signal to noise ratio (SNR)
+
+    Parameters
+    ----------
+    snr_m : numpy.ndarray
+        [channel x time sample] array containing the SNR in the spatio-temporal domain
+    time : nummpy.ndarray
+        time vector
+    dist : numpy.ndarray
+        distance vector along the cable
+    vmax : float
+        maximun value of the plot (dB)
+    """    
+    fig = plt.figure(figsize=(12, 10))
+    snrp = plt.imshow(snr_m, extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='jet', origin='lower',  aspect='auto', vmin=0, vmax=vmax)
+    bar = fig.colorbar(snrp, aspect=30)
+    bar.set_label('SNR [dB]')
+    plt.xlabel('Time [s]')
+    plt.ylabel('Distance [km]')
+    plt.tight_layout()
+    plt.show()
+
+    return

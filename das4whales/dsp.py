@@ -845,7 +845,7 @@ def fk_filt(data,tint,fs,xint,dx,c_min,c_max):
     return data_g.real
 
 
-def snr_tr_array(trace):
+def snr_tr_array(trace, env=False):
     """Calculate the 2D Signal-to-Noise Ratio (SNR) array for a given input trace.
 
     This function computes the SNR for each element in the input 2D trace array. The SNR
@@ -862,5 +862,7 @@ def snr_tr_array(trace):
     numpy.ndarray
         A 2D array containing the Signal-to-Noise Ratio (SNR) values for each element
         in the input trace.
-    """    
+    """  
+    if env:
+        return 10 * np.log10(abs(sp.hilbert(trace, axis=1)) ** 2 / np.std(trace, axis=1, keepdims=True) ** 2)
     return 10 * np.log10(trace ** 2 / np.std(trace, axis=1, keepdims=True) ** 2)
