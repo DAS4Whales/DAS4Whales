@@ -2,6 +2,7 @@
 .ipynb_checkpoints
 
 # Development jupyter notebooks
+devnotebooks/
 dev.ipynb
 
 # macOS system file
