@@ -254,5 +254,5 @@ def disp_comprate(fk_filter):
     # TODO: add the relative ratio
     print(f'The size of the sparse filter is {size_sprfilt_coo:.4f} Gib')
     print(f'The size of the dense filter is {sizefilt:.2f} Gib')
-    print(f'The compression ratio is {sizefilt / size_sprfilt_coo:.2f}')
+    print(f'The compression ratio is {sizefilt / size_sprfilt_coo:.2f} ({abs(sizefilt - size_sprfilt_coo) *100 / sizefilt:.1f} %)')
     return
