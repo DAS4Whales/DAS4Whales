@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
+import matplotlib.ticker as tkr
 import numpy as np
 import scipy.signal as sp
 from das4whales.dsp import get_fx, instant_freq
@@ -36,7 +36,7 @@ def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=N
 
     if isinstance(file_begin_time_utc, datetime):
         plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
-
+    plt.tight_layout()
     plt.show()
 
 
@@ -145,6 +145,7 @@ def plot_3calls(channel, time, t1, t2, t3):
     plt.xlim([time[0], time[-1]])
     plt.ylabel('strain [-]')
     plt.grid()
+    plt.tight_layout()
 
     plt.subplot(234)
     plt.plot(time, channel)
@@ -152,12 +153,14 @@ def plot_3calls(channel, time, t1, t2, t3):
     plt.xlabel('time [s]')
     plt.xlim([t1, t1+2.])
     plt.grid()
+    plt.tight_layout()
 
     plt.subplot(235)
     plt.plot(time, channel)   
     plt.xlim([t2, t2+2.])
     plt.xlabel('time [s]')
     plt.grid()
+    plt.tight_layout()
 
     plt.subplot(236)
     plt.plot(time, channel)   
@@ -247,6 +250,7 @@ def design_mf(trace, hnote, lnote, th, tl, time, fs):
     plt.ylabel('Instantaneous frequency [Hz]')
     plt.legend()
     plt.grid()
+    plt.tight_layout()
     plt.show()
 
     return
@@ -285,12 +289,13 @@ def detection_mf(trace, peaks_idx_HF, peaks_idx_LF, time, dist, fs, dx, selected
     bar.set_label('Strain [-] (x$10^{-9}$)')
     plt.xlabel('Time [s]')  
     plt.ylabel('Distance [km]')
-    plt.legend()
+    plt.legend(loc="upper right")
     # plt.savefig('test.pdf', format='pdf')
 
     if isinstance(file_begin_time_utc, datetime):
         plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
 
+    plt.tight_layout()
     plt.show()
 
     return
