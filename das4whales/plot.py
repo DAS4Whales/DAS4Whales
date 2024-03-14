@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import numpy as np
 import scipy.signal as sp
 from das4whales.dsp import get_fx, instant_freq
@@ -313,6 +314,7 @@ def snr_matrix(snr_m, time, dist, vmax):
     snrp = plt.imshow(snr_m, extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='jet', origin='lower',  aspect='auto', vmin=0, vmax=vmax)
     bar = fig.colorbar(snrp, aspect=30)
     bar.set_label('SNR [dB]')
+    bar.ax.yaxis.set_major_formatter(tkr.FormatStrFormatter('%.0f'))
     plt.xlabel('Time [s]')
     plt.ylabel('Distance [km]')
     plt.tight_layout()
