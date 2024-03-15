@@ -9,8 +9,6 @@ def main(url):
     filepath = dw.data_handle.dl_file(url)
     # Download some DAS dat
 
-    # Get information on the DAS data from the hdf5 metadata
-    # Read HDF5 files and access metadata
     # Get the acquisition parameters for the data folder
     metadata = dw.data_handle.get_acquisition_parameters(filepath, interrogator='optasense')
     fs, dx, nx, ns, gauge_length, scale_factor = metadata["fs"], metadata["dx"], metadata["nx"], metadata["ns"], metadata["GL"], metadata["scale_factor"]
@@ -22,6 +20,7 @@ def main(url):
     print(f'Cable max distance: {metadata["nx"] * metadata["dx"]/1e3:.1f} km')
     print(f'Number of channels: {metadata["nx"]}')
     print(f'Number of time samples: {metadata["ns"]}') 
+    
     # Select the desired channels and channel interval
     selected_channels_m = [20000, 65000, 5]  # list of values in meters corresponding to the starting,
                                             # ending and step wanted channels along the FO Cable
