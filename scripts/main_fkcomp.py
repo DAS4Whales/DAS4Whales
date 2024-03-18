@@ -119,7 +119,7 @@ def main(url):
         SNR_m4 = dw.dsp.snr_tr_array(trf_fk_nf_cos)
 
         # Plot the SNR matrix 
-        dw.plot.snr_matrix(SNR_m4, time, dist, 20)
+        dw.plot.snr_matrix(SNR_m4, time, dist, 20, fileBeginTimeUTC)
         return
 
 

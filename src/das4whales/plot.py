@@ -31,8 +31,8 @@ def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=N
                      origin='lower', cmap='jet', vmin=v_min, vmax=v_max)
     plt.ylabel('Distance (km)')
     plt.xlabel('Time (s)')
-    bar = fig.colorbar(shw, aspect=20)
-    bar.set_label('Strain (x$10^{-9}$)')
+    bar = fig.colorbar(shw, aspect=30, pad=0.015)
+    bar.set_label('Strain Envelope (x$10^{-9}$)')
 
     if isinstance(file_begin_time_utc, datetime):
         plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
@@ -256,7 +256,7 @@ def design_mf(trace, hnote, lnote, th, tl, time, fs):
     return
 
 
-def detection_mf(trace, peaks_idx_HF, peaks_idx_LF, time, dist, fs, dx, selected_channels, file_begin_time_utc=0):
+def detection_mf(trace, peaks_idx_HF, peaks_idx_LF, time, dist, fs, dx, selected_channels, file_begin_time_utc=None):
     """Plot the strain trace matrix [dist x time] with call detection above it
 
     Parameters
@@ -285,8 +285,8 @@ def detection_mf(trace, peaks_idx_HF, peaks_idx_LF, time, dist, fs, dx, selected
     cplot = plt.imshow(abs(sp.hilbert(trace, axis=1)) * 1e9, extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='jet', origin='lower',  aspect='auto', vmin=0, vmax=0.4, alpha=0.35)
     plt.scatter(peaks_idx_HF[1] / fs, (peaks_idx_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='red', marker='x', label='HF_note')
     plt.scatter(peaks_idx_LF[1] / fs, (peaks_idx_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='green', marker='.', label='LF_note')
-    bar = fig.colorbar(cplot, aspect=20)
-    bar.set_label('Strain [-] (x$10^{-9}$)')
+    bar = fig.colorbar(cplot, aspect=30, pad=0.015)
+    bar.set_label('Strain Envelope [-] (x$10^{-9}$)')
     plt.xlabel('Time [s]')  
     plt.ylabel('Distance [km]')
     plt.legend(loc="upper right")
@@ -301,7 +301,7 @@ def detection_mf(trace, peaks_idx_HF, peaks_idx_LF, time, dist, fs, dx, selected
     return
 
 
-def snr_matrix(snr_m, time, dist, vmax):
+def snr_matrix(snr_m, time, dist, vmax, file_begin_time_utc=None):
     """Matrix plot of the local signal to noise ratio (SNR)
 
     Parameters
@@ -317,11 +317,15 @@ def snr_matrix(snr_m, time, dist, vmax):
     """    
     fig = plt.figure(figsize=(12, 10))
     snrp = plt.imshow(snr_m, extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='jet', origin='lower',  aspect='auto', vmin=0, vmax=vmax)
-    bar = fig.colorbar(snrp, aspect=30)
+    bar = fig.colorbar(snrp, aspect=30, pad=0.015)
     bar.set_label('SNR [dB]')
     bar.ax.yaxis.set_major_formatter(tkr.FormatStrFormatter('%.0f'))
     plt.xlabel('Time [s]')
     plt.ylabel('Distance [km]')
+    
+    if isinstance(file_begin_time_utc, datetime):
+        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
+
     plt.tight_layout()
     plt.show()
 
