@@ -38,3 +38,13 @@ data/
 
 # Temporary files
 *.tmp
+
+# IDE-specific project files
+.project
+.classpath
+
+# Intellij IDEA
+.idea/
+
+# Visual Studio Code    
+.vscode/
