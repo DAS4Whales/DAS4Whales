@@ -93,7 +93,7 @@ def get_metadata_optasense(filepath):
 
         meta_data = {'fs': fs, 'dx': dx, 'ns': ns,'n': n,'GL': GL, 'nx':nx , 'scale_factor': scale_factor}
     else:
-        raise ValueError('File not found')
+        raise FileNotFoundError(f'File {filepath} not found')
 
     return meta_data
 
@@ -138,7 +138,7 @@ def load_das_data(filename, selected_channels, metadata):
     file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S")
     """
     if not os.path.exists(filename):
-        raise ValueError('File not found')
+        raise FileNotFoundError(f'File {filename} not found')
 
     with h5py.File(filename, 'r') as fp:
         # Data matrix
