@@ -32,7 +32,8 @@ dependencies = [
     "scipy",
     "wget",
     "dask[complete]",
-    "sparse"
+    "sparse",
+    "pytest",
 ]
 
 [project.urls]
