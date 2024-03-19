@@ -34,7 +34,8 @@ dependencies = [
     "dask[complete]",
     "sparse",
     "pytest",
-    "xarray"
+    "xarray",
+    "tqdm"
 ]
 
 [project.urls]
