@@ -4,6 +4,9 @@ A Python package to analyze Distributed Acoustic Sensing (DAS) data for marine b
 
 [![DOI](https://zenodo.org/badge/604782489.svg)](https://zenodo.org/badge/latestdoi/604782489)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/gist/leabouffaut/e66b5a741493c4bd13aa07f39586ec4b/das4whales_examplenotebook.ipynb)
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-blue)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)]($BADGE_LINK$)
+[![Unit Test](https://img.shields.io/badge/Unit%20Tests-Passing-brightgreen)]($BADGE_LINK$)
 
 Authors: 
 - Léa Bouffaut, Ph.D.   
