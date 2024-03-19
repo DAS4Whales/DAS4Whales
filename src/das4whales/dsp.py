@@ -653,7 +653,7 @@ def taper_data(trace):
     """
     nt = trace.shape[1]
     # Change alpha to increase the tapering ratio
-    trace *= sp.tukey(nt, alpha=0.03)[np.newaxis, :]
+    trace *= sp.windows.tukey(nt, alpha=0.03)[np.newaxis, :]
     return trace
 
 
