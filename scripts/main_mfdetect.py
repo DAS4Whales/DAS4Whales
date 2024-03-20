@@ -60,14 +60,9 @@ def main(url):
     # Get the indexes of the maximal value of the data:
     xi_m, tj_m = np.unravel_index(np.argmax(trf_fk, axis=None), trf_fk.shape)
 
-    f, t, Sxx = sp.spectrogram(trf_fk[xi_m], metadata['fs'], nperseg=128, noverlap=0.95, scaling='spectrum', mode='magnitude', detrend=False)
-    plt.figure(figsize=(12,4))
-    plt.pcolormesh(t, f, Sxx, shading='gouraud')
-    plt.ylim([0, 35])
-    plt.ylabel('Frequency [Hz]')
-    plt.xlabel('Time [sec]')
-    plt.tight_layout()
-    plt.show()
+    # Spectrogram
+    p,tt,ff = dw.dsp.get_spectrogram(trf_fk[xi_m,:], fs, nfft=128, overlap_pct=0.8)
+    dw.plot.plot_spectrogram(p, tt,ff, f_min = 10, f_max = 35, v_min=0)
 
     dw.plot.plot_3calls(trf_fk[xi_m], time, 6.,27.6, 48.5) 
     # Generate fin whale call template
