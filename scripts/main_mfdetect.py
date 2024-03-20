@@ -60,14 +60,9 @@ def main(url):
     # Get the indexes of the maximal value of the data:
     xi_m, tj_m = np.unravel_index(np.argmax(trf_fk, axis=None), trf_fk.shape)
 
-    f, t, Sxx = sp.spectrogram(trf_fk[xi_m], metadata['fs'], nperseg=128, noverlap=0.95, scaling='spectrum', mode='magnitude', detrend=False)
-    plt.figure(figsize=(12,4))
-    plt.pcolormesh(t, f, Sxx, shading='gouraud')
-    plt.ylim([0, 35])
-    plt.ylabel('Frequency [Hz]')
-    plt.xlabel('Time [sec]')
-    plt.tight_layout()
-    plt.show()
+    # Spectrogram
+    p,tt,ff = dw.dsp.get_spectrogram(trf_fk[xi_m,:], fs, nfft=128, overlap_pct=0.8)
+    dw.plot.plot_spectrogram(p, tt,ff, f_min = 10, f_max = 35, v_min=0)
 
     dw.plot.plot_3calls(trf_fk[xi_m], time, 6.,27.6, 48.5) 
     # Generate fin whale call template
@@ -82,28 +77,15 @@ def main(url):
     # Compute the positive correlation matrix
     corr_m_HF = dw.detect.compute_cross_correlogram(trf_fk, HF_note)
     corr_m_LF = dw.detect.compute_cross_correlogram(trf_fk, LF_note)
-    # Plot the correlation matrix 
 
+    # Plot the cross-correlograms
     maxv = max(np.max(corr_m_HF), np.max(corr_m_LF))
-    fig = plt.figure(figsize=(16,8))
-    plt.subplot(121)
-    cplot = plt.imshow(abs(sp.hilbert(corr_m_HF, axis=1)), extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='jet', origin='lower',  aspect='auto', vmin=0, vmax=maxv)
-    plt.xlabel('Time [s]')
-    plt.ylabel('Distance [km]')
-    plt.title('HF note', loc='right')
-
-    plt.subplot(122)
-    cplot = plt.imshow(abs(sp.hilbert(corr_m_LF, axis=1)), extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='jet', origin='lower',  aspect='auto', vmin=0, vmax=maxv)
-    bar = fig.colorbar(cplot, aspect=20)
-    bar.set_label('cross-correlation []')
-    plt.xlabel('Time [s]')
-    plt.title('LF note', loc='right')
-    plt.show() 
+    dw.plot.plot_cross_correlogramHL(corr_m_HF, corr_m_LF, time, dist, maxv)
 
     # Find the local maximas using find peaks and a threshold
     print(f"The maximum correlation is {maxv}")
     thres = 0.5 * maxv
-    print(thres)
+    print(f' The detection threshold is {thres} for the low frequency note and {thres*0.9} for the high frequency note.')
     # Find the arrival times and store them in a list of arrays format 
     peaks_indexes_m_HF = dw.detect.pick_times(corr_m_HF, fs, threshold=thres * 0.9)
     peaks_indexes_m_LF = dw.detect.pick_times(corr_m_LF, fs, threshold=thres)
