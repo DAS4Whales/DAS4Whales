@@ -125,14 +125,15 @@ def plot_spectrogram(p, tt, ff, fig_size=(25, 5), v_min=None, v_max=None, f_min=
     :return:
 
     """
+    roseus = import_roseus()
     fig, ax = plt.subplots(figsize=fig_size)
 
-    shw = ax.pcolormesh(tt, ff, p, shading='auto', cmap="viridis", vmin=v_min, vmax=v_max)
+    shw = ax.pcolormesh(tt, ff, p, shading='auto', cmap=roseus, vmin=v_min, vmax=v_max)
     ax.set_ylim(f_min, f_max)
 
     # Colorbar
     bar = fig.colorbar(shw, aspect=20)
-    bar.set_label('Strain (x$10^{-9}$)')
+    bar.set_label('dB (strain x$10^{-9}$)')
     plt.show()
 
 
