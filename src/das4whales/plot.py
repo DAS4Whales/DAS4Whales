@@ -331,6 +331,49 @@ def snr_matrix(snr_m, time, dist, vmax, file_begin_time_utc=None):
 
     return
 
+
+def plot_cross_correlogramHL(corr_m_HF, corr_m_LF, time, dist, maxv, minv=0, file_begin_time_utc=None):
+    """
+    Plot the cross-correlogram between HF and LF notes.
+
+    Parameters
+    ----------
+    corr_m_HF : numpy.ndarray
+        The cross-correlation matrix of the HF notes.
+    corr_m_LF : numpy.ndarray
+        The cross-correlation matrix of the LF notes.
+    time : numpy.ndarray
+        The time values.
+    dist : numpy.ndarray
+        The distance values.
+    maxv : float
+        The maximum value for the colorbar.
+    minv : int, optional
+        The minimum value for the colorbar. Default is 0.
+    file_begin_time_utc : datetime.datetime, optional
+        The beginning time of the file in UTC. Default is None.
+
+    Returns
+    -------
+    None
+    """
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8), constrained_layout=True)
+    im1 = ax1.imshow(abs(sp.hilbert(corr_m_HF, axis=1)), extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='turbo', origin='lower', aspect='auto', vmin=minv, vmax=maxv) 
+    ax1.set_xlabel('Time [s]') 
+    ax1.set_ylabel('Distance [km]') 
+    ax1.set_title('HF note', loc='right')
+
+    im2 = ax2.imshow(abs(sp.hilbert(corr_m_LF, axis=1)), extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='turbo',origin='lower', aspect='auto', vmin=minv, vmax=maxv) 
+    ax2.set_xlabel('Time [s]') 
+    ax2.set_title('LF note', loc='right')
+
+    cbar = fig.colorbar(im1, ax=[ax1, ax2], orientation='horizontal', aspect=50, pad=0.02) 
+    cbar.set_label('Cross-correlation envelope []')
+    plt.show()
+
+    return
+
+
 def import_roseus():
     """
     Import the colormap from the colormap/roseus_matplotlib.py file
