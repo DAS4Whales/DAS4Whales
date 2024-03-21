@@ -1,9 +1,11 @@
 # Detection module of DAS4whales package
+import librosa
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.signal as sp
 import scipy.stats as st
 from tqdm import tqdm
+from das4whales.plot import import_roseus 
 
 ## Matched filter detection functions:
 
@@ -130,24 +132,80 @@ def convert_pick_times(peaks_indexes_m):
 
 ## Spectrogram correlation functions:
 
-def finKernelLims(f0, f1, bdwdth):
+def get_sliced_nspectrogram(trace, fs, fmin, fmax, nperseg, nhop, plotflag=False):
     """
-    Calculate the minimum and maximum kernel limits based on given parameters.
+    Compute the sliced non-stationary spectrogram of a given trace.
 
-    Parameters:
-    f0 (float): The first kernel limit.
-    f1 (float): The second kernel limit.
-    bdwdth (float): The bandwidth.
+    Parameters
+    ----------
+    trace : numpy.ndarray
+        The input trace signal.
+    fs : float
+        The sampling rate of the trace signal.
+    fmin : float
+        The minimum frequency of interest.
+    fmax : float
+        The maximum frequency of interest.
+    nperseg : int
+        The length of each segment for the spectrogram computation.
+    nhop : int
+        The number of samples to advance between segments.
+    plotflag : bool, optional
+        Whether to plot the spectrogram, defaults to False.
 
-    Returns:
-    tuple: A tuple containing the minimum and maximum kernel limits.
+    Returns
+    -------
+    spectrogram : numpy.ndarray
+        The computed spectrogram.
+    ff : ndarray
+        The frequency values of the spectrogram.
+    tt : ndarray
+        The time values of the spectrogram.
+
+    Notes
+    -----
+    This function computes the non-stationary spectrogram of a given trace signal.
+    The spectrogram is computed using the Short-Time Fourier Transform (STFT) with
+    a specified segment length and hop size. The resulting spectrogram is then sliced
+    between the specified minimum and maximum frequencies of interest.
+
+    Examples
+    --------
+    >>> trace = np.random.randn(1000)
+    >>> fs = 1000
+    >>> fmin = 10
+    >>> fmax = 100
+    >>> nperseg = 256
+    >>> nhop = 128
+    >>> spectrogram, ff, tt = get_sliced_nspectrogram(trace, fs, fmin, fmax, nperseg, nhop, plotflag=True)
     """
 
-    ker_1 = 10
-    ker_2 = 35
-    ker_min = np.min([ker_1, ker_2])
-    ker_max = np.max([ker_1, ker_2])
-    return ker_min, ker_max
+    spectrogram = np.abs(librosa.stft(y=trace, n_fft=nperseg, hop_length=nhop))
+    # Axis
+    nf, nt = spectrogram.shape
+    print(nf, nt)
+    tt = np.linspace(0, len(trace)/fs, num=nt)
+    ff = np.linspace(0, fs / 2, num=nf)
+    p = spectrogram / np.max(spectrogram)
+
+    # Slice the spectrogram betweem fmin and fmax
+    ff_idx = np.where((ff >= fmin) & (ff <= fmax))
+    p = p[ff_idx[0], :]
+    ff = ff[ff_idx[0]]
+
+    if plotflag:
+        roseus = import_roseus()
+        fig, ax = plt.subplots(figsize=(12,4))
+        shw = ax.pcolormesh(tt, ff, p, cmap=roseus, vmin=None, vmax=None)
+        # Colorbar
+        bar = fig.colorbar(shw, aspect=20, pad=0.015)
+        bar.set_label('Normalized amplitude')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Frequency (Hz)')
+        plt.tight_layout()
+        plt.show()
+
+    return spectrogram, ff, tt
 
 
 def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=False, kernel_lims=finKernelLims):
