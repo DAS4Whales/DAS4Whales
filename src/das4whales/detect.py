@@ -1,8 +1,11 @@
 # Detection module of DAS4whales package
 import numpy as np
+import matplotlib.pyplot as plt
 import scipy.signal as sp
 import scipy.stats as st
 from tqdm import tqdm
+
+## Matched filter detection functions:
 
 def gen_linear_chirp(fmin, fmax, duration, sampling_rate):
     t = np.arange(0, duration, 1/sampling_rate)
@@ -122,5 +125,106 @@ def convert_pick_times(peaks_indexes_m):
             peaks_indexes_tp[1].append(el)
 
     peaks_indexes_tp = np.asarray(peaks_indexes_tp)
+
+## Spectrogram correlation functions:
+
+def finKernelLims(f0, f1, bdwdth):
+    """
+    Calculate the minimum and maximum kernel limits based on given parameters.
+
+    Parameters:
+    f0 (float): The first kernel limit.
+    f1 (float): The second kernel limit.
+    bdwdth (float): The bandwidth.
+
+    Returns:
+    tuple: A tuple containing the minimum and maximum kernel limits.
+    """
+
+    ker_1 = 10
+    ker_2 = 35
+    ker_min = np.min([ker_1, ker_2])
+    ker_max = np.max([ker_1, ker_2])
+    return ker_min, ker_max
+
+
+def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=False, kernel_lims=finKernelLims):
+    """
+    Calculate kernel and plot.
+
+    Parameters:
+    ----------
+    f0 : float
+        Starting frequency.
+    f1 : float
+        Ending frequency.
+    bdwdth : float
+        Frequency width of call.
+    dur : float
+        Call length (seconds).
+    f : np.array
+        Vector of frequencies returned from plotwav.
+    t : np.array
+        Vector of times returned from plotwav.
+    samp : float
+        Sample rate.
+    plotflag : bool, optional
+        If True, plots kernel. If False, no plot. Default is False.
+    kernel_lims : tuple, optional
+        Tuple of minimum kernel range and maximum kernel range. Default is finKernelLims.
+
+    Returns:
+    -------
+    tvec : numpy.array
+        Vector of kernel times.
+    fvec_sub : numpy.array
+        Vector of kernel frequencies.
+    BlueKernel : 2-d numpy.array
+        Matrix of kernel values.
+
+    Key variables:
+    -------------
+    tvec : numpy.array
+        Kernel times (seconds).
+    fvec : numpy.array
+        Kernel frequencies.
+    BlueKernel : numpy.array
+        Matrix of kernel values.
+    """
+
+    # create a time vector of the same length as the call, with the same number of points as the spectrogram
+    tvec = np.linspace(0, dur, np.size(np.nonzero((t < dur*8) & (t > dur*7)))) 
+    # another way: int(dur * fs / (nperseg * (1-overlap_pct)) + 1)
+    # define frequency span of kernel to match spectrogram
+    fvec = f 
+    # preallocate kernel array
+    Kdist = np.zeros((len(fvec), len(tvec))) 
+    ker_min, ker_max = kernel_lims(f0, f1, bdwdth)
+    
+    for j in range(len(tvec)):
+        # calculate hat function that is centered on linearly decreasing
+        # frequency values for each time in tvec
+        x = fvec - (f0 + (tvec[j] / dur) * (f1 - f0))
+        Kval = (1 - np.square(x) / (bdwdth * bdwdth)) * np.exp(-np.square(x) / (2 * (bdwdth * bdwdth)))
+        # store hat function values in preallocated array
+        Kdist[:, j] = Kval 
+    
+    BlueKernel_full = Kdist
+    freq_inds = np.where(np.logical_and(fvec >= ker_min, fvec <= ker_max))
+    
+    fvec_sub = fvec[freq_inds]
+    BlueKernel = BlueKernel_full[freq_inds, :][0]
+    
+    if plotflag:
+        plt.figure(figsize=(20, 16))
+        plt.pcolormesh(tvec, fvec_sub, BlueKernel, cmap="bwr", vmin=-np.max(np.abs(BlueKernel)), vmax=np.max(np.abs(BlueKernel)))      
+        plt.axis([0, dur, np.min(fvec), np.max(fvec)])
+        plt.gca().set_aspect('equal')
+        plt.colorbar()
+        plt.ylim(ker_min, ker_max)
+        plt.title('Fin whale call kernel')
+        plt.show()
+        
+    return tvec, fvec_sub, BlueKernel, freq_inds
     
     return peaks_indexes_tp
