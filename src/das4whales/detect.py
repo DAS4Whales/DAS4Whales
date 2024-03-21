@@ -219,11 +219,12 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=False, kernel_lims=fin
     
     if plotflag:
         plt.figure(figsize=(20, 16))
-        plt.pcolormesh(tvec, fvec_sub, BlueKernel, cmap="bwr", vmin=-np.max(np.abs(BlueKernel)), vmax=np.max(np.abs(BlueKernel)))      
+        plt.pcolormesh(tvec, fvec_sub, BlueKernel, cmap="RdBu_r", vmin=-np.max(np.abs(BlueKernel)), vmax=np.max(np.abs(BlueKernel)),)
         plt.axis([0, dur, np.min(fvec), np.max(fvec)])
         plt.gca().set_aspect('equal')
         plt.colorbar()
         plt.ylim(ker_min, ker_max)
+        plt.gca().set_aspect('equal')
         plt.title('Fin whale call kernel')
         plt.show()
         
