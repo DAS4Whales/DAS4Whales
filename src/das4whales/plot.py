@@ -28,7 +28,7 @@ def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=N
     #TODO determine if the envelope should be implemented here rather than just abs
     # Replace abs(trace) per abs(sp.hilbert(trace, axis=1)) ? 
     shw = plt.imshow(abs(trace) * 10 ** 9, extent=[time[0], time[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
-                     origin='lower', cmap='jet', vmin=v_min, vmax=v_max)
+                     origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
     plt.ylabel('Distance (km)')
     plt.xlabel('Time (s)')
     bar = fig.colorbar(shw, aspect=30, pad=0.015)
@@ -317,7 +317,7 @@ def snr_matrix(snr_m, time, dist, vmax, file_begin_time_utc=None):
         maximun value of the plot (dB)
     """    
     fig = plt.figure(figsize=(12, 10))
-    snrp = plt.imshow(snr_m, extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='jet', origin='lower',  aspect='auto', vmin=0, vmax=vmax)
+    snrp = plt.imshow(snr_m, extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='turbo', origin='lower',  aspect='auto', vmin=0, vmax=vmax)
     bar = fig.colorbar(snrp, aspect=30, pad=0.015)
     bar.set_label('SNR [dB]')
     bar.ax.yaxis.set_major_formatter(tkr.FormatStrFormatter('%.0f'))

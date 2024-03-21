@@ -55,39 +55,42 @@ def main(url):
         # band-pass filtering:
         fmin = 14.
         fmax = 30.
+        # f-k filtering:
         csmin = 1350.
+        cpmin = 1450.
+        cpmax = 3300.
+        csmax = 3450.
 
         ## 2 steps non infinite gaussian taper
         ## bandpass filter
         tr = dw.dsp.bp_filt(tr, fs, fmin, fmax)
         # trf_bp = tr
 
-        ## non infinite gaussian taper
+        ## non infinite gaussian taper from shima
         # trf_fk_nf_gs = dw.dsp.fk_filt(trf_bp, 1, fs, selected_channels[2], dx, 1350, 3450)
 
-        ## non infinite cosine taper
-        fk_filter_nf_cos = dw.dsp.hybrid_ninf_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, cs_min=1350., cp_min=1500., cp_max=3300, cs_max=3450, fmin=fmin, fmax=fmax,
+        ## non infinite hybrid cosine taper
+        fk_filter_nf_cos = dw.dsp.hybrid_ninf_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, cs_min=csmin, cp_min=cpmin, cp_max=cpmax, cs_max=csmax, fmin=fmin, fmax=fmax,
         display_filter=False)
 
         trf_fk_nf_cos = dw.dsp.fk_filter_sparsefilt(tr, fk_filter_nf_cos, tapering=False)
 
-        ## non infinite gaussian taper
-        fk_filter_nf_gs = dw.dsp.hybrid_ninf_gs_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, cs_min=1350., cp_min=1500., cp_max=3300, cs_max=3450, fmin=fmin, fmax=fmax,
+        ## non infinite hybrid gaussian taper
+        fk_filter_nf_gs = dw.dsp.hybrid_ninf_gs_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, cs_min=csmin, cp_min=cpmin, cp_max=cpmax, cs_max=csmax, fmin=fmin, fmax=fmax,
         display_filter=False)
 
         trf_fk_nf_gs = dw.dsp.fk_filter_sparsefilt(tr, fk_filter_nf_gs, tapering=False)
 
         # includes band-pass filter trf = sp.sosfiltfilt(sos_bpfilter, tr, axis=1) 
-        ## Cosine taper hybrid filter
+        ## infinite hybrid cosine taper
         fk_filter_inf_cos = dw.dsp.hybrid_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, 
-                                        cs_min=1350, cp_min=1450, fmin=14, fmax=30, display_filter=False)
+                                        cs_min=csmin, cp_min=cpmin, fmin=fmin, fmax=fmax, display_filter=False)
                                         
-        # Apply the f-k filter to the data, returns spatio-temporal strain matrix
         trf_fk_inf_cos = dw.dsp.fk_filter_sparsefilt(tr, fk_filter_inf_cos, tapering=False)
 
-        ## Gaussian taper hybrid filter
+        ## infinite hybrid Gaussian taper
         fk_filter_inf_gs = dw.dsp.hybrid_gs_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, 
-                                        cs_min=1350, cp_min=1450, fmin=14, fmax=30, display_filter=False)
+                                        cs_min=csmin, cp_min=cpmin, fmin=fmin, fmax=fmax, display_filter=False)
 
         trf_fk_inf_gs = dw.dsp.fk_filter_sparsefilt(tr, fk_filter_inf_gs, tapering=False)
 
