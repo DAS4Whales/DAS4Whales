@@ -126,6 +126,8 @@ def convert_pick_times(peaks_indexes_m):
 
     peaks_indexes_tp = np.asarray(peaks_indexes_tp)
 
+    return peaks_indexes_tp
+
 ## Spectrogram correlation functions:
 
 def finKernelLims(f0, f1, bdwdth):

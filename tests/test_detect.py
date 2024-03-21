@@ -89,6 +89,7 @@ def test_convert_pick_times():
     x = np.array([[1, 2, 3, 2, 1],[1, 2, 3, 2, 1]])
     threshold = 3
     result = convert_pick_times(x)
+    print(result)
     assert len(result) == 2
 
     # Test case 2
