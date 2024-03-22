@@ -203,7 +203,7 @@ def get_sliced_nspectrogram(trace, fs, fmin, fmax, nperseg, nhop, plotflag=False
         plt.ylabel('Frequency (Hz)')
         plt.tight_layout()
         plt.show()
-
+    
     return p, ff, tt
 
 
@@ -252,7 +252,6 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, fmin, fmax, plotflag=False):
     """
 
     # create a time vector of the same length as the call, with the same number of points as the spectrogram
-    print(np.shape(f))
     tvec = np.linspace(0, dur, np.size(np.nonzero((t < dur*8) & (t > dur*7)))) 
     # another way: int(dur * fs / (nperseg * (1-overlap_pct)) + 1)
     # define frequency span of kernel to match spectrogram
@@ -346,3 +345,31 @@ def xcorr2d(spectro, kernel):
     maxcorr_t = np.max(correlation, axis=0)
 
     return maxcorr_t
+
+
+def compute_cross_correlogram_spectrocorr(data, fs, flims, win_size, overlap_pct):
+    nperseg = int(win_size * fs)
+    nhop = int(np.floor(nperseg * (1 - overlap_pct)))
+    noverlap = nperseg - nhop
+    print(f'nperseg: {nperseg}, noverlap: {noverlap}, hop_length: {nhop}')   
+    fmin, fmax = flims
+
+    # Call metrics from the OOI dataset calls 2021-11-04T020002 
+    f0 = 28.
+    f1 = 19. # 17.8
+    duration = 0.68
+    bandwidth = 3 # or 5?
+
+    # Compute correlation along axis 1
+    cross_correlogram = None
+    kernel = None
+
+    for i in tqdm(range(data.shape[0])):
+        spectro, ff, tt = get_sliced_nspectrogram(data[i, :], fs, fmin, fmax, nperseg, nhop, plotflag=False)
+        if cross_correlogram is None:
+            cross_correlogram = np.empty((data.shape[0], len(tt)))
+        if kernel is None:
+            tvec, fvec_sub, kernel = buildkernel(f0, f1, bandwidth, duration, ff, tt, fs, fmin, fmax, plotflag=False)
+        cross_correlogram[i, :] = xcorr2d(spectro, kernel)
+
+    return cross_correlogram

@@ -301,6 +301,48 @@ def detection_mf(trace, peaks_idx_HF, peaks_idx_LF, time, dist, fs, dx, selected
     return
 
 
+def detection_spectcorr(trace, peaks_idx, time, spectro_fs, dist, fs, dx, selected_channels, file_begin_time_utc=None):
+    """Plot the strain trace matrix [dist x time] with call detection above it
+
+    Parameters
+    ----------
+    trace : numpy.ndarray
+        [channel x time sample] array containing the strain data in the spatio-temporal domain
+    peaks_idx_HF : tuple
+        tuple of lists containing the detected call indexes coordinates (first list: channel idx, second list: time idx) for the high frequency call
+    time : numpy.ndarray
+        time vector
+    dist : numpy.ndarray
+        distance vector along the cable
+    fs : float
+        sampling frequency
+    dx : float
+        spatial step
+    selected_channels : list
+        list of selected channels indexes [start, stop, step]
+    file_begin_time_utc : int, optional
+        time stamp of file, by default 0
+    """    
+
+    fig = plt.figure(figsize=(12,10))
+    cplot = plt.imshow(abs(sp.hilbert(trace, axis=1)) * 1e9, extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='jet', origin='lower',  aspect='auto', vmin=0, vmax=0.4, alpha=0.35)
+    plt.scatter(peaks_idx[1] / spectro_fs, (peaks_idx[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='red', marker='x', label='Fin whale call')
+    bar = fig.colorbar(cplot, aspect=30, pad=0.015)
+    bar.set_label('Strain Envelope [-] (x$10^{-9}$)')
+    plt.xlabel('Time [s]')  
+    plt.ylabel('Distance [km]')
+    plt.legend(loc="upper right")
+    # plt.savefig('test.pdf', format='pdf')
+
+    if isinstance(file_begin_time_utc, datetime):
+        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
+
+    plt.tight_layout()
+    plt.show()
+
+    return
+
+
 def snr_matrix(snr_m, time, dist, vmax, file_begin_time_utc=None):
     """Matrix plot of the local signal to noise ratio (SNR)
 
@@ -368,6 +410,42 @@ def plot_cross_correlogramHL(corr_m_HF, corr_m_LF, time, dist, maxv, minv=0, fil
     ax2.set_title('LF note', loc='right')
 
     cbar = fig.colorbar(im1, ax=[ax1, ax2], orientation='horizontal', aspect=50, pad=0.02) 
+    cbar.set_label('Cross-correlation envelope []')
+    plt.show()
+
+    return
+
+
+def plot_cross_correlogram(corr_m, time, dist, maxv, minv=0, file_begin_time_utc=None):
+    """
+    Plot the cross-correlogram between HF and LF notes.
+
+    Parameters
+    ----------
+    corr_m : numpy.ndarray
+        The cross-correlation matrix
+    time : numpy.ndarray
+        The time values.
+    dist : numpy.ndarray
+        The distance values.
+    maxv : float
+        The maximum value for the colorbar.
+    minv : int, optional
+        The minimum value for the colorbar. Default is 0.
+    file_begin_time_utc : datetime.datetime, optional
+        The beginning time of the file in UTC. Default is None.
+
+    Returns
+    -------
+    None
+    """
+    fig, ax = plt.subplots(figsize=(12, 10), constrained_layout=True)
+    im = ax.imshow(abs(sp.hilbert(corr_m, axis=1)), extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='turbo', origin='lower', aspect='auto', vmin=minv, vmax=maxv) 
+    ax.set_xlabel('Time [s]') 
+    ax.set_ylabel('Distance [km]') 
+    ax.set_title('Cross-correlogram', loc='right')
+
+    cbar = fig.colorbar(im, ax=ax, orientation='horizontal', aspect=50, pad=0.02) 
     cbar.set_label('Cross-correlation envelope []')
     plt.show()
 
