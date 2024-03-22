@@ -186,6 +186,7 @@ def get_sliced_nspectrogram(trace, fs, fmin, fmax, nperseg, nhop, plotflag=False
     tt = np.linspace(0, len(trace)/fs, num=nt)
     ff = np.linspace(0, fs / 2, num=nf)
     p = spectrogram / np.max(spectrogram)
+
     # Slice the spectrogram betweem fmin and fmax
     ff_idx = np.where((ff >= fmin) & (ff <= fmax))
     p = p[ff_idx]
@@ -286,5 +287,62 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, fmin, fmax, plotflag=False):
         plt.show()
         
     return tvec, fvec, BlueKernel
-    
-    return peaks_indexes_tp
+
+
+def nxcorr2d(spectro, kernel):
+    """
+    Calculate the normalized cross-correlation between a spectrogram and a kernel.
+
+    Parameters
+    ----------
+    spectro : numpy.ndarray
+        The spectrogram array.
+    kernel : numpy.ndarray
+        The kernel array.
+
+    Returns
+    -------
+    numpy.ndarray
+        The maximum correlation values along the time axis.
+
+    Notes
+    -----
+    The normalized cross-correlation is calculated using `scipy.signal.correlate2d`.
+    The correlation values are normalized by dividing by the standard deviation of the spectrogram and the kernel,
+    multiplied by the number of columns in the spectrogram.
+
+    Examples
+    --------
+    >>> spectro = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+    >>> kernel = np.array([[1, 0], [0, 1]])
+    >>> nxcorr2d(spectro, kernel)
+    array([0.        , 0.33333333, 0.66666667])
+    """
+    correlation = sp.correlate2d(spectro, kernel, mode='same') / (np.std(spectro) * np.std(kernel) * spectro.shape[1])
+    maxcorr_t = np.max(correlation, axis=0)
+
+    return maxcorr_t
+
+
+def xcorr2d(spectro, kernel):
+    """
+    Calculate the 2D cross-correlation between a spectrogram and a kernel.
+
+    Parameters
+    ----------
+    spectro : numpy.ndarray
+        The input spectrogram array.
+
+    kernel : numpy.ndarray
+        The kernel array used for cross-correlation.
+
+    Returns
+    -------
+    numpy.ndarray
+        The resulting cross-correlation array.
+
+    """
+    correlation = sp.correlate2d(spectro, kernel, mode='same')
+    maxcorr_t = np.max(correlation, axis=0)
+
+    return maxcorr_t
