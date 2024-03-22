@@ -183,15 +183,14 @@ def get_sliced_nspectrogram(trace, fs, fmin, fmax, nperseg, nhop, plotflag=False
     spectrogram = np.abs(librosa.stft(y=trace, n_fft=nperseg, hop_length=nhop))
     # Axis
     nf, nt = spectrogram.shape
-    print(nf, nt)
     tt = np.linspace(0, len(trace)/fs, num=nt)
     ff = np.linspace(0, fs / 2, num=nf)
     p = spectrogram / np.max(spectrogram)
 
     # Slice the spectrogram betweem fmin and fmax
     ff_idx = np.where((ff >= fmin) & (ff <= fmax))
-    p = p[ff_idx[0], :]
-    ff = ff[ff_idx[0]]
+    p = p[ff_idx]
+    ff = ff[ff_idx]
 
     if plotflag:
         roseus = import_roseus()
@@ -205,10 +204,10 @@ def get_sliced_nspectrogram(trace, fs, fmin, fmax, nperseg, nhop, plotflag=False
         plt.tight_layout()
         plt.show()
 
-    return spectrogram, ff, tt
+    return p, ff, tt
 
 
-def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=False, kernel_lims=finKernelLims):
+def buildkernel(f0, f1, bdwdth, dur, f, t, samp, fmin, fmax, plotflag=False):
     """
     Calculate kernel and plot.
 
@@ -253,13 +252,14 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=False, kernel_lims=fin
     """
 
     # create a time vector of the same length as the call, with the same number of points as the spectrogram
+    print(np.shape(f))
     tvec = np.linspace(0, dur, np.size(np.nonzero((t < dur*8) & (t > dur*7)))) 
     # another way: int(dur * fs / (nperseg * (1-overlap_pct)) + 1)
     # define frequency span of kernel to match spectrogram
     fvec = f 
     # preallocate kernel array
     Kdist = np.zeros((len(fvec), len(tvec))) 
-    ker_min, ker_max = kernel_lims(f0, f1, bdwdth)
+    ker_min, ker_max = fmin, fmax
     
     for j in range(len(tvec)):
         # calculate hat function that is centered on linearly decreasing
@@ -269,23 +269,23 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, plotflag=False, kernel_lims=fin
         # store hat function values in preallocated array
         Kdist[:, j] = Kval 
     
-    BlueKernel_full = Kdist
-    freq_inds = np.where(np.logical_and(fvec >= ker_min, fvec <= ker_max))
+    BlueKernel = Kdist
+    # freq_inds = np.where(np.logical_and(fvec >= ker_min, fvec <= ker_max))
     
-    fvec_sub = fvec[freq_inds]
-    BlueKernel = BlueKernel_full[freq_inds, :][0]
+    # fvec_sub = fvec[freq_inds]
+    # BlueKernel = BlueKernel_full[freq_inds, :][0]
     
     if plotflag:
         plt.figure(figsize=(20, 16))
-        plt.pcolormesh(tvec, fvec_sub, BlueKernel, cmap="RdBu_r", vmin=-np.max(np.abs(BlueKernel)), vmax=np.max(np.abs(BlueKernel)),)
+        plt.pcolormesh(tvec, fvec, BlueKernel, cmap="viridis", vmin=-np.max(np.abs(BlueKernel)), vmax=np.max(np.abs(BlueKernel)),)
         plt.axis([0, dur, np.min(fvec), np.max(fvec)])
         plt.gca().set_aspect('equal')
         plt.colorbar()
-        plt.ylim(ker_min, ker_max)
+        plt.ylim(ker_min+1, ker_max)
         plt.gca().set_aspect('equal')
         plt.title('Fin whale call kernel')
         plt.show()
         
-    return tvec, fvec_sub, BlueKernel, freq_inds
+    return tvec, fvec, BlueKernel
     
     return peaks_indexes_tp
