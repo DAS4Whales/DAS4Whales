@@ -186,7 +186,6 @@ def get_sliced_nspectrogram(trace, fs, fmin, fmax, nperseg, nhop, plotflag=False
     tt = np.linspace(0, len(trace)/fs, num=nt)
     ff = np.linspace(0, fs / 2, num=nf)
     p = spectrogram / np.max(spectrogram)
-
     # Slice the spectrogram betweem fmin and fmax
     ff_idx = np.where((ff >= fmin) & (ff <= fmax))
     p = p[ff_idx]
@@ -198,7 +197,7 @@ def get_sliced_nspectrogram(trace, fs, fmin, fmax, nperseg, nhop, plotflag=False
         shw = ax.pcolormesh(tt, ff, p, cmap=roseus, vmin=None, vmax=None)
         # Colorbar
         bar = fig.colorbar(shw, aspect=20, pad=0.015)
-        bar.set_label('Normalized amplitude')
+        bar.set_label('Normalized amplitude [-]')
         plt.xlabel('Time (s)')
         plt.ylabel('Frequency (Hz)')
         plt.tight_layout()
@@ -277,11 +276,11 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, fmin, fmax, plotflag=False):
     
     if plotflag:
         plt.figure(figsize=(20, 16))
-        plt.pcolormesh(tvec, fvec, BlueKernel, cmap="viridis", vmin=-np.max(np.abs(BlueKernel)), vmax=np.max(np.abs(BlueKernel)),)
+        plt.pcolormesh(tvec, fvec, BlueKernel, cmap="RdBu_r", vmin=-np.max(np.abs(BlueKernel)), vmax=np.max(np.abs(BlueKernel)),)
         plt.axis([0, dur, np.min(fvec), np.max(fvec)])
         plt.gca().set_aspect('equal')
         plt.colorbar()
-        plt.ylim(ker_min+1, ker_max)
+        plt.ylim(ker_min, ker_max)
         plt.gca().set_aspect('equal')
         plt.title('Fin whale call kernel')
         plt.show()
