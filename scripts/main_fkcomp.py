@@ -102,24 +102,24 @@ def main(url):
 
         # Get the indexes of the maximal value of the data:
         xi_m, tj_m = np.unravel_index(np.argmax(trf_fk_inf_cos, axis=None), trf_fk_inf_cos.shape)
-        # plt.figure()
-        # plt.plot(dist / 1e3, trf_fk_inf_cos[:, tj_m])
-        # plt.ylabel('strain[-]')
-        # plt.xlabel('distance [km]')
-        # plt.xlim([26.4, 30.4])
+        plt.figure()
+        plt.plot(dist / 1e3, trf_fk_inf_cos[:, tj_m])
+        plt.ylabel('strain[-]')
+        plt.xlabel('distance [km]')
+        plt.xlim([26.4, 30.4])
 
         ## Compute the SNR matrix version
         # Infinite cosine tapers
-        SNR_m = dw.dsp.snr_tr_array(trf_fk_inf_cos)  # 10 * np.log10(trf_fk_inf_cos ** 2 / np.std(trf_fk_inf_cos, axis=1, keepdims=True) ** 2)
+        SNR_m = dw.dsp.snr_tr_array(trf_fk_inf_cos, env=True)  # 10 * np.log10(trf_fk_inf_cos ** 2 / np.std(trf_fk_inf_cos, axis=1, keepdims=True) ** 2)
 
         # Infinite gaussian tapers
-        SNR_m2 = dw.dsp.snr_tr_array(trf_fk_inf_gs)
+        SNR_m2 = dw.dsp.snr_tr_array(trf_fk_inf_gs, env=True)
 
         # Non-infinite gaussian tapers
-        SNR_m3 = dw.dsp.snr_tr_array(trf_fk_nf_gs)
+        SNR_m3 = dw.dsp.snr_tr_array(trf_fk_nf_gs, env=True)
 
         # Non-infinite cosine tapers
-        SNR_m4 = dw.dsp.snr_tr_array(trf_fk_nf_cos)
+        SNR_m4 = dw.dsp.snr_tr_array(trf_fk_nf_cos, env=True)
 
         # Plot the SNR matrix 
         dw.plot.snr_matrix(SNR_m4, time, dist, 20, fileBeginTimeUTC)

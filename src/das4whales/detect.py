@@ -263,11 +263,13 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, fmin, fmax, plotflag=False):
     for j in range(len(tvec)):
         # calculate hat function that is centered on linearly decreasing
         # frequency values for each time in tvec
-        x = fvec - (f0 + (tvec[j] / dur) * (f1 - f0))
+        # Linearly decreasing frequency values
+        # x = fvec - (f0 + (tvec[j] / dur) * (f1 - f0))
+        # Hyperbolic decreasing frequency values
+        x = fvec - (f0 * f1 * dur / ((f0 - f1) * (tvec[j] / dur) + f1 * dur))
         Kval = (1 - np.square(x) / (bdwdth * bdwdth)) * np.exp(-np.square(x) / (2 * (bdwdth * bdwdth)))
         # store hat function values in preallocated array
         Kdist[:, j] = Kval 
-    
     BlueKernel = Kdist
     # freq_inds = np.where(np.logical_and(fvec >= ker_min, fvec <= ker_max))
     
