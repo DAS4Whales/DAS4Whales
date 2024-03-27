@@ -32,17 +32,20 @@ dependencies = [
     "scipy",
     "wget",
     "dask[complete]",
-    "sparse"
+    "sparse",
+    "pytest",
+    "xarray",
+    "tqdm"
 ]
 
 [project.urls]
 Homepage = "https://github.com/leabouffaut/DAS4Whales"
 
 [tool.hatch.version]
-path = "das4whales/__init__.py"
+path = "src/das4whales/__init__.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "/das4whales",
+    "src/das4whales/",
 ]
 
