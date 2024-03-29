@@ -107,6 +107,26 @@ def compute_cross_correlogram(data, template):
 
 
 def pick_times(corr_m, fs, threshold=0.3):
+    """Detects the peak times in a correlation matrix.
+
+    This function takes a correlation matrix, computes the Hilbert transform of each correlation,
+    and detects the peak times based on a given threshold.
+
+    Parameters
+    ----------
+    corr_m : numpy.ndarray
+        The correlation matrix.
+    fs : float
+        The sampling frequency.
+    threshold : float, optional
+        The threshold value for peak detection. Defaults to 0.3.
+
+    Returns
+    -------
+    list
+        A list of arrays, where each array contains the peak indexes for each correlation.
+
+    """
     peaks_indexes_m = []
 
     for corr in tqdm(corr_m, desc="Processing corr_m"):
@@ -117,6 +137,20 @@ def pick_times(corr_m, fs, threshold=0.3):
 
 
 def convert_pick_times(peaks_indexes_m):
+    """
+    Convert pick times from a list of lists to a numpy array.
+
+    Parameters
+    ----------
+    peaks_indexes_m : list of lists
+        A list of lists containing the pick times.
+
+    Returns
+    -------
+    numpy.ndarray
+        A numpy array containing the converted pick times.
+
+    """
     peaks_indexes_tp = ([], [])
 
     for i in range(len(peaks_indexes_m)):
@@ -185,7 +219,7 @@ def get_sliced_nspectrogram(trace, fs, fmin, fmax, nperseg, nhop, plotflag=False
     nf, nt = spectrogram.shape
     tt = np.linspace(0, len(trace)/fs, num=nt)
     ff = np.linspace(0, fs / 2, num=nf)
-    p = spectrogram # / np.max(spectrogram)
+    p = spectrogram / np.max(spectrogram)
 
     # Slice the spectrogram betweem fmin and fmax
     ff_idx = np.where((ff >= fmin) & (ff <= fmax))
@@ -198,7 +232,7 @@ def get_sliced_nspectrogram(trace, fs, fmin, fmax, nperseg, nhop, plotflag=False
         shw = ax.pcolormesh(tt, ff, p, cmap=roseus, vmin=None, vmax=None)
         # Colorbar
         bar = fig.colorbar(shw, aspect=20, pad=0.015)
-        bar.set_label('Normalized amplitude [-]')
+        bar.set_label('Normalized magnitude [-]')
         plt.xlabel('Time (s)')
         plt.ylabel('Frequency (Hz)')
         plt.tight_layout()
@@ -344,12 +378,36 @@ def xcorr2d(spectro, kernel):
 
     """
     correlation = sp.correlate2d(spectro, kernel, mode='same')
-    maxcorr_t = np.max(correlation, axis=0)
+    maxcorr_t = np.sum(correlation, axis=0)
 
     return maxcorr_t
 
 
 def compute_cross_correlogram_spectrocorr(data, fs, flims, win_size, overlap_pct):
+    """Compute the cross-correlogram via spectrogram correlation.
+
+    This function computes the cross-correlogram spectrocorr between the input data and a kernel.
+    The cross-correlogram spectrocorr is a measure of similarity between the spectrogram of the input data
+    and the kernel.
+
+    Parameters
+    ----------
+    data : ndarray
+        Input data array of shape (n, m), where n is the number of samples and m is the number of channels.
+    fs : float
+        Sampling frequency of the input data.
+    flims : tuple
+        Frequency limits (fmin, fmax) for the spectrogram computation.
+    win_size : float
+        Window size in seconds for the spectrogram computation.
+    overlap_pct : float
+        Percentage of overlap between consecutive windows for the spectrogram computation.
+
+    Returns
+    -------
+    cross_correlogram : ndarray
+        Cross-correlogram spectrocorr array of shape (n, p), where n is the number of samples and p is the number of time bins.
+    """
     nperseg = int(win_size * fs)
     nhop = int(np.floor(nperseg * (1 - overlap_pct)))
     noverlap = nperseg - nhop
@@ -366,12 +424,12 @@ def compute_cross_correlogram_spectrocorr(data, fs, flims, win_size, overlap_pct
     cross_correlogram = None
     kernel = None
 
+    spectro, ff, tt = get_sliced_nspectrogram(data[0, :], fs, fmin, fmax, nperseg, nhop, plotflag=False)
+    cross_correlogram = np.empty((data.shape[0], len(tt)))
+    tvec, fvec_sub, kernel = buildkernel(f0, f1, bandwidth, duration, ff, tt, fs, fmin, fmax, plotflag=False)
+
     for i in tqdm(range(data.shape[0])):
-        spectro, ff, tt = get_sliced_nspectrogram(data[i, :], fs, fmin, fmax, nperseg, nhop, plotflag=False)
-        if cross_correlogram is None:
-            cross_correlogram = np.empty((data.shape[0], len(tt)))
-        if kernel is None:
-            tvec, fvec_sub, kernel = buildkernel(f0, f1, bandwidth, duration, ff, tt, fs, fmin, fmax, plotflag=False)
+        spectro, _, _ = get_sliced_nspectrogram(data[i, :], fs, fmin, fmax, nperseg, nhop, plotflag=False)
         cross_correlogram[i, :] = xcorr2d(spectro, kernel)
 
     return cross_correlogram
