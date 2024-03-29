@@ -129,6 +129,8 @@ def plot_spectrogram(p, tt, ff, fig_size=(25, 5), v_min=None, v_max=None, f_min=
 
     shw = ax.pcolormesh(tt, ff, p, shading='auto', cmap=roseus, vmin=v_min, vmax=v_max)
     ax.set_ylim(f_min, f_max)
+    ax.set_xlabel('Time (s)')
+    ax.set_ylabel('Frequency (Hz)')
 
     # Colorbar
     bar = fig.colorbar(shw, aspect=20)

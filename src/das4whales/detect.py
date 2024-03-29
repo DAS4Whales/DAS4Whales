@@ -185,7 +185,7 @@ def get_sliced_nspectrogram(trace, fs, fmin, fmax, nperseg, nhop, plotflag=False
     nf, nt = spectrogram.shape
     tt = np.linspace(0, len(trace)/fs, num=nt)
     ff = np.linspace(0, fs / 2, num=nf)
-    p = spectrogram / np.max(spectrogram)
+    p = spectrogram # / np.max(spectrogram)
 
     # Slice the spectrogram betweem fmin and fmax
     ff_idx = np.where((ff >= fmin) & (ff <= fmax))
@@ -264,9 +264,9 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, fmin, fmax, plotflag=False):
         # calculate hat function that is centered on linearly decreasing
         # frequency values for each time in tvec
         # Linearly decreasing frequency values
-        # x = fvec - (f0 + (tvec[j] / dur) * (f1 - f0))
+        x = fvec - (f0 + (tvec[j] / dur) * (f1 - f0))
         # Hyperbolic decreasing frequency values
-        x = fvec - (f0 * f1 * dur / ((f0 - f1) * (tvec[j] / dur) + f1 * dur))
+        # x = fvec - (f0 * f1 * dur / ((f0 - f1) * (tvec[j] / dur) + f1 * dur))
         Kval = (1 - np.square(x) / (bdwdth * bdwdth)) * np.exp(-np.square(x) / (2 * (bdwdth * bdwdth)))
         # store hat function values in preallocated array
         Kdist[:, j] = Kval 
