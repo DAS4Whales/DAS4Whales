@@ -121,7 +121,7 @@ def compute_cross_correlogram(data, template):
     return cross_correlogram
 
 
-def pick_times(corr_m, fs, threshold):
+def pick_times(corr_m, threshold):
     """Detects the peak times in a correlation matrix.
 
     This function takes a correlation matrix, computes the Hilbert transform of each correlation,
