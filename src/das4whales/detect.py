@@ -121,7 +121,7 @@ def compute_cross_correlogram(data, template):
     return cross_correlogram
 
 
-def pick_times(corr_m, fs, threshold=0.3):
+def pick_times(corr_m, fs, threshold):
     """Detects the peak times in a correlation matrix.
 
     This function takes a correlation matrix, computes the Hilbert transform of each correlation,
@@ -163,7 +163,7 @@ def convert_pick_times(peaks_indexes_m):
     Returns
     -------
     numpy.ndarray
-        A numpy array containing a tuple (time x spatial index) of the converted pick times.
+        A numpy array containing a tuple (time index, spatial index) of the converted pick times.
 
     """
     peaks_indexes_tp = ([], [])
@@ -248,6 +248,8 @@ def get_sliced_nspectrogram(trace, fs, fmin, fmax, nperseg, nhop, plotflag=False
         # Colorbar
         bar = fig.colorbar(shw, aspect=20, pad=0.015)
         bar.set_label('Normalized magnitude [-]')
+        plt.xlim(0, len(trace)/fs)
+        plt.ylim(fmin, fmax)
         plt.xlabel('Time (s)')
         plt.ylabel('Frequency (Hz)')
         plt.tight_layout()
@@ -339,6 +341,27 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, fmin, fmax, plotflag=False):
     return tvec, fvec, BlueKernel
 
 
+def buildkernel_from_template(fmin, fmax, dur, fs, nperseg, nhop, plotflag=False):
+    template = gen_template_fincall(np.arange(0, 1, 1/fs), fs, fmin, fmax, 1, window=True)
+    spectro, ff, tt = get_sliced_nspectrogram(template, fs, fmin, fmax, nperseg, nhop, plotflag=False)
+
+    if plotflag:
+        roseus = import_roseus()
+        fig, ax = plt.subplots(figsize=(2,4))
+        shw = ax.pcolormesh(tt, ff, spectro, cmap=roseus, vmin=None, vmax=None)
+        # Colorbar
+        bar = fig.colorbar(shw, aspect=20, pad=0.015)
+        bar.set_label('Normalized magnitude [-]')
+        plt.xlim(0, 1)
+        plt.ylim(fmin, fmax)
+        plt.xlabel('Time (s)')
+        plt.ylabel('Frequency (Hz)')
+        plt.tight_layout()
+        plt.show()
+
+    return spectro
+
+
 def nxcorr2d(spectro, kernel):
     """
     Calculate the normalized cross-correlation between a spectrogram and a kernel.
@@ -381,10 +404,10 @@ def xcorr2d(spectro, kernel):
     Parameters
     ----------
     spectro : numpy.ndarray
-        The input spectrogram array.
+        The input spectrogram array [frequency x time].
 
     kernel : numpy.ndarray
-        The kernel array used for cross-correlation.
+        The kernel array used for cross-correlation [frequency x time].
 
     Returns
     -------
@@ -394,34 +417,6 @@ def xcorr2d(spectro, kernel):
     """
     correlation = sp.correlate2d(spectro, kernel, mode='same')
     maxcorr_t = np.max(correlation, axis=0)
-
-    return maxcorr_t
-
-
-def xcorr1d_time(spectro, kernel):
-    """
-    Calculate the 1D cross-correlation along the time axis for each column
-    of the spectrogram matrix.
-
-    Parameters
-    ----------
-    spectro : numpy.ndarray
-        The input spectrogram array.
-
-    kernel : numpy.ndarray
-        The kernel array used for cross-correlation.
-
-    Returns
-    -------
-    numpy.ndarray
-        The resulting 1D cross-correlation array along the time axis.
-    """
-    num_cols = spectro.shape[1]  # Number of columns in the spectrogram matrix
-    maxcorr_t = np.zeros(num_cols)
-
-    for i in range(num_cols):
-        correlation = sp.correlate(spectro[:, i], kernel, mode='same')
-        maxcorr_t[i] = np.max(correlation)
 
     return maxcorr_t
 
