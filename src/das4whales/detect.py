@@ -328,7 +328,7 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, fmin, fmax, plotflag=False):
     # BlueKernel = BlueKernel_full[freq_inds, :][0]
     
     if plotflag:
-        plt.figure(figsize=(20, 16))
+        plt.figure(figsize=(20, 4))
         plt.pcolormesh(tvec, fvec, BlueKernel, cmap="RdBu_r", vmin=-np.max(np.abs(BlueKernel)), vmax=np.max(np.abs(BlueKernel)),)
         plt.axis([0, dur, np.min(fvec), np.max(fvec)])
         plt.gca().set_aspect('equal')
@@ -342,7 +342,8 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, fmin, fmax, plotflag=False):
 
 
 def buildkernel_from_template(fmin, fmax, dur, fs, nperseg, nhop, plotflag=False):
-    template = gen_template_fincall(np.arange(0, 1, 1/fs), fs, fmin, fmax, 1, window=True)
+    template = gen_hyperbolic_chirp(fmin, fmax, dur, fs)
+    template *= np.hanning(len(template))
     spectro, ff, tt = get_sliced_nspectrogram(template, fs, fmin, fmax, nperseg, nhop, plotflag=False)
 
     if plotflag:
@@ -352,7 +353,7 @@ def buildkernel_from_template(fmin, fmax, dur, fs, nperseg, nhop, plotflag=False
         # Colorbar
         bar = fig.colorbar(shw, aspect=20, pad=0.015)
         bar.set_label('Normalized magnitude [-]')
-        plt.xlim(0, 1)
+        plt.xlim(0, dur)
         plt.ylim(fmin, fmax)
         plt.xlabel('Time (s)')
         plt.ylabel('Frequency (Hz)')
