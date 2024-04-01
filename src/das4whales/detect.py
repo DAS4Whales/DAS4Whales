@@ -93,6 +93,21 @@ def shift_nxcorr(x, y):
 
 
 def compute_cross_correlogram(data, template):
+    """
+    Compute the cross correlogram between the given data and template.
+
+    Parameters
+    ----------
+    data : numpy.ndarray
+        The input data array.
+    template : numpy.ndarray
+        The template array.
+
+    Returns
+    -------
+    numpy.ndarray
+        The cross correlogram array.
+    """    
     # Normalize data along axis 1 by its maximum (peak normalization)
     norm_data = (data - np.mean(data, axis=1, keepdims=True)) / np.max(np.abs(data), axis=1, keepdims=True)
     template = (template - np.mean(template)) / np.max(np.abs(template))
@@ -148,7 +163,7 @@ def convert_pick_times(peaks_indexes_m):
     Returns
     -------
     numpy.ndarray
-        A numpy array containing the converted pick times.
+        A numpy array containing a tuple (time x spatial index) of the converted pick times.
 
     """
     peaks_indexes_tp = ([], [])
@@ -378,7 +393,35 @@ def xcorr2d(spectro, kernel):
 
     """
     correlation = sp.correlate2d(spectro, kernel, mode='same')
-    maxcorr_t = np.sum(correlation, axis=0)
+    maxcorr_t = np.max(correlation, axis=0)
+
+    return maxcorr_t
+
+
+def xcorr1d_time(spectro, kernel):
+    """
+    Calculate the 1D cross-correlation along the time axis for each column
+    of the spectrogram matrix.
+
+    Parameters
+    ----------
+    spectro : numpy.ndarray
+        The input spectrogram array.
+
+    kernel : numpy.ndarray
+        The kernel array used for cross-correlation.
+
+    Returns
+    -------
+    numpy.ndarray
+        The resulting 1D cross-correlation array along the time axis.
+    """
+    num_cols = spectro.shape[1]  # Number of columns in the spectrogram matrix
+    maxcorr_t = np.zeros(num_cols)
+
+    for i in range(num_cols):
+        correlation = sp.correlate(spectro[:, i], kernel, mode='same')
+        maxcorr_t[i] = np.max(correlation)
 
     return maxcorr_t
 
@@ -421,12 +464,9 @@ def compute_cross_correlogram_spectrocorr(data, fs, flims, win_size, overlap_pct
     bandwidth = 3 # or 5?
 
     # Compute correlation along axis 1
-    cross_correlogram = None
-    kernel = None
-
     spectro, ff, tt = get_sliced_nspectrogram(data[0, :], fs, fmin, fmax, nperseg, nhop, plotflag=False)
     cross_correlogram = np.empty((data.shape[0], len(tt)))
-    tvec, fvec_sub, kernel = buildkernel(f0, f1, bandwidth, duration, ff, tt, fs, fmin, fmax, plotflag=False)
+    _, _, kernel = buildkernel(f0, f1, bandwidth, duration, ff, tt, fs, fmin, fmax, plotflag=False)
 
     for i in tqdm(range(data.shape[0])):
         spectro, _, _ = get_sliced_nspectrogram(data[i, :], fs, fmin, fmax, nperseg, nhop, plotflag=False)
