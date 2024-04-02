@@ -463,6 +463,7 @@ def compute_cross_correlogram_spectrocorr(data, fs, flims, win_size, overlap_pct
     spectro, ff, tt = get_sliced_nspectrogram(data[0, :], fs, fmin, fmax, nperseg, nhop, plotflag=False)
     cross_correlogram = np.empty((data.shape[0], len(tt)))
     _, _, kernel = buildkernel(f0, f1, bandwidth, duration, ff, tt, fs, fmin, fmax, plotflag=False)
+    # kernel = buildkernel_from_template(fmin, fmax, duration, fs, nperseg, nhop, plotflag=False)
 
     for i in tqdm(range(data.shape[0])):
         spectro, _, _ = get_sliced_nspectrogram(data[i, :], fs, fmin, fmax, nperseg, nhop, plotflag=False)
