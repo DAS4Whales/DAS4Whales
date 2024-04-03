@@ -392,7 +392,7 @@ def nxcorr2d(spectro, kernel):
     >>> nxcorr2d(spectro, kernel)
     array([0.        , 0.33333333, 0.66666667])
     """
-    correlation = sp.correlate2d(spectro, kernel, mode='same') / (np.std(spectro) * np.std(kernel) * spectro.shape[1])
+    correlation = sp.correlate(spectro, kernel, mode='same', method='fft') / (np.std(spectro) * np.std(kernel) * spectro.shape[1])
     maxcorr_t = np.max(correlation, axis=0)
 
     return maxcorr_t
@@ -416,7 +416,7 @@ def xcorr2d(spectro, kernel):
         The resulting cross-correlation array.
 
     """
-    correlation = sp.correlate2d(spectro, kernel, mode='same')
+    correlation = sp.correlate(spectro, kernel, mode='same', method='fft')
     maxcorr_t = np.max(correlation, axis=0)
 
     return maxcorr_t
