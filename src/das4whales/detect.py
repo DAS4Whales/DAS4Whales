@@ -416,10 +416,55 @@ def xcorr2d(spectro, kernel):
         The resulting cross-correlation array.
 
     """
-    correlation = sp.correlate(spectro, kernel, mode='same', method='fft')
+    correlation = sp.fftconvolve(spectro, np.flip(kernel), mode='same', axes=1)
     maxcorr_t = np.max(correlation, axis=0)
 
     return maxcorr_t
+
+
+def xcorr(t, f, Sxx, tvec, fvec, BlueKernel):
+    """
+    Cross-correlate kernel with spectrogram
+
+    Parameters:
+    ----------
+    t : np.array
+        Vector of times returned from plotwav
+    f : np.array
+        Vector of frequencies returned from plotwav
+    Sxx : np.array
+        2-D array of spectrogram amplitudes
+    tvec : np.array
+        Vector of times of kernel
+    fvec : np.array
+        Vector of frequencies of kernel
+    BlueKernel : np.array
+        2-D array of kernel amplitudes
+
+    Returns:
+    -------
+    t_scale : numpy.array
+        Vector of correlation lags
+    CorrVal : numpy.array
+        Vector of correlation values
+
+    """
+    tvec_size = np.size(tvec)
+    fvec_size = np.size(fvec)
+    CorrVal = np.zeros(np.size(t) - (tvec_size-1))
+    corrchunk= np.zeros((fvec_size, tvec_size))
+
+    for ind1 in range(np.size(t) - tvec_size + 1):
+        ind2 = ind1 + tvec_size
+        corrchunk = Sxx[:fvec_size, ind1:ind2]
+        CorrVal[ind1] = np.sum(BlueKernel * corrchunk)
+
+    CorrVal /= (np.median(Sxx)*tvec_size)
+    CorrVal[0] = 0
+    CorrVal[-1] = 0
+    CorrVal[CorrVal < 0] = 0
+    t_scale = t[int(tvec_size / 2)-1:-int(np.ceil(tvec_size / 2))]
+    return  [t_scale, CorrVal]
 
 
 def compute_cross_correlogram_spectrocorr(data, fs, flims, win_size, overlap_pct):
