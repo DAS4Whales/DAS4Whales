@@ -234,7 +234,7 @@ def get_sliced_nspectrogram(trace, fs, fmin, fmax, nperseg, nhop, plotflag=False
     nf, nt = spectrogram.shape
     tt = np.linspace(0, len(trace)/fs, num=nt)
     ff = np.linspace(0, fs / 2, num=nf)
-    p = spectrogram / np.max(spectrogram)
+    p = spectrogram #/ np.max(spectrogram)
 
     # Slice the spectrogram betweem fmin and fmax
     ff_idx = np.where((ff >= fmin) & (ff <= fmax))
@@ -328,13 +328,11 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, fmin, fmax, plotflag=False):
     # BlueKernel = BlueKernel_full[freq_inds, :][0]
     
     if plotflag:
-        plt.figure(figsize=(20, 4))
+        plt.figure(figsize=(3, 4))
         plt.pcolormesh(tvec, fvec, BlueKernel, cmap="RdBu_r", vmin=-np.max(np.abs(BlueKernel)), vmax=np.max(np.abs(BlueKernel)),)
         plt.axis([0, dur, np.min(fvec), np.max(fvec)])
-        plt.gca().set_aspect('equal')
         plt.colorbar()
         plt.ylim(ker_min, ker_max)
-        plt.gca().set_aspect('equal')
         plt.title('Fin whale call kernel')
         plt.show()
         
@@ -416,8 +414,10 @@ def xcorr2d(spectro, kernel):
         The resulting cross-correlation array.
 
     """
-    correlation = sp.fftconvolve(spectro, np.flip(kernel), mode='same', axes=1)
-    maxcorr_t = np.max(correlation, axis=0)
+    correlation = sp.fftconvolve(spectro, np.flip(kernel, axis=1), mode='same', axes=1)
+    maxcorr_t = np.sum(correlation, axis=0)
+    maxcorr_t[maxcorr_t < 0] = 0
+    maxcorr_t /= (np.median(spectro) * kernel.shape[1])
 
     return maxcorr_t
 
@@ -499,10 +499,16 @@ def compute_cross_correlogram_spectrocorr(data, fs, flims, win_size, overlap_pct
     fmin, fmax = flims
 
     # Call metrics from the OOI dataset calls 2021-11-04T020002 
-    f0 = 28.
-    f1 = 19. # 17.8
-    duration = 0.68
-    bandwidth = 3 # or 5?
+    # HF call
+    # f0 = 28.8
+    # f1 = 17.8 # 17.8
+    # duration = 0.68
+    bandwidth = 2 # or 5?
+
+    # LF call  
+    f1 = 14.7 
+    f0 = 21.8 
+    duration = 0.78
 
     # Compute correlation along axis 1
     spectro, ff, tt = get_sliced_nspectrogram(data[0, :], fs, fmin, fmax, nperseg, nhop, plotflag=False)
