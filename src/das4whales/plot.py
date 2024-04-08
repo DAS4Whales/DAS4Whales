@@ -303,7 +303,7 @@ def detection_mf(trace, peaks_idx_HF, peaks_idx_LF, time, dist, fs, dx, selected
     return
 
 
-def detection_spectcorr(trace, peaks_idx, time, spectro_fs, dist, fs, dx, selected_channels, file_begin_time_utc=None):
+def detection_spectcorr(trace, peaks_idx_HF, peaks_idx_LF, time, dist, spectro_fs, dx, selected_channels, file_begin_time_utc=None):
     """Plot the strain trace matrix [dist x time] with call detection above it
 
     Parameters
@@ -312,12 +312,14 @@ def detection_spectcorr(trace, peaks_idx, time, spectro_fs, dist, fs, dx, select
         [channel x time sample] array containing the strain data in the spatio-temporal domain
     peaks_idx_HF : tuple
         tuple of lists containing the detected call indexes coordinates (first list: channel idx, second list: time idx) for the high frequency call
+    peaks_idx_LF : tuple
+        tuple of lists containing the detected call indexes coordinates (first list: channel idx, second list: time idx) for the low frequency call
     time : numpy.ndarray
         time vector
     dist : numpy.ndarray
         distance vector along the cable
-    fs : float
-        sampling frequency
+    spectro_fs : float
+        sampling frequency of the spectrograms
     dx : float
         spatial step
     selected_channels : list
@@ -328,7 +330,9 @@ def detection_spectcorr(trace, peaks_idx, time, spectro_fs, dist, fs, dx, select
 
     fig = plt.figure(figsize=(12,10))
     cplot = plt.imshow(abs(sp.hilbert(trace, axis=1)) * 1e9, extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='jet', origin='lower',  aspect='auto', vmin=0, vmax=0.4, alpha=0.35)
-    plt.scatter(peaks_idx[1] / spectro_fs, (peaks_idx[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='red', marker='x', label='Fin whale call')
+    plt.scatter(peaks_idx_HF[1] / spectro_fs, (peaks_idx_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='red', marker='x', label='HF call')
+    plt.scatter(peaks_idx_LF[1] / spectro_fs, (peaks_idx_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='green', marker='.', label='LF_note')
+
     bar = fig.colorbar(cplot, aspect=30, pad=0.015)
     bar.set_label('Strain Envelope [-] (x$10^{-9}$)')
     plt.xlabel('Time [s]')  
