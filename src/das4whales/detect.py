@@ -234,7 +234,7 @@ def get_sliced_nspectrogram(trace, fs, fmin, fmax, nperseg, nhop, plotflag=False
     nf, nt = spectrogram.shape
     tt = np.linspace(0, len(trace)/fs, num=nt)
     ff = np.linspace(0, fs / 2, num=nf)
-    p = spectrogram #/ np.max(spectrogram)
+    p = spectrogram / np.max(spectrogram)
 
     # Slice the spectrogram betweem fmin and fmax
     ff_idx = np.where((ff >= fmin) & (ff <= fmax))
@@ -467,7 +467,7 @@ def xcorr(t, f, Sxx, tvec, fvec, BlueKernel):
     return  [t_scale, CorrVal]
 
 
-def compute_cross_correlogram_spectrocorr(data, fs, flims, win_size, overlap_pct):
+def compute_cross_correlogram_spectrocorr(data, fs, flims, kernel, win_size, overlap_pct):
     """Compute the cross-correlogram via spectrogram correlation.
 
     This function computes the cross-correlogram spectrocorr between the input data and a kernel.
@@ -482,6 +482,8 @@ def compute_cross_correlogram_spectrocorr(data, fs, flims, win_size, overlap_pct
         Sampling frequency of the input data.
     flims : tuple
         Frequency limits (fmin, fmax) for the spectrogram computation.
+    kernel : dict
+        Dictionary containing the kernel parameters (f0, f1, duration, bandwidth).
     win_size : float
         Window size in seconds for the spectrogram computation.
     overlap_pct : float
@@ -506,9 +508,9 @@ def compute_cross_correlogram_spectrocorr(data, fs, flims, win_size, overlap_pct
     bandwidth = 2 # or 5?
 
     # LF call  
-    f1 = 14.7 
-    f0 = 21.8 
-    duration = 0.78
+    f1 = kernel["f1"] 
+    f0 = kernel["f0"] 
+    duration = kernel["dur"]
 
     # Compute correlation along axis 1
     spectro, ff, tt = get_sliced_nspectrogram(data[0, :], fs, fmin, fmax, nperseg, nhop, plotflag=False)
