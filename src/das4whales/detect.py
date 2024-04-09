@@ -315,13 +315,13 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, fmin, fmax, plotflag=False):
         # calculate hat function that is centered on linearly decreasing
         # frequency values for each time in tvec
         # Linearly decreasing frequency values
-        x = fvec - (f0 + (tvec[j] / dur) * (f1 - f0))
+        # x = fvec - (f0 + (tvec[j] / dur) * (f1 - f0))
         # Hyperbolic decreasing frequency values
-        # x = fvec - (f0 * f1 * dur / ((f0 - f1) * (tvec[j] / dur) + f1 * dur))
+        x = fvec - (f0 * f1 * dur / ((f0 - f1) * (tvec[j]) + f1 * dur))
         Kval = (1 - np.square(x) / (bdwdth * bdwdth)) * np.exp(-np.square(x) / (2 * (bdwdth * bdwdth)))
         # store hat function values in preallocated array
         Kdist[:, j] = Kval 
-    BlueKernel = Kdist
+    BlueKernel = Kdist * np.hanning(len(tvec))[np.newaxis, :]
     # freq_inds = np.where(np.logical_and(fvec >= ker_min, fvec <= ker_max))
     
     # fvec_sub = fvec[freq_inds]
@@ -494,23 +494,26 @@ def compute_cross_correlogram_spectrocorr(data, fs, flims, kernel, win_size, ove
     cross_correlogram : ndarray
         Cross-correlogram spectrocorr array of shape (n, p), where n is the number of samples and p is the number of time bins.
     """
+
+    norm_data = (data - np.mean(data, axis=1, keepdims=True)) / np.max(np.abs(data), axis=1, keepdims=True)
+
     nperseg = int(win_size * fs)
     nhop = int(np.floor(nperseg * (1 - overlap_pct)))
     noverlap = nperseg - nhop
     print(f'nperseg: {nperseg}, noverlap: {noverlap}, hop_length: {nhop}')   
     fmin, fmax = flims
 
-    # Call metrics from the OOI dataset calls 2021-11-04T020002 
-    # HF call
-    # f0 = 28.8
-    # f1 = 17.8 # 17.8
-    # duration = 0.68
-    bandwidth = 2 # or 5?
-
-    # LF call  
+    # get call kernel attributes
     f1 = kernel["f1"] 
     f0 = kernel["f0"] 
     duration = kernel["dur"]
+    bandwidth = kernel["bdwidth"]
+
+    # check that hat function is within frequency range of spectrogram
+    if fmax-f1 < 2 * bandwidth:
+        fmax = f1 + 3 * bandwidth
+    if f0-fmin < 2 * bandwidth: 
+        fmin = f0 - 3 * bandwidth
 
     # Compute correlation along axis 1
     spectro, ff, tt = get_sliced_nspectrogram(data[0, :], fs, fmin, fmax, nperseg, nhop, plotflag=False)
