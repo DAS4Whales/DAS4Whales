@@ -349,7 +349,7 @@ def detection_spectcorr(trace, peaks_idx_HF, peaks_idx_LF, time, dist, spectro_f
     return
 
 
-def snr_matrix(snr_m, time, dist, vmax, file_begin_time_utc=None):
+def snr_matrix(snr_m, time, dist, vmax, file_begin_time_utc=None, title=None):
     """Matrix plot of the local signal to noise ratio (SNR)
 
     Parameters
@@ -372,7 +372,10 @@ def snr_matrix(snr_m, time, dist, vmax, file_begin_time_utc=None):
     plt.ylabel('Distance [km]')
     
     if isinstance(file_begin_time_utc, datetime):
-        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
+        if isinstance(title, str):
+            plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S")+'/ '+title, loc='right')
+        else:
+            plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
 
     plt.tight_layout()
     plt.show()

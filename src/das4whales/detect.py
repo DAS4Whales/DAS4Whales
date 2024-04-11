@@ -131,8 +131,6 @@ def pick_times(corr_m, threshold):
     ----------
     corr_m : numpy.ndarray
         The correlation matrix.
-    fs : float
-        The sampling frequency.
     threshold : float, optional
         The threshold value for peak detection. Defaults to 0.3.
 

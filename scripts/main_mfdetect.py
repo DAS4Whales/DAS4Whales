@@ -82,13 +82,20 @@ def main(url):
     maxv = max(np.max(corr_m_HF), np.max(corr_m_LF))
     dw.plot.plot_cross_correlogramHL(corr_m_HF, corr_m_LF, time, dist, maxv)
 
+    # compute and plot the SNR of the cross-correlograms
+    SNR_hf = dw.dsp.snr_tr_array(corr_m_HF, env=True)
+    SNR_lf = dw.dsp.snr_tr_array(corr_m_LF, env=True)
+
+    dw.plot.snr_matrix(SNR_hf, time, dist, 20, fileBeginTimeUTC, title='mf detect: HF')
+    dw.plot.snr_matrix(SNR_lf, time, dist, 20, fileBeginTimeUTC, title ='mf detect: LF')
+
     # Find the local maximas using find peaks and a threshold
     print(f"The maximum correlation is {maxv}")
     thres = 0.5 * maxv
     print(f' The detection threshold is {thres} for the low frequency note and {thres*0.9} for the high frequency note.')
     # Find the arrival times and store them in a list of arrays format 
-    peaks_indexes_m_HF = dw.detect.pick_times(corr_m_HF, fs, threshold=thres * 0.9)
-    peaks_indexes_m_LF = dw.detect.pick_times(corr_m_LF, fs, threshold=thres)
+    peaks_indexes_m_HF = dw.detect.pick_times(corr_m_HF, threshold=thres * 0.9)
+    peaks_indexes_m_LF = dw.detect.pick_times(corr_m_LF, threshold=thres)
 
     # Convert the list of array to tuple format
     peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_m_HF)
