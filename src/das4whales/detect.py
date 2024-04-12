@@ -326,12 +326,15 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, fmin, fmax, plotflag=False):
     # BlueKernel = BlueKernel_full[freq_inds, :][0]
     
     if plotflag:
-        plt.figure(figsize=(3, 4))
-        plt.pcolormesh(tvec, fvec, BlueKernel, cmap="RdBu_r", vmin=-np.max(np.abs(BlueKernel)), vmax=np.max(np.abs(BlueKernel)),)
+        plt.figure(figsize=(1, 5))
+        img = plt.pcolormesh(tvec, fvec, BlueKernel, cmap="RdBu_r", vmin=-np.max(np.abs(BlueKernel)), vmax=np.max(np.abs(BlueKernel)),)
         plt.axis([0, dur, np.min(fvec), np.max(fvec)])
-        plt.colorbar()
+        plt.colorbar(img, format='%.1f')
+        plt.clim(-1, 1)
         plt.ylim(ker_min, ker_max)
         plt.title('Fin whale call kernel')
+        plt.xlabel('t [s]')
+        plt.ylabel('f [Hz]')
         plt.show()
         
     return tvec, fvec, BlueKernel

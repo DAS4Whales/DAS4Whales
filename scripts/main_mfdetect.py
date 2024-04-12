@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 plt.rcParams['font.size'] = 20
 
 def main(url):
+    # Download some DAS data
     filepath = dw.data_handle.dl_file(url)
-    # Download some DAS dat
 
     # Get the acquisition parameters for the data folder
     metadata = dw.data_handle.get_acquisition_parameters(filepath, interrogator='optasense')
