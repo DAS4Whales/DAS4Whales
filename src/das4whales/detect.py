@@ -121,7 +121,7 @@ def compute_cross_correlogram(data, template):
     return cross_correlogram
 
 
-def pick_times(corr_m, threshold):
+def pick_times_env(corr_m, threshold):
     """Detects the peak times in a correlation matrix.
 
     This function takes a correlation matrix, computes the Hilbert transform of each correlation,
@@ -144,6 +144,34 @@ def pick_times(corr_m, threshold):
 
     for corr in tqdm(corr_m, desc="Processing corr_m"):
         peaks_indexes = sp.find_peaks(abs(sp.hilbert(corr)), prominence=threshold)[0]
+        peaks_indexes_m.append(peaks_indexes)
+    
+    return peaks_indexes_m
+
+
+def pick_times(corr_m, threshold):
+    """Detects the peak times in a correlation matrix.
+
+    This function takes a correlation matrix, computes the Hilbert transform of each correlation,
+    and detects the peak times based on a given threshold.
+
+    Parameters
+    ----------
+    corr_m : numpy.ndarray
+        The correlation matrix.
+    threshold : float, optional
+        The threshold value for peak detection. Defaults to 0.3.
+
+    Returns
+    -------
+    list
+        A list of arrays, where each array contains the peak indexes for each correlation.
+
+    """
+    peaks_indexes_m = []
+
+    for corr in tqdm(corr_m, desc="Processing corr_m"):
+        peaks_indexes = sp.find_peaks(corr, prominence=threshold)[0]
         peaks_indexes_m.append(peaks_indexes)
     
     return peaks_indexes_m

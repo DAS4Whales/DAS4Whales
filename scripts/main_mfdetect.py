@@ -94,8 +94,8 @@ def main(url):
     thres = 0.5 * maxv
     print(f' The detection threshold is {thres} for the low frequency note and {thres*0.9} for the high frequency note.')
     # Find the arrival times and store them in a list of arrays format 
-    peaks_indexes_m_HF = dw.detect.pick_times(corr_m_HF, threshold=thres * 0.9)
-    peaks_indexes_m_LF = dw.detect.pick_times(corr_m_LF, threshold=thres)
+    peaks_indexes_m_HF = dw.detect.pick_times_env(corr_m_HF, threshold=thres * 0.9)
+    peaks_indexes_m_LF = dw.detect.pick_times_env(corr_m_LF, threshold=thres)
 
     # Convert the list of array to tuple format
     peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_m_HF)
