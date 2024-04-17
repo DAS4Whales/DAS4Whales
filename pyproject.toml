@@ -35,7 +35,8 @@ dependencies = [
     "sparse",
     "pytest",
     "xarray",
-    "tqdm"
+    "tqdm",
+    "torch"
 ]
 
 [project.urls]

@@ -42,7 +42,7 @@ def detect_diagonal_edges(matrix, threshold):
     # dx , dy = np.gradient(matrix)
     
     # Construct a diagonal filter kernel
-    diagonal_filter = np.array([[2, -1, 2],
+    diagonal_filter = np.array([[2, -1, -1],
                                 [-1, 2, -1],
                                 [-1, -1, 2]])
     
@@ -81,10 +81,9 @@ def diagonal_edge_detection(img, threshold):
     img = torch.tensor(img, dtype=torch.float32)
 
 
-    weight_left = torch.tensor([[2, 0, -1, -1], 
-                                 [0, 2, 0, -1],
-                                 [-1, 0, 2, 0],
-                                 [-1, -1, 0, 2]], dtype=torch.float32)
+    weight_left = torch.tensor([[2, -1, -1], 
+                                [-1, 2, -1],
+                                [-1, -1, 2]], dtype=torch.float32)
     
     weight_right = torch.flip(weight_left, [0])
     
