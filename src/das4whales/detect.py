@@ -1,4 +1,12 @@
-# Detection module of DAS4whales package
+"""
+detect.py - Detection module of DAS4Whales package
+
+This module provides functions for detecting whale calls in DAS strain data.
+
+Authors: Quentin Goestchel
+Date: 2023-2024
+"""
+
 import librosa
 import numpy as np
 import matplotlib.pyplot as plt
