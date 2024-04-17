@@ -9,6 +9,7 @@ Date: 2023-2024
 """
 
 import numpy as np
+import scipy.signal as sp
 import matplotlib.pyplot as plt
 
 def gradient_oriented(image, direction):
@@ -32,3 +33,23 @@ def gradient_oriented(image, direction):
     dft, dfx = direction
     grad = -(image[dfx:-dfx, :-dft] - 0.5 * image[2 * dfx:, dft:] - 0.5 * image[:-2*dfx, dft:])
     return grad
+
+
+def detect_diagonal_edges(matrix, threshold):
+    # Calculate derivatives along both axes
+    # dx , dy = np.gradient(matrix)
+    
+    # Construct a diagonal filter kernel
+    diagonal_filter = np.array([[2, -1, 2],
+                                [-1, 2, -1],
+                                [-1, -1, 2]])
+    
+    diagonal_filterleft = np.fliplr(diagonal_filter)
+
+    # Convolve the gradient with the diagonal filter
+    diagonal_gradient = np.abs(sp.fftconvolve(matrix, diagonal_filter, mode='same')) + np.abs(sp.fftconvolve(matrix, diagonal_filterleft, mode='same'))
+
+    # Apply threshold to identify diagonal edges
+    # diagonal_edges = diagonal_gradient > threshold
+
+    return diagonal_gradient
