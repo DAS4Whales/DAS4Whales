@@ -11,6 +11,8 @@ Date: 2023-2024
 import numpy as np
 import scipy.signal as sp
 import matplotlib.pyplot as plt
+import torch
+import torch.nn.functional as F
 
 def gradient_oriented(image, direction):
     """Calculate the gradient oriented value of an image.
@@ -53,3 +55,46 @@ def detect_diagonal_edges(matrix, threshold):
     # diagonal_edges = diagonal_gradient > threshold
 
     return diagonal_gradient
+
+
+def diagonal_edge_detection(img, threshold):
+    """Detect diagonal edges in an image. 
+    Inspired from https://github.com/Ocean-Data-Lab/das-finwhale-vocalization/
+
+    This function detects diagonal edges in an image.
+
+    Parameters
+
+    ----------
+    img : numpy.ndarray
+        The input image.
+    threshold : float
+        The threshold value.
+
+    Returns
+    -------
+    numpy.ndarray
+        The diagonal edges in the image.
+
+    """
+
+    img = torch.tensor(img, dtype=torch.float32)
+
+
+    weight_left = torch.tensor([[2, 0, -1, -1], 
+                                 [0, 2, 0, -1],
+                                 [-1, 0, 2, 0],
+                                 [-1, -1, 0, 2]], dtype=torch.float32)
+    
+    weight_right = torch.flip(weight_left, [0])
+    
+    conv_left = F.conv2d(img.unsqueeze(0), weight_left.unsqueeze(0).unsqueeze(0), padding=1)
+    conv_right = F.conv2d(img.unsqueeze(0), weight_right.unsqueeze(0).unsqueeze(0), padding=1)
+    
+    combined = conv_left + conv_right
+    
+    sigmoid_output = torch.sigmoid(combined)
+    
+    thresholded_output = (combined > threshold).float()
+    
+    return thresholded_output.squeeze(0)

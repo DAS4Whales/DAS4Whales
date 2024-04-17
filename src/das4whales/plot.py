@@ -14,6 +14,16 @@ import scipy.signal as sp
 from das4whales.dsp import get_fx, instant_freq
 from datetime import datetime
 
+def plot_rawdata(trace, time, dist, fig_size=(12, 10)):
+    fig = plt.figure(figsize=fig_size)
+    wv = plt.imshow(trace * 1e9, aspect='auto', cmap='RdBu', extent=[min(time),max(time),min(dist)*1e-3,max(dist)*1e-3], origin='lower', vmin=-500, vmax=500)
+    plt.title('Raw DAS data')
+    plt.ylabel('Distance [km]')
+    plt.xlabel('Time [s]')
+    bar = fig.colorbar(wv, aspect=30, pad=0.015)
+    bar.set_label(label='Strain [-] x$10^{-9}$)')
+    plt.show()
+
 
 def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=None, v_max=None):
     """
@@ -46,6 +56,8 @@ def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=N
         plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
     plt.tight_layout()
     plt.show()
+
+    return
 
 
 def plot_fx(trace, dist, fs, file_begin_time_utc=0, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0,
