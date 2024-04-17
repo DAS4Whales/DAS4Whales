@@ -1,3 +1,12 @@
+"""
+plot.py - Plotting module for DAS4Whales
+
+This module provides functions for plotting das data and data products in various formats.
+
+Authors: Léa Bouffaut, Quentin Goestchel
+Date: 2023-2024
+"""
+
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tkr
 import numpy as np
