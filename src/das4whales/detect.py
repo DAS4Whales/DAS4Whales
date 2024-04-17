@@ -3,7 +3,7 @@ detect.py - Detection module of DAS4Whales package
 
 This module provides functions for detecting whale calls in DAS strain data.
 
-Authors: Quentin Goestchel
+Author: Quentin Goestchel
 Date: 2023-2024
 """
 
