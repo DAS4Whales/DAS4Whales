@@ -14,6 +14,11 @@ import matplotlib.pyplot as plt
 import torch
 import torch.nn.functional as F
 
+def ScalePixels(img):
+    img = (img - img.min())/(img.max() - img.min())
+    return img
+
+
 def gradient_oriented(image, direction):
     """Calculate the gradient oriented value of an image.
 
@@ -42,14 +47,51 @@ def detect_diagonal_edges(matrix, threshold):
     # dx , dy = np.gradient(matrix)
     
     # Construct a diagonal filter kernel
-    diagonal_filter = np.array([[2, -1, -1],
-                                [-1, 2, -1],
-                                [-1, -1, 2]])
+    # Sobel adaptation
+    # diagonal_filter = np.array([[ 0,  1,  2],
+    #                             [-1,  0,  1],
+    #                             [-2, -1,  0]])
     
+    # Prewitt adaptation
+    # diagonal_filter = np.array([[ 0,  1,  1],
+    #                             [-1,  0,  1],
+    #                             [-1, -1,  0]])
+    
+    #Second order
+    # diagonal_filter = np.array([[-1, -1, 2], 
+    #                             [-1, 2, -1],
+    #                             [2, -1, -1]])
+    
+    diagonal_filter = np.array([[ 0,  1,  1,  1,  1],
+                                [-1,  0,  1,  1,  1],
+                                [-1, -1, 0,   1,  1],
+                                [-1, -1, -1,  0,  1],
+                                [-1, -1, -1, -1,  0]])
+    
+    # diagonal_filter = np.array([[ 0,  1,  1,  1,  1,  1,  1],
+    #                             [-1,  0,  1,  1,  1,  1,  1],
+    #                             [-1, -1,  0,  1,  1,  1,  1],
+    #                             [-1, -1, -1,  0,  1,  1,  1],
+    #                             [-1, -1, -1, -1,  0,  1,  1],
+    #                             [-1, -1, -1, -1, -1,  0,  1],
+    #                             [-1, -1, -1, -1, -1, -1,  0]])
+    
+    # diagonal_filter = np.array([[ 0,  1,  1,  1,  1,  1,  1,  1],
+    #                             [-1,  0,  1,  1,  1,  1,  1,  1],
+    #                             [-1, -1,  0,  1,  1,  1,  1,  1],
+    #                             [-1, -1, -1,  0,  1,  1,  1,  1],
+    #                             [-1, -1, -1, -1,  0,  1,  1,  1],
+    #                             [-1, -1, -1, -1, -1,  0,  1,  1],
+    #                             [-1, -1, -1, -1, -1, -1,  0,  1],
+    #                             [-1, -1, -1, -1, -1, -1, -1,  0]])
+
+
     diagonal_filterleft = np.fliplr(diagonal_filter)
 
     # Convolve the gradient with the diagonal filter
-    diagonal_gradient = np.abs(sp.fftconvolve(matrix, diagonal_filter, mode='same')) + np.abs(sp.fftconvolve(matrix, diagonal_filterleft, mode='same'))
+    diagonal_gradient = sp.fftconvolve(matrix, diagonal_filter, mode='same') + sp.fftconvolve(matrix, diagonal_filterleft, mode='same')
+
+    # diagonal_gradient /= np.sum(np.abs(diagonal_gradient))
 
     # Apply threshold to identify diagonal edges
     # diagonal_edges = diagonal_gradient > threshold
@@ -94,6 +136,30 @@ def diagonal_edge_detection(img, threshold):
     
     sigmoid_output = torch.sigmoid(combined)
     
-    thresholded_output = (combined > threshold).float()
+    thresholded_output = (sigmoid_output > threshold).float()
     
     return thresholded_output.squeeze(0)
+
+
+
+def generate_directional_kernel(angle):
+    radians = np.deg2rad(angle)
+    kernel_size = 3  # Size of the kernel
+    half_size = kernel_size // 2
+    kernel = np.zeros((kernel_size, kernel_size))
+    center = half_size
+
+    for i in range(kernel_size):
+        for j in range(kernel_size):
+            x = i - center
+            y = j - center
+            # Calculate the angle of the current position relative to the center
+            position_angle = np.arctan2(y, x)
+            # Calculate the difference between the position angle and the desired angle
+            angle_diff = np.abs(position_angle - radians)
+            # Ensure the angle difference is within the range of 0 to pi/2
+            angle_diff = np.minimum(angle_diff, np.pi - angle_diff)
+            # Set the value of the kernel based on the angle difference
+            kernel[i, j] = np.cos(angle_diff)
+
+    return kernel
