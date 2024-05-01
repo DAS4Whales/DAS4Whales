@@ -9,10 +9,13 @@ Date: 2023-2024
 """
 
 import numpy as np
+import cv2
 import scipy.signal as sp
 import matplotlib.pyplot as plt
 import torch
 import torch.nn.functional as F
+from skimage.transform import radon, iradon
+from tqdm import tqdm
 
 def ScalePixels(img):
     img = (img - img.min())/(img.max() - img.min())
@@ -38,7 +41,13 @@ def gradient_oriented(image, direction):
 
     """
     dft, dfx = direction
-    grad = -(image[dfx:-dfx, :-dft] - 0.5 * image[2 * dfx:, dft:] - 0.5 * image[:-2*dfx, dft:])
+    if dfx == 0:
+        grad = -(image[:, :-dft] - image[:, dft:])
+    elif dft == 0:
+        grad = -(image[dfx:, :] - image[:-dfx, :])
+    else:
+        grad = -(image[dfx:-dfx, :-dft] - 0.5 * image[2 * dfx:, dft:] - 0.5 * image[:-2*dfx, dft:])
+
     return grad
 
 
@@ -122,7 +131,6 @@ def diagonal_edge_detection(img, threshold):
 
     img = torch.tensor(img, dtype=torch.float32)
 
-
     weight_left = torch.tensor([[2, -1, -1], 
                                 [-1, 2, -1],
                                 [-1, -1, 2]], dtype=torch.float32)
@@ -136,30 +144,85 @@ def diagonal_edge_detection(img, threshold):
     
     sigmoid_output = torch.sigmoid(combined)
     
-    thresholded_output = (sigmoid_output > threshold).float()
+    thresholded_output = (combined > threshold).float()
     
-    return thresholded_output.squeeze(0)
+    return combined.squeeze(0)
 
 
+def detect_long_lines(img):
+    # Convert the image to grayscale (if it's not already)
+    # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = img.copy() * 255
+    gray = np.uint8(gray)
+    imglines = img.copy()
 
-def generate_directional_kernel(angle):
-    radians = np.deg2rad(angle)
-    kernel_size = 3  # Size of the kernel
-    half_size = kernel_size // 2
-    kernel = np.zeros((kernel_size, kernel_size))
-    center = half_size
+    plt.figure
+    plt.imshow(gray, cmap='gray')
+    plt.show()
 
-    for i in range(kernel_size):
-        for j in range(kernel_size):
-            x = i - center
-            y = j - center
-            # Calculate the angle of the current position relative to the center
-            position_angle = np.arctan2(y, x)
-            # Calculate the difference between the position angle and the desired angle
-            angle_diff = np.abs(position_angle - radians)
-            # Ensure the angle difference is within the range of 0 to pi/2
-            angle_diff = np.minimum(angle_diff, np.pi - angle_diff)
-            # Set the value of the kernel based on the angle difference
-            kernel[i, j] = np.cos(angle_diff)
+    # Apply Gaussian blur to the image
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
-    return kernel
+    plt.figure()
+    plt.imshow(blurred, cmap='gray')
+    plt.show()
+
+    # Use Canny edge detection on the blurred image
+    edges = cv2.Canny(blurred, 50, 150, apertureSize=5, L2gradient=False)
+
+    plt.figure()
+    plt.imshow(edges, cmap='gray')
+    plt.show()
+
+    # Use Hough line transform to detect lines
+    lines = cv2.HoughLinesP(edges, 1, theta=np.pi/180, threshold=100, minLineLength=100, maxLineGap=8)
+
+    # Draw the lines on the original image
+    for line in lines:
+        x1, y1, x2, y2 = line[0]
+        cv2.line(imglines, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+    return imglines
+
+
+def bilateral_filter(img, diameter, sigma_color, sigma_space):
+    # Apply bilateral filter to the image
+    filtered_img = cv2.bilateralFilter(img, diameter, sigma_color, sigma_space)
+    return filtered_img
+
+
+def compute_radon_transform(image, theta=None):
+    # Compute the Radon transform
+    radon_image = radon(image, theta=theta, circle=False)
+    return radon_image
+
+
+def gaussian_filter(img, size, sigma):
+    # Apply Gaussian filter to the image
+    filtered_img = cv2.GaussianBlur(img, (size, size), sigma)
+    return filtered_img
+
+
+def binning(image, ft, fx):
+    """Apply binning to an image.
+
+    This function applies binning to an image.
+
+    Parameters
+    ----------
+    image : numpy.ndarray
+        The input image.
+    ft : float
+        The binning factor along the time axis.
+    fx : float
+        The binning factor along the spatial axis.
+    
+    Returns
+    -------
+    numpy.ndarray
+        The binned image.
+    """
+
+    img = cv2.resize(image, (0, 0), fx=ft, fy=fx, interpolation=cv2.INTER_AREA)
+    return img
+
