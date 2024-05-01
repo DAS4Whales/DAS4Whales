@@ -36,7 +36,8 @@ dependencies = [
     "pytest",
     "xarray",
     "tqdm",
-    "torch"
+    "torch",
+    "opencv-python",
 ]
 
 [project.urls]
