@@ -14,6 +14,7 @@ import scipy.signal as sp
 import matplotlib.pyplot as plt
 import torch
 import torch.nn.functional as F
+import torchvision.transforms as transforms
 from skimage.transform import radon, iradon
 from tqdm import tqdm
 
@@ -152,34 +153,48 @@ def diagonal_edge_detection(img, threshold):
 def detect_long_lines(img):
     # Convert the image to grayscale (if it's not already)
     # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    gray = img.copy() * 255
+    gray = img.copy() #* 255
     gray = np.uint8(gray)
     imglines = img.copy()
 
     plt.figure
-    plt.imshow(gray, cmap='gray')
+    plt.imshow(gray, cmap='gray', origin='lower')
     plt.show()
 
     # Apply Gaussian blur to the image
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    # blurred = cv2.GaussianBlur(gray, (9, 9), 1)
+
+    # Apply a bilateral filter to the image
+    blurred = cv2.bilateralFilter(gray,5,30,30)
 
     plt.figure()
-    plt.imshow(blurred, cmap='gray')
+    plt.imshow(blurred, cmap='gray', origin='lower')
     plt.show()
 
     # Use Canny edge detection on the blurred image
-    edges = cv2.Canny(blurred, 50, 150, apertureSize=5, L2gradient=False)
+    edges = cv2.Canny(blurred, 50, 150, apertureSize=3, L2gradient=False)
 
     plt.figure()
-    plt.imshow(edges, cmap='gray')
+    plt.imshow(edges, cmap='gray', origin='lower')
     plt.show()
 
+    # keep only edges with a certain orientation (45 degrees)
+
     # Use Hough line transform to detect lines
-    lines = cv2.HoughLinesP(edges, 1, theta=np.pi/180, threshold=100, minLineLength=100, maxLineGap=8)
+    lines = cv2.HoughLinesP(
+            edges, # Input edge image
+            10, # Distance resolution in pixels
+            np.pi/180, # Angle resolution in radians
+            threshold=140, # Min number of votes for valid line
+            minLineLength=10, # Min allowed length of line
+            maxLineGap=100 # Max allowed gap between line for joining them
+            )
 
     # Draw the lines on the original image
     for line in lines:
         x1, y1, x2, y2 = line[0]
+        # Draw only the 45 degree lines
+
         cv2.line(imglines, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
     return imglines
@@ -223,6 +238,11 @@ def binning(image, ft, fx):
         The binned image.
     """
 
-    img = cv2.resize(image, (0, 0), fx=ft, fy=fx, interpolation=cv2.INTER_AREA)
+    # img = cv2.resize(image, (0, 0), fx=ft, fy=fx, interpolation=cv2.INTER_AREA)
+
+
+    imagebin = transforms.ToTensor()(image)    
+    imagebin = transforms.Resize((int(image.shape[0] * fx) , int(image.shape[1] * ft)))(imagebin)
+    img = imagebin.numpy()[0]
     return img
 
