@@ -1,3 +1,13 @@
+"""
+data_handle.py - data handling functions for DAS data
+
+This module provides various functions to handle DAS data, including loading, downloading, and conditioning. 
+It aims at having specific functions for each interrogator type.
+
+Authors: Léa Bouffaut, Quentin Goestchel
+Date: 2023-2024
+"""
+
 import h5py
 import wget
 import os

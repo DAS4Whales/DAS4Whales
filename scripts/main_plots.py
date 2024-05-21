@@ -41,6 +41,8 @@ def main(url):
     # Loads the data using the pre-defined selected channels. 
     tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_das_data(filepath, selected_channels, metadata) 
 
+    dw.plot.plot_rawdata(tr, time, dist)
+
     # Filtering in the frequency-wavenumber domain (f-k) and corresponding t-x plot
     # Create the f-k filter 
     fk_filter = dw.dsp.hybrid_ninf_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, 
@@ -62,7 +64,7 @@ def main(url):
 
     # Spectrogram
     p,tt,ff = dw.dsp.get_spectrogram(trf_fk[xi_m,:], fs, nfft=128, overlap_pct=0.8)
-    dw.plot.plot_spectrogram(p, tt,ff, f_min = 10, f_max = 35, v_min=0)
+    # dw.plot.plot_spectrogram(p, tt,ff, f_min = 10, f_max = 35, v_min=0)
 
     dw.plot.plot_3calls(trf_fk[xi_m], time, 6.,27.6, 48.5) 
     # Generate fin whale call template
@@ -75,34 +77,34 @@ def main(url):
     dw.plot.design_mf(trf_fk[xi_m], HF_note, LF_note, 6.17, 28., time, fs)
     
     # Compute the positive correlation matrix
-    corr_m_HF = dw.detect.compute_cross_correlogram(trf_fk, HF_note)
-    corr_m_LF = dw.detect.compute_cross_correlogram(trf_fk, LF_note)
+    # corr_m_HF = dw.detect.compute_cross_correlogram(trf_fk, HF_note)
+    # corr_m_LF = dw.detect.compute_cross_correlogram(trf_fk, LF_note)
 
-    # Plot the cross-correlograms
-    maxv = max(np.max(corr_m_HF), np.max(corr_m_LF))
-    dw.plot.plot_cross_correlogramHL(corr_m_HF, corr_m_LF, time, dist, maxv)
+    # # Plot the cross-correlograms
+    # maxv = max(np.max(corr_m_HF), np.max(corr_m_LF))
+    # dw.plot.plot_cross_correlogramHL(corr_m_HF, corr_m_LF, time, dist, maxv)
 
-    # compute and plot the SNR of the cross-correlograms
-    SNR_hf = dw.dsp.snr_tr_array(corr_m_HF, env=True)
-    SNR_lf = dw.dsp.snr_tr_array(corr_m_LF, env=True)
+    # # compute and plot the SNR of the cross-correlograms
+    # SNR_hf = dw.dsp.snr_tr_array(corr_m_HF, env=True)
+    # SNR_lf = dw.dsp.snr_tr_array(corr_m_LF, env=True)
 
-    dw.plot.snr_matrix(SNR_hf, time, dist, 20, fileBeginTimeUTC, title='mf detect: HF')
-    dw.plot.snr_matrix(SNR_lf, time, dist, 20, fileBeginTimeUTC, title ='mf detect: LF')
+    # dw.plot.snr_matrix(SNR_hf, time, dist, 20, fileBeginTimeUTC, title='mf detect: HF')
+    # dw.plot.snr_matrix(SNR_lf, time, dist, 20, fileBeginTimeUTC, title ='mf detect: LF')
 
-    # Find the local maximas using find peaks and a threshold
-    print(f"The maximum correlation is {maxv}")
-    thres = 0.5 * maxv
-    print(f' The detection threshold is {thres} for the low frequency note and {thres*0.9} for the high frequency note.')
-    # Find the arrival times and store them in a list of arrays format 
-    peaks_indexes_m_HF = dw.detect.pick_times_env(corr_m_HF, threshold=thres * 0.9)
-    peaks_indexes_m_LF = dw.detect.pick_times_env(corr_m_LF, threshold=thres)
+    # # Find the local maximas using find peaks and a threshold
+    # print(f"The maximum correlation is {maxv}")
+    # thres = 0.5 * maxv
+    # print(f' The detection threshold is {thres} for the low frequency note and {thres*0.9} for the high frequency note.')
+    # # Find the arrival times and store them in a list of arrays format 
+    # peaks_indexes_m_HF = dw.detect.pick_times_env(corr_m_HF, threshold=thres * 0.9)
+    # peaks_indexes_m_LF = dw.detect.pick_times_env(corr_m_LF, threshold=thres)
 
-    # Convert the list of array to tuple format
-    peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_m_HF)
-    peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_m_LF) 
+    # # Convert the list of array to tuple format
+    # peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_m_HF)
+    # peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_m_LF) 
 
-    # Plot the detection times over the strain matrix
-    dw.plot.detection_mf(trf_fk, peaks_indexes_tp_HF, peaks_indexes_tp_LF, time, dist, fs, dx, selected_channels, fileBeginTimeUTC)
+    # # Plot the detection times over the strain matrix
+    # dw.plot.detection_mf(trf_fk, peaks_indexes_tp_HF, peaks_indexes_tp_LF, time, dist, fs, dx, selected_channels, fileBeginTimeUTC)
 
     return
 

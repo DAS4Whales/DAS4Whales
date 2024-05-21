@@ -1,10 +1,18 @@
+"""
+dsp.py - Digital Signal Processing module for DAS4Whales
+
+This module provides various functions for digital signal processing of DAS strain data.
+
+Authors: Léa Bouffaut, Quentin Goestchel
+Date: 2023-2024
+"""
+
 import numpy as np
 import scipy.signal as sp
 import librosa
 import sparse
 from scipy import ndimage
 from numpy.fft import fft2, fftfreq, fftshift, ifft2, ifftshift
-
 
 # Transformations
 def get_fx(trace, nfft):
@@ -378,7 +386,7 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
         ax1.set_xlabel('f [Hz]')
         
         ax2 = plt.subplot(gs[2], sharex=ax1)
-        ax2.plot(freq, fk_filter_matrix[len(knum)//2, :], lw=3)
+        ax2.plot(freq, fk_filter_matrix[len(knum)//2 + 412, :], lw=3)
         ax2.set_xlabel('f [Hz]')
         ax2.set_ylabel('Gain []')
         ax2.set_xlim([min(freq), max(freq)])

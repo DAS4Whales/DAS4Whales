@@ -1,3 +1,4 @@
-from das4whales import data_handle, dsp, plot, dask_wrap, tools, detect
+from das4whales import data_handle, dsp, plot, dask_wrap, tools, detect, improcess
 __version__ = "0.1.0"
-__author__ = 'Léa Bouffaut'
+__author__ = 'Léa Bouffaut, Quentin Goestchel'
+
