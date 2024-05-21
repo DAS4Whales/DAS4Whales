@@ -38,7 +38,9 @@ dependencies = [
     "tqdm",
     "torch",
     "opencv-python",
-    "scikit-image"
+    "scikit-image",
+    "cv2",
+    "torchvision"
 ]
 
 [project.urls]
