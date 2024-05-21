@@ -39,7 +39,7 @@ dependencies = [
     "torch",
     "opencv-python",
     "scikit-image",
-    "cv2",
+    "opencv-python",
     "torchvision"
 ]
 
