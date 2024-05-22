@@ -59,8 +59,7 @@ def get_spectrogram(waveform, fs, nfft=128, overlap_pct=0.8):
 
     tt = np.linspace(0, len(waveform)/fs, num=width)
     ff = np.linspace(0, fs / 2, num=height)
-
-    p = 10 * np.log10(spectrogram * 10 ** 9)
+    p = 20 * np.log10(spectrogram / np.max(spectrogram))
 
     return p, tt, ff
 
