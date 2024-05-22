@@ -154,7 +154,7 @@ def plot_spectrogram(p, tt, ff, fig_size=(25, 5), v_min=None, v_max=None, f_min=
     ax.set_ylabel('Frequency (Hz)')
 
     # Colorbar
-    bar = fig.colorbar(shw, aspect=20)
+    bar = fig.colorbar(shw, aspect=30, pad=0.015)
     bar.set_label('dB (strain x$10^{-9}$)')
     plt.show()
 
