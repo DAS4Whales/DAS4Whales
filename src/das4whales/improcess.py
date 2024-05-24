@@ -16,11 +16,110 @@ import torch
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 from skimage.transform import radon, iradon
+from scipy.ndimage import gaussian_filter as scipy_gaussian_filter
 from tqdm import tqdm
 
-def ScalePixels(img):
+
+def scale_pixels(img):
     img = (img - img.min())/(img.max() - img.min())
     return img
+
+
+def trace2image(trace):
+    """Convert a DAS trace to an image.
+
+    This function converts a DAS trace matrix to an image.
+
+    Parameters
+    ----------
+    trace : numpy.ndarray
+        The input trace.
+
+    Returns
+    -------
+    numpy.ndarray
+        The image.
+
+    """
+    image = np.abs(sp.hilbert(trace, axis=1)) / np.std(trace, axis=1, keepdims=True)
+    image = scale_pixels(image) * 255
+    return image
+
+
+def angle_fromspeed(c0, fs, dx, selected_channels):
+    """Calculate the angle from the speed of sound.
+
+    This function calculates the angle from the speed of sound.
+
+    Parameters
+    ----------
+    c0 : float
+        The speed of sound.
+    fs : float
+        The sampling frequency.
+    dx : float
+        The spatial resolution.
+    selected_channels : list
+        list of the selected channels number  [start, end, step].
+
+    Returns
+    -------
+    float
+        The angle from the speed of sound.
+
+    """
+    ratio = c0 / (fs * dx * selected_channels[2])
+    print('Detection speed ratio: ', ratio)
+
+    # angle between sound speed lines and the horizontal
+    theta_c0 = np.arctan(ratio) * 180 / np.pi
+    print('Angle: ', theta_c0)
+    return theta_c0
+
+
+def gabor_filt_design(theta_c0, plot=False):    
+    """Design Gabor filters for lines that are oriented along sound speed.
+
+    This function designs Gabor filters for lines that are oriented along sound speed.
+
+    Parameters
+    ----------
+    theta_c0 : float
+        The angle from the speed of sound.
+
+    Returns
+    -------
+    numpy.ndarray
+        The Gabor filters.
+
+    """
+
+    # Define parameters for the Gabor filter
+    ksize = 100  # Kernel size 
+    sigma = 4 # Standard deviation of the Gaussian envelope
+    theta = np.pi/2 + np.deg2rad(theta_c0) # Orientation angle (in radians)
+    lambd = 20 #theta_c0 * np.pi / 180  # Wavelength of the sinusoidal factor
+    gamma = 0.15 # Spatial aspect ratio (controls the ellipticity of the filter)
+
+    # Create the Gabor filter
+    gabor_filtup = cv2.getGaborKernel((ksize, ksize), sigma, theta, lambd, gamma, 0, ktype=cv2.CV_64F)
+    gabor_filtdown = np.flipud(gabor_filtup)
+
+    if plot:
+        plt.figure(figsize=(6, 4))
+        plt.subplot(121)
+        plt.imshow(gabor_filtup, origin='lower', cmap='RdBu_r', vmin=-1, vmax=1, aspect='equal')
+        plt.xlabel('Time indices')
+        plt.ylabel('Distance indices')
+        plt.colorbar(orientation='horizontal')
+
+        plt.subplot(122)
+        plt.imshow(gabor_filtdown, origin='lower', cmap='RdBu_r', vmin=-1, vmax=1, aspect='equal')
+        plt.xlabel('Time indices')
+        plt.colorbar(orientation='horizontal')
+        plt.tight_layout()
+        plt.show()
+    return gabor_filtup, gabor_filtdown
 
 
 def gradient_oriented(image, direction):
@@ -245,4 +344,18 @@ def binning(image, ft, fx):
     imagebin = transforms.Resize((int(image.shape[0] * fx) , int(image.shape[1] * ft)))(imagebin)
     img = imagebin.numpy()[0]
     return img
+
+
+def apply_smooth_mask(array, mask, sigma=1.5):
+    # Apply Gaussian blur to the mask to smooth edges
+    smoothed_mask = scipy_gaussian_filter(mask.astype(float), sigma=sigma, mode='reflect')
+    
+    # Normalize smoothed mask to range [0, 1]
+    smoothed_mask = (smoothed_mask - np.min(smoothed_mask)) / (np.max(smoothed_mask) - np.min(smoothed_mask))
+
+    # Element-wise multiplication of array with the smoothed mask
+    masked_array = array * mask
+    
+    return masked_array
+
 

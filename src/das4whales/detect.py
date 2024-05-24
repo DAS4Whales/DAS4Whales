@@ -49,6 +49,7 @@ def gen_template_fincall(time, fs, fmin = 15., fmax = 25., duration = 1., window
     df = 0
     chirp_signal = gen_hyperbolic_chirp(fmin-df, fmax + df, duration, fs)
     template = np.zeros(np.shape(time))
+    #TODO: remove the padding and keep just the short window values
     if window:
         template[:len(chirp_signal)] = chirp_signal * np.hanning(len(chirp_signal))
     else: 
@@ -90,7 +91,7 @@ def shift_nxcorr(x, y):
     numpy.ndarray
         The normalized cross-correlation between the two signals
     """    
-
+    #TODO: Modify to use with the short window values (mode = 'same' instead of 'full')
     # Compute cross-correlation
     cross_corr = sp.correlate(x, y, mode='full', method='fft')
 
@@ -212,6 +213,33 @@ def convert_pick_times(peaks_indexes_m):
     peaks_indexes_tp = np.asarray(peaks_indexes_tp)
 
     return peaks_indexes_tp
+
+
+def select_picked_times(idx_tp, tstart, tend, fs):
+    """
+    Select the picked times within a given time range.
+
+    Parameters
+    ----------
+    idx_tp : numpy.ndarray
+        The time and spatial indexes of the picked times.
+    tstart : float
+        The starting time of the time range [s].
+    tend : float
+        The ending time of the time range [s].
+    fs : float
+        The sampling rate of the data.
+
+    Returns
+    -------
+    numpy.ndarray
+        The selected picked times within the given time range (time index, spatial index).
+
+    """
+    idx_tp_selected = (idx_tp[0][(idx_tp[1] >= tstart * fs) & (idx_tp[1] <= tend * fs)],
+                        idx_tp[1][(idx_tp[1] >= tstart * fs) & (idx_tp[1] <= tend * fs)])
+
+    return idx_tp_selected
 
 ## Spectrogram correlation functions:
 
