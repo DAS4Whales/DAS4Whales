@@ -1,17 +1,11 @@
-
 # Gabor kernels augmented detection
-
-
-# ### Import the DAS4Whales module and dependencies
-
-
-
 # Imports
 import das4whales as dw
 import scipy.signal as sp
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+plt.rcParams['font.size'] = 20
 
 def main(url):
 
@@ -117,11 +111,11 @@ def main(url):
 
     plt.figure(figsize=(10, 6))
     plt.imshow(fimage, aspect='equal', origin='lower', cmap='turbo', vmin=0) #, vmin=-0.4 * np.max(np.abs(fimage)), vmax= 0.4 * np.max(np.abs(fimage)))
-    plt.colorbar(label='Normalized amplitude', aspect=30, pad=0.015)
+    plt.colorbar(label='Line feature score', aspect=30, pad=0.015)
     plt.xlabel('Time indices')
     plt.ylabel('Distance indices')
+    plt.tight_layout()
     plt.show()
-
 
     # Threshold the image
     threshold = 9100  # 7800 for the first dataset
@@ -132,6 +126,7 @@ def main(url):
     plt.colorbar()
     plt.xlabel('Time indices')
     plt.ylabel('Distance indices')
+    plt.tight_layout()
     plt.show()
 
 
@@ -147,6 +142,7 @@ def main(url):
     plt.colorbar()
     plt.xlabel('Time indices')
     plt.ylabel('Distance indices')
+    plt.tight_layout()
     plt.show()
 
 
@@ -156,12 +152,12 @@ def main(url):
     smoothed_image = dw.improcess.apply_smooth_mask(imagebin, mask)
 
 
-    plt.figure(figsize=(10, 6))
-    plt.imshow(smoothed_image, aspect='equal', origin='lower', cmap='turbo')
-    plt.colorbar(label='Normalized amplitude', aspect=30, pad=0.015)
-    plt.xlabel('Time indices')
-    plt.ylabel('Distance indices')
-    plt.show()
+    # plt.figure(figsize=(10, 6))
+    # plt.imshow(smoothed_image, aspect='equal', origin='lower', cmap='turbo')
+    # plt.colorbar(label='Normalized amplitude', aspect=30, pad=0.015)
+    # plt.xlabel('Time indices')
+    # plt.ylabel('Distance indices')
+    # plt.show()
 
 
 
@@ -268,8 +264,6 @@ def main(url):
     # Convert the list of array to tuple format
     peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_m_HF)
     peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_m_LF)
-
-
 
 
     dw.plot.detection_mf(trf_fk, peaks_indexes_tp_HF, peaks_indexes_tp_LF, time, dist, fs, dx, selected_channels, fileBeginTimeUTC)
