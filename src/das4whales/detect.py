@@ -131,6 +131,7 @@ def compute_cross_correlogram(data, template):
 
 
 def pick_times_env(corr_m, threshold):
+    # TODO: Parallelize this function
     """Detects the peak times in a correlation matrix.
 
     This function takes a correlation matrix, computes the Hilbert transform of each correlation,
