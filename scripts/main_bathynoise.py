@@ -88,7 +88,7 @@ def main(url):
     plt.ylabel('Distance [km]')
     plt.xlabel('Time [s]')
     bar = fig.colorbar(wv, aspect=30, pad=0.015)
-    bar.set_label(label='Strain [-] x$10^{-9}$)')
+    bar.set_label(label='Strain [-] (x$10^{-9}$)')
     plt.show()
 
 
