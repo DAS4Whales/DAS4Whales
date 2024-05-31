@@ -153,7 +153,7 @@ def pick_times_env(corr_m, threshold):
     peaks_indexes_m = []
 
     for corr in tqdm(corr_m, desc="Processing corr_m"):
-        peaks_indexes = sp.find_peaks(abs(sp.hilbert(corr)), prominence=threshold)[0]
+        peaks_indexes = sp.find_peaks(abs(sp.hilbert(corr)), prominence=threshold)[0]  # Change distance in indexes, ex: 'distance=200'
         peaks_indexes_m.append(peaks_indexes)
     
     return peaks_indexes_m

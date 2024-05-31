@@ -306,7 +306,7 @@ def detection_mf(trace, peaks_idx_HF, peaks_idx_LF, time, dist, fs, dx, selected
 
     fig = plt.figure(figsize=(12,10))
     cplot = plt.imshow(abs(sp.hilbert(trace, axis=1)) * 1e9, extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='jet', origin='lower',  aspect='auto', vmin=0, vmax=0.4, alpha=0.35)
-    plt.scatter(peaks_idx_HF[1] / fs, (peaks_idx_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='red', marker='x', label='HF_note')
+    plt.scatter(peaks_idx_HF[1] / fs, (peaks_idx_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='red', marker='.', label='HF_note')
     plt.scatter(peaks_idx_LF[1] / fs, (peaks_idx_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='green', marker='.', label='LF_note')
     bar = fig.colorbar(cplot, aspect=30, pad=0.015)
     bar.set_label('Strain Envelope [-] (x$10^{-9}$)')
