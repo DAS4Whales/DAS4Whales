@@ -105,7 +105,7 @@ def main(url):
     ax1.set_ylabel('Distance [km]')
     ax1.set_xlabel('Time [s]')
     bar = fig.colorbar(wv, aspect=30, pad=0.015)
-    bar.set_label(label='Strain [-] x$10^{-9}$)')
+    bar.set_label(label='Strain [-] (x$10^{-9}$)')
 
     ax2 = plt.subplot(gs[0], sharey=ax1)
     ax2.plot(df['depth'], df['chan_idx'] * dx /1e3)

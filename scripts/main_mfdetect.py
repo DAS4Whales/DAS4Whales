@@ -61,8 +61,9 @@ def main(url):
     xi_m, tj_m = np.unravel_index(np.argmax(trf_fk, axis=None), trf_fk.shape)
 
     # Spectrogram
-    p,tt,ff = dw.dsp.get_spectrogram(trf_fk[xi_m,:], fs, nfft=128, overlap_pct=0.8)
-    dw.plot.plot_spectrogram(p, tt,ff, f_min = 10, f_max = 35, v_min=0)
+    p,tt,ff = dw.dsp.get_spectrogram(trf_fk[xi_m,:], fs, nfft=256, overlap_pct=0.95)
+    dw.plot.plot_spectrogram(p, tt,ff, f_min = 10, f_max = 35, v_min=-45)
+
 
     dw.plot.plot_3calls(trf_fk[xi_m], time, 6.,27.6, 48.5) 
     # Generate fin whale call template

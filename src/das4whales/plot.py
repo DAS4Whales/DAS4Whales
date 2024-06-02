@@ -130,7 +130,7 @@ def plot_fx(trace, dist, fs, file_begin_time_utc=0, win_s=2, nfft=4096, fig_size
     plt.show()
 
 
-def plot_spectrogram(p, tt, ff, fig_size=(25, 5), v_min=None, v_max=None, f_min=None, f_max=None):
+def plot_spectrogram(p, tt, ff, fig_size=(17, 5), v_min=None, v_max=None, f_min=None, f_max=None):
     """
 
     :param p: spectrogram values in dB
