@@ -307,7 +307,7 @@ def get_sliced_nspectrogram(trace, fs, fmin, fmax, nperseg, nhop, plotflag=False
     if plotflag:
         roseus = import_roseus()
         fig, ax = plt.subplots(figsize=(12,4))
-        shw = ax.pcolormesh(tt, ff, p, cmap=roseus, vmin=None, vmax=None)
+        shw = ax.pcolormesh(tt, ff, 20 * np.log10(p / np.max(p)), cmap=roseus, vmin=None, vmax=None)
         # Colorbar
         bar = fig.colorbar(shw, aspect=20, pad=0.015)
         bar.set_label('Normalized magnitude [-]')
@@ -583,6 +583,7 @@ def compute_cross_correlogram_spectrocorr(data, fs, flims, kernel, win_size, ove
 
     # Compute correlation along axis 1
     spectro, ff, tt = get_sliced_nspectrogram(data[0, :], fs, fmin, fmax, nperseg, nhop, plotflag=False)
+    # TODO: Try weighting the spectrogram with the Cable frequency response (channel, bearing dependant)
     cross_correlogram = np.empty((data.shape[0], len(tt)))
     _, _, kernel = buildkernel(f0, f1, bandwidth, duration, ff, tt, fs, fmin, fmax, plotflag=False)
     # kernel = buildkernel_from_template(fmin, fmax, duration, fs, nperseg, nhop, plotflag=False)
