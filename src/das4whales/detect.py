@@ -14,6 +14,7 @@ import scipy.signal as sp
 import scipy.stats as st
 from tqdm import tqdm
 from das4whales.plot import import_roseus 
+import concurrent.futures
 
 ## Matched filter detection functions:
 
@@ -124,7 +125,7 @@ def compute_cross_correlogram(data, template):
     # Compute correlation along axis 1
     cross_correlogram = np.empty_like(data)
 
-    for i in range(data.shape[0]):
+    for i in tqdm(range(data.shape[0])):
         cross_correlogram[i, :] = shift_xcorr(norm_data[i, :], template)
 
     return cross_correlogram
@@ -156,6 +157,20 @@ def pick_times_env(corr_m, threshold):
         peaks_indexes = sp.find_peaks(abs(sp.hilbert(corr)), prominence=threshold)[0]  # Change distance in indexes, ex: 'distance=200'
         peaks_indexes_m.append(peaks_indexes)
     
+    return peaks_indexes_m
+
+
+def process_corr(corr, threshold):
+    peaks_indexes = sp.find_peaks(abs(sp.hilbert(corr)), prominence=threshold)[0]
+    return peaks_indexes
+
+
+def pick_times_par(corr_m, threshold):
+    peaks_indexes_m = []
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        results = [executor.submit(process_corr, corr, threshold) for corr in corr_m]
+        for result in concurrent.futures.as_completed(results):
+            peaks_indexes_m.append(result.result())
     return peaks_indexes_m
 
 
