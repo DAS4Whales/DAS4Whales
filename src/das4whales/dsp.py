@@ -238,9 +238,10 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
     if display_filter: 
         import matplotlib.pyplot as plt
         import matplotlib.gridspec as gridspec
-        plt.rc('font', size=20) 
-        plt.rc('xtick', labelsize=16)  
-        plt.rc('ytick', labelsize=16)
+        # Change the font sizes for plots (if needed)
+        # plt.rc('font', size=20) 
+        # plt.rc('xtick', labelsize=16)  
+        # plt.rc('ytick', labelsize=16)
 
         fig = plt.figure(figsize=(18, 10))
         gs = gridspec.GridSpec(2, 2, width_ratios=[5, 1], height_ratios=[6, 2])
@@ -372,9 +373,10 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
     if display_filter: 
         import matplotlib.pyplot as plt
         import matplotlib.gridspec as gridspec
-        plt.rc('font', size=20) 
-        plt.rc('xtick', labelsize=16)  
-        plt.rc('ytick', labelsize=16)
+        # Change the font sizes for plots (if needed)
+        # plt.rc('font', size=20) 
+        # plt.rc('xtick', labelsize=16)  
+        # plt.rc('ytick', labelsize=16)
 
         fig = plt.figure(figsize=(18, 10))
         gs = gridspec.GridSpec(2, 2, width_ratios=[5, 1], height_ratios=[6, 2])
@@ -495,9 +497,10 @@ def hybrid_gs_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400.
     if display_filter: 
         import matplotlib.pyplot as plt
         import matplotlib.gridspec as gridspec
-        plt.rc('font', size=20) 
-        plt.rc('xtick', labelsize=16)  
-        plt.rc('ytick', labelsize=16)
+        # Change the font sizes for plots (if needed)
+        # plt.rc('font', size=20) 
+        # plt.rc('xtick', labelsize=16)  
+        # plt.rc('ytick', labelsize=16)
 
         fig = plt.figure(figsize=(18, 10))
         gs = gridspec.GridSpec(2, 2, width_ratios=[5, 1], height_ratios=[6, 2])
@@ -614,9 +617,10 @@ def hybrid_ninf_gs_filter_design(trace_shape, selected_channels, dx, fs, cs_min=
     if display_filter: 
         import matplotlib.pyplot as plt
         import matplotlib.gridspec as gridspec
-        plt.rc('font', size=20) 
-        plt.rc('xtick', labelsize=16)  
-        plt.rc('ytick', labelsize=16)
+        # Change the font sizes for plots (if needed)
+        # plt.rc('font', size=20) 
+        # plt.rc('xtick', labelsize=16)  
+        # plt.rc('ytick', labelsize=16)
 
         fig = plt.figure(figsize=(18, 10))
         gs = gridspec.GridSpec(2, 2, width_ratios=[5, 1], height_ratios=[6, 2])
