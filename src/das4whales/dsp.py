@@ -1,10 +1,18 @@
+"""
+dsp.py - Digital Signal Processing module for DAS4Whales
+
+This module provides various functions for digital signal processing of DAS strain data.
+
+Authors: Léa Bouffaut, Quentin Goestchel
+Date: 2023-2024
+"""
+
 import numpy as np
 import scipy.signal as sp
 import librosa
 import sparse
 from scipy import ndimage
 from numpy.fft import fft2, fftfreq, fftshift, ifft2, ifftshift
-
 
 # Transformations
 def get_fx(trace, nfft):
@@ -51,8 +59,7 @@ def get_spectrogram(waveform, fs, nfft=128, overlap_pct=0.8):
 
     tt = np.linspace(0, len(waveform)/fs, num=width)
     ff = np.linspace(0, fs / 2, num=height)
-
-    p = 10 * np.log10(spectrogram * 10 ** 9)
+    p = 20 * np.log10(spectrogram / np.max(spectrogram))
 
     return p, tt, ff
 
@@ -231,9 +238,10 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
     if display_filter: 
         import matplotlib.pyplot as plt
         import matplotlib.gridspec as gridspec
-        plt.rc('font', size=20) 
-        plt.rc('xtick', labelsize=16)  
-        plt.rc('ytick', labelsize=16)
+        # Change the font sizes for plots (if needed)
+        # plt.rc('font', size=20) 
+        # plt.rc('xtick', labelsize=16)  
+        # plt.rc('ytick', labelsize=16)
 
         fig = plt.figure(figsize=(18, 10))
         gs = gridspec.GridSpec(2, 2, width_ratios=[5, 1], height_ratios=[6, 2])
@@ -365,9 +373,10 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
     if display_filter: 
         import matplotlib.pyplot as plt
         import matplotlib.gridspec as gridspec
-        plt.rc('font', size=20) 
-        plt.rc('xtick', labelsize=16)  
-        plt.rc('ytick', labelsize=16)
+        # Change the font sizes for plots (if needed)
+        # plt.rc('font', size=20) 
+        # plt.rc('xtick', labelsize=16)  
+        # plt.rc('ytick', labelsize=16)
 
         fig = plt.figure(figsize=(18, 10))
         gs = gridspec.GridSpec(2, 2, width_ratios=[5, 1], height_ratios=[6, 2])
@@ -378,7 +387,7 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
         ax1.set_xlabel('f [Hz]')
         
         ax2 = plt.subplot(gs[2], sharex=ax1)
-        ax2.plot(freq, fk_filter_matrix[len(knum)//2, :], lw=3)
+        ax2.plot(freq, fk_filter_matrix[len(knum)//2 + 412, :], lw=3)
         ax2.set_xlabel('f [Hz]')
         ax2.set_ylabel('Gain []')
         ax2.set_xlim([min(freq), max(freq)])
@@ -488,9 +497,10 @@ def hybrid_gs_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400.
     if display_filter: 
         import matplotlib.pyplot as plt
         import matplotlib.gridspec as gridspec
-        plt.rc('font', size=20) 
-        plt.rc('xtick', labelsize=16)  
-        plt.rc('ytick', labelsize=16)
+        # Change the font sizes for plots (if needed)
+        # plt.rc('font', size=20) 
+        # plt.rc('xtick', labelsize=16)  
+        # plt.rc('ytick', labelsize=16)
 
         fig = plt.figure(figsize=(18, 10))
         gs = gridspec.GridSpec(2, 2, width_ratios=[5, 1], height_ratios=[6, 2])
@@ -607,9 +617,10 @@ def hybrid_ninf_gs_filter_design(trace_shape, selected_channels, dx, fs, cs_min=
     if display_filter: 
         import matplotlib.pyplot as plt
         import matplotlib.gridspec as gridspec
-        plt.rc('font', size=20) 
-        plt.rc('xtick', labelsize=16)  
-        plt.rc('ytick', labelsize=16)
+        # Change the font sizes for plots (if needed)
+        # plt.rc('font', size=20) 
+        # plt.rc('xtick', labelsize=16)  
+        # plt.rc('ytick', labelsize=16)
 
         fig = plt.figure(figsize=(18, 10))
         gs = gridspec.GridSpec(2, 2, width_ratios=[5, 1], height_ratios=[6, 2])
