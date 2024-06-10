@@ -519,7 +519,7 @@ def buildkernel_from_template(fmin, fmax, dur, fs, nperseg, nhop, plotflag=False
         The computed kernel.
 
     """
-    
+
     template = gen_hyperbolic_chirp(fmin, fmax, dur, fs)
     template *= np.hanning(len(template))
     spectro, ff, tt = get_sliced_nspectrogram(template, fs, fmin, fmax, nperseg, nhop, plotflag=False)
