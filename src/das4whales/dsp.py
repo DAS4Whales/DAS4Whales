@@ -17,15 +17,19 @@ from numpy.fft import fft2, fftfreq, fftshift, ifft2, ifftshift
 # Transformations
 def get_fx(trace, nfft):
     """
-    Apply a fast Fourier transform (fft) to each channel of the strain data matrix
+    Apply a fast Fourier transform (FFT) to each channel of the strain data matrix.
 
-    Inputs:
-    :param trace: a [channel x time sample] nparray containing the strain data in the spatio-temporal domain
-    :param nfft: number of time samples used for the FFT.
+    Parameters
+    ----------
+    trace : np.ndarray
+        A 2D array of shape (channel, time sample) containing the strain data in the spatio-temporal domain.
+    nfft : int
+        Number of time samples used for the FFT.
 
-    Outputs:
-    :return: trace, a [channel x freq. sample] nparray containing the strain data in the spatio-spectral domain
-
+    Returns
+    -------
+    ndarray
+        A 2D array of shape (channel, freq. sample) containing the strain data in the spatio-spectral domain.
     """
 
     fx = 2 * (abs(np.fft.fftshift(np.fft.fft(trace, nfft), axes=1)))
@@ -38,17 +42,27 @@ def get_spectrogram(waveform, fs, nfft=128, overlap_pct=0.8):
     """
     Get the spectrogram of a single channel
 
-    Inputs:
-    :param waveform: single channel temporal signal
-    :param fs: the sampling frequency (Hz)
-    :param nfft: number of time samples used for the STFT. Default 128
-    :param overlap_pct: percentage of overlap in the spectrogram. Default 0.8
+    Parameters
+    ----------
+    waveform : np.ndarray
+        Single channel temporal signal.
+    fs : float
+        The sampling frequency (Hz).
+    nfft : int, optional
+        Number of time samples used for the STFT. Default is 128.
+    overlap_pct : float, optional
+        Percentage of overlap in the spectrogram. Default is 0.8.
 
-    Outputs:
-    :return: a spectrogram and associated time & frequency vectors
+    Returns
+    -------
+    p : np.ndarray
+        Spectrogram in dB scale (normalized by max).
+    tt : np.ndarray
+        Time vector.
+    ff : ndarray
+        Frequency vector.
 
     """
-
     spectrogram = np.abs(librosa.stft(
         y=waveform, n_fft=nfft,
         hop_length=int(np.floor(nfft * (1 - overlap_pct)))))
@@ -66,6 +80,7 @@ def get_spectrogram(waveform, fs, nfft=128, overlap_pct=0.8):
 
 # Filters
 def fk_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min=1450, cp_max=3400, cs_max=3500):
+    # TODO: mark as deprecated, use hybrid_filter_design instead
     """
     Designs a f-k filter for DAS strain data
     Keeps by default data with propagation speed [1450-3400] m/s
@@ -73,21 +88,32 @@ def fk_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min
     The transition band is inspired and adapted from Yi Lin's matlab fk function
     https://github.com/nicklinyi/seismic_utils/blob/master/fkfilter.m
 
-    Inputs:
-    :param trace_shape: a tuple with the dimensions of the strain data in the spatio-temporal domain such as
-    trace_shape = (trace.shape[0], trace.shape[1]) where dimensions are [channel x time sample]
-    :param selected_channels: a list of the selected channels number  [start, end, step]
-    :param dx: the channel spacing (m)
-    :param fs: the sampling frequency (Hz)
-    :param cs_min: the minimum selected sound speeds for the f-k passband filtering (m/s). Default 1400 m/s
-    :param cp_min: the minimum selected sound speed for the f-k stopband filtering, values should frame
-    [c_min and c_max] (m/s). Default 1450 m/s.
-    :param cp_max: the maximum selected sound speeds for the f-k passband filtering (m/s). Default 3400 m/s
-    :param cs_max: the maximumselected sound speed for the f-k stopband filtering, values should frame
-    [c_min and c_max] (m/s). Default 3500 m/s
+    Parameters
+    ----------
+    trace_shape : tuple
+        A tuple with the dimensions of the strain data in the spatio-temporal domain such as
+        trace_shape = (trace.shape[0], trace.shape[1]) where dimensions are [channel x time sample].
+    selected_channels : list
+        A list of the selected channels number [start, end, step].
+    dx : float
+        Channel spacing (m).
+    fs : float
+        Sampling frequency (Hz).
+    cs_min : float, optional
+        Minimum selected sound speeds for the f-k passband filtering (m/s). Default is 1400 m/s.
+    cp_min : float, optional
+        Minimum selected sound speed for the f-k stopband filtering, values should frame [c_min and c_max] (m/s).
+        Default is 1450 m/s.
+    cp_max : float, optional
+        Maximum selected sound speeds for the f-k passband filtering (m/s). Default is 3400 m/s.
+    cs_max : float, optional
+        Maximum selected sound speed for the f-k stopband filtering, values should frame [c_min and c_max] (m/s).
+        Default is 3500 m/s.
 
-    Outputs:
-    :return: fk_filter_matrix, a [channel x time sample] nparray containing the f-k-filter
+    Returns
+    -------
+    fk_filter_matrix : ndarray
+        A [channel x time sample] numpy array containing the f-k-filter.
 
     """
 
@@ -656,11 +682,15 @@ def taper_data(trace):
     """
     Apply a Tukey window to each line (time series) of the input matrix.
 
-    Parameters:
-    - matrix: 2D numpy array, where each column represents a time series.
+    Parameters
+    ----------
+    trace : np.ndarray
+        2D numpy array, where each column represents a time series.
 
-    Returns:
-    - Tapered matrix with the same shape as the input.
+    Returns
+    -------
+    np.ndarray
+        Tapered matrix with the same shape as the input.
     """
     nt = trace.shape[1]
     # Change alpha to increase the tapering ratio
@@ -670,17 +700,23 @@ def taper_data(trace):
 
 def fk_filter_filt(trace, fk_filter_matrix, tapering=False):
     """
-    Applies a pre-calculated f-k filter to DAS strain data
+    Applies a pre-calculated f-k filter to DAS strain data.
 
-    Inputs:
-    :param trace: a [channel x time sample] nparray containing the strain data in the spatio-temporal domain
-    :param fk_filter_matrix: a [channel x time sample] nparray containing the f-k-filter
+    Parameters
+    ----------
+    trace : np.ndarray
+        A [channel x time sample] nparray containing the strain data in the spatio-temporal domain.
+    fk_filter_matrix : np.ndarray
+        A [channel x time sample] nparray containing the f-k-filter.
+    tapering : bool, optional
+        Flag indicating whether to apply tapering to the data. Default is False.
 
-    Outputs:
-    :return: trace, a [channel x time sample] nparray containing the f-k-filtered strain data in the spatio-temporal
-    domain
-
+    Returns
+    -------
+    np.ndarray
+        A [channel x time sample] nparray containing the f-k-filtered strain data in the spatio-temporal domain.
     """
+
     if tapering:
         trace = taper_data(trace)
 
@@ -689,6 +725,7 @@ def fk_filter_filt(trace, fk_filter_matrix, tapering=False):
 
     # Apply the filter
     fk_filtered_trace = fk_trace * fk_filter_matrix
+
     # Back to the t-x domain
     trace = np.fft.ifft2(np.fft.ifftshift(fk_filtered_trace))
 
@@ -699,14 +736,17 @@ def fk_filter_sparsefilt(trace, fk_filter_matrix, tapering=False):
     """
     Applies a pre-calculated f-k filter to DAS strain data
 
-    Inputs:
-    :param trace: a [channel x time sample] nparray containing the strain data in the spatio-temporal domain
-    :param fk_filter_matrix: a [channel x time sample] nparray containing the f-k-filter
+    Parameters
+    ----------
+    trace : np.ndarray
+        A [channel x time sample] nparray containing the strain data in the spatio-temporal domain.
+    fk_filter_matrix : np.ndarray
+        A [channel x time sample] nparray containing the f-k-filter.
 
-    Outputs:
-    :return: trace, a [channel x time sample] nparray containing the f-k-filtered strain data in the spatio-temporal
-    domain
-
+    Returns
+    -------
+    np.ndarray
+        A [channel x time sample] nparray containing the f-k-filtered strain data in the spatio-temporal domain.
     """
     if tapering:
         trace = taper_data(trace)
@@ -724,19 +764,34 @@ def fk_filter_sparsefilt(trace, fk_filter_matrix, tapering=False):
 
 def butterworth_filter(filterspec, fs):
     """
-    Designs and a butterworth filter see:
-    https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html
+    Designs and applies a Butterworth filter.
 
-    Apply as.
+    Parameters:
+    ----------
+    filterspec : tuple
+        A tuple containing the filter order, critical frequency, and filter type.
+    fs : float
+        The sampling frequency.
+
+    Returns:
+    -------
+    filter_sos : np.ndarray
+        The second-order sections (SOS) representation of the Butterworth filter.
+
+    Notes:
+    ------
+    The Butterworth filter is designed using the scipy.signal.butter function.
+
+    Example:
+    --------
+    filter_order = 4
+    filter_critical_freq = 1000
+    filter_type_str = 'lowpass'
+    filterspec = (filter_order, filter_critical_freq, filter_type_str)
+    fs = 44100
+
+    filter_sos = butterworth_filter(filterspec, fs)
     trace_filtered = sp.sosfiltfilt(filter_sos, trace_original, axis=1)
-
-    Inputs:
-    :param filterspec:
-    :param fs:
-
-    Outputs:
-    :return: filter_sos: a butterworth filter
-
     """
 
     filter_order, filter_critical_freq, filter_type_str = filterspec
@@ -753,14 +808,14 @@ def instant_freq(channel, fs):
 
     Parameters
     ----------
-    channel : numpy.ndarray
+    channel : np.ndarray
         1D time series channel trace
     fs : float
         sampling frequency
 
     Returns
     -------
-    numpy.ndarray
+    np.ndarray
         instantaneous frequency along time[1:]
     """    
     # Compute the instantaneous frequency
@@ -778,8 +833,26 @@ def instant_freq(channel, fs):
 
 
 def bp_filt(data,fs,fmin,fmax):
-    b, a = sp.butter(8,[fmin/(fs/2),fmax/(fs/2)],'bp')
-    tr_filt = sp.filtfilt(b,a,data,axis = 1)
+    """bp_filt - perform bandpass filtering on an array of DAS data
+
+    Parameters
+    ----------
+    data : array-like
+        array containing wave signal from DAS data
+    fs : float
+        sampling frequency
+    fmin : float    
+        minimum frequency for the passband
+    fmax : float
+        maximum frequency for the passband
+
+    Returns
+    -------
+    tr_filt : array-like
+        bandpass filtered data
+    """
+    b, a = sp.butter(8, [fmin/(fs/2), fmax/(fs/2)], 'bp')
+    tr_filt = sp.filtfilt(b, a, data, axis=1)
     return tr_filt
 
 

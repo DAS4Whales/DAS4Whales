@@ -1,3 +1,12 @@
+"""
+dask_wrap.py - Dask wrapper functions for DAS data processing
+
+This module provides functions to wrap up the functions of das4whales in a dask way.
+
+Authors: Léa Bouffaut, Quentin Goestchel
+Date: 2024
+"""
+
 # File that wrap up functions in dsp.py in a dask way
 import h5py
 import wget

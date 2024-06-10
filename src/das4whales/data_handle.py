@@ -135,17 +135,25 @@ def load_das_data(filename, selected_channels, metadata):
     """
     Load the DAS data corresponding to the input file name as strain according to the selected channels.
 
-    Inputs:
-    :param filename: a string containing the full path to the data to load
-    :param selected_channels:
-    :param metadata: dictionary filled with metadata (sampling frequency, channel spacing, scale factor...)
+    Parameters
+    ----------
+    filename : str
+        A string containing the full path to the data to load.
+    selected_channels : list
+        A list containing the selected channels.
+    metadata : dict
+        A dictionary filled with metadata (sampling frequency, channel spacing, scale factor...).
 
-    Outputs:
-    :return: trace: a [channel x sample] nparray containing the strain data
-    :return: tx: the corresponding time axis (s)
-    :return: dist: the corresponding distance along the FO cable axis (m)
-    :return: file_begin_time_utc: the beginning time of the file, can be printed using
-    file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S")
+    Returns
+    -------
+    trace : np.ndarray
+        A [channel x sample] nparray containing the strain data.
+    tx : np.ndarray
+        The corresponding time axis (s).
+    dist : np.ndarray
+        The corresponding distance along the FO cable axis (m).
+    file_begin_time_utc : datetime.datetime
+        The beginning time of the file, can be printed using file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S").
     """
     if not os.path.exists(filename):
         raise FileNotFoundError(f'File {filename} not found')
