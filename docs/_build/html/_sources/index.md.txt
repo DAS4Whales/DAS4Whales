@@ -7,6 +7,13 @@
 :caption: API
 
 api/<package-name-here>
+
+dask_wrap
+data_handle
+dsp
+detect
+plot
+graph
 ```
 
 ```{include} ../README.md

@@ -23,7 +23,9 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
     "sphinx_autodoc_typehints",
+    "sphinx.ext.viewcode",  # To include links to the source code
     "sphinx_copybutton",
+    "sphinx.ext.graphviz"
 ]
 
 templates_path = ['_templates']
@@ -40,6 +42,22 @@ exclude_patterns = [
 # -- Options for HTML output -------------------------------------------------
 
 html_theme = 'furo' #'sphinx_rtd_theme'
+
+html_theme_options = {
+    "light_css_variables": {
+        "color-brand-primary": "#000",
+        "color-brand-content": "#000",
+        "color-admonition-background": "#f0f0f0",
+        "color-admonition-content": "#000",
+    },
+    "dark_css_variables": {
+        "color-brand-primary": "#fff",
+        "color-brand-content": "#fff",
+        "color-admonition-background": "#333",
+        "color-admonition-content": "#fff",
+    },
+}
+
 myst_enable_extensions = [
     "colon_fence",
 ]

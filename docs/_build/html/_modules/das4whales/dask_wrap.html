@@ -1,17 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="./">
-  <head>
-<meta charset="utf-8"/>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="#" />
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-<meta name="robots" content="noindex" />
-<title>Search - DAS4Whales  documentation</title><link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=387cc868" />
-    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
+        <title>das4whales.dask_wrap - DAS4Whales documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=387cc868" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
 
@@ -20,30 +18,18 @@
   body {
     --color-code-background: #f8f8f8;
   --color-code-foreground: black;
-  --color-brand-primary: #000;
-  --color-brand-content: #000;
-  --color-admonition-background: #f0f0f0;
-  --color-admonition-content: #000;
   
   }
   @media not print {
     body[data-theme="dark"] {
       --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
-  --color-brand-primary: #fff;
-  --color-brand-content: #fff;
-  --color-admonition-background: #333;
-  --color-admonition-content: #fff;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
         --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
-  --color-brand-primary: #fff;
-  --color-brand-content: #fff;
-  --color-admonition-background: #333;
-  --color-admonition-content: #fff;
   
       }
     }
@@ -193,7 +179,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">DAS4Whales  documentation</div></a>
+      <a href="../../index.html"><div class="brand">DAS4Whales  documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -214,23 +200,19 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
   <span class="sidebar-brand-text">DAS4Whales  documentation</span>
   
-</a><form class="sidebar-search-container" method="get" action="#" role="search">
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
-<li class="toctree-l1"><a class="reference internal" href="data_handle.html">data_handle</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dsp.html">dsp</a></li>
-<li class="toctree-l1"><a class="reference internal" href="detect.html">detect</a></li>
-<li class="toctree-l1"><a class="reference internal" href="plot.html">plot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="graph.html">Graph of Modules and Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../detect.html">detect</a></li>
 </ul>
 
 </div>
@@ -265,18 +247,107 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          
-<noscript>
-<div class="admonition error">
-  <p class="admonition-title">Error</p>
-  <p>
-    Please activate JavaScript to enable the search functionality.
-  </p>
-</div>
-</noscript>
+          <h1>Source code for das4whales.dask_wrap</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">dask_wrap.py - Dask wrapper functions for DAS data processing</span>
 
-<div id="search-results"></div>
+<span class="sd">This module provides functions to wrap up the functions of das4whales in a dask way.</span>
 
+<span class="sd">Authors: Léa Bouffaut, Quentin Goestchel</span>
+<span class="sd">Date: 2024</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># File that wrap up functions in dsp.py in a dask way</span>
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">wget</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span> <span class="nn">das4whales</span> <span class="k">as</span> <span class="nn">dw</span>
+
+
+<div class="viewcode-block" id="load_das_data">
+<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dask_wrap.load_das_data">[docs]</a>
+<span class="k">def</span> <span class="nf">load_das_data</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the DAS data corresponding to the input file name as strain according to the selected channels.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        The full path to the data to load.</span>
+<span class="sd">    selected_channels : list</span>
+<span class="sd">        A list containing the start, stop, and step values for selecting channels.</span>
+<span class="sd">    metadata : dict</span>
+<span class="sd">        A dictionary filled with metadata (sampling frequency, channel spacing, scale factor, etc.).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        A [channel x sample] numpy array containing the strain data.</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        The corresponding time axis (s).</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        The corresponding distance along the FO cable axis (m).</span>
+<span class="sd">    datetime.datetime</span>
+<span class="sd">        The beginning time of the file.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the file is not found.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;File not found&#39;</span><span class="p">)</span>
+
+    <span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="c1"># HDF5 file</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;Acquisition/Raw[0]/RawData&#39;</span><span class="p">]</span>   <span class="c1"># Pointer on on-disk array f</span>
+
+    <span class="c1"># UTC Time vector for naming</span>
+    <span class="n">raw_data_time</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;Acquisition/Raw[0]/RawDataTime&#39;</span><span class="p">]</span>
+
+    <span class="c1"># For future save</span>
+    <span class="n">file_begin_time_utc</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">raw_data_time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">)</span>
+
+    <span class="c1"># Store the following as the dimensions of our data block</span>
+    <span class="n">nnx</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">nns</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># Define new time and distance axes</span>
+    <span class="n">tx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nns</span><span class="p">)</span> <span class="o">/</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;fs&quot;</span><span class="p">]</span>
+    <span class="n">dist</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nnx</span><span class="p">)[</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span> <span class="o">*</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;dx&quot;</span><span class="p">]</span> 
+    <span class="k">return</span> <span class="n">d</span><span class="p">,</span> <span class="n">tx</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">file_begin_time_utc</span></div>
+
+
+
+<div class="viewcode-block" id="raw2strain">
+<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dask_wrap.raw2strain">[docs]</a>
+<span class="k">def</span> <span class="nf">raw2strain</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a daskarray filled of int32 to a </span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tr : dask.array.core.Array</span>
+<span class="sd">        daskarray built on the HDF5 pointer</span>
+<span class="sd">    metadata : dict</span>
+<span class="sd">        dictionary of metadata</span>
+<span class="sd">    selected_channels : list</span>
+<span class="sd">        list of selected spatial indexes and spatial step</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dask.array.core.Array</span>
+<span class="sd">        daskarray filled with scaled float64</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+    <span class="n">trace</span> <span class="o">=</span> <span class="n">tr</span><span class="p">[</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">trace</span> <span class="o">-=</span> <span class="n">da</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1">#demeaning using dask mean function</span>
+    <span class="n">trace</span> <span class="o">*=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;scale_factor&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">trace</span></div>
+
+</pre></div>
         </article>
       </div>
       <footer>
@@ -308,14 +379,11 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="_static/doctools.js?v=9a2dae69"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/scripts/furo.js?v=4e2eecee"></script>
-    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="_static/copybutton.js?v=f281be69"></script>
-    
-<script src="_static/searchtools.js"></script>
-<script src="_static/language_data.js"></script>
-<script src="searchindex.js"></script></body>
+</div><script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=4e2eecee"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    </body>
 </html>

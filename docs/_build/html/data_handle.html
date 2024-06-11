@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="data_handle" href="data_handle.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="dsp" href="dsp.html" /><link rel="prev" title="DAS4Whales" href="index.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
-        <title>DAS4Whales documentation</title>
+        <title>data_handle - DAS4Whales documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -193,7 +193,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">DAS4Whales  documentation</div></a>
+      <a href="index.html"><div class="brand">DAS4Whales  documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -214,7 +214,7 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
   <span class="sidebar-brand-text">DAS4Whales  documentation</span>
@@ -225,8 +225,8 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
-<li class="toctree-l1"><a class="reference internal" href="data_handle.html">data_handle</a></li>
+  <ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">data_handle</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dsp.html">dsp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="detect.html">detect</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plot.html">plot</a></li>
@@ -251,7 +251,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="_sources/index.md.txt" title="View this page">
+  <a class="muted-link" href="_sources/data_handle.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -271,72 +271,129 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="das4whales">
-<h1>DAS4Whales<a class="headerlink" href="#das4whales" title="Link to this heading">¶</a></h1>
-<div class="toctree-wrapper compound">
-</div>
-<section id="about-das4whales">
-<h2>About DAS4Whales<a class="headerlink" href="#about-das4whales" title="Link to this heading">¶</a></h2>
-<p>Python package to analyze Distributed Acoustic Sensing (DAS) data for marine bioacoustics</p>
-<p>Authors:</p>
-<ul class="simple">
-<li><p>Léa Bouffaut, Ph.D.<br />
-K. Lisa Yang Center for Conservation Bioacoustics, Cornell Lab of Ornithology, Cornell University. Ithaca (NY), USA</p></li>
+          <section id="data-handle">
+<h1>data_handle<a class="headerlink" href="#data-handle" title="Link to this heading">¶</a></h1>
+<p id="module-das4whales.data_handle">data_handle.py - data handling functions for DAS data</p>
+<p>This module provides various functions to handle DAS data, including loading, downloading, and conditioning.
+It aims at having specific functions for each interrogator type.</p>
+<p>Authors: Léa Bouffaut, Quentin Goestchel
+Date: 2023-2024</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.data_handle.dl_file">
+<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">dl_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/das4whales/data_handle.html#dl_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.dl_file" title="Link to this definition">¶</a></dt>
+<dd><p>Download the file at the given url</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>url</strong> (<em>string</em>) – url location of the file</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>filepath</strong> – local path destination of the file</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.data_handle.get_acquisition_parameters">
+<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">get_acquisition_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interrogator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'optasense'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/das4whales/data_handle.html#get_acquisition_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.get_acquisition_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve acquisition parameters based on the specified interrogator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The file path to the data file.</p></li>
+<li><p><strong>interrogator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – The interrogator type, one of {‘optasense’, ‘silixa’, ‘mars’, ‘alcatel’}.
+Defaults to ‘optasense’.</p></li>
 </ul>
-<p><a class="reference external" href="mailto:lb736&#37;&#52;&#48;cornell&#46;edu">Contact</a> | <a class="reference external" href="https://www.birds.cornell.edu/ccb/lea-bouffaut/">Webpage</a> | <a class="reference external" href="https://twitter.com/LeaBouffaut">Twitter</a></p>
-<ul class="simple">
-<li><p>Quentin Goestchel, Ph.D.<br />
-William Wilcock Lab - Ocean Data Lab, School of Oceanography, University of Washington. Seattle (WA), USA</p></li>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>metadata</strong> – Metadata related to the acquisition parameters. Returns None if no matching
+interrogator is found.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)">dict</a> or None</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.12)"><strong>ValueError</strong></a> – If the interrogator name is not in the predefined list.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.data_handle.get_metadata_optasense">
+<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">get_metadata_optasense</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/das4whales/data_handle.html#get_metadata_optasense"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.get_metadata_optasense" title="Link to this definition">¶</a></dt>
+<dd><p>Gets DAS acquisition parameters for the optasense interrogator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>string</em>) – a string containing the full path to the data to load</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p><strong>metadata</strong> – dictionary filled with metadata, key’s breakdown:</p>
+<p>fs: the sampling frequency (Hz)</p>
+<p>dx: interval between two virtual sensing points also called channel spacing (m)</p>
+<p>nx: the number of spatial samples also called channels</p>
+<p>ns: the number of time samples</p>
+<p>n: refractive index of the fiber</p>
+<p>GL: the gauge length (m)</p>
+<p>scale_factor: the value to convert DAS data from strain rate to strain</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.data_handle.hello_world_das_package">
+<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">hello_world_das_package</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/das4whales/data_handle.html#hello_world_das_package"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.hello_world_das_package" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.data_handle.load_das_data">
+<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">load_das_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/das4whales/data_handle.html#load_das_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.load_das_data" title="Link to this definition">¶</a></dt>
+<dd><p>Load the DAS data corresponding to the input file name as strain according to the selected channels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – A string containing the full path to the data to load.</p></li>
+<li><p><strong>selected_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a>) – A list containing the selected channels.</p></li>
+<li><p><strong>metadata</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a>) – A dictionary filled with metadata (sampling frequency, channel spacing, scale factor…).</p></li>
 </ul>
-<p><a class="reference external" href="mailto:qgoestch&#37;&#52;&#48;uw&#46;edu">Contact</a> | <a class="reference external" href="https://qgoestch.github.io/qgoestch/">Webpage</a></p>
-<blockquote>
-<div><p><strong>Note</strong><br />
-Please cite this package as:<br />
-Léa Bouffaut (2023). DAS4Whales: A Python package to analyze Distributed Acoustic Sensing (DAS) data for marine bioacoustics (v0.1.0). Zenodo. https://doi.org/10.5281/zenodo.7760187</p>
-</div></blockquote>
-</section>
-<section id="background">
-<h2>Background<a class="headerlink" href="#background" title="Link to this heading">¶</a></h2>
-<p>Distributed acoustic sensing or DAS, offers exciting new opportunities to eavesdrop on whales by converting existing fiber optic cables into dense listening arrays of strain sensors. It exploits the physics of Raleigh backscattering following the introduction of an interrogating pulse in the fiber, converting time-delays (or phase changes) of the backscattered pulses into strain measurements, analogous to acoustic pressure. DAS is also known as Distributed Fiber Optic Sensing (DFOS), coherent backscattering, Phase Optical Time Domain Reflectometry ($\Phi$-OTDR).</p>
-<p>For a complete DAS technical overview see:</p>
-<blockquote>
-<div><p>Hartog, A. H. (2017). An Introduction to Distributed Optical Fibre Sensors (1st ed.). CRC Press. https://doi.org/10.1201/9781315119014</p>
-</div></blockquote>
-<p>For the specific application of DAS for whale bioacoustics (we will use the same terminology) see:</p>
-<blockquote>
-<div><p>Bouffaut, L., Taweesintananon, K., Kriesell, H. J., Rørstadbotnen, R. A., Potter, J. R., Landrø, M., Johansen, S. E., Brenne, J. K., Haukanes, A., Schjelderup, O., &amp; Storvik, F. (2022). Eavesdropping at the Speed of Light: Distributed Acoustic Sensing of Baleen Whales in the Arctic. Frontiers in Marine Science, 9, 901348. https://doi.org/10.3389/fmars.2022.901348</p>
-</div></blockquote>
-</section>
-<section id="how-to-use-the-das4whales-package">
-<h2>How-to use the das4whales package<a class="headerlink" href="#how-to-use-the-das4whales-package" title="Link to this heading">¶</a></h2>
-<p><a class="reference external" href="https://github.com/leabouffaut/DAS4Whales/blob/main/DAS4Whales_ExampleNotebook.ipynb">This Jupyter notebook</a> available in <a class="reference external" href="https://colab.research.google.com/gist/leabouffaut/e66b5a741493c4bd13aa07f39586ec4b/das4whales_examplenotebook.ipynb">Colab</a>  provides an illustration of the current functionalities of the DAS4Whales python package, available on GitHub https://github.com/leabouffaut/DAS4Whales. For now, the package enables basic manipulations and visualizations of DAS data such as:</p>
-<ul class="simple">
-<li><p>reading the metadata and loading DAS strain data from a hdf5 file – functionalities available in the module <code class="docutils literal notranslate"><span class="pre">das4whales.data_handle</span></code>,</p></li>
-<li><p>high-pass, band-pass and frequency-wavenumber (f-k) filtering – functionalities available in the module <code class="docutils literal notranslate"><span class="pre">das4whales.dsp</span></code>,</p></li>
-<li><p>spatio-temporal (t-x plot), spatio-spectral (f-x plot) and single channel spectro-temporal (spectrogram) representations – functionalities available in the module <code class="docutils literal notranslate"><span class="pre">das4whales.plot</span></code>,</p></li>
-<li><p>single channel sound playbacks – functionality available in this notebook</p></li>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>trace</strong> (<em>np.ndarray</em>) – A [channel x sample] nparray containing the strain data.</p></li>
+<li><p><strong>tx</strong> (<em>np.ndarray</em>) – The corresponding time axis (s).</p></li>
+<li><p><strong>dist</strong> (<em>np.ndarray</em>) – The corresponding distance along the FO cable axis (m).</p></li>
+<li><p><strong>file_begin_time_utc</strong> (<em>datetime.datetime</em>) – The beginning time of the file, can be printed using file_begin_time_utc.strftime(“%Y-%m-%d %H:%M:%S”).</p></li>
 </ul>
-<p>All functions have built-in documentation accessible through the pythonic <code class="docutils literal notranslate"><span class="pre">help(das4whales.module.function)</span></code> and on the <a class="reference external" href="https://das4whales.readthedocs.io/en/latest/">DAS4Whales documentation</a>.</p>
-</section>
-<section id="das-data">
-<h2>DAS data<a class="headerlink" href="#das-data" title="Link to this heading">¶</a></h2>
-<p>If you don’t have DAS data, we’ve got you covered! This notebook is set to automatically download a file from the RAPID: Distributed Acoustic Sensing on the OOI’s Regional Cabled Array experiment in Oregon, which is available in open access. The data we’ll look at was recorded using an OptaSense interrogator and is saved in the hdf5 format. To learn more about this experiment see:</p>
-<blockquote>
-<div><p>Wilcock, W., &amp; Ocean Observatories Initiative. (2023). Rapid: A Community Test of Distributed Acoustic Sensing on the Ocean Observatories Initiative Regional Cabled Array [Data set]. Ocean Observatories Initiative. https://doi.org/10.58046/5J60-FJ89</p>
-</div></blockquote>
-</section>
-<section id="a-final-word">
-<h2>A final word<a class="headerlink" href="#a-final-word" title="Link to this heading">¶</a></h2>
-<p>Please, report any bugs or issues you may have using this package and notebook either through GitHub Issues or directly by email. This is our first Python package, and we are always keen on learning how to make our work more inclusive, accessible and modular. <strong>New contributors are Welcome!</strong></p>
-</section>
-<section id="indices-and-tables">
-<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.data_handle.raw2strain">
+<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">raw2strain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/das4whales/data_handle.html#raw2strain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.raw2strain" title="Link to this definition">¶</a></dt>
+<dd><p>Transform the amplitude of raw das data from strain-rate to strain according to scale factor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trace</strong> (<em>array-like</em>) – a [channel x time sample] nparray containing the raw data in the spatio-temporal domain</p></li>
+<li><p><strong>metadata</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a>) – dictionary filled with metadata (fs, dx, nx, ns, n, GL, scale_factor)</p></li>
 </ul>
-</section>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>trace</strong> – a [channel x time sample] nparray containing the strain data in the spatio-temporal domain</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
         </article>
@@ -344,16 +401,26 @@ Léa Bouffaut (2023). DAS4Whales: A Python package to analyze Distributed Acoust
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="data_handle.html">
+          <a class="next-page" href="dsp.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">data_handle</div>
+                <div class="title">dsp</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Home</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -384,13 +451,13 @@ Léa Bouffaut (2023). DAS4Whales: A Python package to analyze Distributed Acoust
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">DAS4Whales</a><ul>
-<li><a class="reference internal" href="#about-das4whales">About DAS4Whales</a></li>
-<li><a class="reference internal" href="#background">Background</a></li>
-<li><a class="reference internal" href="#how-to-use-the-das4whales-package">How-to use the das4whales package</a></li>
-<li><a class="reference internal" href="#das-data">DAS data</a></li>
-<li><a class="reference internal" href="#a-final-word">A final word</a></li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+<li><a class="reference internal" href="#">data_handle</a><ul>
+<li><a class="reference internal" href="#das4whales.data_handle.dl_file"><code class="docutils literal notranslate"><span class="pre">dl_file()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.data_handle.get_acquisition_parameters"><code class="docutils literal notranslate"><span class="pre">get_acquisition_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.data_handle.get_metadata_optasense"><code class="docutils literal notranslate"><span class="pre">get_metadata_optasense()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.data_handle.hello_world_das_package"><code class="docutils literal notranslate"><span class="pre">hello_world_das_package()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.data_handle.load_das_data"><code class="docutils literal notranslate"><span class="pre">load_das_data()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.data_handle.raw2strain"><code class="docutils literal notranslate"><span class="pre">raw2strain()</span></code></a></li>
 </ul>
 </li>
 </ul>
