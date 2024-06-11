@@ -45,5 +45,5 @@ def build_api_docs(session: nox.Session) -> None:
         "--module-first",
         "--no-toc",
         "--force",
-        "src/<package-name-here>",
+        "src/das4whales",
     )
