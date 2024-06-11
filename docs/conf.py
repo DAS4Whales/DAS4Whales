@@ -25,7 +25,7 @@ extensions = [
     "sphinx_autodoc_typehints",
     "sphinx.ext.viewcode",  # To include links to the source code
     "sphinx_copybutton",
-    "sphinx.ext.graphviz"
+    "sphinx.ext.graphviz",
 ]
 
 templates_path = ['_templates']

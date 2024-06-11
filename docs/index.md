@@ -6,14 +6,14 @@
 
 :caption: API
 
-api/<package-name-here>
+api/das4whales
 
-dask_wrap
-data_handle
-dsp
-detect
-plot
-graph
+/src/dask_wrap
+/src/data_handle
+/src/dsp
+/src/detect
+/src/plot
+/src/graph
 ```
 
 ```{include} ../README.md
