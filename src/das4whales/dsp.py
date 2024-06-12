@@ -79,6 +79,9 @@ def get_spectrogram(waveform, fs, nfft=128, overlap_pct=0.8):
 
 
 # Filters
+# f-k filters design functions
+#TODO: uniformize and make a global function with choice of filter
+# Version from MATLAB code
 def fk_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min=1450, cp_max=3400, cs_max=3500):
     # TODO: mark as deprecated, use hybrid_filter_design instead
     """
@@ -167,9 +170,9 @@ def fk_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min
 
     return fk_filter_matrix
 
-
+# Infinite wave speed filter, sine tapers
 def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., cp_min=1450., fmin=15., fmax=25., display_filter=False):
-    """Designs a bandpass f-k hybrid filter for DAS strain data
+    """Designs an infinite wave speed bandpass f-k hybrid filter for DAS strain data
         Keeps by default data with propagation speed above 1450 m/s between [15 - 25] Hz (designed for fin whales)
 
     Parameters
@@ -301,7 +304,7 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
 
     return sparse.COO.from_numpy(fk_filter_matrix)
 
-
+# Non-infinite wave speed filter, sine tapers
 def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., cp_min=1450., cp_max=3400, cs_max=3500, fmin=15., fmax=25., display_filter=False):
     """Designs a bandpass f-k hybrid filter for DAS strain data
         Keeps by default data with propagation speed above 1450 m/s between [15 - 25] Hz (designed for fin whales)
@@ -401,6 +404,7 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
     # Filter display, optional
     if display_filter: 
         import matplotlib.pyplot as plt
+        original_rc_params = plt.rcParams.copy()
         import matplotlib.gridspec as gridspec
 
         # Context manager for the plot (to avoid changing the global settings)
@@ -436,10 +440,10 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
             ax3.grid()
             plt.tight_layout()
             plt.show()
-
+        plt.rcParams.update(original_rc_params)
     return sparse.COO.from_numpy(fk_filter_matrix)
 
-
+# Infinite wave speed filter, gaussian tapers
 def hybrid_gs_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., cp_min=1450., fmin=15., fmax=25., display_filter=False):
     """Designs a bandpass f-k hybrid filter for DAS strain data
         Keeps by default data with propagation speed above 1450 m/s between [15 - 25] Hz (designed for fin whales)
@@ -564,7 +568,7 @@ def hybrid_gs_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400.
 
     return sparse.COO.from_numpy(fk_filter_matrix)
 
-
+# Non-infinite wave speed filter, gaussian tapers
 def hybrid_ninf_gs_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., cp_min=1450., cp_max=3400, cs_max=3500, fmin=15., fmax=25., display_filter=False):
     """Designs a bandpass f-k hybrid filter for DAS strain data
         Keeps by default data with propagation speed above 1450 m/s between [15 - 25] Hz (designed for fin whales)

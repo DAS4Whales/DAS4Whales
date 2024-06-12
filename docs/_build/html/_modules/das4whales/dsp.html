@@ -237,7 +237,21 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  
+  <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../src/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/das4whales.html">das4whales package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/data_handle.html">data_handle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/dsp.html">dsp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/detect.html">detect</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/plot.html">plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/graph.html">Graph of Modules and Functions</a></li>
+</ul>
+
 </div>
 </div>
 
@@ -688,6 +702,7 @@
     <span class="c1"># Filter display, optional</span>
     <span class="k">if</span> <span class="n">display_filter</span><span class="p">:</span> 
         <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+        <span class="n">original_rc_params</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="kn">import</span> <span class="nn">matplotlib.gridspec</span> <span class="k">as</span> <span class="nn">gridspec</span>
 
         <span class="c1"># Context manager for the plot (to avoid changing the global settings)</span>
@@ -723,7 +738,7 @@
             <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
+        <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">original_rc_params</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">sparse</span><span class="o">.</span><span class="n">COO</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">)</span></div>
 
 

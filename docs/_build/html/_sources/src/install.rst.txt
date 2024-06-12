@@ -24,34 +24,35 @@ Follow these steps to install DAS4Whales:
 
 1. Create a virtual environment (optional but recommended):
 
-    ```bash
-    python3 -m venv myenv
-    ```
+    .. code-block:: bash
+
+        python3 -m venv myenv
 
 2. Activate the virtual environment:
 
-    ```bash
-    source myenv/bin/activate
-    ```
+    .. code-block:: bash
+    
+        source myenv/bin/activate
+    
 
 3. Install DAS4Whales using pip:
 
-    ```bash
-    pip install 'git+https://github.com/qgoestch/DAS4Whales'
-    ```
+    .. code-block:: bash
+    
+        pip install 'git+https://github.com/qgoestch/DAS4Whales'
 
 4. Verify the installation:
 
-    ```bash
-    das4whales --version
-    ```
+    .. code-block:: bash
+
+        das4whales --version
 
     This command should display the version number of DAS4Whales.
 
 Usage
 -----
 
-To use DAS4Whales, refer to the documentation and examples provided in the official documentation.
+To use DAS4Whales, refer to the documentation and examples provided in the :doc:`tutorial<tutorial>`
 
 Conclusion
 ----------

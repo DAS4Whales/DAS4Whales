@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="data_handle" href="../src/data_handle.html" /><link rel="prev" title="DAS4Whales" href="../index.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="data_handle" href="../src/data_handle.html" /><link rel="prev" title="Tutorial" href="../src/tutorial.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
         <title>das4whales package - DAS4Whales documentation</title>
@@ -238,7 +238,13 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
+  <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../src/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../src/tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules documentation</span></p>
+<ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">das4whales package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../src/data_handle.html">data_handle</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../src/dsp.html">dsp</a></li>
@@ -479,54 +485,34 @@ Date: 2023-2024</p>
 <dt class="sig sig-object py" id="das4whales.detect.buildkernel">
 <span class="sig-prename descclassname"><span class="pre">das4whales.detect.</span></span><span class="sig-name descname"><span class="pre">buildkernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bdwdth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dur</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotflag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/detect.html#buildkernel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.detect.buildkernel" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate kernel and plot.</p>
-<section id="parameters">
-<h3>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>f0<span class="classifier">float</span></dt><dd><p>Starting frequency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Starting frequency.</p></li>
+<li><p><strong>f1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Ending frequency.</p></li>
+<li><p><strong>bdwdth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Frequency width of call.</p></li>
+<li><p><strong>dur</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Call length (seconds).</p></li>
+<li><p><strong>f</strong> (<em>np.array</em>) – Vector of frequencies returned from plotwav.</p></li>
+<li><p><strong>t</strong> (<em>np.array</em>) – Vector of times returned from plotwav.</p></li>
+<li><p><strong>samp</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Sample rate.</p></li>
+<li><p><strong>plotflag</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, plots kernel. If False, no plot. Default is False.</p></li>
+<li><p><strong>kernel_lims</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><em>tuple</em></a><em>, </em><em>optional</em>) – Tuple of minimum kernel range and maximum kernel range. Default is finKernelLims.</p></li>
+</ul>
 </dd>
-<dt>f1<span class="classifier">float</span></dt><dd><p>Ending frequency.</p>
-</dd>
-<dt>bdwdth<span class="classifier">float</span></dt><dd><p>Frequency width of call.</p>
-</dd>
-<dt>dur<span class="classifier">float</span></dt><dd><p>Call length (seconds).</p>
-</dd>
-<dt>f<span class="classifier">np.array</span></dt><dd><p>Vector of frequencies returned from plotwav.</p>
-</dd>
-<dt>t<span class="classifier">np.array</span></dt><dd><p>Vector of times returned from plotwav.</p>
-</dd>
-<dt>samp<span class="classifier">float</span></dt><dd><p>Sample rate.</p>
-</dd>
-<dt>plotflag<span class="classifier">bool, optional</span></dt><dd><p>If True, plots kernel. If False, no plot. Default is False.</p>
-</dd>
-<dt>kernel_lims<span class="classifier">tuple, optional</span></dt><dd><p>Tuple of minimum kernel range and maximum kernel range. Default is finKernelLims.</p>
-</dd>
-</dl>
-</section>
-<section id="returns">
-<h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading">¶</a></h3>
-<p>:
-tvec : numpy.array</p>
-<blockquote>
-<div><p>Vector of kernel times.</p>
-</div></blockquote>
-<dl class="simple">
-<dt>fvec_sub<span class="classifier">numpy.array</span></dt><dd><p>Vector of kernel frequencies.</p>
-</dd>
-<dt>BlueKernel<span class="classifier">2-d numpy.array</span></dt><dd><p>Matrix of kernel values.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>tvec</strong> (<em>numpy.array</em>) – Vector of kernel times.</p></li>
+<li><p><strong>fvec_sub</strong> (<em>numpy.array</em>) – Vector of kernel frequencies.</p></li>
+<li><p><strong>BlueKernel</strong> (<em>2-d numpy.array</em>) – Matrix of kernel values.</p></li>
+<li><p><em>Key variables</em></p></li>
+<li><p><em>————-</em></p></li>
+<li><p><strong>tvec</strong> (<em>numpy.array</em>) – Kernel times (seconds).</p></li>
+<li><p><strong>fvec</strong> (<em>numpy.array</em>) – Kernel frequencies.</p></li>
+<li><p><strong>BlueKernel</strong> (<em>numpy.array</em>) – Matrix of kernel values.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
-</section>
-<section id="key-variables">
-<h3>Key variables:<a class="headerlink" href="#key-variables" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>tvec<span class="classifier">numpy.array</span></dt><dd><p>Kernel times (seconds).</p>
-</dd>
-<dt>fvec<span class="classifier">numpy.array</span></dt><dd><p>Kernel frequencies.</p>
-</dd>
-<dt>BlueKernel<span class="classifier">numpy.array</span></dt><dd><p>Matrix of kernel values.</p>
-</dd>
-</dl>
-</section>
 </dd></dl>
 
 <dl class="py function">
@@ -905,35 +891,25 @@ and detects the peak times based on a given threshold using parallel processing.
 <dt class="sig sig-object py" id="das4whales.detect.xcorr">
 <span class="sig-prename descclassname"><span class="pre">das4whales.detect.</span></span><span class="sig-name descname"><span class="pre">xcorr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Sxx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tvec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fvec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">BlueKernel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/detect.html#xcorr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.detect.xcorr" title="Link to this definition">¶</a></dt>
 <dd><p>Cross-correlate kernel with spectrogram</p>
-<section id="id1">
-<h3>Parameters:<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
-<dl class="simple">
-<dt>t<span class="classifier">np.array</span></dt><dd><p>Vector of times returned from plotwav</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>np.array</em>) – Vector of times returned from plotwav</p></li>
+<li><p><strong>f</strong> (<em>np.array</em>) – Vector of frequencies returned from plotwav</p></li>
+<li><p><strong>Sxx</strong> (<em>np.array</em>) – 2-D array of spectrogram amplitudes</p></li>
+<li><p><strong>tvec</strong> (<em>np.array</em>) – Vector of times of kernel</p></li>
+<li><p><strong>fvec</strong> (<em>np.array</em>) – Vector of frequencies of kernel</p></li>
+<li><p><strong>BlueKernel</strong> (<em>np.array</em>) – 2-D array of kernel amplitudes</p></li>
+</ul>
 </dd>
-<dt>f<span class="classifier">np.array</span></dt><dd><p>Vector of frequencies returned from plotwav</p>
-</dd>
-<dt>Sxx<span class="classifier">np.array</span></dt><dd><p>2-D array of spectrogram amplitudes</p>
-</dd>
-<dt>tvec<span class="classifier">np.array</span></dt><dd><p>Vector of times of kernel</p>
-</dd>
-<dt>fvec<span class="classifier">np.array</span></dt><dd><p>Vector of frequencies of kernel</p>
-</dd>
-<dt>BlueKernel<span class="classifier">np.array</span></dt><dd><p>2-D array of kernel amplitudes</p>
-</dd>
-</dl>
-</section>
-<section id="id2">
-<h3>Returns:<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
-<p>:
-t_scale : numpy.array</p>
-<blockquote>
-<div><p>Vector of correlation lags</p>
-</div></blockquote>
-<dl class="simple">
-<dt>CorrVal<span class="classifier">numpy.array</span></dt><dd><p>Vector of correlation values</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>t_scale</strong> (<em>numpy.array</em>) – Vector of correlation lags</p></li>
+<li><p><strong>CorrVal</strong> (<em>numpy.array</em>) – Vector of correlation values</p></li>
+</ul>
+</p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py function">
@@ -989,8 +965,8 @@ Date: 2023-2024</p>
 <dt class="sig sig-object py" id="das4whales.dsp.butterworth_filter">
 <span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">butterworth_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filterspec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#butterworth_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.butterworth_filter" title="Link to this definition">¶</a></dt>
 <dd><p>Designs and applies a Butterworth filter.</p>
-<section id="id3">
-<h3>Parameters:<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<section id="parameters">
+<h3>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>filterspec<span class="classifier">tuple</span></dt><dd><p>A tuple containing the filter order, critical frequency, and filter type.</p>
 </dd>
@@ -998,8 +974,8 @@ Date: 2023-2024</p>
 </dd>
 </dl>
 </section>
-<section id="id4">
-<h3>Returns:<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<section id="returns">
+<h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading">¶</a></h3>
 <p>:
 filter_sos : np.ndarray</p>
 <blockquote>
@@ -1839,8 +1815,8 @@ Date: 2023-2024</p>
 <dt class="sig sig-object py" id="das4whales.plot.plot_tx">
 <span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_tx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_tx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_tx" title="Link to this definition">¶</a></dt>
 <dd><p>Spatio-temporal representation (t-x plot) of the strain data</p>
-<section id="id5">
-<h3>Parameters:<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<section id="id1">
+<h3>Parameters:<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
 <dl class="simple">
 <dt>trace<span class="classifier">np.ndarray</span></dt><dd><p>A [channel x time sample] nparray containing the strain data in the spatio-temporal domain</p>
 </dd>
@@ -1858,8 +1834,8 @@ Date: 2023-2024</p>
 </dd>
 </dl>
 </section>
-<section id="id6">
-<h3>Returns:<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<section id="id2">
+<h3>Returns:<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
 <p>:
 None</p>
 </section>
@@ -2021,14 +1997,14 @@ as per docs, [‘x’, ‘b’, and ‘a’] are required</p></li>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../index.html">
+          <a class="prev-page" href="../src/tutorial.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Home</div>
+                <div class="title">Tutorial</div>
                 
               </div>
             </a>
