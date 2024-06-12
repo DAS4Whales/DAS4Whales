@@ -48,81 +48,84 @@ Please, report any bugs or issues you may have using this package and notebook e
 ```
 
     Collecting git+https://github.com/qgoestch/DAS4Whales
-      Cloning https://github.com/qgoestch/DAS4Whales to /tmp/pip-req-build-28n12wwp
-      Running command git clone --filter=blob:none --quiet https://github.com/qgoestch/DAS4Whales /tmp/pip-req-build-28n12wwp
-      Resolved https://github.com/qgoestch/DAS4Whales to commit 06e17822a118f8f8d799a45be453285612aa593a
+      Cloning https://github.com/qgoestch/DAS4Whales to /tmp/pip-req-build-vck25bc7
+      Running command git clone --filter=blob:none --quiet https://github.com/qgoestch/DAS4Whales /tmp/pip-req-build-vck25bc7
+      Resolved https://github.com/qgoestch/DAS4Whales to commit 2684469b46bb00e8ee29350e98df36391503f82c
       Installing build dependencies ... [?25ldone
     [?25h  Getting requirements to build wheel ... [?25ldone
     [?25h  Preparing metadata (pyproject.toml) ... [?25ldone
-    [?25hRequirement already satisfied: h5py in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (3.10.0)
+    [?25hRequirement already satisfied: datetime in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (5.4)
+    Requirement already satisfied: numpy in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (1.26.4)
+    Requirement already satisfied: wget in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (3.2)
+    Requirement already satisfied: xarray in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (2024.2.0)
+    Requirement already satisfied: matplotlib in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (3.8.3)
+    Requirement already satisfied: dask[complete] in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (2024.2.0)
+    Requirement already satisfied: h5py in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (3.10.0)
+    Requirement already satisfied: pytest in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (8.1.1)
+    Requirement already satisfied: scipy in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (1.12.0)
     Requirement already satisfied: scikit-image in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (0.23.2)
     Requirement already satisfied: torchvision in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (0.17.2)
-    Requirement already satisfied: sparse in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (0.15.1)
-    Requirement already satisfied: matplotlib in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (3.8.3)
-    Requirement already satisfied: torch in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (2.2.2)
-    Requirement already satisfied: dask[complete] in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (2024.2.0)
-    Requirement already satisfied: datetime in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (5.4)
-    Requirement already satisfied: numpy in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (1.26.4)
     Requirement already satisfied: tqdm in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (4.66.2)
-    Requirement already satisfied: scipy in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (1.12.0)
-    Requirement already satisfied: librosa in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (0.10.1)
     Requirement already satisfied: opencv-python in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (4.9.0.80)
-    Requirement already satisfied: xarray in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (2024.2.0)
-    Requirement already satisfied: pytest in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (8.1.1)
-    Requirement already satisfied: wget in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (3.2)
-    Requirement already satisfied: click>=8.1 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (8.1.7)
-    Requirement already satisfied: partd>=1.2.0 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (1.4.1)
+    Requirement already satisfied: torch in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (2.2.2)
+    Requirement already satisfied: sparse in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (0.15.1)
+    Requirement already satisfied: numpydoc in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (1.7.0)
+    Requirement already satisfied: librosa in ./venv/lib/python3.10/site-packages (from das4whales==0.1.0) (0.10.1)
     Requirement already satisfied: fsspec>=2021.09.0 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (2024.2.0)
+    Requirement already satisfied: click>=8.1 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (8.1.7)
+    Requirement already satisfied: packaging>=20.0 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (23.2)
+    Requirement already satisfied: importlib-metadata>=4.13.0 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (7.0.1)
+    Requirement already satisfied: partd>=1.2.0 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (1.4.1)
+    Requirement already satisfied: pyyaml>=5.3.1 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (6.0.1)
     Requirement already satisfied: cloudpickle>=1.5.0 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (3.0.0)
     Requirement already satisfied: toolz>=0.10.0 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (0.12.1)
-    Requirement already satisfied: importlib-metadata>=4.13.0 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (7.0.1)
-    Requirement already satisfied: pyyaml>=5.3.1 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (6.0.1)
-    Requirement already satisfied: packaging>=20.0 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (23.2)
     Requirement already satisfied: pyarrow>=7.0 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (15.0.0)
-    Requirement already satisfied: lz4>=4.3.2 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (4.3.3)
     Requirement already satisfied: pyarrow-hotfix in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (0.6)
+    Requirement already satisfied: lz4>=4.3.2 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (4.3.3)
     Requirement already satisfied: zope.interface in ./venv/lib/python3.10/site-packages (from datetime->das4whales==0.1.0) (6.1)
     Requirement already satisfied: pytz in ./venv/lib/python3.10/site-packages (from datetime->das4whales==0.1.0) (2024.1)
-    Requirement already satisfied: joblib>=0.14 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (1.3.2)
-    Requirement already satisfied: scikit-learn>=0.20.0 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (1.4.0)
     Requirement already satisfied: pooch>=1.0 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (1.8.0)
-    Requirement already satisfied: lazy-loader>=0.1 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (0.4)
-    Requirement already satisfied: msgpack>=1.0 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (1.0.7)
-    Requirement already satisfied: numba>=0.51.0 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (0.59.0)
-    Requirement already satisfied: soundfile>=0.12.1 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (0.12.1)
-    Requirement already satisfied: audioread>=2.1.9 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (3.0.1)
-    Requirement already satisfied: soxr>=0.3.2 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (0.3.7)
-    Requirement already satisfied: typing-extensions>=4.1.1 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (4.9.0)
     Requirement already satisfied: decorator>=4.3.0 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (5.1.1)
+    Requirement already satisfied: numba>=0.51.0 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (0.59.0)
+    Requirement already satisfied: typing-extensions>=4.1.1 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (4.9.0)
+    Requirement already satisfied: scikit-learn>=0.20.0 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (1.4.0)
+    Requirement already satisfied: lazy-loader>=0.1 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (0.4)
+    Requirement already satisfied: audioread>=2.1.9 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (3.0.1)
+    Requirement already satisfied: joblib>=0.14 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (1.3.2)
+    Requirement already satisfied: soundfile>=0.12.1 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (0.12.1)
+    Requirement already satisfied: msgpack>=1.0 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (1.0.7)
+    Requirement already satisfied: soxr>=0.3.2 in ./venv/lib/python3.10/site-packages (from librosa->das4whales==0.1.0) (0.3.7)
     Requirement already satisfied: kiwisolver>=1.3.1 in ./venv/lib/python3.10/site-packages (from matplotlib->das4whales==0.1.0) (1.4.5)
+    Requirement already satisfied: pyparsing>=2.3.1 in ./venv/lib/python3.10/site-packages (from matplotlib->das4whales==0.1.0) (3.1.1)
+    Requirement already satisfied: cycler>=0.10 in ./venv/lib/python3.10/site-packages (from matplotlib->das4whales==0.1.0) (0.12.1)
     Requirement already satisfied: fonttools>=4.22.0 in ./venv/lib/python3.10/site-packages (from matplotlib->das4whales==0.1.0) (4.49.0)
     Requirement already satisfied: pillow>=8 in ./venv/lib/python3.10/site-packages (from matplotlib->das4whales==0.1.0) (10.2.0)
     Requirement already satisfied: contourpy>=1.0.1 in ./venv/lib/python3.10/site-packages (from matplotlib->das4whales==0.1.0) (1.2.0)
-    Requirement already satisfied: cycler>=0.10 in ./venv/lib/python3.10/site-packages (from matplotlib->das4whales==0.1.0) (0.12.1)
     Requirement already satisfied: python-dateutil>=2.7 in ./venv/lib/python3.10/site-packages (from matplotlib->das4whales==0.1.0) (2.8.2)
-    Requirement already satisfied: pyparsing>=2.3.1 in ./venv/lib/python3.10/site-packages (from matplotlib->das4whales==0.1.0) (3.1.1)
-    Requirement already satisfied: iniconfig in ./venv/lib/python3.10/site-packages (from pytest->das4whales==0.1.0) (2.0.0)
-    Requirement already satisfied: tomli>=1 in ./venv/lib/python3.10/site-packages (from pytest->das4whales==0.1.0) (2.0.1)
+    Requirement already satisfied: tabulate>=0.8.10 in ./venv/lib/python3.10/site-packages (from numpydoc->das4whales==0.1.0) (0.9.0)
+    Requirement already satisfied: sphinx>=6 in ./venv/lib/python3.10/site-packages (from numpydoc->das4whales==0.1.0) (7.3.7)
+    Requirement already satisfied: tomli>=1.1.0 in ./venv/lib/python3.10/site-packages (from numpydoc->das4whales==0.1.0) (2.0.1)
     Requirement already satisfied: exceptiongroup>=1.0.0rc8 in ./venv/lib/python3.10/site-packages (from pytest->das4whales==0.1.0) (1.2.0)
     Requirement already satisfied: pluggy<2.0,>=1.4 in ./venv/lib/python3.10/site-packages (from pytest->das4whales==0.1.0) (1.4.0)
-    Requirement already satisfied: imageio>=2.33 in ./venv/lib/python3.10/site-packages (from scikit-image->das4whales==0.1.0) (2.34.1)
-    Requirement already satisfied: networkx>=2.8 in ./venv/lib/python3.10/site-packages (from scikit-image->das4whales==0.1.0) (3.3)
+    Requirement already satisfied: iniconfig in ./venv/lib/python3.10/site-packages (from pytest->das4whales==0.1.0) (2.0.0)
     Requirement already satisfied: tifffile>=2022.8.12 in ./venv/lib/python3.10/site-packages (from scikit-image->das4whales==0.1.0) (2024.4.24)
-    Requirement already satisfied: nvidia-curand-cu12==10.3.2.106 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (10.3.2.106)
-    Requirement already satisfied: triton==2.2.0 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (2.2.0)
-    Requirement already satisfied: nvidia-cuda-cupti-cu12==12.1.105 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (12.1.105)
-    Requirement already satisfied: nvidia-cufft-cu12==11.0.2.54 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (11.0.2.54)
+    Requirement already satisfied: networkx>=2.8 in ./venv/lib/python3.10/site-packages (from scikit-image->das4whales==0.1.0) (3.3)
+    Requirement already satisfied: imageio>=2.33 in ./venv/lib/python3.10/site-packages (from scikit-image->das4whales==0.1.0) (2.34.1)
     Requirement already satisfied: jinja2 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (3.1.3)
-    Requirement already satisfied: nvidia-cublas-cu12==12.1.3.1 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (12.1.3.1)
-    Requirement already satisfied: nvidia-cudnn-cu12==8.9.2.26 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (8.9.2.26)
     Requirement already satisfied: nvidia-cuda-runtime-cu12==12.1.105 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (12.1.105)
+    Requirement already satisfied: nvidia-cufft-cu12==11.0.2.54 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (11.0.2.54)
+    Requirement already satisfied: filelock in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (3.13.4)
+    Requirement already satisfied: nvidia-curand-cu12==10.3.2.106 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (10.3.2.106)
     Requirement already satisfied: sympy in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (1.12)
-    Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.1.105 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (12.1.105)
-    Requirement already satisfied: nvidia-cusparse-cu12==12.1.0.106 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (12.1.0.106)
+    Requirement already satisfied: nvidia-cuda-cupti-cu12==12.1.105 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (12.1.105)
     Requirement already satisfied: nvidia-cusolver-cu12==11.4.5.107 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (11.4.5.107)
     Requirement already satisfied: nvidia-nccl-cu12==2.19.3 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (2.19.3)
-    Requirement already satisfied: filelock in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (3.13.4)
     Requirement already satisfied: nvidia-nvtx-cu12==12.1.105 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (12.1.105)
+    Requirement already satisfied: triton==2.2.0 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (2.2.0)
+    Requirement already satisfied: nvidia-cublas-cu12==12.1.3.1 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (12.1.3.1)
+    Requirement already satisfied: nvidia-cusparse-cu12==12.1.0.106 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (12.1.0.106)
+    Requirement already satisfied: nvidia-cudnn-cu12==8.9.2.26 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (8.9.2.26)
+    Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.1.105 in ./venv/lib/python3.10/site-packages (from torch->das4whales==0.1.0) (12.1.105)
     Requirement already satisfied: nvidia-nvjitlink-cu12 in ./venv/lib/python3.10/site-packages (from nvidia-cusolver-cu12==11.4.5.107->torch->das4whales==0.1.0) (12.4.127)
     Requirement already satisfied: pandas>=1.5 in ./venv/lib/python3.10/site-packages (from xarray->das4whales==0.1.0) (2.2.0)
     Requirement already satisfied: zipp>=0.5 in ./venv/lib/python3.10/site-packages (from importlib-metadata>=4.13.0->dask[complete]->das4whales==0.1.0) (3.17.0)
@@ -134,22 +137,41 @@ Please, report any bugs or issues you may have using this package and notebook e
     Requirement already satisfied: six>=1.5 in ./venv/lib/python3.10/site-packages (from python-dateutil>=2.7->matplotlib->das4whales==0.1.0) (1.16.0)
     Requirement already satisfied: threadpoolctl>=2.0.0 in ./venv/lib/python3.10/site-packages (from scikit-learn>=0.20.0->librosa->das4whales==0.1.0) (3.3.0)
     Requirement already satisfied: cffi>=1.0 in ./venv/lib/python3.10/site-packages (from soundfile>=0.12.1->librosa->das4whales==0.1.0) (1.16.0)
+    Requirement already satisfied: sphinxcontrib-htmlhelp>=2.0.0 in ./venv/lib/python3.10/site-packages (from sphinx>=6->numpydoc->das4whales==0.1.0) (2.0.5)
+    Requirement already satisfied: sphinxcontrib-devhelp in ./venv/lib/python3.10/site-packages (from sphinx>=6->numpydoc->das4whales==0.1.0) (1.0.6)
+    Requirement already satisfied: sphinxcontrib-jsmath in ./venv/lib/python3.10/site-packages (from sphinx>=6->numpydoc->das4whales==0.1.0) (1.0.1)
+    Requirement already satisfied: imagesize>=1.3 in ./venv/lib/python3.10/site-packages (from sphinx>=6->numpydoc->das4whales==0.1.0) (1.4.1)
+    Requirement already satisfied: Pygments>=2.14 in ./venv/lib/python3.10/site-packages (from sphinx>=6->numpydoc->das4whales==0.1.0) (2.17.2)
+    Requirement already satisfied: babel>=2.9 in ./venv/lib/python3.10/site-packages (from sphinx>=6->numpydoc->das4whales==0.1.0) (2.15.0)
+    Requirement already satisfied: snowballstemmer>=2.0 in ./venv/lib/python3.10/site-packages (from sphinx>=6->numpydoc->das4whales==0.1.0) (2.2.0)
+    Requirement already satisfied: sphinxcontrib-qthelp in ./venv/lib/python3.10/site-packages (from sphinx>=6->numpydoc->das4whales==0.1.0) (1.0.7)
+    Requirement already satisfied: alabaster~=0.7.14 in ./venv/lib/python3.10/site-packages (from sphinx>=6->numpydoc->das4whales==0.1.0) (0.7.16)
+    Requirement already satisfied: docutils<0.22,>=0.18.1 in ./venv/lib/python3.10/site-packages (from sphinx>=6->numpydoc->das4whales==0.1.0) (0.21.2)
+    Requirement already satisfied: sphinxcontrib-serializinghtml>=1.1.9 in ./venv/lib/python3.10/site-packages (from sphinx>=6->numpydoc->das4whales==0.1.0) (1.1.10)
+    Requirement already satisfied: sphinxcontrib-applehelp in ./venv/lib/python3.10/site-packages (from sphinx>=6->numpydoc->das4whales==0.1.0) (1.0.8)
+    Requirement already satisfied: MarkupSafe>=2.0 in ./venv/lib/python3.10/site-packages (from jinja2->torch->das4whales==0.1.0) (2.1.5)
     Requirement already satisfied: bokeh>=2.4.2 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (3.3.4)
     Requirement already satisfied: distributed==2024.2.0 in ./venv/lib/python3.10/site-packages (from dask[complete]->das4whales==0.1.0) (2024.2.0)
-    Requirement already satisfied: psutil>=5.7.2 in ./venv/lib/python3.10/site-packages (from distributed==2024.2.0->dask[complete]->das4whales==0.1.0) (5.9.8)
-    Requirement already satisfied: urllib3>=1.24.3 in ./venv/lib/python3.10/site-packages (from distributed==2024.2.0->dask[complete]->das4whales==0.1.0) (2.2.0)
-    Requirement already satisfied: zict>=3.0.0 in ./venv/lib/python3.10/site-packages (from distributed==2024.2.0->dask[complete]->das4whales==0.1.0) (3.0.0)
-    Requirement already satisfied: tblib>=1.6.0 in ./venv/lib/python3.10/site-packages (from distributed==2024.2.0->dask[complete]->das4whales==0.1.0) (3.0.0)
     Requirement already satisfied: sortedcontainers>=2.0.5 in ./venv/lib/python3.10/site-packages (from distributed==2024.2.0->dask[complete]->das4whales==0.1.0) (2.4.0)
     Requirement already satisfied: tornado>=6.0.4 in ./venv/lib/python3.10/site-packages (from distributed==2024.2.0->dask[complete]->das4whales==0.1.0) (6.4)
-    Requirement already satisfied: MarkupSafe>=2.0 in ./venv/lib/python3.10/site-packages (from jinja2->torch->das4whales==0.1.0) (2.1.5)
+    Requirement already satisfied: urllib3>=1.24.3 in ./venv/lib/python3.10/site-packages (from distributed==2024.2.0->dask[complete]->das4whales==0.1.0) (2.2.0)
+    Requirement already satisfied: psutil>=5.7.2 in ./venv/lib/python3.10/site-packages (from distributed==2024.2.0->dask[complete]->das4whales==0.1.0) (5.9.8)
+    Requirement already satisfied: tblib>=1.6.0 in ./venv/lib/python3.10/site-packages (from distributed==2024.2.0->dask[complete]->das4whales==0.1.0) (3.0.0)
+    Requirement already satisfied: zict>=3.0.0 in ./venv/lib/python3.10/site-packages (from distributed==2024.2.0->dask[complete]->das4whales==0.1.0) (3.0.0)
     Requirement already satisfied: mpmath>=0.19 in ./venv/lib/python3.10/site-packages (from sympy->torch->das4whales==0.1.0) (1.3.0)
     Requirement already satisfied: setuptools in ./venv/lib/python3.10/site-packages (from zope.interface->datetime->das4whales==0.1.0) (59.6.0)
     Requirement already satisfied: xyzservices>=2021.09.1 in ./venv/lib/python3.10/site-packages (from bokeh>=2.4.2->dask[complete]->das4whales==0.1.0) (2023.10.1)
     Requirement already satisfied: pycparser in ./venv/lib/python3.10/site-packages (from cffi>=1.0->soundfile>=0.12.1->librosa->das4whales==0.1.0) (2.21)
-    Requirement already satisfied: certifi>=2017.4.17 in ./venv/lib/python3.10/site-packages (from requests>=2.19.0->pooch>=1.0->librosa->das4whales==0.1.0) (2024.2.2)
     Requirement already satisfied: charset-normalizer<4,>=2 in ./venv/lib/python3.10/site-packages (from requests>=2.19.0->pooch>=1.0->librosa->das4whales==0.1.0) (3.3.2)
     Requirement already satisfied: idna<4,>=2.5 in ./venv/lib/python3.10/site-packages (from requests>=2.19.0->pooch>=1.0->librosa->das4whales==0.1.0) (3.6)
+    Requirement already satisfied: certifi>=2017.4.17 in ./venv/lib/python3.10/site-packages (from requests>=2.19.0->pooch>=1.0->librosa->das4whales==0.1.0) (2024.2.2)
+    Building wheels for collected packages: das4whales
+      Building wheel for das4whales (pyproject.toml) ... [?25ldone
+    [?25h  Created wheel for das4whales: filename=das4whales-0.1.0-py2.py3-none-any.whl size=46548 sha256=c10c6e943f4cbd1fa2d63cb33898c15d606d0b7d9df50ea72276d3d040ae3036
+      Stored in directory: /tmp/pip-ephem-wheel-cache-1j8gi2dg/wheels/04/5d/5a/5e2fce4e7d286aed5f5ec4105a6fef8a1dd86f4ca30de50106
+    Successfully built das4whales
+    Installing collected packages: das4whales
+    Successfully installed das4whales-0.1.0
 
 
 
@@ -306,16 +328,16 @@ trf_fk = dw.dsp.fk_filter_sparsefilt(trf, fk_filter, tapering=False)
 dw.plot.plot_tx(sp.hilbert(trf_fk, axis=1), time, dist, fileBeginTimeUTC, fig_size=(12, 10), v_min=0, v_max=0.4)
 ```
 
+
+    
+![png](pictures/DAS4Whales_ExampleNotebook_files/DAS4Whales_ExampleNotebook_18_0.png)
+    
     The size of the sparse filter is 0.0194 Gib
     The size of the dense filter is 0.49 Gib
     The compression ratio is 25.42 (96.1 %)
-
-
-
     
-![png](pictures/DAS4Whales_ExampleNotebook_files/DAS4Whales_ExampleNotebook_18_1.png)
+![png](pictures/DAS4Whales_ExampleNotebook_files/DAS4Whales_ExampleNotebook_18_2.png)
     
-
 
 ### Spatio-spectral representation 
 

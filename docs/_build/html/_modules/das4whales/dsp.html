@@ -372,6 +372,9 @@
 
 
 <span class="c1"># Filters</span>
+<span class="c1"># f-k filters design functions</span>
+<span class="c1">#TODO: uniformize and make a global function with choice of filter</span>
+<span class="c1"># Version from MATLAB code</span>
 <div class="viewcode-block" id="fk_filter_design">
 <a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.fk_filter_design">[docs]</a>
 <span class="k">def</span> <span class="nf">fk_filter_design</span><span class="p">(</span><span class="n">trace_shape</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">cs_min</span><span class="o">=</span><span class="mi">1400</span><span class="p">,</span> <span class="n">cp_min</span><span class="o">=</span><span class="mi">1450</span><span class="p">,</span> <span class="n">cp_max</span><span class="o">=</span><span class="mi">3400</span><span class="p">,</span> <span class="n">cs_max</span><span class="o">=</span><span class="mi">3500</span><span class="p">):</span>
@@ -463,11 +466,11 @@
     <span class="k">return</span> <span class="n">fk_filter_matrix</span></div>
 
 
-
+<span class="c1"># Infinite wave speed filter, sine tapers</span>
 <div class="viewcode-block" id="hybrid_filter_design">
 <a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.hybrid_filter_design">[docs]</a>
 <span class="k">def</span> <span class="nf">hybrid_filter_design</span><span class="p">(</span><span class="n">trace_shape</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">cs_min</span><span class="o">=</span><span class="mf">1400.</span><span class="p">,</span> <span class="n">cp_min</span><span class="o">=</span><span class="mf">1450.</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="mf">15.</span><span class="p">,</span> <span class="n">fmax</span><span class="o">=</span><span class="mf">25.</span><span class="p">,</span> <span class="n">display_filter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Designs a bandpass f-k hybrid filter for DAS strain data</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Designs an infinite wave speed bandpass f-k hybrid filter for DAS strain data</span>
 <span class="sd">        Keeps by default data with propagation speed above 1450 m/s between [15 - 25] Hz (designed for fin whales)</span>
 
 <span class="sd">    Parameters</span>
@@ -600,7 +603,7 @@
     <span class="k">return</span> <span class="n">sparse</span><span class="o">.</span><span class="n">COO</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">)</span></div>
 
 
-
+<span class="c1"># Non-infinite wave speed filter, sine tapers</span>
 <div class="viewcode-block" id="hybrid_ninf_filter_design">
 <a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.hybrid_ninf_filter_design">[docs]</a>
 <span class="k">def</span> <span class="nf">hybrid_ninf_filter_design</span><span class="p">(</span><span class="n">trace_shape</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">cs_min</span><span class="o">=</span><span class="mf">1400.</span><span class="p">,</span> <span class="n">cp_min</span><span class="o">=</span><span class="mf">1450.</span><span class="p">,</span> <span class="n">cp_max</span><span class="o">=</span><span class="mi">3400</span><span class="p">,</span> <span class="n">cs_max</span><span class="o">=</span><span class="mi">3500</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="mf">15.</span><span class="p">,</span> <span class="n">fmax</span><span class="o">=</span><span class="mf">25.</span><span class="p">,</span> <span class="n">display_filter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -702,7 +705,6 @@
     <span class="c1"># Filter display, optional</span>
     <span class="k">if</span> <span class="n">display_filter</span><span class="p">:</span> 
         <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-        <span class="n">original_rc_params</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="kn">import</span> <span class="nn">matplotlib.gridspec</span> <span class="k">as</span> <span class="nn">gridspec</span>
 
         <span class="c1"># Context manager for the plot (to avoid changing the global settings)</span>
@@ -738,11 +740,11 @@
             <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">original_rc_params</span><span class="p">)</span>
+            
     <span class="k">return</span> <span class="n">sparse</span><span class="o">.</span><span class="n">COO</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">)</span></div>
 
 
-
+<span class="c1"># Infinite wave speed filter, gaussian tapers</span>
 <div class="viewcode-block" id="hybrid_gs_filter_design">
 <a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.hybrid_gs_filter_design">[docs]</a>
 <span class="k">def</span> <span class="nf">hybrid_gs_filter_design</span><span class="p">(</span><span class="n">trace_shape</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">cs_min</span><span class="o">=</span><span class="mf">1400.</span><span class="p">,</span> <span class="n">cp_min</span><span class="o">=</span><span class="mf">1450.</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="mf">15.</span><span class="p">,</span> <span class="n">fmax</span><span class="o">=</span><span class="mf">25.</span><span class="p">,</span> <span class="n">display_filter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -870,7 +872,7 @@
     <span class="k">return</span> <span class="n">sparse</span><span class="o">.</span><span class="n">COO</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">)</span></div>
 
 
-
+<span class="c1"># Non-infinite wave speed filter, gaussian tapers</span>
 <div class="viewcode-block" id="hybrid_ninf_gs_filter_design">
 <a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.hybrid_ninf_gs_filter_design">[docs]</a>
 <span class="k">def</span> <span class="nf">hybrid_ninf_gs_filter_design</span><span class="p">(</span><span class="n">trace_shape</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">cs_min</span><span class="o">=</span><span class="mf">1400.</span><span class="p">,</span> <span class="n">cp_min</span><span class="o">=</span><span class="mf">1450.</span><span class="p">,</span> <span class="n">cp_max</span><span class="o">=</span><span class="mi">3400</span><span class="p">,</span> <span class="n">cs_max</span><span class="o">=</span><span class="mi">3500</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="mf">15.</span><span class="p">,</span> <span class="n">fmax</span><span class="o">=</span><span class="mf">25.</span><span class="p">,</span> <span class="n">display_filter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>

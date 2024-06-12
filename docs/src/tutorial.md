@@ -1,16 +1,12 @@
 # Tutorial
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/gist/leabouffaut/e66b5a741493c4bd13aa07f39586ec4b/das4whales_examplenotebook.ipynb)
-
 ### Import the DAS4Whales module and dependencies from GitHub
-
-
+If not in a jupyter notebook, follow the [Intallation instructions](install.rst), otherwise, run the following cells to install the module and import the necessary dependencies.
 ```python
-python3 -m pip install 'git+https://github.com/qgoestch/DAS4Whales'
+!python3 -m pip install 'git+https://github.com/qgoestch/DAS4Whales'
 ```
 
 ```python
-# Imports
 import das4whales as dw
 import scipy.signal as sp
 import numpy as np
@@ -163,6 +159,12 @@ trf_fk = dw.dsp.fk_filter_sparsefilt(trf, fk_filter, tapering=False)
 dw.plot.plot_tx(sp.hilbert(trf_fk, axis=1), time, dist, fileBeginTimeUTC, fig_size=(12, 10), v_min=0, v_max=0.4)
 ```
 
+
+    
+![png](DAS4Whales_ExampleNotebook_files/DAS4Whales_ExampleNotebook_18_0.png)
+    
+
+
     The size of the sparse filter is 0.0194 Gib
     The size of the dense filter is 0.49 Gib
     The compression ratio is 25.42 (96.1 %)
@@ -170,7 +172,7 @@ dw.plot.plot_tx(sp.hilbert(trf_fk, axis=1), time, dist, fileBeginTimeUTC, fig_si
 
 
     
-![png](DAS4Whales_ExampleNotebook_files/DAS4Whales_ExampleNotebook_18_1.png)
+![png](DAS4Whales_ExampleNotebook_files/DAS4Whales_ExampleNotebook_18_2.png)
     
 
 

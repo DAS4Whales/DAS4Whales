@@ -293,14 +293,13 @@
         <article role="main" id="furo-main-content">
           <section id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Link to this heading">¶</a></h1>
-<p><a class="reference external" href="https://colab.research.google.com/gist/leabouffaut/e66b5a741493c4bd13aa07f39586ec4b/das4whales_examplenotebook.ipynb"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
 <section id="import-the-das4whales-module-and-dependencies-from-github">
 <h2>Import the DAS4Whales module and dependencies from GitHub<a class="headerlink" href="#import-the-das4whales-module-and-dependencies-from-github" title="Link to this heading">¶</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="s1">&#39;git+https://github.com/qgoestch/DAS4Whales&#39;</span>
+<p>If not in a jupyter notebook, follow the <a class="reference internal" href="install.html"><span class="std std-doc">Intallation instructions</span></a>, otherwise, run the following cells to install the module and import the necessary dependencies.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">!</span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="s1">&#39;git+https://github.com/qgoestch/DAS4Whales&#39;</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Imports</span>
-<span class="kn">import</span> <span class="nn">das4whales</span> <span class="k">as</span> <span class="nn">dw</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">das4whales</span> <span class="k">as</span> <span class="nn">dw</span>
 <span class="kn">import</span> <span class="nn">scipy.signal</span> <span class="k">as</span> <span class="nn">sp</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 </pre></div>
@@ -434,12 +433,13 @@ The following allows to re-sample the data spatially and select a region of inte
 <span class="n">dw</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">plot_tx</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">hilbert</span><span class="p">(</span><span class="n">trf_fk</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">time</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">fileBeginTimeUTC</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">v_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">v_max</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
 </pre></div>
 </div>
+<p><img alt="png" src="../_images/DAS4Whales_ExampleNotebook_18_0.png" /></p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The size of the sparse filter is 0.0194 Gib
 The size of the dense filter is 0.49 Gib
 The compression ratio is 25.42 (96.1 %)
 </pre></div>
 </div>
-<p><img alt="png" src="../_images/DAS4Whales_ExampleNotebook_18_1.png" /></p>
+<p><img alt="png" src="../_images/DAS4Whales_ExampleNotebook_18_2.png" /></p>
 </section>
 <section id="spatio-spectral-representation">
 <h2>Spatio-spectral representation<a class="headerlink" href="#spatio-spectral-representation" title="Link to this heading">¶</a></h2>
