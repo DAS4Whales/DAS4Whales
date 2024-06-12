@@ -10,7 +10,7 @@ dev.ipynb
 .DS_Store
 
 # Image files
-*.png
+# *.png
 
 # PyCharm IDE specific files
 .idea
