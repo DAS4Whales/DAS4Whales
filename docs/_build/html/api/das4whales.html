@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
     
     
 
@@ -20,30 +21,42 @@
   body {
     --color-code-background: #f8f8f8;
   --color-code-foreground: black;
-  --color-brand-primary: #000;
-  --color-brand-content: #000;
-  --color-admonition-background: #f0f0f0;
-  --color-admonition-content: #000;
+  --color-brand-primary: #005f73;
+  --color-brand-content: #0a9396;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #e0fbfc;
+  --color-foreground-primary: #023047;
+  --color-foreground-secondary: #8ecae6;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
   }
   @media not print {
     body[data-theme="dark"] {
       --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
-  --color-brand-primary: #fff;
-  --color-brand-content: #fff;
-  --color-admonition-background: #333;
-  --color-admonition-content: #fff;
+  --color-brand-primary: #0a9396;
+  --color-brand-content: #94d2bd;
+  --color-background-primary: #001219;
+  --color-background-secondary: #003049;
+  --color-foreground-primary: #e0fbfc;
+  --color-foreground-secondary: #94d2bd;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
         --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
-  --color-brand-primary: #fff;
-  --color-brand-content: #fff;
-  --color-admonition-background: #333;
-  --color-admonition-content: #fff;
+  --color-brand-primary: #0a9396;
+  --color-brand-content: #94d2bd;
+  --color-background-primary: #001219;
+  --color-background-secondary: #003049;
+  --color-foreground-primary: #e0fbfc;
+  --color-foreground-secondary: #94d2bd;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
       }
     }
@@ -993,20 +1006,6 @@ filter_sos : np.ndarray</p>
 <div><p>The second-order sections (SOS) representation of the Butterworth filter.</p>
 </div></blockquote>
 </section>
-<section id="notes">
-<h3>Notes:<a class="headerlink" href="#notes" title="Link to this heading">¶</a></h3>
-<p>The Butterworth filter is designed using the scipy.signal.butter function.</p>
-</section>
-<section id="example">
-<h3>Example:<a class="headerlink" href="#example" title="Link to this heading">¶</a></h3>
-<p>filter_order = 4
-filter_critical_freq = 1000
-filter_type_str = ‘lowpass’
-filterspec = (filter_order, filter_critical_freq, filter_type_str)
-fs = 44100</p>
-<p>filter_sos = butterworth_filter(filterspec, fs)
-trace_filtered = sp.sosfiltfilt(filter_sos, trace_original, axis=1)</p>
-</section>
 </dd></dl>
 
 <dl class="py function">
@@ -1863,13 +1862,6 @@ Date: 2023-2024</p>
 <h3>Returns:<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
 <p>:
 None</p>
-</section>
-<section id="id7">
-<h3>Notes:<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
-<p>This function plots a spatio-temporal representation (t-x plot) of the strain data. It uses the given strain data,
-time vector, and distance vector to create the plot. The plot shows the strain envelope as a color map, with time
-on the x-axis and distance on the y-axis. The color of each point in the plot represents the strain amplitude at
-that point. The function also supports customizing the figure size, colorbar limits, and title.</p>
 </section>
 </dd></dl>
 

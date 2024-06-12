@@ -412,7 +412,7 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, fmin, fmax, plotflag=False):
     """
     Calculate kernel and plot.
 
-    Parameters:
+    Parameters
     ----------
     f0 : float
         Starting frequency.
@@ -433,7 +433,7 @@ def buildkernel(f0, f1, bdwdth, dur, f, t, samp, fmin, fmax, plotflag=False):
     kernel_lims : tuple, optional
         Tuple of minimum kernel range and maximum kernel range. Default is finKernelLims.
 
-    Returns:
+    Returns
     -------
     tvec : numpy.array
         Vector of kernel times.
@@ -606,7 +606,7 @@ def xcorr(t, f, Sxx, tvec, fvec, BlueKernel):
     """
     Cross-correlate kernel with spectrogram
 
-    Parameters:
+    Parameters
     ----------
     t : np.array
         Vector of times returned from plotwav
@@ -621,7 +621,7 @@ def xcorr(t, f, Sxx, tvec, fvec, BlueKernel):
     BlueKernel : np.array
         2-D array of kernel amplitudes
 
-    Returns:
+    Returns
     -------
     t_scale : numpy.array
         Vector of correlation lags

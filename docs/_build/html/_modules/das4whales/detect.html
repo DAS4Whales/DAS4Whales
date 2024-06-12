@@ -9,7 +9,9 @@
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
     
     
 
@@ -18,18 +20,42 @@
   body {
     --color-code-background: #f8f8f8;
   --color-code-foreground: black;
+  --color-brand-primary: #005f73;
+  --color-brand-content: #0a9396;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #e0fbfc;
+  --color-foreground-primary: #023047;
+  --color-foreground-secondary: #8ecae6;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
   }
   @media not print {
     body[data-theme="dark"] {
       --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #0a9396;
+  --color-brand-content: #94d2bd;
+  --color-background-primary: #001219;
+  --color-background-secondary: #003049;
+  --color-foreground-primary: #e0fbfc;
+  --color-foreground-secondary: #94d2bd;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
         --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #0a9396;
+  --color-brand-content: #94d2bd;
+  --color-background-primary: #001219;
+  --color-background-secondary: #003049;
+  --color-foreground-primary: #e0fbfc;
+  --color-foreground-secondary: #94d2bd;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
       }
     }
@@ -212,7 +238,12 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../detect.html">detect</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/das4whales.html">das4whales package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/data_handle.html">data_handle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/dsp.html">dsp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/detect.html">detect</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/plot.html">plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/graph.html">Graph of Modules and Functions</a></li>
 </ul>
 
 </div>
@@ -268,7 +299,7 @@
 
 <span class="c1">## Matched filter detection functions:</span>
 <div class="viewcode-block" id="gen_linear_chirp">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.gen_linear_chirp">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.gen_linear_chirp">[docs]</a>
 <span class="k">def</span> <span class="nf">gen_linear_chirp</span><span class="p">(</span><span class="n">fmin</span><span class="p">,</span> <span class="n">fmax</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a linear chirp signal.</span>
 
@@ -295,7 +326,7 @@
 
 
 <div class="viewcode-block" id="gen_hyperbolic_chirp">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.gen_hyperbolic_chirp">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.gen_hyperbolic_chirp">[docs]</a>
 <span class="k">def</span> <span class="nf">gen_hyperbolic_chirp</span><span class="p">(</span><span class="n">fmin</span><span class="p">,</span> <span class="n">fmax</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a hyperbolic chirp signal.</span>
 
@@ -322,7 +353,7 @@
 
 
 <div class="viewcode-block" id="gen_template_fincall">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.gen_template_fincall">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.gen_template_fincall">[docs]</a>
 <span class="k">def</span> <span class="nf">gen_template_fincall</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">fmin</span> <span class="o">=</span> <span class="mf">15.</span><span class="p">,</span> <span class="n">fmax</span> <span class="o">=</span> <span class="mf">25.</span><span class="p">,</span> <span class="n">duration</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; generate template of a fin whale call</span>
 
@@ -353,7 +384,7 @@
 
 
 <div class="viewcode-block" id="shift_xcorr">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.shift_xcorr">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.shift_xcorr">[docs]</a>
 <span class="k">def</span> <span class="nf">shift_xcorr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;compute the shifted (positive lags only) cross correlation between two 1D arrays</span>
 
@@ -375,7 +406,7 @@
 
 
 <div class="viewcode-block" id="shift_nxcorr">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.shift_nxcorr">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.shift_nxcorr">[docs]</a>
 <span class="k">def</span> <span class="nf">shift_nxcorr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the shifted (positive lags only) normalized cross-correlation with standard deviation normalization.</span>
 
@@ -403,7 +434,7 @@
 
 
 <div class="viewcode-block" id="compute_cross_correlogram">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.compute_cross_correlogram">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.compute_cross_correlogram">[docs]</a>
 <span class="k">def</span> <span class="nf">compute_cross_correlogram</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the cross correlogram between the given data and template.</span>
@@ -435,7 +466,7 @@
 
 
 <div class="viewcode-block" id="pick_times_env">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.pick_times_env">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.pick_times_env">[docs]</a>
 <span class="k">def</span> <span class="nf">pick_times_env</span><span class="p">(</span><span class="n">corr_m</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
     <span class="c1"># TODO: Parallelize this function</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Detects the peak times in a correlation matrix.</span>
@@ -467,7 +498,7 @@
 
 
 <div class="viewcode-block" id="process_corr">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.process_corr">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.process_corr">[docs]</a>
 <span class="k">def</span> <span class="nf">process_corr</span><span class="p">(</span><span class="n">corr</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Detects the peak times in a correlation serie, kernel for parallelization.</span>
 
@@ -493,7 +524,7 @@
 
 
 <div class="viewcode-block" id="pick_times_par">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.pick_times_par">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.pick_times_par">[docs]</a>
 <span class="k">def</span> <span class="nf">pick_times_par</span><span class="p">(</span><span class="n">corr_m</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Detects the peak times in a correlation matrix using parallel processing.</span>
 
@@ -524,7 +555,7 @@
 
 
 <div class="viewcode-block" id="pick_times">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.pick_times">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.pick_times">[docs]</a>
 <span class="k">def</span> <span class="nf">pick_times</span><span class="p">(</span><span class="n">corr_m</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Detects the peak times in a correlation matrix.</span>
 
@@ -555,7 +586,7 @@
 
 
 <div class="viewcode-block" id="convert_pick_times">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.convert_pick_times">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.convert_pick_times">[docs]</a>
 <span class="k">def</span> <span class="nf">convert_pick_times</span><span class="p">(</span><span class="n">peaks_indexes_m</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert pick times from a list of lists to a numpy array.</span>
@@ -587,7 +618,7 @@
 
 
 <div class="viewcode-block" id="select_picked_times">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.select_picked_times">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.select_picked_times">[docs]</a>
 <span class="k">def</span> <span class="nf">select_picked_times</span><span class="p">(</span><span class="n">idx_tp</span><span class="p">,</span> <span class="n">tstart</span><span class="p">,</span> <span class="n">tend</span><span class="p">,</span> <span class="n">fs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Select the picked times within a given time range.</span>
@@ -618,7 +649,7 @@
 <span class="c1">## Spectrogram correlation functions:</span>
 
 <div class="viewcode-block" id="get_sliced_nspectrogram">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.get_sliced_nspectrogram">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.get_sliced_nspectrogram">[docs]</a>
 <span class="k">def</span> <span class="nf">get_sliced_nspectrogram</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">fmin</span><span class="p">,</span> <span class="n">fmax</span><span class="p">,</span> <span class="n">nperseg</span><span class="p">,</span> <span class="n">nhop</span><span class="p">,</span> <span class="n">plotflag</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the sliced non-stationary spectrogram of a given trace.</span>
@@ -698,12 +729,12 @@
 
 
 <div class="viewcode-block" id="buildkernel">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.buildkernel">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.buildkernel">[docs]</a>
 <span class="k">def</span> <span class="nf">buildkernel</span><span class="p">(</span><span class="n">f0</span><span class="p">,</span> <span class="n">f1</span><span class="p">,</span> <span class="n">bdwdth</span><span class="p">,</span> <span class="n">dur</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">samp</span><span class="p">,</span> <span class="n">fmin</span><span class="p">,</span> <span class="n">fmax</span><span class="p">,</span> <span class="n">plotflag</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate kernel and plot.</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    f0 : float</span>
 <span class="sd">        Starting frequency.</span>
@@ -724,7 +755,7 @@
 <span class="sd">    kernel_lims : tuple, optional</span>
 <span class="sd">        Tuple of minimum kernel range and maximum kernel range. Default is finKernelLims.</span>
 
-<span class="sd">    Returns:</span>
+<span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    tvec : numpy.array</span>
 <span class="sd">        Vector of kernel times.</span>
@@ -785,7 +816,7 @@
 
 
 <div class="viewcode-block" id="buildkernel_from_template">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.buildkernel_from_template">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.buildkernel_from_template">[docs]</a>
 <span class="k">def</span> <span class="nf">buildkernel_from_template</span><span class="p">(</span><span class="n">fmin</span><span class="p">,</span> <span class="n">fmax</span><span class="p">,</span> <span class="n">dur</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">nperseg</span><span class="p">,</span> <span class="n">nhop</span><span class="p">,</span> <span class="n">plotflag</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Build a kernel from a template.</span>
@@ -837,7 +868,7 @@
 
 
 <div class="viewcode-block" id="nxcorr2d">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.nxcorr2d">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.nxcorr2d">[docs]</a>
 <span class="k">def</span> <span class="nf">nxcorr2d</span><span class="p">(</span><span class="n">spectro</span><span class="p">,</span> <span class="n">kernel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the normalized cross-correlation between a spectrogram and a kernel.</span>
@@ -875,7 +906,7 @@
 
 
 <div class="viewcode-block" id="xcorr2d">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.xcorr2d">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.xcorr2d">[docs]</a>
 <span class="k">def</span> <span class="nf">xcorr2d</span><span class="p">(</span><span class="n">spectro</span><span class="p">,</span> <span class="n">kernel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the 2D cross-correlation between a spectrogram and a kernel.</span>
@@ -904,12 +935,12 @@
 
 
 <div class="viewcode-block" id="xcorr">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.xcorr">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.xcorr">[docs]</a>
 <span class="k">def</span> <span class="nf">xcorr</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">Sxx</span><span class="p">,</span> <span class="n">tvec</span><span class="p">,</span> <span class="n">fvec</span><span class="p">,</span> <span class="n">BlueKernel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Cross-correlate kernel with spectrogram</span>
 
-<span class="sd">    Parameters:</span>
+<span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    t : np.array</span>
 <span class="sd">        Vector of times returned from plotwav</span>
@@ -924,7 +955,7 @@
 <span class="sd">    BlueKernel : np.array</span>
 <span class="sd">        2-D array of kernel amplitudes</span>
 
-<span class="sd">    Returns:</span>
+<span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    t_scale : numpy.array</span>
 <span class="sd">        Vector of correlation lags</span>
@@ -952,7 +983,7 @@
 
 
 <div class="viewcode-block" id="compute_cross_correlogram_spectrocorr">
-<a class="viewcode-back" href="../../detect.html#das4whales.detect.compute_cross_correlogram_spectrocorr">[docs]</a>
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.compute_cross_correlogram_spectrocorr">[docs]</a>
 <span class="k">def</span> <span class="nf">compute_cross_correlogram_spectrocorr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">flims</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">win_size</span><span class="p">,</span> <span class="n">overlap_pct</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the cross-correlogram via spectrogram correlation.</span>
 

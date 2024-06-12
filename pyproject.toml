@@ -40,7 +40,8 @@ dependencies = [
     "opencv-python",
     "scikit-image",
     "opencv-python",
-    "torchvision"
+    "torchvision",
+    "numpydoc"
 ]
 
 [project.urls]

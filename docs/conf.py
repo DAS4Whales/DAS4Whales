@@ -26,6 +26,11 @@ extensions = [
     "sphinx.ext.viewcode",  # To include links to the source code
     "sphinx_copybutton",
     "sphinx.ext.graphviz",
+    "sphinx.ext.inheritance_diagram",
+    "sphinx.ext.todo",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.autosectionlabel",
+    "numpydoc",
 ]
 
 templates_path = ['_templates']
@@ -44,19 +49,34 @@ exclude_patterns = [
 html_theme = 'furo' #'sphinx_rtd_theme'
 
 html_theme_options = {
+    # "light_logo": "images/light_logo.png",  # Path to your light theme logo
+    # "dark_logo": "images/dark_logo.png",    # Path to your dark theme logo
     "light_css_variables": {
-        "color-brand-primary": "#000",
-        "color-brand-content": "#000",
-        "color-admonition-background": "#f0f0f0",
-        "color-admonition-content": "#000",
+        "color-brand-primary": "#005f73",  # Ocean Blue
+        "color-brand-content": "#0a9396",  # Aqua/Turquoise
+        "color-background-primary": "#ffffff",  # White
+        "color-background-secondary": "#e0fbfc",  # Very light aqua
+        "color-foreground-primary": "#023047",  # Deep Sea Green
+        "color-foreground-secondary": "#8ecae6",  # Light aqua
+        "color-link": "#ffb703",  # Coral
+        "color-link--hover": "#fb8500",  # Darker Coral
     },
     "dark_css_variables": {
-        "color-brand-primary": "#fff",
-        "color-brand-content": "#fff",
-        "color-admonition-background": "#333",
-        "color-admonition-content": "#fff",
-    },
+        "color-brand-primary": "#0a9396",  # Aqua/Turquoise
+        "color-brand-content": "#94d2bd",  # Lighter Aqua
+        "color-background-primary": "#001219",  # Very dark blue
+        "color-background-secondary": "#003049",  # Deep Ocean Blue
+        "color-foreground-primary": "#e0fbfc",  # Very light aqua
+        "color-foreground-secondary": "#94d2bd",  # Lighter Aqua
+        "color-link": "#ffb703",  # Coral
+        "color-link--hover": "#fb8500",  # Darker Coral
+    }
 }
+
+html_static_path = ['_static']
+html_css_files = [
+    "css/custom.css",
+]
 
 myst_enable_extensions = [
     "colon_fence",

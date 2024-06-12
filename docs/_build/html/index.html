@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="das4whales package" href="api/das4whales.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Installation" href="src/install.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
         <title>DAS4Whales documentation</title>
@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
     
     
 
@@ -20,30 +21,42 @@
   body {
     --color-code-background: #f8f8f8;
   --color-code-foreground: black;
-  --color-brand-primary: #000;
-  --color-brand-content: #000;
-  --color-admonition-background: #f0f0f0;
-  --color-admonition-content: #000;
+  --color-brand-primary: #005f73;
+  --color-brand-content: #0a9396;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #e0fbfc;
+  --color-foreground-primary: #023047;
+  --color-foreground-secondary: #8ecae6;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
   }
   @media not print {
     body[data-theme="dark"] {
       --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
-  --color-brand-primary: #fff;
-  --color-brand-content: #fff;
-  --color-admonition-background: #333;
-  --color-admonition-content: #fff;
+  --color-brand-primary: #0a9396;
+  --color-brand-content: #94d2bd;
+  --color-background-primary: #001219;
+  --color-background-secondary: #003049;
+  --color-foreground-primary: #e0fbfc;
+  --color-foreground-secondary: #94d2bd;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
         --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
-  --color-brand-primary: #fff;
-  --color-brand-content: #fff;
-  --color-admonition-background: #333;
-  --color-admonition-content: #fff;
+  --color-brand-primary: #0a9396;
+  --color-brand-content: #94d2bd;
+  --color-background-primary: #001219;
+  --color-background-secondary: #003049;
+  --color-foreground-primary: #e0fbfc;
+  --color-foreground-secondary: #94d2bd;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
       }
     }
@@ -225,7 +238,13 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
+  <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src/tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules documentation</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="api/das4whales.html">das4whales package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="src/data_handle.html">data_handle</a></li>
 <li class="toctree-l1"><a class="reference internal" href="src/dsp.html">dsp</a></li>
@@ -275,6 +294,15 @@
           <section id="das4whales">
 <h1>DAS4Whales<a class="headerlink" href="#das4whales" title="Link to this heading">¶</a></h1>
 <div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src/tutorial.html">Tutorial</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
 </div>
 <section id="about-das4whales">
 <h2>About DAS4Whales<a class="headerlink" href="#about-das4whales" title="Link to this heading">¶</a></h2>
@@ -290,11 +318,11 @@ K. Lisa Yang Center for Conservation Bioacoustics, Cornell Lab of Ornithology, C
 William Wilcock Lab - Ocean Data Lab, School of Oceanography, University of Washington. Seattle (WA), USA</p></li>
 </ul>
 <p><a class="reference external" href="mailto:qgoestch&#37;&#52;&#48;uw&#46;edu">Contact</a> | <a class="reference external" href="https://qgoestch.github.io/qgoestch/">Webpage</a></p>
-<blockquote>
-<div><p><strong>Note</strong><br />
-Please cite this package as:<br />
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please cite this package as:<br />
 Léa Bouffaut (2023). DAS4Whales: A Python package to analyze Distributed Acoustic Sensing (DAS) data for marine bioacoustics (v0.1.0). Zenodo. https://doi.org/10.5281/zenodo.7760187</p>
-</div></blockquote>
+</div>
 </section>
 <section id="background">
 <h2>Background<a class="headerlink" href="#background" title="Link to this heading">¶</a></h2>
@@ -305,12 +333,12 @@ Léa Bouffaut (2023). DAS4Whales: A Python package to analyze Distributed Acoust
 </div></blockquote>
 <p>For the specific application of DAS for whale bioacoustics (we will use the same terminology) see:</p>
 <blockquote>
-<div><p>Bouffaut, L., Taweesintananon, K., Kriesell, H. J., Rørstadbotnen, R. A., Potter, J. R., Landrø, M., Johansen, S. E., Brenne, J. K., Haukanes, A., Schjelderup, O., &amp; Storvik, F. (2022). Eavesdropping at the Speed of Light: Distributed Acoustic Sensing of Baleen Whales in the Arctic. Frontiers in Marine Science, 9, 901348. https://doi.org/10.3389/fmars.2022.901348</p>
+<div><p>Bouffaut, L., Taweesintananon, K., Kriesell, H. J., Rørstadbotnen, R. A., Potter, J. R., Landrø, M., Johansen, S. E., Brenne, J. K., Haukanes, A., Schjelderup, O., &amp; Storvik, F. (2022). Eavesdropping at the Speed of Light: Distributed Acoustic Sensing of Baleen Whales in the Arctic. Frontiers in Marine Science, 9, 901348. <a class="reference external" href="https://doi.org/10.3389/fmars.2022.901348">https://doi.org/10.3389/fmars.2022.901348</a></p>
 </div></blockquote>
 </section>
 <section id="how-to-use-the-das4whales-package">
 <h2>How-to use the das4whales package<a class="headerlink" href="#how-to-use-the-das4whales-package" title="Link to this heading">¶</a></h2>
-<p><a class="reference external" href="https://github.com/leabouffaut/DAS4Whales/blob/main/DAS4Whales_ExampleNotebook.ipynb">This Jupyter notebook</a> available in <a class="reference external" href="https://colab.research.google.com/gist/leabouffaut/e66b5a741493c4bd13aa07f39586ec4b/das4whales_examplenotebook.ipynb">Colab</a>  provides an illustration of the current functionalities of the DAS4Whales python package, available on GitHub https://github.com/leabouffaut/DAS4Whales. For now, the package enables basic manipulations and visualizations of DAS data such as:</p>
+<p><a class="reference external" href="https://github.com/leabouffaut/DAS4Whales/blob/main/DAS4Whales_ExampleNotebook.ipynb">This Jupyter notebook</a> available in <a class="reference external" href="https://colab.research.google.com/gist/leabouffaut/e66b5a741493c4bd13aa07f39586ec4b/das4whales_examplenotebook.ipynb">Colab</a>  provides an illustration of the current functionalities of the DAS4Whales python package, available on <a class="reference external" href="https://github.com/leabouffaut/DAS4Whales">this GitHub repository</a>. For now, the package enables basic manipulations and visualizations of DAS data such as:</p>
 <ul class="simple">
 <li><p>reading the metadata and loading DAS strain data from a hdf5 file – functionalities available in the module <code class="docutils literal notranslate"><span class="pre">das4whales.data_handle</span></code>,</p></li>
 <li><p>high-pass, band-pass and frequency-wavenumber (f-k) filtering – functionalities available in the module <code class="docutils literal notranslate"><span class="pre">das4whales.dsp</span></code>,</p></li>
@@ -345,12 +373,12 @@ Léa Bouffaut (2023). DAS4Whales: A Python package to analyze Distributed Acoust
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="api/das4whales.html">
+          <a class="next-page" href="src/install.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">das4whales package</div>
+                <div class="title">Installation</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>

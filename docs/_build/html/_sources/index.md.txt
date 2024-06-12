@@ -1,14 +1,24 @@
 # DAS4Whales
 
 ```{toctree}
-:maxdepth: 2
-:hidden:
+:maxdepth: 1
+:caption: Getting Started
 
-:caption: API
+/src/install
+/src/tutorial
+
+```
+
+```{toctree}
+```
+
+```{toctree}
+:maxdepth: 3
+:caption: Modules documentation
+:hidden:
 
 api/das4whales
 
-/src/dask_wrap
 /src/data_handle
 /src/dsp
 /src/detect

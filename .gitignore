@@ -1,5 +1,6 @@
 # Jupyter notebooks
 .ipynb_checkpoints
+DAS4Whales_ExampleNotebook.ipynb
 
 # Development jupyter notebooks
 devnotebooks/

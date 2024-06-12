@@ -9,7 +9,9 @@
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
     
     
 
@@ -18,18 +20,42 @@
   body {
     --color-code-background: #f8f8f8;
   --color-code-foreground: black;
+  --color-brand-primary: #005f73;
+  --color-brand-content: #0a9396;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #e0fbfc;
+  --color-foreground-primary: #023047;
+  --color-foreground-secondary: #8ecae6;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
   }
   @media not print {
     body[data-theme="dark"] {
       --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #0a9396;
+  --color-brand-content: #94d2bd;
+  --color-background-primary: #001219;
+  --color-background-secondary: #003049;
+  --color-foreground-primary: #e0fbfc;
+  --color-foreground-secondary: #94d2bd;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
         --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #0a9396;
+  --color-brand-content: #94d2bd;
+  --color-background-primary: #001219;
+  --color-background-secondary: #003049;
+  --color-foreground-primary: #e0fbfc;
+  --color-foreground-secondary: #94d2bd;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
       }
     }
@@ -211,10 +237,7 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../detect.html">detect</a></li>
-</ul>
-
+  
 </div>
 </div>
 
@@ -266,7 +289,7 @@
 
 <span class="c1"># Transformations</span>
 <div class="viewcode-block" id="get_fx">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dsp.get_fx">[docs]</a>
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.get_fx">[docs]</a>
 <span class="k">def</span> <span class="nf">get_fx</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">nfft</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Apply a fast Fourier transform (FFT) to each channel of the strain data matrix.</span>
@@ -292,7 +315,7 @@
 
 
 <div class="viewcode-block" id="get_spectrogram">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dsp.get_spectrogram">[docs]</a>
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.get_spectrogram">[docs]</a>
 <span class="k">def</span> <span class="nf">get_spectrogram</span><span class="p">(</span><span class="n">waveform</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">nfft</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">overlap_pct</span><span class="o">=</span><span class="mf">0.8</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the spectrogram of a single channel</span>
@@ -336,7 +359,7 @@
 
 <span class="c1"># Filters</span>
 <div class="viewcode-block" id="fk_filter_design">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dsp.fk_filter_design">[docs]</a>
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.fk_filter_design">[docs]</a>
 <span class="k">def</span> <span class="nf">fk_filter_design</span><span class="p">(</span><span class="n">trace_shape</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">cs_min</span><span class="o">=</span><span class="mi">1400</span><span class="p">,</span> <span class="n">cp_min</span><span class="o">=</span><span class="mi">1450</span><span class="p">,</span> <span class="n">cp_max</span><span class="o">=</span><span class="mi">3400</span><span class="p">,</span> <span class="n">cs_max</span><span class="o">=</span><span class="mi">3500</span><span class="p">):</span>
     <span class="c1"># TODO: mark as deprecated, use hybrid_filter_design instead</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -428,7 +451,7 @@
 
 
 <div class="viewcode-block" id="hybrid_filter_design">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dsp.hybrid_filter_design">[docs]</a>
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.hybrid_filter_design">[docs]</a>
 <span class="k">def</span> <span class="nf">hybrid_filter_design</span><span class="p">(</span><span class="n">trace_shape</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">cs_min</span><span class="o">=</span><span class="mf">1400.</span><span class="p">,</span> <span class="n">cp_min</span><span class="o">=</span><span class="mf">1450.</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="mf">15.</span><span class="p">,</span> <span class="n">fmax</span><span class="o">=</span><span class="mf">25.</span><span class="p">,</span> <span class="n">display_filter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Designs a bandpass f-k hybrid filter for DAS strain data</span>
 <span class="sd">        Keeps by default data with propagation speed above 1450 m/s between [15 - 25] Hz (designed for fin whales)</span>
@@ -525,44 +548,47 @@
     <span class="k">if</span> <span class="n">display_filter</span><span class="p">:</span> 
         <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
         <span class="kn">import</span> <span class="nn">matplotlib.gridspec</span> <span class="k">as</span> <span class="nn">gridspec</span>
-        <span class="c1"># Change the font sizes for plots (if needed)</span>
-        <span class="c1"># plt.rc(&#39;font&#39;, size=20) </span>
-        <span class="c1"># plt.rc(&#39;xtick&#39;, labelsize=16)  </span>
-        <span class="c1"># plt.rc(&#39;ytick&#39;, labelsize=16)</span>
 
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-        <span class="n">gs</span> <span class="o">=</span> <span class="n">gridspec</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="c1"># Context manager for the plot (to avoid changing the global settings)</span>
+        <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">rc_context</span><span class="p">():</span>
+            <span class="c1"># Change the font sizes for plots (if needed)</span>
+            <span class="c1"># plt.rc(&#39;font&#39;, size=20) </span>
+            <span class="c1"># plt.rc(&#39;xtick&#39;, labelsize=16)  </span>
+            <span class="c1"># plt.rc(&#39;ytick&#39;, labelsize=16)</span>
 
-        <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)],</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
-        
-        <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sharex</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">fk_filter_matrix</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">knum</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">)])</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+            <span class="n">gs</span> <span class="o">=</span> <span class="n">gridspec</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 
-        <span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sharey</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">[:,</span> <span class="n">fmin_idx</span> <span class="o">+</span> <span class="mi">250</span><span class="p">],</span> <span class="n">knum</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)])</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">tick_right</span><span class="p">()</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)],</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
+            
+            <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sharex</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">fk_filter_matrix</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">knum</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">)])</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+            <span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sharey</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">[:,</span> <span class="n">fmin_idx</span> <span class="o">+</span> <span class="mi">250</span><span class="p">],</span> <span class="n">knum</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)])</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">tick_right</span><span class="p">()</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">sparse</span><span class="o">.</span><span class="n">COO</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="hybrid_ninf_filter_design">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dsp.hybrid_ninf_filter_design">[docs]</a>
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.hybrid_ninf_filter_design">[docs]</a>
 <span class="k">def</span> <span class="nf">hybrid_ninf_filter_design</span><span class="p">(</span><span class="n">trace_shape</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">cs_min</span><span class="o">=</span><span class="mf">1400.</span><span class="p">,</span> <span class="n">cp_min</span><span class="o">=</span><span class="mf">1450.</span><span class="p">,</span> <span class="n">cp_max</span><span class="o">=</span><span class="mi">3400</span><span class="p">,</span> <span class="n">cs_max</span><span class="o">=</span><span class="mi">3500</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="mf">15.</span><span class="p">,</span> <span class="n">fmax</span><span class="o">=</span><span class="mf">25.</span><span class="p">,</span> <span class="n">display_filter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Designs a bandpass f-k hybrid filter for DAS strain data</span>
 <span class="sd">        Keeps by default data with propagation speed above 1450 m/s between [15 - 25] Hz (designed for fin whales)</span>
@@ -663,44 +689,47 @@
     <span class="k">if</span> <span class="n">display_filter</span><span class="p">:</span> 
         <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
         <span class="kn">import</span> <span class="nn">matplotlib.gridspec</span> <span class="k">as</span> <span class="nn">gridspec</span>
-        <span class="c1"># Change the font sizes for plots (if needed)</span>
-        <span class="c1"># plt.rc(&#39;font&#39;, size=20) </span>
-        <span class="c1"># plt.rc(&#39;xtick&#39;, labelsize=16)  </span>
-        <span class="c1"># plt.rc(&#39;ytick&#39;, labelsize=16)</span>
 
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-        <span class="n">gs</span> <span class="o">=</span> <span class="n">gridspec</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="c1"># Context manager for the plot (to avoid changing the global settings)</span>
+        <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">rc_context</span><span class="p">():</span>
+            <span class="c1"># Change the font sizes for plots (if needed)</span>
+            <span class="c1"># plt.rc(&#39;font&#39;, size=20) </span>
+            <span class="c1"># plt.rc(&#39;xtick&#39;, labelsize=16)  </span>
+            <span class="c1"># plt.rc(&#39;ytick&#39;, labelsize=16)</span>
 
-        <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)],</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
-        
-        <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sharex</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">fk_filter_matrix</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">knum</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">412</span><span class="p">,</span> <span class="p">:],</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">)])</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+            <span class="n">gs</span> <span class="o">=</span> <span class="n">gridspec</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 
-        <span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sharey</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">[:,</span> <span class="n">fmin_idx</span> <span class="o">+</span> <span class="mi">500</span><span class="p">],</span> <span class="n">knum</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)])</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">tick_right</span><span class="p">()</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)],</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
+            
+            <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sharex</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">fk_filter_matrix</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">knum</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">412</span><span class="p">,</span> <span class="p">:],</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">)])</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+            <span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sharey</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">[:,</span> <span class="n">fmin_idx</span> <span class="o">+</span> <span class="mi">500</span><span class="p">],</span> <span class="n">knum</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)])</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">tick_right</span><span class="p">()</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">sparse</span><span class="o">.</span><span class="n">COO</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="hybrid_gs_filter_design">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dsp.hybrid_gs_filter_design">[docs]</a>
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.hybrid_gs_filter_design">[docs]</a>
 <span class="k">def</span> <span class="nf">hybrid_gs_filter_design</span><span class="p">(</span><span class="n">trace_shape</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">cs_min</span><span class="o">=</span><span class="mf">1400.</span><span class="p">,</span> <span class="n">cp_min</span><span class="o">=</span><span class="mf">1450.</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="mf">15.</span><span class="p">,</span> <span class="n">fmax</span><span class="o">=</span><span class="mf">25.</span><span class="p">,</span> <span class="n">display_filter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Designs a bandpass f-k hybrid filter for DAS strain data</span>
 <span class="sd">        Keeps by default data with propagation speed above 1450 m/s between [15 - 25] Hz (designed for fin whales)</span>
@@ -790,44 +819,45 @@
     <span class="k">if</span> <span class="n">display_filter</span><span class="p">:</span> 
         <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
         <span class="kn">import</span> <span class="nn">matplotlib.gridspec</span> <span class="k">as</span> <span class="nn">gridspec</span>
-        <span class="c1"># Change the font sizes for plots (if needed)</span>
-        <span class="c1"># plt.rc(&#39;font&#39;, size=20) </span>
-        <span class="c1"># plt.rc(&#39;xtick&#39;, labelsize=16)  </span>
-        <span class="c1"># plt.rc(&#39;ytick&#39;, labelsize=16)</span>
+        <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">rc_context</span><span class="p">():</span>
+            <span class="c1"># Change the font sizes for plots (if needed)</span>
+            <span class="c1"># plt.rc(&#39;font&#39;, size=20) </span>
+            <span class="c1"># plt.rc(&#39;xtick&#39;, labelsize=16)  </span>
+            <span class="c1"># plt.rc(&#39;ytick&#39;, labelsize=16)</span>
 
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-        <span class="n">gs</span> <span class="o">=</span> <span class="n">gridspec</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+            <span class="n">gs</span> <span class="o">=</span> <span class="n">gridspec</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 
-        <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)],</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
-        
-        <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sharex</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">fk_filter_matrix</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">knum</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">)])</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+            <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)],</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
+            
+            <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sharex</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">fk_filter_matrix</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">knum</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">)])</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
 
-        <span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sharey</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">[:,</span> <span class="n">fmin_idx</span> <span class="o">+</span> <span class="mi">250</span><span class="p">],</span> <span class="n">knum</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)])</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">tick_right</span><span class="p">()</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sharey</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">[:,</span> <span class="n">fmin_idx</span> <span class="o">+</span> <span class="mi">250</span><span class="p">],</span> <span class="n">knum</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)])</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">tick_right</span><span class="p">()</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">sparse</span><span class="o">.</span><span class="n">COO</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="hybrid_ninf_gs_filter_design">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dsp.hybrid_ninf_gs_filter_design">[docs]</a>
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.hybrid_ninf_gs_filter_design">[docs]</a>
 <span class="k">def</span> <span class="nf">hybrid_ninf_gs_filter_design</span><span class="p">(</span><span class="n">trace_shape</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">cs_min</span><span class="o">=</span><span class="mf">1400.</span><span class="p">,</span> <span class="n">cp_min</span><span class="o">=</span><span class="mf">1450.</span><span class="p">,</span> <span class="n">cp_max</span><span class="o">=</span><span class="mi">3400</span><span class="p">,</span> <span class="n">cs_max</span><span class="o">=</span><span class="mi">3500</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="mf">15.</span><span class="p">,</span> <span class="n">fmax</span><span class="o">=</span><span class="mf">25.</span><span class="p">,</span> <span class="n">display_filter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Designs a bandpass f-k hybrid filter for DAS strain data</span>
 <span class="sd">        Keeps by default data with propagation speed above 1450 m/s between [15 - 25] Hz (designed for fin whales)</span>
@@ -913,44 +943,47 @@
     <span class="k">if</span> <span class="n">display_filter</span><span class="p">:</span> 
         <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
         <span class="kn">import</span> <span class="nn">matplotlib.gridspec</span> <span class="k">as</span> <span class="nn">gridspec</span>
-        <span class="c1"># Change the font sizes for plots (if needed)</span>
-        <span class="c1"># plt.rc(&#39;font&#39;, size=20) </span>
-        <span class="c1"># plt.rc(&#39;xtick&#39;, labelsize=16)  </span>
-        <span class="c1"># plt.rc(&#39;ytick&#39;, labelsize=16)</span>
 
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-        <span class="n">gs</span> <span class="o">=</span> <span class="n">gridspec</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="c1"># Context manager for the plot (to avoid changing the global settings)</span>
+        <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">rc_context</span><span class="p">():</span>
+            <span class="c1"># Change the font sizes for plots (if needed)</span>
+            <span class="c1"># plt.rc(&#39;font&#39;, size=20) </span>
+            <span class="c1"># plt.rc(&#39;xtick&#39;, labelsize=16)  </span>
+            <span class="c1"># plt.rc(&#39;ytick&#39;, labelsize=16)</span>
 
-        <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)],</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
-        
-        <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sharex</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">fk_filter_matrix</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">knum</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="p">:],</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">)])</span>
-        <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+            <span class="n">gs</span> <span class="o">=</span> <span class="n">gridspec</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 
-        <span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sharey</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">[:,</span> <span class="n">fmin_idx</span> <span class="o">+</span> <span class="mi">500</span><span class="p">],</span> <span class="n">knum</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)])</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">tick_right</span><span class="p">()</span>
-        <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)],</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
+            
+            <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sharex</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">fk_filter_matrix</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">knum</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="p">:],</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">)])</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+            <span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sharey</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">[:,</span> <span class="n">fmin_idx</span> <span class="o">+</span> <span class="mi">500</span><span class="p">],</span> <span class="n">knum</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)])</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">tick_right</span><span class="p">()</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">sparse</span><span class="o">.</span><span class="n">COO</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="taper_data">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dsp.taper_data">[docs]</a>
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.taper_data">[docs]</a>
 <span class="k">def</span> <span class="nf">taper_data</span><span class="p">(</span><span class="n">trace</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Apply a Tukey window to each line (time series) of the input matrix.</span>
@@ -973,7 +1006,7 @@
 
 
 <div class="viewcode-block" id="fk_filter_filt">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dsp.fk_filter_filt">[docs]</a>
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.fk_filter_filt">[docs]</a>
 <span class="k">def</span> <span class="nf">fk_filter_filt</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">fk_filter_matrix</span><span class="p">,</span> <span class="n">tapering</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Applies a pre-calculated f-k filter to DAS strain data.</span>
@@ -1010,7 +1043,7 @@
 
 
 <div class="viewcode-block" id="fk_filter_sparsefilt">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dsp.fk_filter_sparsefilt">[docs]</a>
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.fk_filter_sparsefilt">[docs]</a>
 <span class="k">def</span> <span class="nf">fk_filter_sparsefilt</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">fk_filter_matrix</span><span class="p">,</span> <span class="n">tapering</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Applies a pre-calculated f-k filter to DAS strain data</span>
@@ -1043,7 +1076,7 @@
 
 
 <div class="viewcode-block" id="butterworth_filter">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dsp.butterworth_filter">[docs]</a>
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.butterworth_filter">[docs]</a>
 <span class="k">def</span> <span class="nf">butterworth_filter</span><span class="p">(</span><span class="n">filterspec</span><span class="p">,</span> <span class="n">fs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Designs and applies a Butterworth filter.</span>
@@ -1087,7 +1120,7 @@
 
 
 <div class="viewcode-block" id="instant_freq">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dsp.instant_freq">[docs]</a>
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.instant_freq">[docs]</a>
 <span class="k">def</span> <span class="nf">instant_freq</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">fs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the instantaneous frequency</span>
 
@@ -1119,7 +1152,7 @@
 
 
 <div class="viewcode-block" id="bp_filt">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dsp.bp_filt">[docs]</a>
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.bp_filt">[docs]</a>
 <span class="k">def</span> <span class="nf">bp_filt</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">fs</span><span class="p">,</span><span class="n">fmin</span><span class="p">,</span><span class="n">fmax</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;bp_filt - perform bandpass filtering on an array of DAS data</span>
 
@@ -1146,7 +1179,7 @@
 
 
 <div class="viewcode-block" id="fk_filt">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dsp.fk_filt">[docs]</a>
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.fk_filt">[docs]</a>
 <span class="k">def</span> <span class="nf">fk_filt</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">tint</span><span class="p">,</span><span class="n">fs</span><span class="p">,</span><span class="n">xint</span><span class="p">,</span><span class="n">dx</span><span class="p">,</span><span class="n">c_min</span><span class="p">,</span><span class="n">c_max</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;fk_filt - perform fk filtering on an array of DAS data   </span>
 
@@ -1222,7 +1255,7 @@
 
 
 <div class="viewcode-block" id="snr_tr_array">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.dsp.snr_tr_array">[docs]</a>
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.snr_tr_array">[docs]</a>
 <span class="k">def</span> <span class="nf">snr_tr_array</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the 2D Signal-to-Noise Ratio (SNR) array for a given input trace.</span>
 

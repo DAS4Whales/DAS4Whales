@@ -10,6 +10,7 @@
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
     
     
 
@@ -18,30 +19,42 @@
   body {
     --color-code-background: #f8f8f8;
   --color-code-foreground: black;
-  --color-brand-primary: #000;
-  --color-brand-content: #000;
-  --color-admonition-background: #f0f0f0;
-  --color-admonition-content: #000;
+  --color-brand-primary: #005f73;
+  --color-brand-content: #0a9396;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #e0fbfc;
+  --color-foreground-primary: #023047;
+  --color-foreground-secondary: #8ecae6;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
   }
   @media not print {
     body[data-theme="dark"] {
       --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
-  --color-brand-primary: #fff;
-  --color-brand-content: #fff;
-  --color-admonition-background: #333;
-  --color-admonition-content: #fff;
+  --color-brand-primary: #0a9396;
+  --color-brand-content: #94d2bd;
+  --color-background-primary: #001219;
+  --color-background-secondary: #003049;
+  --color-foreground-primary: #e0fbfc;
+  --color-foreground-secondary: #94d2bd;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
         --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
-  --color-brand-primary: #fff;
-  --color-brand-content: #fff;
-  --color-admonition-background: #333;
-  --color-admonition-content: #fff;
+  --color-brand-primary: #0a9396;
+  --color-brand-content: #94d2bd;
+  --color-background-primary: #001219;
+  --color-background-secondary: #003049;
+  --color-foreground-primary: #e0fbfc;
+  --color-foreground-secondary: #94d2bd;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
       }
     }
@@ -223,7 +236,13 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
+  <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src/tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules documentation</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="api/das4whales.html">das4whales package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="src/data_handle.html">data_handle</a></li>
 <li class="toctree-l1"><a class="reference internal" href="src/dsp.html">dsp</a></li>
