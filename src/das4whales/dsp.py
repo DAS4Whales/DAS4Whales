@@ -404,7 +404,6 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
     # Filter display, optional
     if display_filter: 
         import matplotlib.pyplot as plt
-        original_rc_params = plt.rcParams.copy()
         import matplotlib.gridspec as gridspec
 
         # Context manager for the plot (to avoid changing the global settings)
@@ -414,36 +413,33 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
             # plt.rc('xtick', labelsize=16)  
             # plt.rc('ytick', labelsize=16)
 
-            # fig = plt.figure(figsize=(18, 10))
-            # gs = gridspec.GridSpec(2, 2, width_ratios=[5, 1], height_ratios=[6, 2])
+            fig = plt.figure(figsize=(18, 10))
+            gs = gridspec.GridSpec(2, 2, width_ratios=[5, 1], height_ratios=[6, 2])
 
-            # ax1 = plt.subplot(gs[0])
-            # ax1.imshow(fk_filter_matrix, extent=[min(freq), max(freq), min(knum), max(knum)], aspect='auto')
-            # ax1.set_ylabel('k [m$^{-1}$]')
-            # ax1.set_xlabel('f [Hz]')
+            ax1 = plt.subplot(gs[0])
+            ax1.imshow(fk_filter_matrix, extent=[min(freq), max(freq), min(knum), max(knum)], aspect='auto')
+            ax1.set_ylabel('k [m$^{-1}$]')
+            ax1.set_xlabel('f [Hz]')
             
-            # ax2 = plt.subplot(gs[2], sharex=ax1)
-            # ax2.plot(freq, fk_filter_matrix[len(knum)//2 + 412, :], lw=3)
-            # ax2.set_xlabel('f [Hz]')
-            # ax2.set_ylabel('Gain []')
-            # ax2.set_xlim([min(freq), max(freq)])
-            # ax2.grid()
+            ax2 = plt.subplot(gs[2], sharex=ax1)
+            ax2.plot(freq, fk_filter_matrix[len(knum)//2 + 412, :], lw=3)
+            ax2.set_xlabel('f [Hz]')
+            ax2.set_ylabel('Gain []')
+            ax2.set_xlim([min(freq), max(freq)])
+            ax2.grid()
 
-            # ax3 = plt.subplot(gs[1], sharey=ax1)
-            # ax3.plot(fk_filter_matrix[:, fmin_idx + 500], knum, lw=3)
-            # ax3.set_xlabel('Gain []')
-            # ax3.set_ylabel('k [m$^{-1}$]')
-            # ax3.yaxis.set_label_position("right")
-            # ax3.set_ylim([min(knum), max(knum)])
-            # ax3.invert_xaxis()
-            # ax3.yaxis.tick_right()
-            # ax3.grid()
-            # plt.tight_layout()
-            # plt.show()
-            plt.plot([1, 2, 3], [6, 5, 4])
-            plt.title('Consistent Font Test')
+            ax3 = plt.subplot(gs[1], sharey=ax1)
+            ax3.plot(fk_filter_matrix[:, fmin_idx + 500], knum, lw=3)
+            ax3.set_xlabel('Gain []')
+            ax3.set_ylabel('k [m$^{-1}$]')
+            ax3.yaxis.set_label_position("right")
+            ax3.set_ylim([min(knum), max(knum)])
+            ax3.invert_xaxis()
+            ax3.yaxis.tick_right()
+            ax3.grid()
+            plt.tight_layout()
             plt.show()
-        plt.rcParams.update(original_rc_params)
+            
     return sparse.COO.from_numpy(fk_filter_matrix)
 
 # Infinite wave speed filter, gaussian tapers
