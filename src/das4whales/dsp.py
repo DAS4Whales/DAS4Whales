@@ -344,8 +344,12 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
     freq = np.fft.fftshift(np.fft.fftfreq(nns, d=1 / fs))
     knum = np.fft.fftshift(np.fft.fftfreq(nnx, d=selected_channels[2] * dx))
 
+    # Replace the sine/cosine tapers by butterworth filters
+    b, a = sp.butter(8, [fmin/(fs/2), fmax/(fs/2)], 'bp')
+    H = np.concatenate((np.zeros(len(freq)//2), np.abs(sp.freqz(b, a, worN=len(freq)//2)[1]) ** 2))
+
     # 1st step: frequency bandpass filtering
-    H = np.zeros_like(freq)
+    # H = np.zeros_like(freq)
     # set the width of the frequency range tapers
     df_taper = 4 # Hz
     # Apply it to the frequencies of interest
@@ -356,17 +360,17 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
     fmax_idx = np.argmax(freq >= fpmax)
 
     # Filter transition band, ramping up from fpmin to fmin
-    rup_mask = ((freq >= fpmin) & (freq <= fmin))
-    H[rup_mask] = np.sin(0.5 * np.pi * (freq[rup_mask] - fpmin) / (fmin - fpmin))
-    # Filter passband
-    H[(freq >= fmin) & (freq <= fmax)] = 1
-    # Filter transition band, ramping down from fmax to fpmax
-    rdo_mask = ((freq >= fmax) & (freq <= fpmax))
-    H[rdo_mask] = np.cos(0.5 * np.pi * (freq[rdo_mask] - fmax) / (fmax - fpmax))
+    # rup_mask = ((freq >= fpmin) & (freq <= fmin))
+    # H[rup_mask] = np.sin(0.5 * np.pi * (freq[rup_mask] - fpmin) / (fmin - fpmin))
+    # # Filter passband
+    # H[(freq >= fmin) & (freq <= fmax)] = 1
+    # # Filter transition band, ramping down from fmax to fpmax
+    # rdo_mask = ((freq >= fmax) & (freq <= fpmax))
+    # H[rdo_mask] = np.cos(0.5 * np.pi * (freq[rdo_mask] - fmax) / (fmax - fpmax))
 
     # Replicate the bandpass frequency response along the k-axis to initialize the filter
     fk_filter_matrix = np.tile(H, (len(knum), 1))
-    
+
     # 2nd step: filtering waves whose speeds are below cmin, with a taper between csmin and cpmin
     # Going through frequencies between the considered range of the bandpass filter
     for i in range(fmin_idx, fmax_idx):
@@ -398,8 +402,8 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
         fk_filter_matrix[:, i] *= filter_col 
 
     # Symmetrize the filter
-    fk_filter_matrix += np.fliplr(fk_filter_matrix)
-    fk_filter_matrix += np.flipud(fk_filter_matrix)
+    # fk_filter_matrix += np.fliplr(fk_filter_matrix)
+    # fk_filter_matrix += np.flipud(fk_filter_matrix)
 
     # Filter display, optional
     if display_filter: 
@@ -418,11 +422,13 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
 
             ax1 = plt.subplot(gs[0])
             ax1.imshow(fk_filter_matrix, extent=[min(freq), max(freq), min(knum), max(knum)], aspect='auto')
+            ax1.hlines(knum[len(knum)//2 + 300], min(freq), max(freq), color='w', lw=2, ls=':')
+            ax1.vlines(freq[fmin_idx + 500], min(knum), max(knum), color='w', lw=2, ls=':')
             ax1.set_ylabel('k [m$^{-1}$]')
             ax1.set_xlabel('f [Hz]')
             
             ax2 = plt.subplot(gs[2], sharex=ax1)
-            ax2.plot(freq, fk_filter_matrix[len(knum)//2 + 412, :], lw=3)
+            ax2.plot(freq, fk_filter_matrix[len(knum)//2 + 400, :], lw=3)
             ax2.set_xlabel('f [Hz]')
             ax2.set_ylabel('Gain []')
             ax2.set_xlim([min(freq), max(freq)])
