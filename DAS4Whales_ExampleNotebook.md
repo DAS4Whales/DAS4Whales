@@ -15,10 +15,10 @@ William Wilcock Lab - Ocean Data Lab, School of Oceanography, University of Wash
 [Contact](mailto:qgoestch@uw.edu) | [Webpage](https://qgoestch.github.io/qgoestch/) 
 
 ## Background
-Distributed acoustic sensing or DAS, offers exciting new opportunities to eavesdrop on whales by converting existing fiber optic cables into dense listening arrays of strain sensors. It exploits the physics of Raileigh backscattering following the introduction of a interrogating pulse in the fiber, converting time-delays (or phase changes) of the backscattered pulses into strain measurements, analogus to acoustic pressure. DAS is also known as  Distributed Fiber Optic Sensing (DFOS), coherent backscattering, phase Optical Time Domain Reflectometry (phase-OTDR). 
+Distributed acoustic sensing or DAS, offers exciting new opportunities to eavesdrop on whales by converting existing fiber optic cables into dense listening arrays of strain sensors. It exploits the physics of Rayleigh backscattering following the introduction of an interrogating pulse in the fiber, converting time-delays (or phase changes) of the backscattered pulses into strain measurements, analogous to acoustic pressure. DAS is also known as Distributed Fiber Optic Sensing (DFOS), coherent backscattering, phase Optical Time Domain Reflectometry ($\Phi$-OTDR). 
 
 For a complete DAS technical overview see:
-* Hartog, A. H. (2017). An Introduction to Distributed Optical Fibre Sensors (1st ed.). CRC Press. https://doi.org/10.1201/9781315119014
+* Hartog, A. H. (2017). An Introduction to Distributed Optical Fiber Sensors (1st ed.). CRC Press. https://doi.org/10.1201/9781315119014
 
 For the specific application of DAS for whale bioacoustics (we will use the same terminology) see:
 * Bouffaut, L., Taweesintananon, K., Kriesell, H. J., Rørstadbotnen, R. A., Potter, J. R., Landrø, M., Johansen, S. E., Brenne, J. K., Haukanes, A., Schjelderup, O., & Storvik, F. (2022). Eavesdropping at the Speed of Light: Distributed Acoustic Sensing of Baleen Whales in the Arctic. Frontiers in Marine Science, 9, 901348. https://doi.org/10.3389/fmars.2022.901348
@@ -201,9 +201,9 @@ filepath = dw.data_handle.dl_file(url)
 
 ### Get information on the DAS data from the hdf5 metadata
 
-By reading a hdf5 file's metadata, we can access the aquisition parameters, with out loading the associated "big" strain data matrix. In the perspective of looping throught several files and in the interest of speed & repetability, this enables us to select the desired channels and design appropriate filters once and for all.
+By reading a hdf5 file's metadata, we can access the acquisition parameters, without loading the associated "big" strain data matrix. In the perspective of looping through several files and in the interest of speed & repeatability, this enables us to select the desired channels and design appropriate filters once and for all.
 
-Note: the metadata reading fuction das4whales.data_handle.get_acquisition_parameters(params) is prepared to read the metadata recorded by an OptaSense interrogator. This function will likely need to be adapted for different metadata format, e.g.,  collected by a different model of interrogator.
+Note: the metadata reading function das4whales.data_handle.get_acquisition_parameters(params) is prepared to read the metadata recorded by an OptaSense interrogator. This function will likely need to be adapted for different metadata format, e.g., collected by a different model of interrogator.
 
 
 ```python
@@ -275,7 +275,7 @@ sos_hpfilter = dw.dsp.butterworth_filter([2, 5, 'hp'], fs)
 
 ### Load raw DAS data
 
-Loads the data using the pre-defined slected channels. 
+Loads the data using the pre-defined selected channels. 
 
 
 ```python
@@ -343,7 +343,7 @@ dw.plot.plot_tx(sp.hilbert(trf_fk, axis=1), time, dist, fileBeginTimeUTC, fig_si
 
 Different features are considered to identify the calling species such as the rhythmic or inter-call intervals, the intensity or received levels, the contours in the time-frequency domain. However, the decisive characteristics to classify baleen whales is the spectral content of the signal. We therefore propose a spatio-spectral representation of the DAS recordings or f-x plot to show the spectral signature and its evolution against the distance.
 
-In the following example, the a FFT is applied to each channel of 2-s clips of the spatio-temporal das data. The clip duration is specified by the parameter `win_s`
+In the following example, the FFT is applied to each channel of 2-s clips of the spatio-temporal DAS data. The clip duration is specified by the parameter `win_s`
 
 
 ```python

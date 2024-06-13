@@ -1,5 +1,5 @@
 # DAS4Whales
-
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/qgoestch/DAS4Whales)
 ```{toctree}
 :maxdepth: 1
 :caption: Getting Started
@@ -35,3 +35,9 @@ api/das4whales
 - {ref}`genindex`
 - {ref}`modindex`
 - {ref}`search`
+
+
+
+## External Links
+
+- `GitHub Repository:`[https://github.com/qgoestch/DAS4Whales](https://github.com/qgoestch/DAS4Whales)

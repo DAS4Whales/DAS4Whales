@@ -291,11 +291,11 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="tutorial">
+          <section class="tex2jax_ignore mathjax_ignore" id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Link to this heading">¶</a></h1>
 <section id="import-the-das4whales-module-and-dependencies-from-github">
 <h2>Import the DAS4Whales module and dependencies from GitHub<a class="headerlink" href="#import-the-das4whales-module-and-dependencies-from-github" title="Link to this heading">¶</a></h2>
-<p>If not in a jupyter notebook, follow the <a class="reference internal" href="install.html"><span class="std std-doc">Intallation instructions</span></a>, otherwise, run the following cells to install the module and import the necessary dependencies.</p>
+<p>If not in a Jupyter notebook, follow the <a class="reference internal" href="install.html"><span class="std std-doc">Installation instructions</span></a>, otherwise, run the following cells to install the module and import the necessary dependencies.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">!</span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="s1">&#39;git+https://github.com/qgoestch/DAS4Whales&#39;</span>
 </pre></div>
 </div>
@@ -323,8 +323,8 @@
 </section>
 <section id="get-information-on-the-das-data-from-the-hdf5-metadata">
 <h2>Get information on the DAS data from the hdf5 metadata<a class="headerlink" href="#get-information-on-the-das-data-from-the-hdf5-metadata" title="Link to this heading">¶</a></h2>
-<p>By reading a hdf5 file’s metadata, we can access the aquisition parameters, with out loading the associated “big” strain data matrix. In the perspective of looping throught several files and in the interest of speed &amp; repetability, this enables us to select the desired channels and design appropriate filters once and for all.</p>
-<p>Note: the metadata reading fuction das4whales.data_handle.get_acquisition_parameters(params) is prepared to read the metadata recorded by an OptaSense interrogator. This function will likely need to be adapted for different metadata format, e.g.,  collected by a different model of interrogator.</p>
+<p>By reading a hdf5 file’s metadata, we can access the acquisition parameters, without loading the associated “big” strain data matrix. In the perspective of looping through several files and in the interest of speed &amp; repeatability, this enables us to select the desired channels and design appropriate filters once and for all.</p>
+<p>Note: the metadata reading function das4whales.data_handle.get_acquisition_parameters(params) is prepared to read the metadata recorded by an OptaSense interrogator. This function will likely need to be adapted for different metadata format, e.g., collected by a different model of interrogator.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Read HDF5 files and access metadata</span>
 <span class="c1"># Get the acquisition parameters for the data folder and store them in a dictionary</span>
 <span class="n">metadata</span> <span class="o">=</span> <span class="n">dw</span><span class="o">.</span><span class="n">data_handle</span><span class="o">.</span><span class="n">get_acquisition_parameters</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">interrogator</span><span class="o">=</span><span class="s1">&#39;optasense&#39;</span><span class="p">)</span>
@@ -391,7 +391,7 @@ The following allows to re-sample the data spatially and select a region of inte
 </section>
 <section id="load-raw-das-data">
 <h2>Load raw DAS data<a class="headerlink" href="#load-raw-das-data" title="Link to this heading">¶</a></h2>
-<p>Loads the data using the pre-defined slected channels.</p>
+<p>Loads the data using the pre-defined selected channels.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load DAS data</span>
 <span class="n">tr</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">fileBeginTimeUTC</span> <span class="o">=</span> <span class="n">dw</span><span class="o">.</span><span class="n">data_handle</span><span class="o">.</span><span class="n">load_das_data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
 </pre></div>
@@ -407,7 +407,7 @@ The following allows to re-sample the data spatially and select a region of inte
 </pre></div>
 </div>
 <p><img alt="png" src="../_images/DAS4Whales_ExampleNotebook_15_0.png" /></p>
-<p>The spatio-temporal plot (t-x plot) shows temporal variations of the strain along the fiber optic cable between 20 and 65 km, every 8.17 m corresponding to the selected channels. We observe signals emitted by ponctual sources and propagating close to the underwater soundspeed, with apexes (minimum distance between the source and the fiber optic cable) around 27 km and 49 km and possibly another one out of the range of the analysis. These sounds show the temporal regularity of fin whales song. The noise is also strong closer to shore &lt;40 km.</p>
+<p>The spatio-temporal plot (t-x plot) shows temporal variations of the strain along the fiber optic cable between 20 and 65 km, every 8.17 m corresponding to the selected channels. We observe signals emitted by punctual sources and propagating close to the underwater sound speed, with apexes (minimum distance between the source and the fiber optic cable) around 27 km and 49 km and possibly another one out of the range of the analysis. These sounds show the temporal regularity of fin whales song. The noise is also strong closer to shore &lt;40 km.</p>
 </section>
 <section id="filtering-in-the-frequency-wavenumber-domain-f-k-and-corresponding-t-x-plot">
 <h2>Filtering in the frequency-wavenumber domain (f-k) and corresponding t-x plot<a class="headerlink" href="#filtering-in-the-frequency-wavenumber-domain-f-k-and-corresponding-t-x-plot" title="Link to this heading">¶</a></h2>
@@ -444,7 +444,7 @@ The compression ratio is 25.42 (96.1 %)
 <section id="spatio-spectral-representation">
 <h2>Spatio-spectral representation<a class="headerlink" href="#spatio-spectral-representation" title="Link to this heading">¶</a></h2>
 <p>Different features are considered to identify the calling species such as the rhythmic or inter-call intervals, the intensity or received levels, the contours in the time-frequency domain. However, the decisive characteristics to classify baleen whales is the spectral content of the signal. We therefore propose a spatio-spectral representation of the DAS recordings or f-x plot to show the spectral signature and its evolution against the distance.</p>
-<p>In the following example, the a FFT is applied to each channel of 2-s clips of the spatio-temporal das data. The clip duration is specified by the parameter <code class="docutils literal notranslate"><span class="pre">win_s</span></code></p>
+<p>In the following example, the FFT is applied to each channel of 2-s clips of the spatio-temporal DAS data. The clip duration is specified by the parameter <code class="docutils literal notranslate"><span class="pre">win_s</span></code></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Spatio-spectral plot</span>
 <span class="n">dw</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">plot_fx</span><span class="p">(</span><span class="n">trf_fk</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">file_begin_time_utc</span><span class="o">=</span><span class="n">fileBeginTimeUTC</span><span class="p">,</span> <span class="n">win_s</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                 <span class="n">nfft</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>  <span class="n">f_min</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">f_max</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> 

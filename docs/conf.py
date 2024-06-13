@@ -70,7 +70,8 @@ html_theme_options = {
         "color-foreground-secondary": "#94d2bd",  # Lighter Aqua
         "color-link": "#ffb703",  # Coral
         "color-link--hover": "#fb8500",  # Darker Coral
-    }
+    },
+    'github_url': 'https://github.com/qgoestch/DAS4Whales'
 }
 
 html_static_path = ['_static']
@@ -80,6 +81,13 @@ html_css_files = [
 
 myst_enable_extensions = [
     "colon_fence",
+    "amsmath",
+    "deflist", # For lists of definitions
+    "dollarmath", # For inline math
+    "html_admonition",  # For custom admonitions (e.g., danger, note)
+    "html_image",  # For aligning images
+    "smartquotes", # For automatic curly quotes
+    "substitution", # For |variable| substitutions
 ]
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
