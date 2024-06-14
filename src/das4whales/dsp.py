@@ -350,8 +350,8 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
 
     # 1st step: frequency bandpass filtering
     # H = np.zeros_like(freq)
-    # set the width of the frequency range tapers
-    df_taper = 4 # Hz
+    # set the width of the frequency range tapers, since butterworth filters are smooth
+    df_taper = 14 # Hz
     # Apply it to the frequencies of interest
     fpmax = fmax + df_taper
     fpmin = fmin - df_taper
@@ -359,7 +359,7 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
     fmin_idx = np.argmax(freq >= fpmin)
     fmax_idx = np.argmax(freq >= fpmax)
 
-    # Filter transition band, ramping up from fpmin to fmin
+    # Filter transition band, ramping up from fpmin to fmin, replaced by butterworth filter
     # rup_mask = ((freq >= fpmin) & (freq <= fmin))
     # H[rup_mask] = np.sin(0.5 * np.pi * (freq[rup_mask] - fpmin) / (fmin - fpmin))
     # # Filter passband
@@ -378,32 +378,32 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
         filter_col = np.zeros_like(knum)
 
         # Filter transition bands, ramping up from cs_min to cp_min
-        ks_min = freq[i] / cs_min
-        kp_min = freq[i] / cp_min
+        ks_min = freq[i] / cs_max
+        kp_min = freq[i] / cp_max
 
-        ks_max = freq[i] / cs_max
-        kp_max = freq[i] / cp_max
+        ks_max = freq[i] / cs_min
+        kp_max = freq[i] / cp_min
         
         # Avoid zero division
         if ks_min != kp_min:
             # f+ k+ quadrant ramp up                                         
-            selected_k_mask = ((knum >= -ks_min) & (knum <= -kp_min))
-            filter_col[selected_k_mask] = -np.sin(0.5 * np.pi * (knum[selected_k_mask] + ks_min) / (kp_min - ks_min))
+            selected_k_mask = ((knum >= ks_min) & (knum <= kp_min))
+            filter_col[selected_k_mask] = np.sin(0.5 * np.pi * (knum[selected_k_mask] - ks_min) / (kp_min - ks_min))
         if ks_max != kp_max:
-            # f+ k+ quadrant ramp up
-            selected_k_mask = ((knum >= -kp_max) & (knum <= -ks_max))
-            filter_col[selected_k_mask] = np.cos(0.5 * np.pi * (knum[selected_k_mask] + kp_max) / (ks_max - kp_max))
+            # f+ k- quadrant ramp down
+            selected_k_mask = ((knum >= kp_max) & (knum <= ks_max))
+            filter_col[selected_k_mask] = -np.sin(0.5 * np.pi * (knum[selected_k_mask] - ks_max) / (ks_max - kp_max))
 
         # Passband
         # Positive frequencies (kp_min is positive):
-        filter_col[(knum > -kp_min) & (knum < -kp_max)] = 1
+        filter_col[(knum > kp_min) & (knum < kp_max)] = 1
 
         # Fill the filter matrix by multiplication 
         fk_filter_matrix[:, i] *= filter_col 
 
     # Symmetrize the filter
-    # fk_filter_matrix += np.fliplr(fk_filter_matrix)
-    # fk_filter_matrix += np.flipud(fk_filter_matrix)
+    fk_filter_matrix += np.fliplr(fk_filter_matrix)
+    fk_filter_matrix += np.flipud(fk_filter_matrix)
 
     # Filter display, optional
     if display_filter: 
@@ -420,22 +420,27 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
             fig = plt.figure(figsize=(18, 10))
             gs = gridspec.GridSpec(2, 2, width_ratios=[5, 1], height_ratios=[6, 2])
 
+            # Matrix display
             ax1 = plt.subplot(gs[0])
-            ax1.imshow(fk_filter_matrix, extent=[min(freq), max(freq), min(knum), max(knum)], aspect='auto')
-            ax1.hlines(knum[len(knum)//2 + 300], min(freq), max(freq), color='w', lw=2, ls=':')
-            ax1.vlines(freq[fmin_idx + 500], min(knum), max(knum), color='w', lw=2, ls=':')
+            ax1.imshow(fk_filter_matrix, extent=[min(freq), max(freq), min(knum), max(knum)], aspect='auto', origin='lower')
+            ax1.hlines(knum[len(knum)//2 + 420], min(freq), max(freq), color='w', lw=2, ls=':')
+            ax1.vlines(freq[len(freq)//2 + 1500], min(knum), max(knum), color='w', lw=2, ls=':')
+            # colorbar
+            # cbar = plt.colorbar(ax1.imshow(fk_filter_matrix, extent=[min(freq), max(freq), min(knum), max(knum)], aspect='auto', origin='lower'))
             ax1.set_ylabel('k [m$^{-1}$]')
             ax1.set_xlabel('f [Hz]')
             
+            # Frequency slice display
             ax2 = plt.subplot(gs[2], sharex=ax1)
-            ax2.plot(freq, fk_filter_matrix[len(knum)//2 + 400, :], lw=3)
+            ax2.plot(freq, fk_filter_matrix[len(knum)//2 + 420, :], lw=3)
             ax2.set_xlabel('f [Hz]')
             ax2.set_ylabel('Gain []')
             ax2.set_xlim([min(freq), max(freq)])
             ax2.grid()
 
+            # Wavenumber slice display
             ax3 = plt.subplot(gs[1], sharey=ax1)
-            ax3.plot(fk_filter_matrix[:, fmin_idx + 500], knum, lw=3)
+            ax3.plot(fk_filter_matrix[:, len(freq)//2 + 1500], knum, lw=3)
             ax3.set_xlabel('Gain []')
             ax3.set_ylabel('k [m$^{-1}$]')
             ax3.yaxis.set_label_position("right")
