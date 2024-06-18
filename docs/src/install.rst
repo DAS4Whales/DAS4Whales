@@ -45,7 +45,7 @@ Follow these steps to install DAS4Whales:
 
     .. code-block:: bash
 
-        das4whales --version
+        pip list | grep das4whales
 
     This command should display the version number of DAS4Whales.
 
