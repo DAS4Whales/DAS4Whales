@@ -1,7 +1,7 @@
 """
 loc.py - Localisation module for the das4whales package.
 
-This module provides functions for localising the source of a sound source recorded by a DAS array.
+This module provides functions for localizing the source of a sound source recorded by a DAS array.
 
 Author: Quentin Goestchel
 Date: 2024-06-18
@@ -9,12 +9,17 @@ Date: 2024-06-18
 
 import numpy as np
 
-def calc_arrival_times(t0, dist, pos, c0):
+def calc_arrival_times(t0, cable_pos, pos, c0):
     """
     Get the theoretical arrival times of a whale call at a given distance along the cable
     """
+    # Whale position or potential whale position
     x, y, z = pos
-    th_arrtimes = np.sqrt((dist - x) ** 2 + y ** 2 + z ** 2) / c0
+
+    # Cable positions for each channel
+    x_cable, y_cable, z_cable = cable_pos[:, 0], cable_pos[:, 1], cable_pos[:, 2]
+
+    th_arrtimes = np.sqrt((x_cable - x) ** 2 + (y_cable - y) ** 2 + (z_cable - z) ** 2) / c0
 
     return t0 + th_arrtimes
 
@@ -48,9 +53,38 @@ def calc_phi_vector(cable_pos, whale_pos):
     return np.arctan2(whale_pos[1]-cable_pos[:,1], whale_pos[0]-cable_pos[:,0])
 
 
-def solve_lq(Ti, cable_pos, dist, c0, Nbiter=10):
+def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False):
+    """
+    Solve the least squares problem to localize the whale
+
+
+    Parameters
+    ----------
+
+    Ti : np.ndarray
+        Array of arrival times at each cable position [channel x 1]
+    
+    cable_pos : np.ndarray
+        Array of cable positions [channel x 3]
+
+    c0 : float
+        Speed of sound in water considered constant
+    
+    Nbiter : int, optional (default=10)
+        Number of iterations for the least squares algorithm
+
+    Returns
+    -------
+    n : np.ndarray
+        Estimated whale position and time of emission vector [x, y, z, t0]
+
+    """
+
     # Make a first guess of the whale position
-    n = np.array([28000, 10, 800, np.min(Ti)])
+    if fix_z:
+        n = np.array([55000, 10, np.min(Ti)])
+    else:
+        n = np.array([40000, 500, 30, np.min(Ti)])
 
     # Regularization parameter
     lambda_reg = 1e-5
@@ -58,9 +92,14 @@ def solve_lq(Ti, cable_pos, dist, c0, Nbiter=10):
     for j in range(Nbiter):
         thj = calc_theta_vector(cable_pos, n)
         phij = calc_phi_vector(cable_pos, n)
-        dt = Ti - calc_arrival_times(n[-1], dist, n[:3], c0)
+        dt = Ti - calc_arrival_times(n[-1], cable_pos, n[:3], c0)
         # Compute the least squares coefficients matrix
-        G = np.array([np.cos(thj) * np.cos(phij) / c0, np.cos(thj) * np.sin(phij) / c0, np.sin(thj) / c0, np.ones_like(thj)]).T
+
+        if fix_z:
+            G = np.array([np.cos(thj) * np.cos(phij) / c0, np.cos(thj) * np.sin(phij) / c0, np.ones_like(thj)]).T
+
+        else:
+            G = np.array([np.cos(thj) * np.cos(phij) / c0, np.cos(thj) * np.sin(phij) / c0, np.sin(thj) / c0, np.ones_like(thj)]).T
 
         # Adding regularization to avoid singular matrix error
         lambda_identity = lambda_reg * np.eye(G.shape[1])
@@ -72,5 +111,9 @@ def solve_lq(Ti, cable_pos, dist, c0, Nbiter=10):
         else:
             n += dn
 
-        print(f'Iteration {j+1}: {n}')
-        return n
+        if fix_z:
+            print(f'Iteration {j+1}: x = {n[0]:.4f} m, y = {n[1]:.4f}, ti = {n[2]:.4f}')
+        else:
+            print(f'Iteration {j+1}: x = {n[0]:.4f} m, y = {n[1]:.4f}, z = {n[2]:.4f}, ti = {n[3]:.4f}')
+
+    return n
