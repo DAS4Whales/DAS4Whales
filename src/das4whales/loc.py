@@ -7,6 +7,7 @@ Author: Quentin Goestchel
 Date: 2024-06-18
 """
 
+import sys
 import numpy as np
 
 def calc_arrival_times(t0, cable_pos, pos, c0):
@@ -125,3 +126,125 @@ def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False):
         print(f'Iteration {j+1}: x = {n[0]:.4f} m, y = {n[1]:.4f}, z = {n[2]:.4f}, ti = {n[3]:.4f}')
 
     return n
+
+
+def cal_variance_residuals(arrtimes, predic_arrtimes, fix_z=False):
+    """Compute the variance of the residuals of the arrival times
+
+    Parameters
+    ----------
+    arrtimes : np.ndarray
+        array of measured arrival times
+    predic_arrtimes : np.ndarray
+        array of predicted arrival times
+    fix_z : bool, optional
+        True if the z coordinate is fixed, by default False
+
+    Returns
+    -------
+    var : float
+        Variance of the residuals
+    """
+    residuals = arrtimes - predic_arrtimes
+    if fix_z:
+        var = 1 / (len(residuals) - 3) * np.sum(residuals**2)
+    else:   
+        var = 1 / (len(residuals) - 4) * np.sum(residuals**2)
+    return var
+
+
+def calc_covariance_matrix(cable_pos, whale_pos, c0, var, fix_z=False):
+    """Compute the covariance matrix of the estimated whale position
+
+    Parameters
+    ----------
+    cable_pos : np.ndarray
+        Array of cable positions [channel x 3]
+    whale_pos : np.ndarray
+        Estimated whale position [x, y, z, t0]
+    c0 : float
+        Speed of sound in water considered constant
+    var : float
+        Variance of the residuals
+
+    Returns
+    -------
+    cov : np.ndarray
+        Covariance matrix of the estimated whale position
+    """
+    thj = calc_theta_vector(cable_pos, whale_pos)
+    phij = calc_phi_vector(cable_pos, whale_pos)
+
+    if fix_z:
+        G = np.array([np.cos(thj) * np.cos(phij) / c0, np.cos(thj) * np.sin(phij) / c0, np.ones_like(thj)]).T
+    else:
+        G = np.array([np.cos(thj) * np.cos(phij) / c0, np.cos(thj) * np.sin(phij) / c0, np.sin(thj) / c0, np.ones_like(thj)]).T
+
+    if np.linalg.cond(G.T @ G) > 1/sys.float_info.epsilon:
+        print('Matrix is singular')
+        lambda_reg = 1e-5
+        lambda_identity = lambda_reg * np.eye(G.shape[1])
+        cov = var * np.linalg.inv(G.T @ G + lambda_identity)
+    else:
+        cov = var * np.linalg.inv(G.T @ G)
+
+    return cov
+
+
+def calc_uncertainty_position(cable_pos, whale_pos, c0, var, fix_z=False):
+    """Compute the uncertainties on the estimated whale position
+
+    Parameters
+    ----------
+    cable_pos : np.ndarray
+        Array of cable positions [channel x 3]
+    whale_pos : np.ndarray
+        Estimated whale position [x, y, z, t0]
+    c0 : float
+        Speed of sound in water considered constant
+    var : float
+        Variance of the residuals
+
+    Returns
+    -------
+    unc : np.ndarray
+        Uncertainties on the estimated whale position
+    """
+
+    cov = calc_covariance_matrix(cable_pos, whale_pos, c0, var, fix_z)
+    unc = np.sqrt(np.diag(cov))
+
+    return unc  
+
+
+def calc_uncertainty_times(cable_pos, whale_pos, c0, var, fix_z=False):
+    """Compute the uncertainties on the estimated arrival times
+
+    Parameters
+    ----------
+    cable_pos : np.ndarray
+        Array of cable positions [channel x 3]
+    whale_pos : np.ndarray
+        Estimated whale position [x, y, z, t0]
+    c0 : float
+        Speed of sound in water considered constant
+    var : float
+        Variance of the residuals
+
+    Returns
+    -------
+    unc : np.ndarray
+        Uncertainties on the estimated arrival times
+    """
+    thj = calc_theta_vector(cable_pos, whale_pos)
+    phij = calc_phi_vector(cable_pos, whale_pos)
+
+    if fix_z:
+        G = np.array([np.cos(thj) * np.cos(phij) / c0, np.cos(thj) * np.sin(phij) / c0, np.ones_like(thj)]).T
+    else:
+        G = np.array([np.cos(thj) * np.cos(phij) / c0, np.cos(thj) * np.sin(phij) / c0, np.sin(thj) / c0, np.ones_like(thj)]).T
+
+    cov = var * np.linalg.inv(G.T @ G)
+    unc = np.sqrt(np.diag(G @ cov @ G.T))
+
+    return unc
