@@ -81,10 +81,8 @@ def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False):
     """
 
     # Make a first guess of the whale position
-    if fix_z:
-        n = np.array([55000, 10, np.min(Ti)])
-    else:
-        n = np.array([40000, 500, 30, np.min(Ti)])
+
+    n = np.array([12000, 500, 100, np.min(Ti)])
 
     # Regularization parameter
     lambda_reg = 1e-5
@@ -93,12 +91,21 @@ def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False):
         thj = calc_theta_vector(cable_pos, n)
         phij = calc_phi_vector(cable_pos, n)
         dt = Ti - calc_arrival_times(n[-1], cable_pos, n[:3], c0)
-        # Compute the least squares coefficients matrix
 
+        # Fixed z case
         if fix_z:
+            # Save z value to reappend it after the least squares computation
+            dz = n[2]
+            n_fz = np.delete(n, 2) # Remove z from the vector n
+            del n # Delete n to reassign it with the new value
+            n = n_fz # Reassign n without z
+
+            # Compute the least squares coefficients matrix
             G = np.array([np.cos(thj) * np.cos(phij) / c0, np.cos(thj) * np.sin(phij) / c0, np.ones_like(thj)]).T
 
+        # Free z case
         else:
+            # Compute the least squares coefficients matrix
             G = np.array([np.cos(thj) * np.cos(phij) / c0, np.cos(thj) * np.sin(phij) / c0, np.sin(thj) / c0, np.ones_like(thj)]).T
 
         # Adding regularization to avoid singular matrix error
@@ -112,8 +119,9 @@ def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False):
             n += dn
 
         if fix_z:
-            print(f'Iteration {j+1}: x = {n[0]:.4f} m, y = {n[1]:.4f}, ti = {n[2]:.4f}')
-        else:
-            print(f'Iteration {j+1}: x = {n[0]:.4f} m, y = {n[1]:.4f}, z = {n[2]:.4f}, ti = {n[3]:.4f}')
+            # reappend z to n in index 2 (before index 3)
+            n = np.insert(n, 2, dz)            
+
+        print(f'Iteration {j+1}: x = {n[0]:.4f} m, y = {n[1]:.4f}, z = {n[2]:.4f}, ti = {n[3]:.4f}')
 
     return n
