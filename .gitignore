@@ -17,6 +17,7 @@ dev.ipynb
 
 # Python virtual environment
 venv/
+.venv/
 
 # Build artifacts
 build/

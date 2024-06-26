@@ -14,6 +14,7 @@ import os
 import numpy as np
 import dask.array as da
 from datetime import datetime
+from nptdms import TdmsFile
 
 
 def hello_world_das_package():
@@ -105,6 +106,50 @@ def get_metadata_optasense(filepath):
     else:
         raise FileNotFoundError(f'File {filepath} not found')
 
+    return meta_data
+
+
+def get_metadata_silixa(filepath):
+    """Gets DAS acquisition parameters for the silixa interrogator 
+
+    Parameters
+    ----------
+    filepath : string
+        a string containing the full path to the data to load
+
+    Returns
+    -------
+    metadata : dict
+        dictionary filled with metadata, key's breakdown:\n
+        fs: the sampling frequency (Hz)\n
+        dx: interval between two virtual sensing points also called channel spacing (m)\n
+        nx: the number of spatial samples also called channels\n
+        ns: the number of time samples\n
+        n: refractive index of the fiber\n
+        GL: the gauge length (m)\n
+        scale_factor: the value to convert DAS data from strain rate to strain
+
+    """
+
+    # Make sure the file exists
+    if os.path.exists(filepath):
+        fp = TdmsFile.read(filepath)
+        props = fp.properties
+        group = fp['Measurement']
+        acousticData = np.asarray( [group[channel].data for channel in group] )
+
+        fs = props['SamplingFrequency[Hz]'] # sampling rate in Hz
+        dx = props['SpatialResolution[m]'] # channel spacing in m
+        ns = acousticData.shape[1]
+        n =  props['FibreIndex'] # refractive index
+        GL =  props['GaugeLength'] # gauge length in m
+        nx = acousticData.shape[0] # number of channels
+        scale_factor = (116 * fs * 10**-9) / (GL * 2**13)
+
+        meta_data = {'fs': fs, 'dx': dx, 'ns': ns,'n': n,'GL': GL, 'nx':nx , 'scale_factor': scale_factor}
+    else:
+        raise FileNotFoundError(f'File {filepath} not found')
+    
     return meta_data
 
 
