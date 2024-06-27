@@ -26,6 +26,7 @@ classifiers = [
 dependencies = [
     "DateTime",
     "h5py",
+    "nptdms",
     "librosa",
     "matplotlib",
     "numpy",
