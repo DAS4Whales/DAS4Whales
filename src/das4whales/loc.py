@@ -214,37 +214,4 @@ def calc_uncertainty_position(cable_pos, whale_pos, c0, var, fix_z=False):
     cov = calc_covariance_matrix(cable_pos, whale_pos, c0, var, fix_z)
     unc = np.sqrt(np.diag(cov))
 
-    return unc  
-
-
-def calc_uncertainty_times(cable_pos, whale_pos, c0, var, fix_z=False):
-    """Compute the uncertainties on the estimated arrival times
-
-    Parameters
-    ----------
-    cable_pos : np.ndarray
-        Array of cable positions [channel x 3]
-    whale_pos : np.ndarray
-        Estimated whale position [x, y, z, t0]
-    c0 : float
-        Speed of sound in water considered constant
-    var : float
-        Variance of the residuals
-
-    Returns
-    -------
-    unc : np.ndarray
-        Uncertainties on the estimated arrival times
-    """
-    thj = calc_theta_vector(cable_pos, whale_pos)
-    phij = calc_phi_vector(cable_pos, whale_pos)
-
-    if fix_z:
-        G = np.array([np.cos(thj) * np.cos(phij) / c0, np.cos(thj) * np.sin(phij) / c0, np.ones_like(thj)]).T
-    else:
-        G = np.array([np.cos(thj) * np.cos(phij) / c0, np.cos(thj) * np.sin(phij) / c0, np.sin(thj) / c0, np.ones_like(thj)]).T
-
-    cov = var * np.linalg.inv(G.T @ G)
-    unc = np.sqrt(np.diag(G @ cov @ G.T))
-
     return unc
