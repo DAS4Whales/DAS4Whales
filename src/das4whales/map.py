@@ -93,6 +93,30 @@ def load_bathymetry(filepath):
     return bathy, xlon, ylat
 
 
+def flatten_bathy(bathy, threshold):
+    """
+    Flatten the bathymetry above a certain threshold.
+
+    Parameters
+    ----------
+    bathy : np.ndarray
+        The bathymetry data array. zij = bathy[i,j] is the depth at the point (xlon[j], ylat[i]).
+    threshold : float
+        The threshold above which the bathymetry is flattened.
+
+    Returns
+    -------
+    bathy_flat : np.ndarray
+        The flattened bathymetry data array.
+    """
+    # Copy the bathymetry array
+    bathy_flat = bathy.copy()
+    # Flatten the bathymetry above the threshold value and assign the threshold value to the rest
+    bathy_flat[bathy_flat > threshold] = threshold
+
+    return bathy_flat
+
+
 def plot_cables2D(df_north, df_south, bathy, xlon, ylat):
     """
     Plot the cables on the bathymetry map.
@@ -147,3 +171,48 @@ def plot_cables2D(df_north, df_south, bathy, xlon, ylat):
     plt.legend(loc='upper center')
     plt.tight_layout()
     plt.show()
+
+    return
+
+
+def plot_cables3D(df_north, df_south, bathy, xlon, ylat):
+    """
+    Plot the cables on the bathymetry map in 3D.
+
+    Parameters
+    ----------
+    df_north : pandas.DataFrame
+        The dataframe containing the north cable coordinates.
+    df_south : pandas.DataFrame
+        The dataframe containing the south cable coordinates.
+    bathy : np.ndarray
+        The bathymetry data array. zij = bathy[i,j] is the depth at the point (xlon[j], ylat[i]).
+    xlon : np.ndarray
+        The longitude data vector.
+    ylat : np.ndarray
+        The latitude data vector.
+    """
+
+    fig = plt.figure(figsize=(16, 10))
+    ax = fig.add_subplot(111, projection='3d')
+    # Plot the bathymetry
+    X, Y = np.meshgrid(xlon, ylat)
+
+    # Set the stride of the plot by dividing the number of points by 100 in the x direction and 50 in the y direction
+    rstride = X.shape[0] // 100
+    cstride = X.shape[1] // 50
+
+    print(rstride, cstride)
+    # Plot the surface
+    ax.plot_surface(X, Y, bathy, cmap='Blues_r', alpha=0.7, antialiased=True, rstride=rstride, cstride=cstride)
+    # Plot the cables
+    ax.plot(df_north['lon'], df_north['lat'], df_north['depth'], 'tab:red', label='North cable', lw=4)
+    ax.plot(df_south['lon'], df_south['lat'], df_south['depth'], 'tab:orange', label='South cable', lw=4)
+    ax.set_xlabel('Longitude')
+    ax.set_ylabel('Latitude')
+    ax.set_zlabel('Depth [m]')
+    ax.set_aspect('equalxy')
+    ax.legend()
+    plt.show()
+
+    return
