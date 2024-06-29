@@ -83,7 +83,7 @@ def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False):
 
     # Make a first guess of the whale position
     #TODO: make first guess a parameter
-    n = np.array([30000, 1000, 300, np.min(Ti)])
+    n = np.array([30000, 200, 300, np.min(Ti)])
 
     # Regularization parameter
     lambda_reg = 1e-5
