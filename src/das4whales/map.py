@@ -15,6 +15,7 @@ from matplotlib.colors import LightSource
 import matplotlib.colors as mcolors
 import pandas as pd
 import xarray as xr
+import pyproj
 
 def load_cable_coordinates(filepath, dx):
     """
@@ -216,3 +217,38 @@ def plot_cables3D(df_north, df_south, bathy, xlon, ylat):
     plt.show()
 
     return
+
+
+def latlon_to_utm(lon, lat, zone=10):
+    """
+    Convert latitude and longitude to UTM coordinates for a specified zone
+
+    Parameters
+    ----------
+    lon : float
+        The longitude.
+    lat : float
+        The latitude.
+    zone : int
+        The UTM zone.
+
+    Returns
+    -------
+    utm_x : float
+        The UTM x coordinate.
+    utm_y : float
+        The UTM y coordinate.
+    """
+
+    # Define the WGS84 coordinate system and the UTM coordinate system for the specified zone
+    wgs84 = pyproj.CRS("EPSG:4326")
+    utm_zone = pyproj.CRS(f"EPSG:326{zone:02d}")
+
+    # Create a transformer object to convert from WGS84 to UTM
+    transformer = pyproj.Transformer.from_crs(wgs84, utm_zone, always_xy=True)
+
+    # Perform the transformation
+    utm_x, utm_y = transformer.transform(lon, lat)
+    print(f'UTM coordinates: x = {utm_x}, y = {utm_y}')
+
+    return utm_x, utm_y
