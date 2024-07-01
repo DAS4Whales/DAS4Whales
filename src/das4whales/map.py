@@ -143,7 +143,7 @@ def plot_cables2D(df_north, df_south, bathy, xlon, ylat):
     # Combine the color maps
     all_colors = np.vstack((colors_undersea, colors_land))
     custom_cmap = mcolors.LinearSegmentedColormap.from_list('custom_cmap', all_colors)
-    extent = [min(xlon), max(xlon), min(ylat), max(ylat)]
+    extent = [xlon[0], xlon[-1], ylat[0], ylat[-1]]
 
     # Set the light source
     ls = LightSource(azdeg=350, altdeg=45)
@@ -226,6 +226,49 @@ def plot_cables3D(df_north, df_south, bathy, xlon, ylat):
     ax.plot(df_south['lon'], df_south['lat'], df_south['depth'], 'tab:orange', label='South cable', lw=4)
     ax.set_xlabel('Longitude')
     ax.set_ylabel('Latitude')
+    ax.set_zlabel('Depth [m]')
+    ax.set_aspect('equalxy')
+    ax.legend()
+    plt.show()
+
+    return
+
+
+def plot_cables3D_m(df_north, df_south, bathy, x, y):
+    """
+    Plot the cables on the bathymetry map in 3D.
+
+    Parameters
+    ----------
+    df_north : pandas.DataFrame
+        The dataframe containing the north cable coordinates.
+    df_south : pandas.DataFrame
+        The dataframe containing the south cable coordinates in meters.
+    bathy : np.ndarray
+        The bathymetry data array. zij = bathy[i,j] is the depth at the point (xlon[j], ylat[i]).
+    x : np.ndarray
+        The x data vector.
+    y : np.ndarray
+        The y data vector.
+    """
+
+    fig = plt.figure(figsize=(16, 10))
+    ax = fig.add_subplot(111, projection='3d')
+    # Plot the bathymetry
+    X, Y = np.meshgrid(x, y)
+
+    # Set the stride of the plot by dividing the number of points by 100 in the x direction and 50 in the y direction
+    rstride = X.shape[0] // 100
+    cstride = X.shape[1] // 50
+
+    print(rstride, cstride)
+    # Plot the surface
+    ax.plot_surface(X, Y, bathy, cmap='Blues_r', alpha=0.7, antialiased=True, rstride=rstride, cstride=cstride)
+    # Plot the cables
+    ax.plot(df_north['x'], df_north['y'], df_north['depth'], 'tab:red', label='North cable', lw=4)
+    ax.plot(df_south['x'], df_south['y'], df_south['depth'], 'tab:orange', label='South cable', lw=4)
+    ax.set_xlabel('x [m]')
+    ax.set_ylabel('y [m]')
     ax.set_zlabel('Depth [m]')
     ax.set_aspect('equalxy')
     ax.legend()
