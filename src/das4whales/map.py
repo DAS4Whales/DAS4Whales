@@ -154,10 +154,17 @@ def plot_cables2D(df_north, df_south, bathy, xlon, ylat):
     rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay')
     plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower')
 
-    # Plot the cable location in 2D
-    ax.plot(df_north['lon'], df_north['lat'], 'tab:red', label='North cable')
-    ax.plot(df_south['lon'], df_south['lat'], 'tab:orange', label='South cable')
-    # plt.plot(xlon[0], ylat[-1], 'o', color='tab:red', label='test' )
+    # TODO: Make this less ugly
+    # Check if df_north is a dataframe
+    if not isinstance(df_north, pd.DataFrame):
+        # Plot the cable location in 2D
+        ax.plot(df_north[0], df_north[1], 'tab:red', label='North cable')
+        ax.plot(df_south[0], df_south[1], 'tab:orange', label='South cable')
+    else:
+        # Plot the cable location in 2D
+        ax.plot(df_north['lon'], df_north['lat'], 'tab:red', label='North cable')
+        ax.plot(df_south['lon'], df_south['lat'], 'tab:orange', label='South cable')
+        # plt.plot(xlon[0], ylat[-1], 'o', color='tab:red', label='test' )
 
     # Draw isoline at 0
     ax.contour(bathy, levels=[0], colors='k', extent=extent)
@@ -167,8 +174,16 @@ def plot_cables2D(df_north, df_south, bathy, xlon, ylat):
     plt.colorbar(im, ax=ax, label='Depth [m]', aspect=50, pad=0.1, orientation='horizontal')
     im.remove()
 
-    plt.xlabel('Longitude')
-    plt.ylabel('Latitude')
+    if not isinstance(df_north, pd.DataFrame):
+        # Set the labels
+        plt.xlabel('UTM x [m]')
+        plt.ylabel('UTM y [m]')
+
+    else:
+        # Set the labels
+        plt.xlabel('Longitude')
+        plt.ylabel('Latitude')
+
     plt.legend(loc='upper center')
     plt.tight_layout()
     plt.show()
@@ -249,6 +264,5 @@ def latlon_to_utm(lon, lat, zone=10):
 
     # Perform the transformation
     utm_x, utm_y = transformer.transform(lon, lat)
-    print(f'UTM coordinates: x = {utm_x}, y = {utm_y}')
 
     return utm_x, utm_y
