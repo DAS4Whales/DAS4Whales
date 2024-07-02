@@ -9,7 +9,9 @@
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=387cc868" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
     
     
 
@@ -18,18 +20,42 @@
   body {
     --color-code-background: #f8f8f8;
   --color-code-foreground: black;
+  --color-brand-primary: #005f73;
+  --color-brand-content: #0a9396;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #e0fbfc;
+  --color-foreground-primary: #023047;
+  --color-foreground-secondary: #8ecae6;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
   }
   @media not print {
     body[data-theme="dark"] {
       --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #0a9396;
+  --color-brand-content: #94d2bd;
+  --color-background-primary: #001219;
+  --color-background-secondary: #003049;
+  --color-foreground-primary: #e0fbfc;
+  --color-foreground-secondary: #94d2bd;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
         --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #0a9396;
+  --color-brand-content: #94d2bd;
+  --color-background-primary: #001219;
+  --color-background-secondary: #003049;
+  --color-foreground-primary: #e0fbfc;
+  --color-foreground-secondary: #94d2bd;
+  --color-link: #ffb703;
+  --color-link--hover: #fb8500;
   
       }
     }
@@ -211,8 +237,19 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../detect.html">detect</a></li>
+  <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../src/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/das4whales.html">das4whales package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/data_handle.html">data_handle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/dsp.html">dsp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/detect.html">detect</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/plot.html">plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../src/graph.html">Graph of Modules and Functions</a></li>
 </ul>
 
 </div>
@@ -265,7 +302,7 @@
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 
 <div class="viewcode-block" id="plot_rawdata">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.plot.plot_rawdata">[docs]</a>
+<a class="viewcode-back" href="../../src/plot.html#das4whales.plot.plot_rawdata">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_rawdata</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the raw DAS data.</span>
@@ -294,7 +331,7 @@
 
 
 <div class="viewcode-block" id="plot_tx">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.plot.plot_tx">[docs]</a>
+<a class="viewcode-back" href="../../src/plot.html#das4whales.plot.plot_tx">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_tx</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">file_begin_time_utc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">v_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v_max</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Spatio-temporal representation (t-x plot) of the strain data</span>
@@ -349,7 +386,7 @@
 
 
 <div class="viewcode-block" id="plot_fx">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.plot.plot_fx">[docs]</a>
+<a class="viewcode-back" href="../../src/plot.html#das4whales.plot.plot_fx">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_fx</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">file_begin_time_utc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">win_s</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">nfft</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">f_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
             <span class="n">f_max</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">v_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v_max</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -447,7 +484,7 @@
 
 
 <div class="viewcode-block" id="plot_spectrogram">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.plot.plot_spectrogram">[docs]</a>
+<a class="viewcode-back" href="../../src/plot.html#das4whales.plot.plot_spectrogram">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_spectrogram</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">tt</span><span class="p">,</span> <span class="n">ff</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">v_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v_max</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">f_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">f_max</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot a spectrogram.</span>
@@ -492,7 +529,7 @@
 
 
 <div class="viewcode-block" id="plot_3calls">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.plot.plot_3calls">[docs]</a>
+<a class="viewcode-back" href="../../src/plot.html#das4whales.plot.plot_3calls">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_3calls</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">t3</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the strain channel with 3 calls highlighted.</span>
@@ -555,7 +592,7 @@
 
 
 <div class="viewcode-block" id="design_mf">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.plot.design_mf">[docs]</a>
+<a class="viewcode-back" href="../../src/plot.html#das4whales.plot.design_mf">[docs]</a>
 <span class="k">def</span> <span class="nf">design_mf</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">hnote</span><span class="p">,</span> <span class="n">lnote</span><span class="p">,</span> <span class="n">th</span><span class="p">,</span> <span class="n">tl</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">fs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot to design the matched filter </span>
 
@@ -639,7 +676,7 @@
 
 
 <div class="viewcode-block" id="detection_mf">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.plot.detection_mf">[docs]</a>
+<a class="viewcode-back" href="../../src/plot.html#das4whales.plot.detection_mf">[docs]</a>
 <span class="k">def</span> <span class="nf">detection_mf</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">peaks_idx_HF</span><span class="p">,</span> <span class="n">peaks_idx_LF</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">file_begin_time_utc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot the strain trace matrix [dist x time] with call detection above it</span>
 
@@ -687,7 +724,7 @@
 
 
 <div class="viewcode-block" id="detection_spectcorr">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.plot.detection_spectcorr">[docs]</a>
+<a class="viewcode-back" href="../../src/plot.html#das4whales.plot.detection_spectcorr">[docs]</a>
 <span class="k">def</span> <span class="nf">detection_spectcorr</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">peaks_idx_HF</span><span class="p">,</span> <span class="n">peaks_idx_LF</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">spectro_fs</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">file_begin_time_utc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot the strain trace matrix [dist x time] with call detection above it</span>
 
@@ -736,7 +773,7 @@
 
 
 <div class="viewcode-block" id="detection_grad">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.plot.detection_grad">[docs]</a>
+<a class="viewcode-back" href="../../src/plot.html#das4whales.plot.detection_grad">[docs]</a>
 <span class="k">def</span> <span class="nf">detection_grad</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">peaks_idx</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">file_begin_time_utc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot the strain trace matrix [dist x time] with call detection above it</span>
 
@@ -783,7 +820,7 @@
 
 
 <div class="viewcode-block" id="snr_matrix">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.plot.snr_matrix">[docs]</a>
+<a class="viewcode-back" href="../../src/plot.html#das4whales.plot.snr_matrix">[docs]</a>
 <span class="k">def</span> <span class="nf">snr_matrix</span><span class="p">(</span><span class="n">snr_m</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="n">file_begin_time_utc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Matrix plot of the local signal to noise ratio (SNR)</span>
 
@@ -820,7 +857,7 @@
 
 
 <div class="viewcode-block" id="plot_cross_correlogramHL">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.plot.plot_cross_correlogramHL">[docs]</a>
+<a class="viewcode-back" href="../../src/plot.html#das4whales.plot.plot_cross_correlogramHL">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_cross_correlogramHL</span><span class="p">(</span><span class="n">corr_m_HF</span><span class="p">,</span> <span class="n">corr_m_LF</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">maxv</span><span class="p">,</span> <span class="n">minv</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">file_begin_time_utc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the cross-correlogram between HF and LF notes.</span>
@@ -865,7 +902,7 @@
 
 
 <div class="viewcode-block" id="plot_cross_correlogram">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.plot.plot_cross_correlogram">[docs]</a>
+<a class="viewcode-back" href="../../src/plot.html#das4whales.plot.plot_cross_correlogram">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_cross_correlogram</span><span class="p">(</span><span class="n">corr_m</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">maxv</span><span class="p">,</span> <span class="n">minv</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">file_begin_time_utc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the cross-correlogram between HF and LF notes.</span>
@@ -904,7 +941,7 @@
 
 
 <div class="viewcode-block" id="import_roseus">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.plot.import_roseus">[docs]</a>
+<a class="viewcode-back" href="../../src/plot.html#das4whales.plot.import_roseus">[docs]</a>
 <span class="k">def</span> <span class="nf">import_roseus</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Import the colormap from the colormap/roseus_matplotlib.py file</span>
@@ -1180,7 +1217,7 @@
 
 
 <div class="viewcode-block" id="import_parula">
-<a class="viewcode-back" href="../../api/das4whales.html#das4whales.plot.import_parula">[docs]</a>
+<a class="viewcode-back" href="../../src/plot.html#das4whales.plot.import_parula">[docs]</a>
 <span class="k">def</span> <span class="nf">import_parula</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Import the colormap parula from matlab</span>

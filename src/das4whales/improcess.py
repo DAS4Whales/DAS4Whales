@@ -233,7 +233,6 @@ def diagonal_edge_detection(img, threshold):
     This function detects diagonal edges in an image.
 
     Parameters
-
     ----------
     img : numpy.ndarray
         The input image.

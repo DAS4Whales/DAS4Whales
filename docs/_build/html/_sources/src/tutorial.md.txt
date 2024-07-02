@@ -1,11 +1,12 @@
 # Tutorial
 
 ### Import the DAS4Whales module and dependencies from GitHub
-If not in a Jupyter notebook, follow the [Installation instructions](install.rst), otherwise, run the following cells to install the module and import the necessary dependencies.
+If not in a Jupyter notebook, follow the [Installation instructions](install.rst), otherwise, run the following cell to install the module
 ```python
 !python3 -m pip install 'git+https://github.com/qgoestch/DAS4Whales'
 ```
 
+### Import the DAS4Whales module and dependencies for the example
 ```python
 import das4whales as dw
 import scipy.signal as sp

@@ -291,7 +291,7 @@
 <span class="sd">This module provides various functions to handle DAS data, including loading, downloading, and conditioning. </span>
 <span class="sd">It aims at having specific functions for each interrogator type.</span>
 
-<span class="sd">Authors: Léa Bouffaut, Quentin Goestchel</span>
+<span class="sd">Authors: Léa Bouffaut, Quentin Goestchel, Erfan Horeh</span>
 <span class="sd">Date: 2023-2024</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -301,6 +301,8 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">nptdms</span> <span class="kn">import</span> <span class="n">TdmsFile</span>
 
 
 <div class="viewcode-block" id="hello_world_das_package">
@@ -400,6 +402,53 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1"> not found&#39;</span><span class="p">)</span>
 
+    <span class="k">return</span> <span class="n">meta_data</span></div>
+
+
+
+<div class="viewcode-block" id="get_metadata_silixa">
+<a class="viewcode-back" href="../../src/data_handle.html#das4whales.data_handle.get_metadata_silixa">[docs]</a>
+<span class="k">def</span> <span class="nf">get_metadata_silixa</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gets DAS acquisition parameters for the silixa interrogator </span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath : string</span>
+<span class="sd">        a string containing the full path to the data to load</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    metadata : dict</span>
+<span class="sd">        dictionary filled with metadata, key&#39;s breakdown:\n</span>
+<span class="sd">        fs: the sampling frequency (Hz)\n</span>
+<span class="sd">        dx: interval between two virtual sensing points also called channel spacing (m)\n</span>
+<span class="sd">        nx: the number of spatial samples also called channels\n</span>
+<span class="sd">        ns: the number of time samples\n</span>
+<span class="sd">        n: refractive index of the fiber\n</span>
+<span class="sd">        GL: the gauge length (m)\n</span>
+<span class="sd">        scale_factor: the value to convert DAS data from strain rate to strain</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Make sure the file exists</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">TdmsFile</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">properties</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="s1">&#39;Measurement&#39;</span><span class="p">]</span>
+        <span class="n">acousticData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span> <span class="p">[</span><span class="n">group</span><span class="p">[</span><span class="n">channel</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">group</span><span class="p">]</span> <span class="p">)</span>
+
+        <span class="n">fs</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="s1">&#39;SamplingFrequency[Hz]&#39;</span><span class="p">]</span> <span class="c1"># sampling rate in Hz</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="s1">&#39;SpatialResolution[m]&#39;</span><span class="p">]</span> <span class="c1"># channel spacing in m</span>
+        <span class="n">ns</span> <span class="o">=</span> <span class="n">acousticData</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span>  <span class="n">props</span><span class="p">[</span><span class="s1">&#39;FibreIndex&#39;</span><span class="p">]</span> <span class="c1"># refractive index</span>
+        <span class="n">GL</span> <span class="o">=</span>  <span class="n">props</span><span class="p">[</span><span class="s1">&#39;GaugeLength&#39;</span><span class="p">]</span> <span class="c1"># gauge length in m</span>
+        <span class="n">nx</span> <span class="o">=</span> <span class="n">acousticData</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># number of channels</span>
+        <span class="n">scale_factor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">116</span> <span class="o">*</span> <span class="n">fs</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**-</span><span class="mi">9</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">GL</span> <span class="o">*</span> <span class="mi">2</span><span class="o">**</span><span class="mi">13</span><span class="p">)</span>
+
+        <span class="n">meta_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;fs&#39;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span> <span class="s1">&#39;dx&#39;</span><span class="p">:</span> <span class="n">dx</span><span class="p">,</span> <span class="s1">&#39;ns&#39;</span><span class="p">:</span> <span class="n">ns</span><span class="p">,</span><span class="s1">&#39;n&#39;</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span><span class="s1">&#39;GL&#39;</span><span class="p">:</span> <span class="n">GL</span><span class="p">,</span> <span class="s1">&#39;nx&#39;</span><span class="p">:</span><span class="n">nx</span> <span class="p">,</span> <span class="s1">&#39;scale_factor&#39;</span><span class="p">:</span> <span class="n">scale_factor</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1"> not found&#39;</span><span class="p">)</span>
+    
     <span class="k">return</span> <span class="n">meta_data</span></div>
 
 
@@ -512,6 +561,33 @@
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Downloaded </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">filepath</span> <span class="c1">#TODO: add filenames as output to create large daskarrays</span></div>
 
+
+
+<div class="viewcode-block" id="load_cable_coordinates">
+<a class="viewcode-back" href="../../src/data_handle.html#das4whales.data_handle.load_cable_coordinates">[docs]</a>
+<span class="k">def</span> <span class="nf">load_cable_coordinates</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">dx</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the cable coordinates from a text file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath : str</span>
+<span class="sd">        The file path to the cable coordinates file.</span>
+<span class="sd">    dx : float</span>
+<span class="sd">        The distance between two channels.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df : pandas.DataFrame</span>
+<span class="sd">        The cable coordinates dataframe.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># load the .txt file and create a pandas dataframe</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;chan_idx&#39;</span><span class="p">,</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="s1">&#39;depth&#39;</span><span class="p">]</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;chan_m&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;chan_idx&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">dx</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
 
 </pre></div>
         </article>
