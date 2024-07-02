@@ -14,6 +14,7 @@ import os
 import numpy as np
 import dask.array as da
 from datetime import datetime
+import pandas as pd
 from nptdms import TdmsFile
 
 
@@ -253,3 +254,27 @@ def dl_file(url):
         print(f'Downloaded {filename}')
     return filepath #TODO: add filenames as output to create large daskarrays
 
+
+def load_cable_coordinates(filepath, dx):
+    """
+    Load the cable coordinates from a text file.
+
+    Parameters
+    ----------
+    filepath : str
+        The file path to the cable coordinates file.
+    dx : float
+        The distance between two channels.
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        The cable coordinates dataframe.
+    """
+
+    # load the .txt file and create a pandas dataframe
+    df = pd.read_csv(filepath, delimiter = ",", header = None)
+    df.columns = ['chan_idx','lat', 'lon', 'depth']
+    df['chan_m'] = df['chan_idx'] * dx
+
+    return df
