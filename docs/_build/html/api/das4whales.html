@@ -2027,6 +2027,269 @@ as per docs, [‘x’, ‘b’, and ‘a’] are required</p></li>
 </dd></dl>
 
 </section>
+<section id="module-das4whales.map">
+<span id="das4whales-map-module"></span><h2>das4whales.map module<a class="headerlink" href="#module-das4whales.map" title="Link to this heading">¶</a></h2>
+<p>map.py - Map creation module for the das4whales package.</p>
+<p>This module provides functions for coordinates handling and map visualization for DAS data.</p>
+<p>Author: Quentin Goestchel
+Date: 2024-06-26</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.map.flatten_bathy">
+<span class="sig-prename descclassname"><span class="pre">das4whales.map.</span></span><span class="sig-name descname"><span class="pre">flatten_bathy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bathy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/map.html#flatten_bathy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.map.flatten_bathy" title="Link to this definition">¶</a></dt>
+<dd><p>Flatten the bathymetry above a certain threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bathy</strong> (<em>np.ndarray</em>) – The bathymetry data array. zij = bathy[i,j] is the depth at the point (xlon[j], ylat[i]).</p></li>
+<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The threshold above which the bathymetry is flattened.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>bathy_flat</strong> – The flattened bathymetry data array.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.map.latlon_to_utm">
+<span class="sig-prename descclassname"><span class="pre">das4whales.map.</span></span><span class="sig-name descname"><span class="pre">latlon_to_utm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/map.html#latlon_to_utm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.map.latlon_to_utm" title="Link to this definition">¶</a></dt>
+<dd><p>Convert latitude and longitude to UTM coordinates for a specified zone</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The longitude.</p></li>
+<li><p><strong>lat</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The latitude.</p></li>
+<li><p><strong>zone</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – The UTM zone.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>utm_x</strong> (<em>float</em>) – The UTM x coordinate.</p></li>
+<li><p><strong>utm_y</strong> (<em>float</em>) – The UTM y coordinate.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.map.load_bathymetry">
+<span class="sig-prename descclassname"><span class="pre">das4whales.map.</span></span><span class="sig-name descname"><span class="pre">load_bathymetry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/map.html#load_bathymetry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.map.load_bathymetry" title="Link to this definition">¶</a></dt>
+<dd><p>Load the bathymetry data from a text file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The file path to the bathymetry data file. ‘.grd’ file format is used here and can be found at <a class="reference external" href="https://www.gmrt.org/GMRTMapTool/">https://www.gmrt.org/GMRTMapTool/</a>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>bathy</strong> (<em>np.ndarray</em>) – The bathymetry data array. zij = bathy[i,j] is the depth at the point (xlon[j], ylat[i]).</p></li>
+<li><p><strong>xlon</strong> (<em>np.ndarray</em>) – The longitude data vector.</p></li>
+<li><p><strong>ylat</strong> (<em>np.ndarray</em>) – The latitude data vector.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.map.load_cable_coordinates">
+<span class="sig-prename descclassname"><span class="pre">das4whales.map.</span></span><span class="sig-name descname"><span class="pre">load_cable_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/map.html#load_cable_coordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.map.load_cable_coordinates" title="Link to this definition">¶</a></dt>
+<dd><p>Load the cable coordinates from a text file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The file path to the cable coordinates file.</p></li>
+<li><p><strong>dx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The distance between two channels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>df</strong> – The cable coordinates dataframe.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.map.plot_cables2D">
+<span class="sig-prename descclassname"><span class="pre">das4whales.map.</span></span><span class="sig-name descname"><span class="pre">plot_cables2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_north</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_south</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/map.html#plot_cables2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.map.plot_cables2D" title="Link to this definition">¶</a></dt>
+<dd><p>Plot the cables on the bathymetry map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_north</strong> (<em>pandas.DataFrame</em>) – The dataframe containing the north cable coordinates.</p></li>
+<li><p><strong>df_south</strong> (<em>pandas.DataFrame</em>) – The dataframe containing the south cable coordinates.</p></li>
+<li><p><strong>bathy</strong> (<em>np.ndarray</em>) – The bathymetry data array. zij = bathy[i,j] is the depth at the point (xlon[j], ylat[i]).</p></li>
+<li><p><strong>xlon</strong> (<em>np.ndarray</em>) – The longitude data vector.</p></li>
+<li><p><strong>ylat</strong> (<em>np.ndarray</em>) – The latitude data vector.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.map.plot_cables3D">
+<span class="sig-prename descclassname"><span class="pre">das4whales.map.</span></span><span class="sig-name descname"><span class="pre">plot_cables3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_north</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_south</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/map.html#plot_cables3D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.map.plot_cables3D" title="Link to this definition">¶</a></dt>
+<dd><p>Plot the cables on the bathymetry map in 3D.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_north</strong> (<em>pandas.DataFrame</em>) – The dataframe containing the north cable coordinates.</p></li>
+<li><p><strong>df_south</strong> (<em>pandas.DataFrame</em>) – The dataframe containing the south cable coordinates.</p></li>
+<li><p><strong>bathy</strong> (<em>np.ndarray</em>) – The bathymetry data array. zij = bathy[i,j] is the depth at the point (xlon[j], ylat[i]).</p></li>
+<li><p><strong>xlon</strong> (<em>np.ndarray</em>) – The longitude data vector.</p></li>
+<li><p><strong>ylat</strong> (<em>np.ndarray</em>) – The latitude data vector.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.map.plot_cables3D_m">
+<span class="sig-prename descclassname"><span class="pre">das4whales.map.</span></span><span class="sig-name descname"><span class="pre">plot_cables3D_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_north</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_south</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/map.html#plot_cables3D_m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.map.plot_cables3D_m" title="Link to this definition">¶</a></dt>
+<dd><p>Plot the cables on the bathymetry map in 3D.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_north</strong> (<em>pandas.DataFrame</em>) – The dataframe containing the north cable coordinates.</p></li>
+<li><p><strong>df_south</strong> (<em>pandas.DataFrame</em>) – The dataframe containing the south cable coordinates in meters.</p></li>
+<li><p><strong>bathy</strong> (<em>np.ndarray</em>) – The bathymetry data array. zij = bathy[i,j] is the depth at the point (xlon[j], ylat[i]).</p></li>
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – The x data vector.</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – The y data vector.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-das4whales.loc">
+<span id="das4whales-loc-module"></span><h2>das4whales.loc module<a class="headerlink" href="#module-das4whales.loc" title="Link to this heading">¶</a></h2>
+<p>loc.py - Localisation module for the das4whales package.</p>
+<p>This module provides functions for localizing the source of a sound source recorded by a DAS array.</p>
+<p>Author: Quentin Goestchel
+Date: 2024-06-18</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.loc.cal_variance_residuals">
+<span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">cal_variance_residuals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arrtimes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predic_arrtimes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#cal_variance_residuals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.cal_variance_residuals" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the variance of the residuals of the arrival times</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arrtimes</strong> (<em>np.ndarray</em>) – array of measured arrival times</p></li>
+<li><p><strong>predic_arrtimes</strong> (<em>np.ndarray</em>) – array of predicted arrival times</p></li>
+<li><p><strong>fix_z</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – True if the z coordinate is fixed, by default False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>var</strong> – Variance of the residuals</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.loc.calc_arrival_times">
+<span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">calc_arrival_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cable_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#calc_arrival_times"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.calc_arrival_times" title="Link to this definition">¶</a></dt>
+<dd><p>Get the theoretical arrival times of a whale call at a given distance along the cable</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.loc.calc_covariance_matrix">
+<span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">calc_covariance_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cable_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">whale_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#calc_covariance_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.calc_covariance_matrix" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the covariance matrix of the estimated whale position</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cable_pos</strong> (<em>np.ndarray</em>) – Array of cable positions [channel x 3]</p></li>
+<li><p><strong>whale_pos</strong> (<em>np.ndarray</em>) – Estimated whale position [x, y, z, t0]</p></li>
+<li><p><strong>c0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Speed of sound in water considered constant</p></li>
+<li><p><strong>var</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Variance of the residuals</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cov</strong> – Covariance matrix of the estimated whale position</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.loc.calc_distance_matrix">
+<span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">calc_distance_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cable_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">whale_pos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#calc_distance_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.calc_distance_matrix" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the distance matrix between the cable and the whale</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.loc.calc_phi_vector">
+<span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">calc_phi_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cable_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">whale_pos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#calc_phi_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.calc_phi_vector" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the azimuthal angle between the cable and the whale for each cable position</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.loc.calc_radii_matrix">
+<span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">calc_radii_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cable_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">whale_pos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#calc_radii_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.calc_radii_matrix" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the radii matrix between the cable and the whale</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.loc.calc_theta_vector">
+<span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">calc_theta_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cable_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">whale_pos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#calc_theta_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.calc_theta_vector" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the elevation angle between the cable and the whale for each cable position</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.loc.calc_uncertainty_position">
+<span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">calc_uncertainty_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cable_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">whale_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#calc_uncertainty_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.calc_uncertainty_position" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the uncertainties on the estimated whale position</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cable_pos</strong> (<em>np.ndarray</em>) – Array of cable positions [channel x 3]</p></li>
+<li><p><strong>whale_pos</strong> (<em>np.ndarray</em>) – Estimated whale position [x, y, z, t0]</p></li>
+<li><p><strong>c0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Speed of sound in water considered constant</p></li>
+<li><p><strong>var</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Variance of the residuals</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>unc</strong> – Uncertainties on the estimated whale position</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.loc.solve_lq">
+<span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">solve_lq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ti</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cable_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nbiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#solve_lq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.solve_lq" title="Link to this definition">¶</a></dt>
+<dd><p>Solve the least squares problem to localize the whale</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Ti</strong> (<em>np.ndarray</em>) – Array of arrival times at each cable position [channel x 1]</p></li>
+<li><p><strong>cable_pos</strong> (<em>np.ndarray</em>) – Array of cable positions [channel x 3]</p></li>
+<li><p><strong>c0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Speed of sound in water considered constant</p></li>
+<li><p><strong>Nbiter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>optional</em><em> (</em><em>default=10</em><em>)</em>) – Number of iterations for the least squares algorithm</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>n</strong> – Estimated whale position and time of emission vector [x, y, z, t0]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 </section>
 
         </article>
@@ -2183,6 +2446,28 @@ as per docs, [‘x’, ‘b’, and ‘a’] are required</p></li>
 <li><a class="reference internal" href="#das4whales.tools.fk_filt"><code class="docutils literal notranslate"><span class="pre">fk_filt()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.tools.fk_filt_chunk"><code class="docutils literal notranslate"><span class="pre">fk_filt_chunk()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.tools.spec"><code class="docutils literal notranslate"><span class="pre">spec()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-das4whales.map">das4whales.map module</a><ul>
+<li><a class="reference internal" href="#das4whales.map.flatten_bathy"><code class="docutils literal notranslate"><span class="pre">flatten_bathy()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.map.latlon_to_utm"><code class="docutils literal notranslate"><span class="pre">latlon_to_utm()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.map.load_bathymetry"><code class="docutils literal notranslate"><span class="pre">load_bathymetry()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.map.load_cable_coordinates"><code class="docutils literal notranslate"><span class="pre">load_cable_coordinates()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.map.plot_cables2D"><code class="docutils literal notranslate"><span class="pre">plot_cables2D()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.map.plot_cables3D"><code class="docutils literal notranslate"><span class="pre">plot_cables3D()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.map.plot_cables3D_m"><code class="docutils literal notranslate"><span class="pre">plot_cables3D_m()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-das4whales.loc">das4whales.loc module</a><ul>
+<li><a class="reference internal" href="#das4whales.loc.cal_variance_residuals"><code class="docutils literal notranslate"><span class="pre">cal_variance_residuals()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.loc.calc_arrival_times"><code class="docutils literal notranslate"><span class="pre">calc_arrival_times()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.loc.calc_covariance_matrix"><code class="docutils literal notranslate"><span class="pre">calc_covariance_matrix()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.loc.calc_distance_matrix"><code class="docutils literal notranslate"><span class="pre">calc_distance_matrix()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.loc.calc_phi_vector"><code class="docutils literal notranslate"><span class="pre">calc_phi_vector()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.loc.calc_radii_matrix"><code class="docutils literal notranslate"><span class="pre">calc_radii_matrix()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.loc.calc_theta_vector"><code class="docutils literal notranslate"><span class="pre">calc_theta_vector()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.loc.calc_uncertainty_position"><code class="docutils literal notranslate"><span class="pre">calc_uncertainty_position()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.loc.solve_lq"><code class="docutils literal notranslate"><span class="pre">solve_lq()</span></code></a></li>
 </ul>
 </li>
 </ul>

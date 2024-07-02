@@ -64,3 +64,19 @@ das4whales.tools module
    :members:
    :undoc-members:
    :show-inheritance:
+
+das4whales.map module
+---------------------
+
+.. automodule:: das4whales.map
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+das4whales.loc module
+---------------------
+
+.. automodule:: das4whales.loc
+   :members:
+   :undoc-members:
+   :show-inheritance:
