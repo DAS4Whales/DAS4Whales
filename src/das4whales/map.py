@@ -62,7 +62,7 @@ def load_bathymetry(filepath):
     """
 
     # Import the bathymetry data
-    ds = xr.open_dataset('data/GMRT_OOI_RCA_Cables.grd')
+    ds = xr.open_dataset(filepath, engine='scipy')
     # Extract the bathymetry values
     bathy = ds['z'].values
 
@@ -224,9 +224,9 @@ def plot_cables3D(df_north, df_south, bathy, xlon, ylat):
     # Plot the cables
     ax.plot(df_north['lon'], df_north['lat'], df_north['depth'], 'tab:red', label='North cable', lw=4)
     ax.plot(df_south['lon'], df_south['lat'], df_south['depth'], 'tab:orange', label='South cable', lw=4)
-    ax.set_xlabel('Longitude')
-    ax.set_ylabel('Latitude')
-    ax.set_zlabel('Depth [m]')
+    ax.set_xlabel('Longitude', labelpad=30)
+    ax.set_ylabel('Latitude', labelpad=30)
+    ax.set_zlabel('Depth [m]', labelpad=30)
     ax.set_aspect('equalxy')
     ax.legend()
     plt.show()
