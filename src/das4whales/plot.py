@@ -92,6 +92,61 @@ def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=N
     return
 
 
+def plot_tx_lined(trace, ln_idx, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=None, v_max=None):
+    """
+    Spatio-temporal representation (t-x plot) of the strain data
+
+    Parameters:
+    ----------
+    trace : np.ndarray
+        A [channel x time sample] nparray containing the strain data in the spatio-temporal domain
+    ln_idx : int
+        The index of the line to be plotted
+    time : np.ndarray
+        The corresponding time vector
+    dist : np.ndarray
+        The corresponding distance along the FO cable vector
+    file_begin_time_utc : int or datetime.datetime, optional
+        The time stamp of the represented file (default is 0)
+    fig_size : tuple, optional
+        Tuple of the figure dimensions (default is (12, 10))
+    v_min : float, optional
+        Sets the min nano strain amplitudes of the colorbar (default is None)
+    v_max : float, optional
+        Sets the max nano strain amplitudes of the colorbar (default is None)
+
+    Returns:
+    -------
+    None
+
+    Notes:
+    ------
+    This function plots a spatio-temporal representation (t-x plot) of the strain data with a line highlighted for a given channel index. 
+    It uses the given strain data, time vector, and distance vector to create the plot. The plot shows the strain envelope as a color map, with time
+    on the x-axis and distance on the y-axis. The color of each point in the plot represents the strain amplitude at
+    that point. The function also supports customizing the figure size, colorbar limits, and title.
+
+    """
+
+    fig = plt.figure(figsize=fig_size)
+    #TODO determine if the envelope should be implemented here rather than just abs
+    # Replace abs(trace) per abs(sp.hilbert(trace, axis=1)) ? 
+    shw = plt.imshow(abs(trace) * 10 ** 9, extent=[time[0], time[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
+                     origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
+    plt.plot([time[0], time[-1]], [dist[ln_idx] * 1e-3, dist[ln_idx] * 1e-3], 'w--', linewidth=3)
+    plt.ylabel('Distance (km)')
+    plt.xlabel('Time (s)')
+    bar = fig.colorbar(shw, aspect=30, pad=0.015)
+    bar.set_label('Strain Envelope (x$10^{-9}$)')
+
+    if isinstance(file_begin_time_utc, datetime):
+        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
+    plt.tight_layout()
+    plt.show()
+
+    return
+
+
 def plot_fx(trace, dist, fs, file_begin_time_utc=0, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0,
             f_max=100, v_min=None, v_max=None):
     """

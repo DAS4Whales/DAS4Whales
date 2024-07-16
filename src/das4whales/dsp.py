@@ -383,10 +383,10 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
 
         ks_max = freq[i] / cs_min
         kp_max = freq[i] / cp_min
-        
+
         # Avoid zero division
         if ks_min != kp_min:
-            # f+ k+ quadrant ramp up                                         
+            # f+ k+ quadrant ramp up
             selected_k_mask = ((knum >= ks_min) & (knum <= kp_min))
             filter_col[selected_k_mask] = np.sin(0.5 * np.pi * (knum[selected_k_mask] - ks_min) / (kp_min - ks_min))
         if ks_max != kp_max:
