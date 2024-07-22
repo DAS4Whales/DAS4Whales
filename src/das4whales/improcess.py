@@ -20,7 +20,7 @@ from scipy.ndimage import gaussian_filter as scipy_gaussian_filter
 from tqdm import tqdm
 
 
-def scale_pixels(img):
+def scale_pixels(img, scale_factor=1):
     """Scale the pixel values of an image.
 
     This function scales the pixel values of an image to the range [0, 1].
@@ -30,6 +30,9 @@ def scale_pixels(img):
     img : numpy.ndarray
         The input image.
 
+    scale_factor : float, optional (default=1)
+        The scaling factor.
+
     Returns
     -------
     numpy.ndarray
@@ -37,8 +40,8 @@ def scale_pixels(img):
 
     """
 
-    img = (img - img.min())/(img.max() - img.min())
-    return img
+    img = (img - img.min())/(img.max() - img.min()) * scale_factor
+    return img.astype(np.uint8)
 
 
 def trace2image(trace):

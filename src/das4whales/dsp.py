@@ -78,6 +78,42 @@ def get_spectrogram(waveform, fs, nfft=128, overlap_pct=0.8):
     return p, tt, ff
 
 
+def normalize_std(trace):
+    """
+    Normalize the input trace by its standard deviation.
+
+    Parameters
+    ----------
+    trace : np.ndarray
+        A 2D array of shape (channel, time sample) containing the strain data in the spatio-temporal domain.
+
+    Returns
+    -------
+    np.ndarray
+        A 2D array of shape (channel, time sample) containing the normalized strain data.
+    """
+
+    return trace / np.std(trace, axis=1, keepdims=True)
+
+
+def normalize_median(trace):
+    """
+    Normalize the input trace by its median.
+
+    Parameters
+    ----------
+    trace : np.ndarray
+        A 2D array of shape (channel, time sample) containing the strain data in the spatio-temporal domain.
+
+    Returns
+    -------
+    np.ndarray
+        A 2D array of shape (channel, time sample) containing the normalized strain data.
+    """
+
+    return trace / np.median(trace, axis=1, keepdims=True)
+
+
 # Filters
 # f-k filters design functions
 #TODO: uniformize and make a global function with choice of filter
@@ -169,6 +205,7 @@ def fk_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min
     # plt.show()
 
     return fk_filter_matrix
+
 
 # Infinite wave speed filter, sine tapers
 def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., cp_min=1450., fmin=15., fmax=25., display_filter=False):
@@ -303,6 +340,7 @@ def hybrid_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., c
             plt.show()
 
     return sparse.COO.from_numpy(fk_filter_matrix)
+
 
 # Non-infinite wave speed filter, sine tapers
 def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., cp_min=1450., cp_max=3400, cs_max=3500, fmin=15., fmax=25., display_filter=False):
@@ -453,6 +491,7 @@ def hybrid_ninf_filter_design(trace_shape, selected_channels, dx, fs, cs_min=140
             
     return sparse.COO.from_numpy(fk_filter_matrix)
 
+
 # Infinite wave speed filter, gaussian tapers
 def hybrid_gs_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., cp_min=1450., fmin=15., fmax=25., display_filter=False):
     """Designs a bandpass f-k hybrid filter for DAS strain data
@@ -577,6 +616,7 @@ def hybrid_gs_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400.
             plt.show()
 
     return sparse.COO.from_numpy(fk_filter_matrix)
+
 
 # Non-infinite wave speed filter, gaussian tapers
 def hybrid_ninf_gs_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400., cp_min=1450., cp_max=3400, cs_max=3500, fmin=15., fmax=25., display_filter=False):
@@ -953,7 +993,8 @@ def fk_filt(data,tint,fs,xint,dx,c_min,c_max):
     return data_g.real
 
 
-def snr_tr_array(trace, env=False):
+def snr_tr_array(trace):
+    #TODO : Remove env parameter and use hilbert transform directly
     """Calculate the 2D Signal-to-Noise Ratio (SNR) array for a given input trace.
 
     This function computes the SNR for each element in the input 2D trace array. The SNR
@@ -970,7 +1011,25 @@ def snr_tr_array(trace, env=False):
     numpy.ndarray
         A 2D array containing the Signal-to-Noise Ratio (SNR) values for each element
         in the input trace.
-    """  
-    if env:
-        return 10 * np.log10(abs(sp.hilbert(trace, axis=1)) ** 2 / np.std(trace, axis=1, keepdims=True) ** 2)
-    return 10 * np.log10(trace ** 2 / np.std(trace, axis=1, keepdims=True) ** 2)
+    """
+    return 10 * np.log10(abs(sp.hilbert(trace, axis=1)) ** 2 / np.std(trace, axis=1, keepdims=True) ** 2)
+
+
+def calc_snr_median(trace):
+    """Calculate the Signal-to-Noise Ratio (SNR) for a given input trace.
+
+    This function computes the SNR for the input trace. The SNR is calculated as the ratio of the square of the envelope of the trace to the square of the median of the trace.
+
+    Parameters
+    ----------
+    trace : np.ndarray
+        The input trace for which the SNR is to be calculated.
+
+    Returns
+    -------
+    np.ndarray
+        The Signal-to-Noise Ratio (SNR) value for the input trace.
+    """
+
+    envelope = abs(sp.hilbert(trace, axis=1))
+    return 10 * np.log10(envelope ** 2 / np.median(envelope, axis=1, keepdims=True) ** 2)
