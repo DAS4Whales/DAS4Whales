@@ -269,6 +269,7 @@ def plot_cables3D_m(df_north, df_south, bathy, x, y):
     ax.plot(df_south['x'], df_south['y'], df_south['depth'], 'tab:orange', label='South cable', lw=4)
     ax.set_xlabel('x [m]')
     ax.set_ylabel('y [m]')
+    ax.invert_yaxis()
     ax.set_zlabel('Depth [m]')
     ax.set_aspect('equalxy')
     ax.legend()

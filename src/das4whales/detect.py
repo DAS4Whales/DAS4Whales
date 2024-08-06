@@ -210,8 +210,12 @@ def calc_nmf_correlogram(data, template):
     # Compute correlation along axis 1
     nmf_correlogram = np.empty_like(data)
 
-    for i in tqdm(range(data.shape[0])):
-        nmf_correlogram[i, :] = calc_nmf(data[i, :], template)
+    # Parallelized version:
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        results = [executor.submit(calc_nmf, data[i, :], template) for i in range(data.shape[0])]
+        # Use tqdm to display a progress bar for the as_completed iterator
+        for i, future in enumerate(tqdm(concurrent.futures.as_completed(results), total=len(results))):
+            nmf_correlogram[i, :] = future.result()
 
     return nmf_correlogram
 
