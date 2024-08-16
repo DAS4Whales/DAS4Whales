@@ -74,8 +74,6 @@ def test_hybrid_ninf_gs_filter_design():
     dx = 1
     fs = 100
     cs_min = 1400
-    cp_min = 1450
-    cp_max = 3400
     cs_max = 3500
     fmin = 15
     fmax = 25
