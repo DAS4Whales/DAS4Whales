@@ -17,6 +17,8 @@ import torch.nn.functional as F
 import torchvision.transforms as transforms
 from skimage.transform import radon, iradon
 from scipy.ndimage import gaussian_filter as scipy_gaussian_filter
+from scipy.ndimage import median_filter
+from joblib import Parallel, delayed
 from tqdm import tqdm
 
 
@@ -457,3 +459,35 @@ def apply_smooth_mask(array, mask, sigma=1.5):
     return masked_array
 
 
+def apply_median_filter_chunk(array_chunk, size):
+    return median_filter(array_chunk, size=size)
+
+
+def par_medfilt(array, size, n_jobs=-1):
+    """Apply median filter to an array in parallel.
+
+    This function applies median filter to an array in parallel.
+
+    Parameters
+    ----------
+    array : numpy.ndarray
+        The input array.
+    size : int
+        The size of the filter.
+    n_jobs : int, optional (default=-1)
+        The number of jobs to run in parallel.
+
+    Returns
+    -------
+    numpy.ndarray
+        The filtered array.
+
+    """
+
+    # Split the array into chunks, along rows
+    ch_array = np.array_split(array, n_jobs, axis=0)
+
+    # Apply median filter to the array in parallel
+    filtered_array = Parallel(n_jobs=n_jobs)(delayed(apply_median_filter_chunk)(ch, size) for ch in ch_array)
+
+    return np.vstack(filtered_array)

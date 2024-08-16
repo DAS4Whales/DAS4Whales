@@ -278,3 +278,26 @@ def load_cable_coordinates(filepath, dx):
     df['chan_m'] = df['chan_idx'] * dx
 
     return df
+
+
+def calc_dist_to_xidx(x, selected_channels_m, selected_channels, dx):
+    """
+    Calculate the index of the channel closest to the given distance.
+
+    Parameters
+    ----------
+    x : float
+        The distance along the cable.
+    selected_channels_m : list
+        The selected channels in meters.
+    selected_channels : list
+        The selected channels.
+    dx : float
+        The distance between two channels.
+
+    Returns
+    -------
+    int
+        The index of the channel closest to the given distance.
+    """
+    return int((x-selected_channels_m[0]) / (dx * selected_channels[2]))
