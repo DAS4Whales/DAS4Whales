@@ -252,7 +252,7 @@ def dl_file(url):
         os.makedirs('data', exist_ok=True)
         wget.download(url, out='data', bar=wget.bar_adaptive)
         print(f'Downloaded {filename}')
-    return filepath, filename #TODO: add filenames as output to create large daskarrays
+    return filepath, filename
 
 
 def load_cable_coordinates(filepath, dx):
