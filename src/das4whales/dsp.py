@@ -1152,8 +1152,8 @@ def fk_filt(data,tint,fs,xint,dx,c_min,c_max, display_filter=False):
     # Apply Gaussian filter to the f-k filter
     # Tuning the standard deviation of the filter can improve computational efficiency
     # Use a gaussian filter from openCV
-    g = cv2.GaussianBlur(g, (0, 0), 40)
-    # g = ndimage.gaussian_filter(g, 20)
+    # g = cv2.GaussianBlur(g, (0, 0), 20)
+    g = ndimage.gaussian_filter(g, 20)
     # epsilon = 0.0001
     # g = np.exp (-epsilon*( ff-kk*c)**2 )
 
