@@ -121,13 +121,13 @@ def test_instant_freq():
 #     assert np.shape(filtered_data) == np.shape(data)
 
 def test_fk_filt():
-    data = np.array([[1, 2, 3, 4, 5], [1, 2, 3, 4, 5]], dtype=float)
-    tint = 0.1
-    fs = 1
-    xint = 0.1
+    data = np.array([[1, 2, 3, 4, 5], [1, 2, 3, 4, 5], [1, 2, 3, 4, 5]], dtype=float)
+    tint = 1
+    fs = 100
+    xint = 1
     dx = 1
-    c_min = 1400
-    c_max = 3500
+    c_min = 10
+    c_max = 3000
     filtered_data = fk_filt(data, tint, fs, xint, dx, c_min, c_max)
     assert np.shape(filtered_data) == np.shape(data)
 
