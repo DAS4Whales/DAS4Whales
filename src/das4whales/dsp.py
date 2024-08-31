@@ -247,7 +247,6 @@ def fk_filter_design_old(trace_shape, selected_channels, dx, fs, cs_min=1400, cp
 
 
 def fk_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min=1450, cp_max=3400, cs_max=3500, display_filter=False):
-    # TODO: mark as deprecated, use hybrid_filter_design instead
     """
     Designs a f-k filter for DAS strain data
     Keeps by default data with propagation speed [1450-3400] m/s
@@ -936,6 +935,49 @@ def taper_data(trace):
     return trace
 
 
+import numpy as np
+
+
+def taper_data2d(data, taper_type='tukey'):
+    """
+    Applies tapering (windowing) to the data in both space (channels) and time (samples) domains.
+
+    Parameters
+    ----------
+    data : ndarray
+        2D numpy array representing the spatio-temporal data with dimensions [channels x samples].
+    taper_type : str, optional
+        Type of tapering window to apply. Options are 'hanning', 'hamming', or 'tukey'. Default is 'tukey'.
+
+    Returns
+    -------
+    tapered_data : ndarray
+        The tapered data array with the same shape as input data.
+    """
+    
+    # Get the shape of the data
+    n_channels, n_samples = data.shape
+
+    # Choose the taper window for space (channels) and time (samples)
+    if taper_type == 'hanning':
+        spatial_taper = np.hanning(n_channels)  # Hanning window for spatial dimension
+        temporal_taper = np.hanning(n_samples)  # Hanning window for temporal dimension
+    elif taper_type == 'hamming':
+        spatial_taper = np.hamming(n_channels)  # Hamming window for spatial dimension
+        temporal_taper = np.hamming(n_samples)  # Hamming window for temporal dimension
+    elif taper_type == 'tukey':
+        spatial_taper = sp.windows.tukey(n_channels, alpha=0.03)  # Tukey window for spatial dimension
+        temporal_taper = sp.windows.tukey(n_samples, alpha=0.03)  # Tukey window for temporal dimension
+    else:
+        raise ValueError("Unsupported taper_type. Choose 'hanning', 'hamming', or 'tukey'.")
+
+    # Apply the tapers
+    tapered_data = data * spatial_taper[:, np.newaxis] * temporal_taper[np.newaxis, :]
+
+    return tapered_data
+
+
+
 def fk_filter_filt(trace, fk_filter_matrix, tapering=False):
     """
     Applies a pre-calculated f-k filter to DAS strain data.
@@ -1152,7 +1194,7 @@ def fk_filt(data,tint,fs,xint,dx,c_min,c_max, display_filter=False):
     # Apply Gaussian filter to the f-k filter
     # Tuning the standard deviation of the filter can improve computational efficiency
     # Use a gaussian filter from openCV
-    g = cv2.GaussianBlur(g, (0, 0), 20)
+    g = cv2.GaussianBlur(g, (0, 0), 60)
     # g = ndimage.gaussian_filter(g, 20)
     # epsilon = 0.0001
     # g = np.exp (-epsilon*( ff-kk*c)**2 )
