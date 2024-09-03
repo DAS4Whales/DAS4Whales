@@ -724,6 +724,80 @@ def plot_cross_correlogram(corr_m, time, dist, maxv, minv=0, file_begin_time_utc
     return
 
 
+def plot_fk_domain(trace, fs, dx, selected_channels, file_begin_time_utc=0, fig_size=(12, 10), v_min=None, v_max=None, fk_params=None):
+    """
+    Spatio-spectral representation (f-k plot) of the strain data
+
+    Parameters
+    ----------
+    trace : np.ndarray
+        A [channel x time sample] nparray containing the strain data in the spatio-temporal domain
+    fs : float
+        The sampling frequency (Hz)
+    dx : float
+        The spatial step (m)
+    selected_channels : list
+        List of selected channels indexes [start, stop, step]
+    file_begin_time_utc : int or datetime.datetime, optional
+        The time stamp of the represented file, by default 0
+    fig_size : tuple, optional
+        Tuple of the figure dimensions, by default (12, 10)
+    v_min : float, optional
+        Sets the min nano strain amplitudes of the colorbar, by default None
+    v_max : float, optional
+        Sets the max nano strain amplitudes of the colorbar, by default None
+
+    Returns
+    -------
+    None
+
+    Notes
+    -----
+    This function plots the spatio-spectral representation (f-k plot) of the strain data.
+
+    - The frequency axis is created using the FFT.
+    - The strain data is processed and plotted.
+
+    Examples
+    --------
+    >>> plot_fk_domain(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=None, v_max=None)
+
+    """
+    f = np.fft.fftshift(np.fft.fftfreq(trace.shape[1], d=1 / fs))   
+    k = np.fft.fftshift(np.fft.fftfreq(trace.shape[0], d=dx * selected_channels[2]))
+
+    # Taper the data
+    # win_x = sp.windows.tukey(trace.shape[1], alpha=0.1)
+    # win_y = sp.windows.tukey(trace.shape[0], alpha=0.1)
+
+    # win_2d = np.sqrt(np.outer(win_y, win_x))
+    fk = np.fft.fftshift(np.fft.fft2(trace))
+
+
+    fig = plt.figure(figsize=fig_size)
+    shw = plt.imshow(abs(fk), extent=[f[0], f[-1], k[0], k[-1]], aspect='auto', origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
+    plt.xlabel('Frequency [Hz]')
+    plt.ylabel('Wavenumber [m$^{-1}$]')
+    bar = fig.colorbar(shw, aspect=30, pad=0.015)
+    bar.set_label('Strain Envelope (x$10^{-9}$)')
+    if fk_params is not None:
+        plt.vlines(fk_params['fmin'], k[0], k[-1], color='tab:orange', linestyle='--', label='f1')
+        plt.vlines(fk_params['fmax'], k[0], k[-1], color='tab:red', linestyle='--', label='f2')
+        plt.plot(f, f / fk_params['c_min'], color='tab:green', linestyle='--', label=f'c = {fk_params["c_min"]:.2f} m/s')
+        plt.plot(f, f / fk_params['c_max'], color='tab:purple', linestyle='--', label=f'c = {fk_params["c_max"]:.2f} m/s')
+        
+
+
+    if isinstance(file_begin_time_utc, datetime):
+        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
+    plt.xlim([12, 30])
+    plt.ylim([0,0.025])
+    plt.tight_layout()
+    plt.legend()
+    plt.show()
+    return
+
+
 def import_roseus():
     """
     Import the colormap from the colormap/roseus_matplotlib.py file

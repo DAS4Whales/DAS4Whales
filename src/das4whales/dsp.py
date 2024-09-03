@@ -857,7 +857,7 @@ def hybrid_ninf_gs_filter_design(trace_shape, selected_channels, dx, fs, c_min=1
     sub_matrix = sub_matrix.astype(np.float32)
 
     # Apply Gaussian blur
-    blurred_sub_matrix = cv2.GaussianBlur(sub_matrix, (0, 0), 20)
+    blurred_sub_matrix = cv2.GaussianBlur(sub_matrix, (0, 0), 40)
 
     # Replace the submatrix in the original matrix if needed
     fk_filter_matrix[len(knum)//2:len(knum), len(freq)//2:len(freq)] = blurred_sub_matrix
@@ -935,9 +935,6 @@ def taper_data(trace):
     return trace
 
 
-import numpy as np
-
-
 def taper_data2d(data, taper_type='tukey'):
     """
     Applies tapering (windowing) to the data in both space (channels) and time (samples) domains.
@@ -975,7 +972,6 @@ def taper_data2d(data, taper_type='tukey'):
     tapered_data = data * spatial_taper[:, np.newaxis] * temporal_taper[np.newaxis, :]
 
     return tapered_data
-
 
 
 def fk_filter_filt(trace, fk_filter_matrix, tapering=False):
