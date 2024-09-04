@@ -148,7 +148,7 @@ def plot_cables2D(df_north, df_south, bathy, xlon, ylat):
     # Set the light source
     ls = LightSource(azdeg=350, altdeg=45)
 
-    plt.figure(figsize=(14, 7))
+    plt.figure(figsize=(16, 7))
     ax = plt.gca()
     # Plot the bathymetry relief in background
     rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay')
