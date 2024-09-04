@@ -779,19 +779,17 @@ def plot_fk_domain(trace, fs, dx, selected_channels, file_begin_time_utc=0, fig_
     plt.xlabel('Frequency [Hz]')
     plt.ylabel('Wavenumber [m$^{-1}$]')
     bar = fig.colorbar(shw, aspect=30, pad=0.015)
-    bar.set_label('Strain Envelope (x$10^{-9}$)')
+    bar.set_label('Spectrum [ ]')
     if fk_params is not None:
-        plt.vlines(fk_params['fmin'], k[0], k[-1], color='tab:orange', linestyle='--', label='f1')
-        plt.vlines(fk_params['fmax'], k[0], k[-1], color='tab:red', linestyle='--', label='f2')
-        plt.plot(f, f / fk_params['c_min'], color='tab:green', linestyle='--', label=f'c = {fk_params["c_min"]:.2f} m/s')
-        plt.plot(f, f / fk_params['c_max'], color='tab:purple', linestyle='--', label=f'c = {fk_params["c_max"]:.2f} m/s')
-        
-
+        plt.vlines(fk_params['fmin'], k[0], k[-1], color='tab:orange', linestyle='--', label='fmin', lw=2)
+        plt.vlines(fk_params['fmax'], k[0], k[-1], color='tab:red', linestyle='--', label='fmax', lw=2)
+        plt.plot(f, f / fk_params['c_min'], color='tab:pink', linestyle='--', label=f'c = {fk_params["c_min"]:.2f} m/s', lw=2)
+        plt.plot(f, f / fk_params['c_max'], color='white', linestyle='--', label=f'c = {fk_params["c_max"]:.2f} m/s', lw=2)
 
     if isinstance(file_begin_time_utc, datetime):
-        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
+        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='center')
     plt.xlim([12, 30])
-    plt.ylim([0,0.025])
+    plt.ylim([0, 0.025])
     plt.tight_layout()
     plt.legend()
     plt.show()

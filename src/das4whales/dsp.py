@@ -787,7 +787,7 @@ def hybrid_gs_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400.
 
 
 # Non-infinite wave speed filter, gaussian tapers
-def hybrid_ninf_gs_filter_design(trace_shape, selected_channels, dx, fs, c_min=1450., c_max=3400, fmin=15., fmax=25., display_filter=False):
+def hybrid_ninf_gs_filter_design(trace_shape, selected_channels, dx, fs, fk_params, display_filter=False):
     """Designs a bandpass f-k hybrid filter for DAS strain data
         Keeps by default data with propagation speed above 1450 m/s between [15 - 25] Hz (designed for fin whales)
 
@@ -801,14 +801,8 @@ def hybrid_ninf_gs_filter_design(trace_shape, selected_channels, dx, fs, c_min=1
         channel spacing (m)
     fs : float
         sampling frequency (Hz)
-    cs_min : float, optional
-        lower minimum selected sound speeds for the f-k highpass filtering (m/s), by default 1400 m/s
-    cp_min : float, optional
-        higher minimum selected sound speed for the f-k highpass filtering, by default 1450 m/s
-    fmin : float, optional
-        minimum frequency for the passband, by default 15
-    fmax : float, optional
-        maximum frequency for the passband, by default 25
+    fk_params : dict
+        dictionary containing the parameters for the f-k filter design
     display_filter : bool, optional
         option for filter display, by default False
 
@@ -821,6 +815,10 @@ def hybrid_ninf_gs_filter_design(trace_shape, selected_channels, dx, fs, c_min=1
     # Note that the chosen ChannelStep limits the bandwidth frequency obtained with fmax = 1500/ChannelStep*dx
     # Get the dimensions of the trace data
     nnx, nns = trace_shape
+    fmin = fk_params['fmin']
+    fmax = fk_params['fmax']
+    c_min = fk_params['c_min']
+    c_max = fk_params['c_max']
 
     # Define frequency and wavenumber axes
     freq = np.fft.fftshift(np.fft.fftfreq(nns, d=1 / fs))
