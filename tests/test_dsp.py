@@ -73,11 +73,13 @@ def test_hybrid_ninf_gs_filter_design():
     selected_channels = [0, 1, 2]
     dx = 1
     fs = 100
-    cs_min = 1400
-    cs_max = 3500
-    fmin = 15
-    fmax = 25
-    hybrid_ninf_gs_filter_matrix = hybrid_ninf_gs_filter_design(trace_shape, selected_channels, dx, fs, cs_min, cs_max, fmin, fmax)
+    fk_params = {
+        'c_min': 1400,
+        'c_max': 3500,
+        'fmin': 15,
+        'fmax': 25
+    }
+    hybrid_ninf_gs_filter_matrix = hybrid_ninf_gs_filter_design(trace_shape, selected_channels, dx, fs, fk_params)
     assert hybrid_ninf_gs_filter_matrix.shape == (10, 10)
 
 def test_taper_data():
