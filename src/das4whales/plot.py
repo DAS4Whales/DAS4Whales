@@ -449,6 +449,7 @@ def design_mf(trace, hnote, lnote, th, tl, time, fs):
     plt.ylabel('Instantaneous frequency [Hz]')
     plt.legend()
     plt.grid()
+    plt.tight_layout()
     plt.show()
 
     plt.figure(figsize=(18, 4))
