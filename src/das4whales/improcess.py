@@ -43,7 +43,7 @@ def scale_pixels(img, scale_factor=1):
     """
 
     img = (img - img.min()) / (img.max() - img.min()) * scale_factor
-    return img.astype(np.uint8)
+    return img
 
 
 def trace2image(trace):
