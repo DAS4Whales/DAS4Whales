@@ -42,7 +42,7 @@ def scale_pixels(img, scale_factor=1):
 
     """
 
-    img = (img - img.min())/(img.max() - img.min()) * scale_factor
+    img = (img - img.min()) / (img.max() - img.min()) * scale_factor
     return img.astype(np.uint8)
 
 
@@ -129,17 +129,17 @@ def gabor_filt_design(theta_c0, plot=False):
     gabor_filtdown = np.flipud(gabor_filtup)
 
     if plot:
-        plt.figure(figsize=(6, 4))
+        plt.figure(figsize=(12, 6))
         plt.subplot(121)
         plt.imshow(gabor_filtup, origin='lower', cmap='RdBu_r', vmin=-1, vmax=1, aspect='equal')
         plt.xlabel('Time indices')
         plt.ylabel('Distance indices')
-        plt.colorbar(orientation='horizontal')
+        plt.colorbar(orientation='horizontal', pad=0.2)
 
         plt.subplot(122)
         plt.imshow(gabor_filtdown, origin='lower', cmap='RdBu_r', vmin=-1, vmax=1, aspect='equal')
         plt.xlabel('Time indices')
-        plt.colorbar(orientation='horizontal')
+        plt.colorbar(orientation='horizontal', pad=0.2)
         plt.tight_layout()
         plt.show()
     return gabor_filtup, gabor_filtdown
