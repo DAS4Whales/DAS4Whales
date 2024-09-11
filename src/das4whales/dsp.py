@@ -1291,3 +1291,11 @@ def calc_snr_median(trace):
 
     envelope = abs(sp.hilbert(trace, axis=1))
     return 10 * np.log10(envelope ** 2 / np.median(envelope, axis=1, keepdims=True) ** 2)
+
+
+def moving_average(signal, window_size):
+    return np.convolve(signal, np.ones(window_size) / window_size, mode='same')
+
+
+def moving_average_matrix(matrix, window_size):
+    return np.array([moving_average(matrix[i, :], window_size) for i in range(matrix.shape[0])])
