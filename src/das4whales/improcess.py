@@ -419,7 +419,6 @@ def binning(image, ft, fx):
 
     # img = cv2.resize(image, (0, 0), fx=ft, fy=fx, interpolation=cv2.INTER_AREA)
 
-
     imagebin = transforms.ToTensor()(image)    
     imagebin = transforms.Resize((int(image.shape[0] * fx) , int(image.shape[1] * ft)))(imagebin)
     img = imagebin.numpy()[0]
