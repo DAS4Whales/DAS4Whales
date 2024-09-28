@@ -23,9 +23,9 @@ def gen_linear_chirp(fmin, fmax, duration, sampling_rate):
     Parameters
     ----------
     fmin : float
-        The starting frequency of the chirp signal.
-    fmax : float
         The ending frequency of the chirp signal.
+    fmax : float
+        The starting frequency of the chirp signal.
     duration : float
         The duration of the chirp signal in seconds.
     sampling_rate : int
@@ -47,9 +47,9 @@ def gen_hyperbolic_chirp(fmin, fmax, duration, sampling_rate):
     Parameters
     ----------
     fmin : float
-        The starting frequency of the chirp signal.
-    fmax : float
         The ending frequency of the chirp signal.
+    fmax : float
+        The starting frequency of the chirp signal.
     duration : float
         The duration of the chirp signal in seconds.
     sampling_rate : int
