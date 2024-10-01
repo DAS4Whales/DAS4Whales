@@ -312,9 +312,9 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    fmin : float</span>
-<span class="sd">        The starting frequency of the chirp signal.</span>
-<span class="sd">    fmax : float</span>
 <span class="sd">        The ending frequency of the chirp signal.</span>
+<span class="sd">    fmax : float</span>
+<span class="sd">        The starting frequency of the chirp signal.</span>
 <span class="sd">    duration : float</span>
 <span class="sd">        The duration of the chirp signal in seconds.</span>
 <span class="sd">    sampling_rate : int</span>
@@ -339,9 +339,9 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    fmin : float</span>
-<span class="sd">        The starting frequency of the chirp signal.</span>
-<span class="sd">    fmax : float</span>
 <span class="sd">        The ending frequency of the chirp signal.</span>
+<span class="sd">    fmax : float</span>
+<span class="sd">        The starting frequency of the chirp signal.</span>
 <span class="sd">    duration : float</span>
 <span class="sd">        The duration of the chirp signal in seconds.</span>
 <span class="sd">    sampling_rate : int</span>
@@ -407,6 +407,7 @@
 <span class="sd">        1D array cross-correlation betweem x and y, only for positive lags</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">corr</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">correlate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;full&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;fft&#39;</span><span class="p">)</span>
+    <span class="c1"># TODO: Modify to use with the short window values (mode = &#39;same&#39; instead of &#39;full&#39;)</span>
     <span class="k">return</span> <span class="n">corr</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span> <span class="p">:]</span></div>
 
 
@@ -471,11 +472,72 @@
 
 
 
+<div class="viewcode-block" id="calc_nmf">
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.calc_nmf">[docs]</a>
+<span class="k">def</span> <span class="nf">calc_nmf</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the normalized matched filter between the input data and the template.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : numpy.ndarray</span>
+<span class="sd">        The input data array.</span>
+<span class="sd">    template : numpy.ndarray</span>
+<span class="sd">        The template array.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        The normalized matched filter array (vector). </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nmf</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">correlate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;fft&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">template</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">nmf</span></div>
+
+
+
+<div class="viewcode-block" id="calc_nmf_correlogram">
+<a class="viewcode-back" href="../../src/detect.html#das4whales.detect.calc_nmf_correlogram">[docs]</a>
+<span class="k">def</span> <span class="nf">calc_nmf_correlogram</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the normalized matched filter correlogram between the input data and the template.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : numpy.ndarray</span>
+<span class="sd">        The input data array.</span>
+<span class="sd">    template : numpy.ndarray</span>
+<span class="sd">        The template array.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        The normalized matched filter correlogram array.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Normalize data along axis 1 by its maximum (peak normalization)</span>
+    <span class="n">norm_data</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="p">(</span><span class="n">template</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">template</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">template</span><span class="p">))</span>
+
+    <span class="c1"># Compute correlation along axis 1</span>
+    <span class="n">nmf_correlogram</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+        <span class="n">nmf_correlogram</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">calc_nmf</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:],</span> <span class="n">template</span><span class="p">)</span>
+
+    <span class="c1"># Parallelized version:</span>
+    <span class="c1"># with concurrent.futures.ThreadPoolExecutor() as executor:</span>
+    <span class="c1">#     results = [executor.submit(calc_nmf, data[i, :], template) for i in range(data.shape[0])]</span>
+    <span class="c1">#     # Use tqdm to display a progress bar for the as_completed iterator</span>
+    <span class="c1">#     for i, future in enumerate(tqdm(concurrent.futures.as_completed(results), total=len(results))):</span>
+    <span class="c1">#         nmf_correlogram[i, :] = future.result()</span>
+
+    <span class="k">return</span> <span class="n">nmf_correlogram</span></div>
+
+
+
 <div class="viewcode-block" id="pick_times_env">
 <a class="viewcode-back" href="../../src/detect.html#das4whales.detect.pick_times_env">[docs]</a>
 <span class="k">def</span> <span class="nf">pick_times_env</span><span class="p">(</span><span class="n">corr_m</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
-    <span class="c1"># TODO: Parallelize this function</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detects the peak times in a correlation matrix.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detects the peak times in a correlation matrix. Parallelized version : pick_times_par</span>
 
 <span class="sd">    This function takes a correlation matrix, computes the Hilbert transform of each correlation,</span>
 <span class="sd">    and detects the peak times based on a given threshold.</span>

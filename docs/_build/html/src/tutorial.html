@@ -296,7 +296,7 @@
 <section id="import-the-das4whales-module-and-dependencies-from-github">
 <h2>Import the DAS4Whales module and dependencies from GitHub<a class="headerlink" href="#import-the-das4whales-module-and-dependencies-from-github" title="Link to this heading">¶</a></h2>
 <p>If not in a Jupyter notebook, follow the <a class="reference internal" href="install.html"><span class="std std-doc">Installation instructions</span></a>, otherwise, run the following cell to install the module</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">!</span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="s1">&#39;git+https://github.com/qgoestch/DAS4Whales&#39;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">!</span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="s1">&#39;git+https://github.com/DAS4Whales/DAS4Whales&#39;</span>
 </pre></div>
 </div>
 </section>
@@ -317,7 +317,7 @@
         <span class="s1">&#39;North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-03T15_06_51-0700/&#39;</span>\
         <span class="s1">&#39;North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5&#39;</span>
 
-<span class="n">filepath</span> <span class="o">=</span> <span class="n">dw</span><span class="o">.</span><span class="n">data_handle</span><span class="o">.</span><span class="n">dl_file</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+<span class="n">filepath</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">dw</span><span class="o">.</span><span class="n">data_handle</span><span class="o">.</span><span class="n">dl_file</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5 already stored locally
@@ -356,6 +356,10 @@ Number of time samples: 12000
 <h2>Select the desired channels and channel interval<a class="headerlink" href="#select-the-desired-channels-and-channel-interval" title="Link to this heading">¶</a></h2>
 <p>As displayed above, the channel spacing (spatial sampling all along the fiber) is very narrow, close to 2 m.
 The following allows to re-sample the data spatially and select a region of interest, in the interest of minimizing the matrix’s size.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Depending on the RAM available on your computer, you may need to adjust (lower) the number of channels selected and the channel interval.</p>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">selected_channels_m</span> <span class="o">=</span> <span class="p">[</span><span class="mi">20000</span><span class="p">,</span> <span class="mi">65000</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>  <span class="c1"># list of values in meters corresponding to the starting,</span>
                                           <span class="c1"># ending and step wanted channels along the FO Cable</span>
                                           <span class="c1"># selected_channels_m = [ChannelStart_m, ChannelStop_m, ChannelStep_m]</span>
@@ -416,13 +420,19 @@ The following allows to re-sample the data spatially and select a region of inte
 <h2>Filtering in the frequency-wavenumber domain (f-k) and corresponding t-x plot<a class="headerlink" href="#filtering-in-the-frequency-wavenumber-domain-f-k-and-corresponding-t-x-plot" title="Link to this heading">¶</a></h2>
 <p>The spatio-temporal DAS strain data is transformed in the frequency-wavenumber (f-k) domain by applying a 2D FFT. There, it is possible to apply a fan filter to select only certain speeds and then, go back to the time domain. This process is available using successively:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">das4whales.dsp.fk_filter_design(params)</span></code>, that creates the filter</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">das4whales.dsp.fk_filter_filt(params)</span></code>, that transforms the data to the f-k domain, applies the filter and transforms the data back to the t-x domain</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">das4whales.dsp.hybrid_ninf_gs_filter_design(params)</span></code>, that creates the filter</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">das4whales.dsp.fk_filter_sparsefilt(params)</span></code>, that transforms the data to the f-k domain, applies the filter and transforms the data back to the t-x domain</p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create the f-k filter</span>
-<span class="n">fk_filter</span> <span class="o">=</span> <span class="n">dw</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">hybrid_ninf_filter_design</span><span class="p">((</span><span class="n">tr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">tr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> 
-                                    <span class="n">cs_min</span><span class="o">=</span><span class="mi">1400</span><span class="p">,</span> <span class="n">cp_min</span><span class="o">=</span><span class="mi">1480</span><span class="p">,</span> <span class="n">cp_max</span><span class="o">=</span><span class="mi">3300</span><span class="p">,</span> <span class="n">cs_max</span><span class="o">=</span><span class="mi">3500</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fmax</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">display_filter</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set the wanted parameters for the f-k filter</span>
+<span class="n">fk_params_s</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;c_min&#39;</span><span class="p">:</span> <span class="mf">1400.</span><span class="p">,</span> <span class="c1"># m.s-1</span>
+    <span class="s1">&#39;c_max&#39;</span><span class="p">:</span> <span class="mf">3500.</span><span class="p">,</span> <span class="c1"># m.s-1</span>
+    <span class="s1">&#39;fmin&#39;</span><span class="p">:</span> <span class="mf">10.</span><span class="p">,</span> <span class="c1"># Hz</span>
+    <span class="s1">&#39;fmax&#39;</span><span class="p">:</span> <span class="mf">30.</span> <span class="c1"># Hz</span>
+<span class="p">}</span>
 
+<span class="c1"># Create the f-k filter</span>
+<span class="n">fk_filter</span> <span class="o">=</span> <span class="n">dw</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">hybrid_ninf_gs_filter_design</span><span class="p">((</span><span class="n">tr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">tr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">fk_params_s</span><span class="p">,</span> <span class="n">display_filter</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="c1"># Print the compression ratio given by the sparse matrix usage</span>
 <span class="n">dw</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">disp_comprate</span><span class="p">(</span><span class="n">fk_filter</span><span class="p">)</span>
 
@@ -437,10 +447,14 @@ The following allows to re-sample the data spatially and select a region of inte
 </pre></div>
 </div>
 <p><img alt="png" src="../_images/DAS4Whales_ExampleNotebook_18_0.png" /></p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The size of the sparse filter is 0.0194 Gib
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The size of the sparse filter is 0.0359 Gib
 The size of the dense filter is 0.49 Gib
-The compression ratio is 25.42 (96.1 %)
+The compression ratio is 13.73 (92.7 %)
 </pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The output of the above cell shows the difference between a sparse and a dense filter matrix. The values will depend on the selected channels and the parameters of the filter. If not needed, comment out the line <code class="docutils literal notranslate"><span class="pre">dw.tools.disp_comprate(fk_filter)</span></code> to avoid the output.</p>
 </div>
 <p><img alt="png" src="../_images/DAS4Whales_ExampleNotebook_18_2.png" /></p>
 </section>

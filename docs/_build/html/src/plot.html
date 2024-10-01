@@ -471,6 +471,39 @@ Date: 2023-2024</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="das4whales.plot.plot_fk_domain">
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_fk_domain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fk_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_fk_domain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_fk_domain" title="Link to this definition">¶</a></dt>
+<dd><p>Spatio-spectral representation (f-k plot) of the strain data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trace</strong> (<em>np.ndarray</em>) – A [channel x time sample] nparray containing the strain data in the spatio-temporal domain</p></li>
+<li><p><strong>fs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The sampling frequency (Hz)</p></li>
+<li><p><strong>dx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The spatial step (m)</p></li>
+<li><p><strong>selected_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a>) – List of selected channels indexes [start, stop, step]</p></li>
+<li><p><strong>file_begin_time_utc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.12)"><em>datetime.datetime</em></a><em>, </em><em>optional</em>) – The time stamp of the represented file, by default 0</p></li>
+<li><p><strong>fig_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><em>tuple</em></a><em>, </em><em>optional</em>) – Tuple of the figure dimensions, by default (12, 10)</p></li>
+<li><p><strong>v_min</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>optional</em>) – Sets the min nano strain amplitudes of the colorbar, by default None</p></li>
+<li><p><strong>v_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>optional</em>) – Sets the max nano strain amplitudes of the colorbar, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function plots the spatio-spectral representation (f-k plot) of the strain data.</p>
+<ul class="simple">
+<li><p>The frequency axis is created using the FFT.</p></li>
+<li><p>The strain data is processed and plotted.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plot_fk_domain</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">file_begin_time_utc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">v_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v_max</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="das4whales.plot.plot_fx">
 <span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_fx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">win_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfft</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_fx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_fx" title="Link to this definition">¶</a></dt>
 <dd><p>Spatio-spectral (f-k plot) of the strain data</p>
@@ -549,7 +582,7 @@ Date: 2023-2024</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.plot.plot_tx">
-<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_tx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_tx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_tx" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_tx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Strain</span> <span class="pre">Envelope</span> <span class="pre">(x$10^{-9}$)'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_tx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_tx" title="Link to this definition">¶</a></dt>
 <dd><p>Spatio-temporal representation (t-x plot) of the strain data</p>
 <section id="parameters">
 <h2>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
@@ -572,6 +605,68 @@ Date: 2023-2024</p>
 </section>
 <section id="returns">
 <h2>Returns:<a class="headerlink" href="#returns" title="Link to this heading">¶</a></h2>
+<p>:
+None</p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.plot.plot_tx_env">
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_tx_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Strain</span> <span class="pre">Envelope</span> <span class="pre">(x$10^{-9}$)'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_tx_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_tx_env" title="Link to this definition">¶</a></dt>
+<dd><p>Spatio-temporal representation (t-x plot) of the strain data envelope</p>
+<section id="id1">
+<h2>Parameters:<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>trace<span class="classifier">np.ndarray</span></dt><dd><p>A [channel x time sample] nparray containing the strain data in the spatio-temporal domain</p>
+</dd>
+<dt>time<span class="classifier">np.ndarray</span></dt><dd><p>The corresponding time vector</p>
+</dd>
+<dt>dist<span class="classifier">np.ndarray</span></dt><dd><p>The corresponding distance along the FO cable vector</p>
+</dd>
+<dt>file_begin_time_utc<span class="classifier">int or datetime.datetime, optional</span></dt><dd><p>The time stamp of the represented file (default is 0)</p>
+</dd>
+<dt>fig_size<span class="classifier">tuple, optional</span></dt><dd><p>Tuple of the figure dimensions (default is (12, 10))</p>
+</dd>
+<dt>v_min<span class="classifier">float, optional</span></dt><dd><p>Sets the min nano strain amplitudes of the colorbar (default is None)</p>
+</dd>
+<dt>v_max<span class="classifier">float, optional</span></dt><dd><p>Sets the max nano strain amplitudes of the colorbar (default is None)</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h2>Returns:<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p>:
+None</p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.plot.plot_tx_lined">
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_tx_lined</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ln_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_tx_lined"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_tx_lined" title="Link to this definition">¶</a></dt>
+<dd><p>Spatio-temporal representation (t-x plot) of the strain data</p>
+<section id="id3">
+<h2>Parameters:<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>trace<span class="classifier">np.ndarray</span></dt><dd><p>A [channel x time sample] nparray containing the strain data in the spatio-temporal domain</p>
+</dd>
+<dt>ln_idx<span class="classifier">int</span></dt><dd><p>The index of the line to be plotted</p>
+</dd>
+<dt>time<span class="classifier">np.ndarray</span></dt><dd><p>The corresponding time vector</p>
+</dd>
+<dt>dist<span class="classifier">np.ndarray</span></dt><dd><p>The corresponding distance along the FO cable vector</p>
+</dd>
+<dt>file_begin_time_utc<span class="classifier">int or datetime.datetime, optional</span></dt><dd><p>The time stamp of the represented file (default is 0)</p>
+</dd>
+<dt>fig_size<span class="classifier">tuple, optional</span></dt><dd><p>Tuple of the figure dimensions (default is (12, 10))</p>
+</dd>
+<dt>v_min<span class="classifier">float, optional</span></dt><dd><p>Sets the min nano strain amplitudes of the colorbar (default is None)</p>
+</dd>
+<dt>v_max<span class="classifier">float, optional</span></dt><dd><p>Sets the max nano strain amplitudes of the colorbar (default is None)</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h2>Returns:<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <p>:
 None</p>
 </section>
@@ -660,10 +755,13 @@ None</p>
 <li><a class="reference internal" href="#das4whales.plot.plot_3calls"><code class="docutils literal notranslate"><span class="pre">plot_3calls()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.plot.plot_cross_correlogram"><code class="docutils literal notranslate"><span class="pre">plot_cross_correlogram()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.plot.plot_cross_correlogramHL"><code class="docutils literal notranslate"><span class="pre">plot_cross_correlogramHL()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.plot.plot_fk_domain"><code class="docutils literal notranslate"><span class="pre">plot_fk_domain()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.plot.plot_fx"><code class="docutils literal notranslate"><span class="pre">plot_fx()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.plot.plot_rawdata"><code class="docutils literal notranslate"><span class="pre">plot_rawdata()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.plot.plot_spectrogram"><code class="docutils literal notranslate"><span class="pre">plot_spectrogram()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.plot.plot_tx"><code class="docutils literal notranslate"><span class="pre">plot_tx()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.plot.plot_tx_env"><code class="docutils literal notranslate"><span class="pre">plot_tx_env()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.plot.plot_tx_lined"><code class="docutils literal notranslate"><span class="pre">plot_tx_lined()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.plot.snr_matrix"><code class="docutils literal notranslate"><span class="pre">snr_matrix()</span></code></a></li>
 </ul>
 </li>

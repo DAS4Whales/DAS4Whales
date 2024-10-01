@@ -343,8 +343,26 @@ filter_sos : np.ndarray</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="das4whales.dsp.calc_snr_median">
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">calc_snr_median</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#calc_snr_median"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.calc_snr_median" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the Signal-to-Noise Ratio (SNR) for a given input trace.</p>
+<p>This function computes the SNR for the input trace. The SNR is calculated as the ratio of the square of the envelope of the trace to the square of the median of the trace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>trace</strong> (<em>np.ndarray</em>) – The input trace for which the SNR is to be calculated.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The Signal-to-Noise Ratio (SNR) value for the input trace.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="das4whales.dsp.fk_filt">
-<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">fk_filt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_max</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#fk_filt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.fk_filt" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">fk_filt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#fk_filt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.fk_filt" title="Link to this definition">¶</a></dt>
 <dd><p>fk_filt - perform fk filtering on an array of DAS data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -373,7 +391,7 @@ filter_sos : np.ndarray</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.dsp.fk_filter_design">
-<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">fk_filter_design</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cs_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1450</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cs_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#fk_filter_design"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.fk_filter_design" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">fk_filter_design</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cs_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1450</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cs_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#fk_filter_design"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.fk_filter_design" title="Link to this definition">¶</a></dt>
 <dd><p>Designs a f-k filter for DAS strain data
 Keeps by default data with propagation speed [1450-3400] m/s</p>
 <p>The transition band is inspired and adapted from Yi Lin’s matlab fk function
@@ -401,6 +419,41 @@ Default is 3500 m/s.</p></li>
 <dd class="field-odd"><p>ndarray</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.dsp.fk_filter_design_old">
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">fk_filter_design_old</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cs_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1450</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cs_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#fk_filter_design_old"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.fk_filter_design_old" title="Link to this definition">¶</a></dt>
+<dd><p>Designs a f-k filter for DAS strain data
+Keeps by default data with propagation speed [1450-3400] m/s</p>
+<p>The transition band is inspired and adapted from Yi Lin’s matlab fk function
+<a class="reference external" href="https://github.com/nicklinyi/seismic_utils/blob/master/fkfilter.m">https://github.com/nicklinyi/seismic_utils/blob/master/fkfilter.m</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trace_shape</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><em>tuple</em></a>) – A tuple with the dimensions of the strain data in the spatio-temporal domain such as
+trace_shape = (trace.shape[0], trace.shape[1]) where dimensions are [channel x time sample].</p></li>
+<li><p><strong>selected_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a>) – A list of the selected channels number [start, end, step].</p></li>
+<li><p><strong>dx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Channel spacing (m).</p></li>
+<li><p><strong>fs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Sampling frequency (Hz).</p></li>
+<li><p><strong>cs_min</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum selected sound speeds for the f-k passband filtering (m/s). Default is 1400 m/s.</p></li>
+<li><p><strong>cp_min</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum selected sound speed for the f-k stopband filtering, values should frame [c_min and c_max] (m/s).
+Default is 1450 m/s.</p></li>
+<li><p><strong>cp_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>optional</em>) – Maximum selected sound speeds for the f-k passband filtering (m/s). Default is 3400 m/s.</p></li>
+<li><p><strong>cs_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>optional</em>) – Maximum selected sound speed for the f-k stopband filtering, values should frame [c_min and c_max] (m/s).
+Default is 3500 m/s.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fk_filter_matrix</strong> – A [channel x time sample] numpy array containing the f-k-filter.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.1.0: </span>This will be removed in 0.2.0. Use hybrid_filter_design instead</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -580,7 +633,7 @@ Default is 3500 m/s.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.dsp.hybrid_ninf_gs_filter_design">
-<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">hybrid_ninf_gs_filter_design</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cs_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1400.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1450.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cs_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#hybrid_ninf_gs_filter_design"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.hybrid_ninf_gs_filter_design" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">hybrid_ninf_gs_filter_design</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fk_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#hybrid_ninf_gs_filter_design"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.hybrid_ninf_gs_filter_design" title="Link to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Designs a bandpass f-k hybrid filter for DAS strain data</dt><dd><p>Keeps by default data with propagation speed above 1450 m/s between [15 - 25] Hz (designed for fin whales)</p>
 </dd>
@@ -592,10 +645,7 @@ Default is 3500 m/s.</p></li>
 <li><p><strong>selected_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a>) – list of the selected channels number  [start, end, step]</p></li>
 <li><p><strong>dx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – channel spacing (m)</p></li>
 <li><p><strong>fs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – sampling frequency (Hz)</p></li>
-<li><p><strong>cs_min</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>optional</em>) – lower minimum selected sound speeds for the f-k highpass filtering (m/s), by default 1400 m/s</p></li>
-<li><p><strong>cp_min</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>optional</em>) – higher minimum selected sound speed for the f-k highpass filtering, by default 1450 m/s</p></li>
-<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>optional</em>) – minimum frequency for the passband, by default 15</p></li>
-<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>optional</em>) – maximum frequency for the passband, by default 25</p></li>
+<li><p><strong>fk_params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a>) – dictionary containing the parameters for the f-k filter design</p></li>
 <li><p><strong>display_filter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – option for filter display, by default False</p></li>
 </ul>
 </dd>
@@ -629,8 +679,52 @@ Default is 3500 m/s.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="das4whales.dsp.moving_average">
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">moving_average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#moving_average"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.moving_average" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.dsp.moving_average_matrix">
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">moving_average_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#moving_average_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.moving_average_matrix" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.dsp.normalize_median">
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">normalize_median</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#normalize_median"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.normalize_median" title="Link to this definition">¶</a></dt>
+<dd><p>Normalize the input trace by its median.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>trace</strong> (<em>np.ndarray</em>) – A 2D array of shape (channel, time sample) containing the strain data in the spatio-temporal domain.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A 2D array of shape (channel, time sample) containing the normalized strain data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.dsp.normalize_std">
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">normalize_std</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#normalize_std"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.normalize_std" title="Link to this definition">¶</a></dt>
+<dd><p>Normalize the input trace by its standard deviation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>trace</strong> (<em>np.ndarray</em>) – A 2D array of shape (channel, time sample) containing the strain data in the spatio-temporal domain.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A 2D array of shape (channel, time sample) containing the normalized strain data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="das4whales.dsp.snr_tr_array">
-<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">snr_tr_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#snr_tr_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.snr_tr_array" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">snr_tr_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#snr_tr_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.snr_tr_array" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate the 2D Signal-to-Noise Ratio (SNR) array for a given input trace.</p>
 <p>This function computes the SNR for each element in the input 2D trace array. The SNR
 is calculated as the ratio of the square of the trace values to the square of the
@@ -662,6 +756,26 @@ in the input trace.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.dsp.taper_data2d">
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">taper_data2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tukey'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#taper_data2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.taper_data2d" title="Link to this definition">¶</a></dt>
+<dd><p>Applies tapering (windowing) to the data in both space (channels) and time (samples) domains.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>ndarray</em>) – 2D numpy array representing the spatio-temporal data with dimensions [channels x samples].</p></li>
+<li><p><strong>taper_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – Type of tapering window to apply. Options are ‘hanning’, ‘hamming’, or ‘tukey’. Default is ‘tukey’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>tapered_data</strong> – The tapered data array with the same shape as input data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -726,8 +840,10 @@ in the input trace.</p>
 <li><a class="reference internal" href="#">dsp</a><ul>
 <li><a class="reference internal" href="#das4whales.dsp.bp_filt"><code class="docutils literal notranslate"><span class="pre">bp_filt()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.butterworth_filter"><code class="docutils literal notranslate"><span class="pre">butterworth_filter()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.dsp.calc_snr_median"><code class="docutils literal notranslate"><span class="pre">calc_snr_median()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.fk_filt"><code class="docutils literal notranslate"><span class="pre">fk_filt()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.fk_filter_design"><code class="docutils literal notranslate"><span class="pre">fk_filter_design()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.dsp.fk_filter_design_old"><code class="docutils literal notranslate"><span class="pre">fk_filter_design_old()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.fk_filter_filt"><code class="docutils literal notranslate"><span class="pre">fk_filter_filt()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.fk_filter_sparsefilt"><code class="docutils literal notranslate"><span class="pre">fk_filter_sparsefilt()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.get_fx"><code class="docutils literal notranslate"><span class="pre">get_fx()</span></code></a></li>
@@ -737,8 +853,13 @@ in the input trace.</p>
 <li><a class="reference internal" href="#das4whales.dsp.hybrid_ninf_filter_design"><code class="docutils literal notranslate"><span class="pre">hybrid_ninf_filter_design()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.hybrid_ninf_gs_filter_design"><code class="docutils literal notranslate"><span class="pre">hybrid_ninf_gs_filter_design()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.instant_freq"><code class="docutils literal notranslate"><span class="pre">instant_freq()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.dsp.moving_average"><code class="docutils literal notranslate"><span class="pre">moving_average()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.dsp.moving_average_matrix"><code class="docutils literal notranslate"><span class="pre">moving_average_matrix()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.dsp.normalize_median"><code class="docutils literal notranslate"><span class="pre">normalize_median()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.dsp.normalize_std"><code class="docutils literal notranslate"><span class="pre">normalize_std()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.snr_tr_array"><code class="docutils literal notranslate"><span class="pre">snr_tr_array()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.taper_data"><code class="docutils literal notranslate"><span class="pre">taper_data()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.dsp.taper_data2d"><code class="docutils literal notranslate"><span class="pre">taper_data2d()</span></code></a></li>
 </ul>
 </li>
 </ul>

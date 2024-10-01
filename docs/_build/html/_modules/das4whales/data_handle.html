@@ -300,7 +300,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">nptdms</span> <span class="kn">import</span> <span class="n">TdmsFile</span>
 
@@ -529,9 +529,94 @@
 
         <span class="c1"># Define new time and distance axes</span>
         <span class="n">tx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nns</span><span class="p">)</span> <span class="o">/</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;fs&quot;</span><span class="p">]</span>
-        <span class="n">dist</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nnx</span><span class="p">)</span> <span class="o">*</span> <span class="n">selected_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">selected_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;dx&quot;</span><span class="p">]</span>        
+        <span class="n">dist</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nnx</span><span class="p">)</span> <span class="o">*</span> <span class="n">selected_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">selected_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;dx&quot;</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">trace</span><span class="p">,</span> <span class="n">tx</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">file_begin_time_utc</span></div>
+
+
+
+<div class="viewcode-block" id="load_mtpl_das_data">
+<a class="viewcode-back" href="../../src/data_handle.html#das4whales.data_handle.load_mtpl_das_data">[docs]</a>
+<span class="k">def</span> <span class="nf">load_mtpl_das_data</span><span class="p">(</span><span class="n">filepaths</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">time_window</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the DAS data corresponding to the input file names as strain according to the selected channels. Takes multiple files as input and concatenates them along the time axis starting from the input timestamp for the input time window.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepaths : list</span>
+<span class="sd">        A list containing the full pathes to the data to load.</span>
+<span class="sd">    selected_channels : list</span>
+<span class="sd">        A list containing the selected channels.</span>
+<span class="sd">    metadata : dict</span>
+<span class="sd">        A dictionary filled with metadata (sampling frequency, channel spacing, scale factor...).</span>
+<span class="sd">    timestamp : str</span>
+<span class="sd">        The timestamp to extract the data from.</span>
+<span class="sd">    time_window : float</span>
+<span class="sd">        The time window duration to extract the data from.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    trace : np.ndarray</span>
+<span class="sd">        A [channel x sample] nparray containing the strain data.</span>
+<span class="sd">    tx : np.ndarray</span>
+<span class="sd">        The corresponding time axis (s).</span>
+<span class="sd">    dist : np.ndarray</span>
+<span class="sd">        The corresponding distance along the FO cable axis (m).</span>
+<span class="sd">    file_begin_time_utc : datetime.datetime</span>
+<span class="sd">        The beginning time of the file, can be printed using file_begin_time_utc.strftime(&quot;%Y-%m-%d %H:%M:%S&quot;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Print the input timestamp</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;timestamp_input: </span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Convert timestamp to microseconds since epoch</span>
+    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S.</span><span class="si">%f</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+    <span class="n">timestamp_us</span> <span class="o">=</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">*</span> <span class="mf">1e6</span>
+
+    <span class="n">trace</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">file_begin_time_utc</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="c1"># Loop through each filepath lazily</span>
+    <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">filepaths</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1"> not found&#39;</span><span class="p">)</span>
+        
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">raw_data</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="s1">&#39;Acquisition/Raw[0]/RawData&#39;</span><span class="p">]</span>
+            <span class="n">raw_data_time</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="s1">&#39;Acquisition/Raw[0]/RawDataTime&#39;</span><span class="p">]</span>
+
+            <span class="c1"># Select the traces corresponding to the desired channels lazily</span>
+            <span class="n">selected_trace</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">raw_data</span><span class="p">[</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">:],</span> <span class="n">chunks</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+            
+            <span class="c1"># Find the index where raw_data_time &gt;= timestamp lazily</span>
+            <span class="k">if</span> <span class="n">trace</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">raw_data_time</span><span class="p">,</span> <span class="n">timestamp_us</span><span class="p">)</span>
+                <span class="n">file_begin_time_utc</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">raw_data_time</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+            
+            <span class="c1"># Concatenate traces along the time axis lazily</span>
+            <span class="n">trace</span> <span class="o">=</span> <span class="n">selected_trace</span> <span class="k">if</span> <span class="n">trace</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">da</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">trace</span><span class="p">,</span> <span class="n">selected_trace</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Convert the time window duration to samples</span>
+    <span class="n">duration_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time_window</span> <span class="o">*</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;fs&quot;</span><span class="p">])</span>
+    
+    <span class="c1"># Extract the desired time window lazily</span>
+    <span class="n">trace</span> <span class="o">=</span> <span class="n">trace</span><span class="p">[:,</span> <span class="n">index</span><span class="p">:</span><span class="n">index</span> <span class="o">+</span> <span class="n">duration_samples</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="c1"># Convert raw data to strain</span>
+    <span class="n">tr</span> <span class="o">=</span> <span class="n">raw2strain</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;timestamp_output: </span><span class="si">{</span><span class="n">file_begin_time_utc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Get dimensions of the data block lazily</span>
+    <span class="n">nnx</span><span class="p">,</span> <span class="n">nns</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">shape</span>
+    
+    <span class="c1"># Define new time and distance axes lazily</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nns</span><span class="p">)</span> <span class="o">/</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;fs&quot;</span><span class="p">]</span>
+    <span class="n">dist</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nnx</span><span class="p">)</span> <span class="o">*</span> <span class="n">selected_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">selected_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;dx&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Return dask arrays for lazy evaluation</span>
+    <span class="k">return</span> <span class="n">tr</span><span class="o">.</span><span class="n">compute</span><span class="p">(),</span> <span class="n">time</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">file_begin_time_utc</span></div>
 
 
 
@@ -559,7 +644,7 @@
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">wget</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">bar</span><span class="o">=</span><span class="n">wget</span><span class="o">.</span><span class="n">bar_adaptive</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Downloaded </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">filepath</span> <span class="c1">#TODO: add filenames as output to create large daskarrays</span></div>
+    <span class="k">return</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">filename</span></div>
 
 
 
@@ -588,6 +673,59 @@
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;chan_m&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;chan_idx&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">dx</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="calc_dist_to_xidx">
+<a class="viewcode-back" href="../../src/data_handle.html#das4whales.data_handle.calc_dist_to_xidx">[docs]</a>
+<span class="k">def</span> <span class="nf">calc_dist_to_xidx</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">selected_channels_m</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">dx</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the index of the channel closest to the given distance.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : float</span>
+<span class="sd">        The distance along the cable.</span>
+<span class="sd">    selected_channels_m : list</span>
+<span class="sd">        The selected channels in meters.</span>
+<span class="sd">    selected_channels : list</span>
+<span class="sd">        The selected channels.</span>
+<span class="sd">    dx : float</span>
+<span class="sd">        The distance between two channels.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int</span>
+<span class="sd">        The index of the channel closest to the given distance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">((</span><span class="n">x</span><span class="o">-</span><span class="n">selected_channels_m</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">dx</span> <span class="o">*</span> <span class="n">selected_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span></div>
+
+
+
+<div class="viewcode-block" id="get_selected_channels">
+<a class="viewcode-back" href="../../src/data_handle.html#das4whales.data_handle.get_selected_channels">[docs]</a>
+<span class="k">def</span> <span class="nf">get_selected_channels</span><span class="p">(</span><span class="n">selected_channels_m</span><span class="p">,</span> <span class="n">dx</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the selected channels in channel numbers.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    selected_channels_m : list</span>
+<span class="sd">        The selected channels in meters. [ChannelStart_m, ChannelStop_m, ChannelStep_m]</span>
+<span class="sd">    dx : float</span>
+<span class="sd">        The distance between two channels.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        The selected channels in channel numbers. [ChannelStart, ChannelStop, ChannelStep]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">selected_channels</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">selected_channels_m</span> <span class="o">//</span> <span class="n">dx</span><span class="p">)</span> <span class="k">for</span> <span class="n">selected_channels_m</span> <span class="ow">in</span>
+                     <span class="n">selected_channels_m</span><span class="p">]</span>  <span class="c1"># list of values in channel number (spatial sample) corresponding to the starting, ending and step wanted</span>
+                                           <span class="c1"># channels along the FO Cable</span>
+                                           <span class="c1"># selected_channels = [ChannelStart, ChannelStop, ChannelStep] in channel</span>
+                                           <span class="c1"># numbers</span>
+    <span class="k">return</span> <span class="n">selected_channels</span></div>
 
 </pre></div>
         </article>

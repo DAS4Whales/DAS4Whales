@@ -357,6 +357,46 @@ Date: 2023-2024</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="das4whales.detect.calc_nmf">
+<span class="sig-prename descclassname"><span class="pre">das4whales.detect.</span></span><span class="sig-name descname"><span class="pre">calc_nmf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/detect.html#calc_nmf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.detect.calc_nmf" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the normalized matched filter between the input data and the template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>numpy.ndarray</em>) – The input data array.</p></li>
+<li><p><strong>template</strong> (<em>numpy.ndarray</em>) – The template array.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The normalized matched filter array (vector).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.detect.calc_nmf_correlogram">
+<span class="sig-prename descclassname"><span class="pre">das4whales.detect.</span></span><span class="sig-name descname"><span class="pre">calc_nmf_correlogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/detect.html#calc_nmf_correlogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.detect.calc_nmf_correlogram" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the normalized matched filter correlogram between the input data and the template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>numpy.ndarray</em>) – The input data array.</p></li>
+<li><p><strong>template</strong> (<em>numpy.ndarray</em>) – The template array.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The normalized matched filter correlogram array.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="das4whales.detect.compute_cross_correlogram">
 <span class="sig-prename descclassname"><span class="pre">das4whales.detect.</span></span><span class="sig-name descname"><span class="pre">compute_cross_correlogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/detect.html#compute_cross_correlogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.detect.compute_cross_correlogram" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the cross correlogram between the given data and template.</p>
@@ -427,8 +467,8 @@ and the kernel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The starting frequency of the chirp signal.</p></li>
-<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The ending frequency of the chirp signal.</p></li>
+<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The ending frequency of the chirp signal.</p></li>
+<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The starting frequency of the chirp signal.</p></li>
 <li><p><strong>duration</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The duration of the chirp signal in seconds.</p></li>
 <li><p><strong>sampling_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – The sampling rate of the chirp signal in Hz.</p></li>
 </ul>
@@ -449,8 +489,8 @@ and the kernel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The starting frequency of the chirp signal.</p></li>
-<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The ending frequency of the chirp signal.</p></li>
+<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The ending frequency of the chirp signal.</p></li>
+<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The starting frequency of the chirp signal.</p></li>
 <li><p><strong>duration</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The duration of the chirp signal in seconds.</p></li>
 <li><p><strong>sampling_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – The sampling rate of the chirp signal in Hz.</p></li>
 </ul>
@@ -579,7 +619,7 @@ and detects the peak times based on a given threshold.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.detect.pick_times_env">
 <span class="sig-prename descclassname"><span class="pre">das4whales.detect.</span></span><span class="sig-name descname"><span class="pre">pick_times_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corr_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/detect.html#pick_times_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.detect.pick_times_env" title="Link to this definition">¶</a></dt>
-<dd><p>Detects the peak times in a correlation matrix.</p>
+<dd><p>Detects the peak times in a correlation matrix. Parallelized version : pick_times_par</p>
 <p>This function takes a correlation matrix, computes the Hilbert transform of each correlation,
 and detects the peak times based on a given threshold.</p>
 <dl class="field-list simple">
@@ -808,6 +848,8 @@ and detects the peak times based on a given threshold using parallel processing.
 <li><a class="reference internal" href="#">detect</a><ul>
 <li><a class="reference internal" href="#das4whales.detect.buildkernel"><code class="docutils literal notranslate"><span class="pre">buildkernel()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.detect.buildkernel_from_template"><code class="docutils literal notranslate"><span class="pre">buildkernel_from_template()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.detect.calc_nmf"><code class="docutils literal notranslate"><span class="pre">calc_nmf()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.detect.calc_nmf_correlogram"><code class="docutils literal notranslate"><span class="pre">calc_nmf_correlogram()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.detect.compute_cross_correlogram"><code class="docutils literal notranslate"><span class="pre">compute_cross_correlogram()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.detect.compute_cross_correlogram_spectrocorr"><code class="docutils literal notranslate"><span class="pre">compute_cross_correlogram_spectrocorr()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.detect.convert_pick_times"><code class="docutils literal notranslate"><span class="pre">convert_pick_times()</span></code></a></li>
