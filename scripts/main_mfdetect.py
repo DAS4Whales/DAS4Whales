@@ -84,8 +84,8 @@ def main(url):
     dw.plot.plot_cross_correlogramHL(corr_m_HF, corr_m_LF, time, dist, maxv)
 
     # compute and plot the SNR of the cross-correlograms
-    SNR_hf = dw.dsp.snr_tr_array(corr_m_HF, env=True)
-    SNR_lf = dw.dsp.snr_tr_array(corr_m_LF, env=True)
+    SNR_hf = dw.dsp.snr_tr_array(corr_m_HF)
+    SNR_lf = dw.dsp.snr_tr_array(corr_m_LF)
 
     dw.plot.snr_matrix(SNR_hf, time, dist, 20, fileBeginTimeUTC, title='mf detect: HF')
     dw.plot.snr_matrix(SNR_lf, time, dist, 20, fileBeginTimeUTC, title ='mf detect: LF')

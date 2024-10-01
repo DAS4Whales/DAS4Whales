@@ -40,7 +40,7 @@ def plot_rawdata(trace, time, dist, fig_size=(12, 10)):
     plt.show()
 
 
-def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=None, v_max=None):
+def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=None, v_max=None, cbar_label='Strain Envelope (x$10^{-9}$)'):
     """
     Spatio-temporal representation (t-x plot) of the strain data
 
@@ -77,8 +77,115 @@ def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=N
     fig = plt.figure(figsize=fig_size)
     #TODO determine if the envelope should be implemented here rather than just abs
     # Replace abs(trace) per abs(sp.hilbert(trace, axis=1)) ? 
+    shw = plt.imshow(abs(trace) * 1e9, extent=[time[0], time[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
+                     origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
+    plt.ylabel('Distance (km)')
+    plt.xlabel('Time (s)')
+    bar = fig.colorbar(shw, aspect=30, pad=0.015)
+    bar.set_label(cbar_label)
+
+    if isinstance(file_begin_time_utc, datetime):
+        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
+    plt.tight_layout()
+    plt.show()
+
+    return
+
+
+def plot_tx_env(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=None, v_max=None, cbar_label='Strain Envelope (x$10^{-9}$)'):
+    """
+    Spatio-temporal representation (t-x plot) of the strain data envelope
+
+    Parameters:
+    ----------
+    trace : np.ndarray
+        A [channel x time sample] nparray containing the strain data in the spatio-temporal domain
+    time : np.ndarray
+        The corresponding time vector
+    dist : np.ndarray
+        The corresponding distance along the FO cable vector
+    file_begin_time_utc : int or datetime.datetime, optional
+        The time stamp of the represented file (default is 0)
+    fig_size : tuple, optional
+        Tuple of the figure dimensions (default is (12, 10))
+    v_min : float, optional
+        Sets the min nano strain amplitudes of the colorbar (default is None)
+    v_max : float, optional
+        Sets the max nano strain amplitudes of the colorbar (default is None)
+
+    Returns:
+    -------
+    None
+
+    Notes:
+    ------
+    This function plots a spatio-temporal representation (t-x plot) of the strain data. It uses the given strain data,
+    time vector, and distance vector to create the plot. The plot shows the strain envelope as a color map, with time
+    on the x-axis and distance on the y-axis. The color of each point in the plot represents the strain amplitude at
+    that point. The function also supports customizing the figure size, colorbar limits, and title.
+
+    """
+
+    fig = plt.figure(figsize=fig_size)
+    #TODO determine if the envelope should be implemented here rather than just abs
+    # Replace abs(trace) per abs(sp.hilbert(trace, axis=1)) ? 
+    shw = plt.imshow(abs(trace), extent=[time[0], time[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
+                     origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
+    plt.ylabel('Distance (km)')
+    plt.xlabel('Time (s)')
+    bar = fig.colorbar(shw, aspect=30, pad=0.015)
+    bar.set_label(cbar_label)
+
+    if isinstance(file_begin_time_utc, datetime):
+        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
+    plt.tight_layout()
+    plt.show()
+
+    return
+
+
+def plot_tx_lined(trace, ln_idx, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=None, v_max=None):
+    """
+    Spatio-temporal representation (t-x plot) of the strain data
+
+    Parameters:
+    ----------
+    trace : np.ndarray
+        A [channel x time sample] nparray containing the strain data in the spatio-temporal domain
+    ln_idx : int
+        The index of the line to be plotted
+    time : np.ndarray
+        The corresponding time vector
+    dist : np.ndarray
+        The corresponding distance along the FO cable vector
+    file_begin_time_utc : int or datetime.datetime, optional
+        The time stamp of the represented file (default is 0)
+    fig_size : tuple, optional
+        Tuple of the figure dimensions (default is (12, 10))
+    v_min : float, optional
+        Sets the min nano strain amplitudes of the colorbar (default is None)
+    v_max : float, optional
+        Sets the max nano strain amplitudes of the colorbar (default is None)
+
+    Returns:
+    -------
+    None
+
+    Notes:
+    ------
+    This function plots a spatio-temporal representation (t-x plot) of the strain data with a line highlighted for a given channel index. 
+    It uses the given strain data, time vector, and distance vector to create the plot. The plot shows the strain envelope as a color map, with time
+    on the x-axis and distance on the y-axis. The color of each point in the plot represents the strain amplitude at
+    that point. The function also supports customizing the figure size, colorbar limits, and title.
+
+    """
+
+    fig = plt.figure(figsize=fig_size)
+    #TODO determine if the envelope should be implemented here rather than just abs
+    # Replace abs(trace) per abs(sp.hilbert(trace, axis=1)) ? 
     shw = plt.imshow(abs(trace) * 10 ** 9, extent=[time[0], time[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
                      origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
+    plt.plot([time[0], time[-1]], [dist[ln_idx] * 1e-3, dist[ln_idx] * 1e-3], 'w--', linewidth=3)
     plt.ylabel('Distance (km)')
     plt.xlabel('Time (s)')
     bar = fig.colorbar(shw, aspect=30, pad=0.015)
@@ -342,6 +449,7 @@ def design_mf(trace, hnote, lnote, th, tl, time, fs):
     plt.ylabel('Instantaneous frequency [Hz]')
     plt.legend()
     plt.grid()
+    plt.tight_layout()
     plt.show()
 
     plt.figure(figsize=(18, 4))
@@ -614,6 +722,78 @@ def plot_cross_correlogram(corr_m, time, dist, maxv, minv=0, file_begin_time_utc
     cbar.set_label('Cross-correlation envelope []')
     plt.show()
 
+    return
+
+
+def plot_fk_domain(trace, fs, dx, selected_channels, file_begin_time_utc=0, fig_size=(12, 10), v_min=None, v_max=None, fk_params=None):
+    """
+    Spatio-spectral representation (f-k plot) of the strain data
+
+    Parameters
+    ----------
+    trace : np.ndarray
+        A [channel x time sample] nparray containing the strain data in the spatio-temporal domain
+    fs : float
+        The sampling frequency (Hz)
+    dx : float
+        The spatial step (m)
+    selected_channels : list
+        List of selected channels indexes [start, stop, step]
+    file_begin_time_utc : int or datetime.datetime, optional
+        The time stamp of the represented file, by default 0
+    fig_size : tuple, optional
+        Tuple of the figure dimensions, by default (12, 10)
+    v_min : float, optional
+        Sets the min nano strain amplitudes of the colorbar, by default None
+    v_max : float, optional
+        Sets the max nano strain amplitudes of the colorbar, by default None
+
+    Returns
+    -------
+    None
+
+    Notes
+    -----
+    This function plots the spatio-spectral representation (f-k plot) of the strain data.
+
+    - The frequency axis is created using the FFT.
+    - The strain data is processed and plotted.
+
+    Examples
+    --------
+    >>> plot_fk_domain(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=None, v_max=None)
+
+    """
+    f = np.fft.fftshift(np.fft.fftfreq(trace.shape[1], d=1 / fs))   
+    k = np.fft.fftshift(np.fft.fftfreq(trace.shape[0], d=dx * selected_channels[2]))
+
+    # Taper the data
+    # win_x = sp.windows.tukey(trace.shape[1], alpha=0.1)
+    # win_y = sp.windows.tukey(trace.shape[0], alpha=0.1)
+
+    # win_2d = np.sqrt(np.outer(win_y, win_x))
+    fk = np.fft.fftshift(np.fft.fft2(trace))
+
+
+    fig = plt.figure(figsize=fig_size)
+    shw = plt.imshow(abs(fk), extent=[f[0], f[-1], k[0], k[-1]], aspect='auto', origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
+    plt.xlabel('Frequency [Hz]')
+    plt.ylabel('Wavenumber [m$^{-1}$]')
+    bar = fig.colorbar(shw, aspect=30, pad=0.015)
+    bar.set_label('Spectrum [ ]')
+    if fk_params is not None:
+        plt.vlines(fk_params['fmin'], k[0], k[-1], color='tab:orange', linestyle='--', label='fmin', lw=2)
+        plt.vlines(fk_params['fmax'], k[0], k[-1], color='tab:red', linestyle='--', label='fmax', lw=2)
+        plt.plot(f, f / fk_params['c_min'], color='tab:pink', linestyle='--', label=f'c = {fk_params["c_min"]:.2f} m/s', lw=2)
+        plt.plot(f, f / fk_params['c_max'], color='white', linestyle='--', label=f'c = {fk_params["c_max"]:.2f} m/s', lw=2)
+
+    if isinstance(file_begin_time_utc, datetime):
+        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='center')
+    plt.xlim([12, 30])
+    plt.ylim([0, 0.025])
+    plt.tight_layout()
+    plt.legend()
+    plt.show()
     return
 
 

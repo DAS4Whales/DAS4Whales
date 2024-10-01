@@ -13,7 +13,7 @@ import wget
 import os
 import numpy as np
 import dask.array as da
-from datetime import datetime
+from datetime import datetime, timezone
 import pandas as pd
 from nptdms import TdmsFile
 
@@ -225,9 +225,91 @@ def load_das_data(filename, selected_channels, metadata):
 
         # Define new time and distance axes
         tx = np.arange(nns) / metadata["fs"]
-        dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * metadata["dx"]        
+        dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * metadata["dx"]
 
     return trace, tx, dist, file_begin_time_utc
+
+
+def load_mtpl_das_data(filepaths, selected_channels, metadata, timestamp, time_window):
+    """
+    Load the DAS data corresponding to the input file names as strain according to the selected channels. Takes multiple files as input and concatenates them along the time axis starting from the input timestamp for the input time window.
+
+    Parameters
+    ----------
+    filepaths : list
+        A list containing the full pathes to the data to load.
+    selected_channels : list
+        A list containing the selected channels.
+    metadata : dict
+        A dictionary filled with metadata (sampling frequency, channel spacing, scale factor...).
+    timestamp : str
+        The timestamp to extract the data from.
+    time_window : float
+        The time window duration to extract the data from.
+
+    Returns
+    -------
+    trace : np.ndarray
+        A [channel x sample] nparray containing the strain data.
+    tx : np.ndarray
+        The corresponding time axis (s).
+    dist : np.ndarray
+        The corresponding distance along the FO cable axis (m).
+    file_begin_time_utc : datetime.datetime
+        The beginning time of the file, can be printed using file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S").
+    """
+
+    # Print the input timestamp
+    print(f'timestamp_input: {timestamp}')
+    
+    # Convert timestamp to microseconds since epoch
+    timestamp = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S.%f')
+    timestamp = timestamp.replace(tzinfo=timezone.utc)
+    timestamp_us = timestamp.timestamp() * 1e6
+
+    trace = None
+    file_begin_time_utc = None
+    
+    # Loop through each filepath lazily
+    for filepath in filepaths:
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f'File {filepath} not found')
+        
+        with h5py.File(filepath, 'r') as fp:
+            raw_data = fp['Acquisition/Raw[0]/RawData']
+            raw_data_time = fp['Acquisition/Raw[0]/RawDataTime']
+
+            # Select the traces corresponding to the desired channels lazily
+            selected_trace = da.from_array(raw_data[selected_channels[0]:selected_channels[1]:selected_channels[2], :], chunks='auto')
+            
+            # Find the index where raw_data_time >= timestamp lazily
+            if trace is None:
+                index = np.searchsorted(raw_data_time, timestamp_us)
+                file_begin_time_utc = datetime.fromtimestamp(raw_data_time[index] * 1e-6, tz=timezone.utc)
+            
+            # Concatenate traces along the time axis lazily
+            trace = selected_trace if trace is None else da.concatenate([trace, selected_trace], axis=1)
+
+    # Convert the time window duration to samples
+    duration_samples = int(time_window * metadata["fs"])
+    
+    # Extract the desired time window lazily
+    trace = trace[:, index:index + duration_samples].astype(np.float64)
+
+    # Convert raw data to strain
+    tr = raw2strain(trace, metadata)
+
+    print(f'timestamp_output: {file_begin_time_utc}')
+
+    # Get dimensions of the data block lazily
+    nnx, nns = trace.shape
+    
+    # Define new time and distance axes lazily
+    time = np.arange(nns) / metadata["fs"]
+    dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * metadata["dx"]
+
+    # Return dask arrays for lazy evaluation
+    return tr.compute(), time, dist, file_begin_time_utc
 
 
 def dl_file(url):
@@ -252,7 +334,7 @@ def dl_file(url):
         os.makedirs('data', exist_ok=True)
         wget.download(url, out='data', bar=wget.bar_adaptive)
         print(f'Downloaded {filename}')
-    return filepath #TODO: add filenames as output to create large daskarrays
+    return filepath, filename
 
 
 def load_cable_coordinates(filepath, dx):
@@ -278,3 +360,50 @@ def load_cable_coordinates(filepath, dx):
     df['chan_m'] = df['chan_idx'] * dx
 
     return df
+
+
+def calc_dist_to_xidx(x, selected_channels_m, selected_channels, dx):
+    """
+    Calculate the index of the channel closest to the given distance.
+
+    Parameters
+    ----------
+    x : float
+        The distance along the cable.
+    selected_channels_m : list
+        The selected channels in meters.
+    selected_channels : list
+        The selected channels.
+    dx : float
+        The distance between two channels.
+
+    Returns
+    -------
+    int
+        The index of the channel closest to the given distance.
+    """
+    return int((x-selected_channels_m[0]) / (dx * selected_channels[2]))
+
+
+def get_selected_channels(selected_channels_m, dx):
+    """
+    Get the selected channels in channel numbers.
+
+    Parameters
+    ----------
+    selected_channels_m : list
+        The selected channels in meters. [ChannelStart_m, ChannelStop_m, ChannelStep_m]
+    dx : float
+        The distance between two channels.
+
+    Returns
+    -------
+    list
+        The selected channels in channel numbers. [ChannelStart, ChannelStop, ChannelStep]
+    """
+    selected_channels = [int(selected_channels_m // dx) for selected_channels_m in
+                     selected_channels_m]  # list of values in channel number (spatial sample) corresponding to the starting, ending and step wanted
+                                           # channels along the FO Cable
+                                           # selected_channels = [ChannelStart, ChannelStop, ChannelStep] in channel
+                                           # numbers
+    return selected_channels
