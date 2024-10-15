@@ -252,11 +252,17 @@ def load_das_data(filename, selected_channels, metadata):
         # Data matrix
         raw_data = fp['Acquisition/Raw[0]/RawData']
 
+        # Check the orientation of the data compared to the metadata
+        if raw_data.shape[0] == metadata["nx"]:
+            # Data is in the correct orientation
+            pass
+        elif raw_data.shape[1] == metadata["nx"]:
+            # Data is transposed without loading in memory
+            raw_data = raw_data[:,:].T
+
         # Selection the traces corresponding to the desired channels
-        # Loaded as float64, float 32 might be sufficient? 
+        # Loaded as float64, float 32 might be sufficient?
         trace = raw_data[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
-        #TODO: check if the transpose is necessary or not if 
-        # trace = raw_data[:, selected_channels[0]:selected_channels[1]:selected_channels[2]].astype(np.float64)
         trace = raw2strain(trace, metadata)
 
         # UTC Time vector for naming
