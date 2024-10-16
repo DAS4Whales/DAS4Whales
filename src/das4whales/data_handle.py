@@ -188,8 +188,8 @@ def get_metadata_onyx(filepath):
         n = 1.4682 # refractive index TODO: check if it is correct, it is not in the metadata
         GL = fp1['Acquisition'].attrs['GaugeLength'] # gauge length in m
         nx = fp1['Acquisition']['Raw[0]'].attrs['NumberOfLoci'] # number of channels
-        scale_factor = (2 * np.pi) / 2 ** 16 * (1550.12 * 1e-9) / (0.78 * 4 * np.pi * n * GL)
-
+        scale_factor = 115e-9 # According to Brad
+        print(scale_factor)
 
         meta_data = {'fs': fs, 'dx': dx, 'ns': ns,'n': n,'GL': GL, 'nx':nx , 'scale_factor': scale_factor}
     else:

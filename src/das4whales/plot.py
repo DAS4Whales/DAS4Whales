@@ -725,7 +725,7 @@ def plot_cross_correlogram(corr_m, time, dist, maxv, minv=0, file_begin_time_utc
     return
 
 
-def plot_fk_domain(trace, fs, dx, selected_channels, file_begin_time_utc=0, fig_size=(12, 10), v_min=None, v_max=None, fk_params=None):
+def plot_fk_domain(trace, fs, dx, selected_channels, file_begin_time_utc=0, fig_size=(12, 10), v_min=None, v_max=None, fk_params=None, ax_lims=None):
     """
     Spatio-spectral representation (f-k plot) of the strain data
 
@@ -747,6 +747,10 @@ def plot_fk_domain(trace, fs, dx, selected_channels, file_begin_time_utc=0, fig_
         Sets the min nano strain amplitudes of the colorbar, by default None
     v_max : float, optional
         Sets the max nano strain amplitudes of the colorbar, by default None
+    fk_params : dict, optional
+        Dictionary containing the fmin, fmax, c_min, and c_max parameters, by default None
+    ax_lims : list, optional
+        List of the form [f_min, f_max, k_min, k_max] for zoomed plots, by default None
 
     Returns
     -------
@@ -789,10 +793,18 @@ def plot_fk_domain(trace, fs, dx, selected_channels, file_begin_time_utc=0, fig_
 
     if isinstance(file_begin_time_utc, datetime):
         plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='center')
-    plt.xlim([12, 30])
-    plt.ylim([0, 0.025])
+    
+    if ax_lims is not None:
+        plt.xlim(ax_lims[0], ax_lims[1])
+        plt.ylim(ax_lims[2], ax_lims[3])
+    # plt.xlim([12, 30])
+    # plt.ylim([0, 0.025])
+    
+    # Display legend if needed
+    if fk_params is not None:
+        plt.legend()
+    
     plt.tight_layout()
-    plt.legend()
     plt.show()
     return
 
