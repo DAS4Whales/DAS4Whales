@@ -116,6 +116,7 @@ def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None):
 
         dn = np.linalg.inv(G.T @ G + lambda_identity) @ G.T @ dt
 
+        # Damping factor
         if j<4:
             n += 0.7 * dn
         else:
