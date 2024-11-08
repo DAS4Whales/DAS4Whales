@@ -66,9 +66,9 @@ print(f'Number of time samples: {metadata["ns"]}')
 As displayed above, the channel spacing (spatial sampling all along the fiber) is very narrow, close to 2 m.
 The following allows to re-sample the data spatially and select a region of interest, in the interest of minimizing the matrix's size.
 
-> [!WARNING]
-> Depending on the RAM available on your computer, you may need to adjust (lower) the number of channels selected and the channel interval.
-
+```{warning}
+Depending on the RAM available on your computer, you may need to adjust (lower) the number of channels selected and the channel interval.
+```
 
 ```python
 selected_channels_m = [20000, 65000, 10]  # list of values in meters corresponding to the starting,
@@ -179,8 +179,9 @@ dw.plot.plot_tx(sp.hilbert(trf_fk, axis=1), time, dist, fileBeginTimeUTC, fig_si
     The size of the dense filter is 0.49 Gib
     The compression ratio is 13.73 (92.7 %)
 
-> [!WARNING]
-> The output of the above cell shows the difference between a sparse and a dense filter matrix. The values will depend on the selected channels and the parameters of the filter. If not needed, comment out the line `dw.tools.disp_comprate(fk_filter)` to avoid the output.
+```{warning} 
+The output of the above cell shows the difference between a sparse and a dense filter matrix. The values will depend on the selected channels and the parameters of the filter. If not needed, comment out the line `dw.tools.disp_comprate(fk_filter)` to avoid the output.
+```
     
 ![png](DAS4Whales_ExampleNotebook_files/DAS4Whales_ExampleNotebook_18_2.png)
     

@@ -246,6 +246,8 @@ def pick_times_env(corr_m, threshold):
 
     for corr in tqdm(corr_m, desc="Processing corr_m"):
         peaks_indexes = sp.find_peaks(abs(sp.hilbert(corr)), prominence=threshold)[0]  # Change distance in indexes, ex: 'distance=200'
+        peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=th)
+
         peaks_indexes_m.append(peaks_indexes)
     
     return peaks_indexes_m
@@ -302,7 +304,7 @@ def pick_times_par(corr_m, threshold):
     return peaks_indexes_m
 
 
-def pick_times(corr_m, threshold):
+def pick_times(corr_m, threshold, ipi_idx):
     """Detects the peak times in a correlation matrix.
 
     This function takes a correlation matrix, computes the Hilbert transform of each correlation,
@@ -314,6 +316,8 @@ def pick_times(corr_m, threshold):
         The correlation matrix.
     threshold : float, optional
         The threshold value for peak detection. Defaults to 0.3.
+    ipi_idx : int
+        The minimum inter-pulse interval in indexes.
 
     Returns
     -------
@@ -323,8 +327,8 @@ def pick_times(corr_m, threshold):
     """
     peaks_indexes_m = []
 
-    for corr in tqdm(corr_m, desc="Processing corr_m"):
-        peaks_indexes = sp.find_peaks(corr, prominence=threshold)[0]
+    for corr in tqdm(corr_m, desc=f"Picking times, threshold: {threshold}, ipi: {ipi_idx} time samples"):
+        peaks_indexes,_ = sp.find_peaks(corr, distance = ipi_idx, height=threshold)
         peaks_indexes_m.append(peaks_indexes)
     
     return peaks_indexes_m
@@ -337,7 +341,8 @@ def convert_pick_times(peaks_indexes_m):
     Parameters
     ----------
     peaks_indexes_m : list of lists
-        A list of lists containing the pick times.
+        A list of lists containing the pick times. The indexes of each list correspond to the space index.
+        [[t1, t2, t3, ...], [t1, t2, t3, ...], ...]
 
     Returns
     -------

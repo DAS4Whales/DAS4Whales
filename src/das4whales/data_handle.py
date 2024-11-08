@@ -32,7 +32,7 @@ def get_acquisition_parameters(filepath, interrogator='optasense'):
     filepath : str
         The file path to the data file.
     interrogator : str, optional
-        The interrogator type, one of {'optasense', 'silixa', 'mars', 'alcatel'}.
+        The interrogator type, one of {'optasense', 'silixa', 'mars', 'alcatel', 'onyx'}.
         Defaults to 'optasense'.
 
     Returns
@@ -47,7 +47,7 @@ def get_acquisition_parameters(filepath, interrogator='optasense'):
         If the interrogator name is not in the predefined list.
     """
     # List the known used interrogators:
-    interrogator_list = ['optasense', 'silixa', 'mars', 'alcatel']
+    interrogator_list = ['optasense', 'silixa', 'mars', 'alcatel', 'onyx']
     if interrogator in interrogator_list:
 
         if interrogator == 'optasense':
@@ -61,6 +61,9 @@ def get_acquisition_parameters(filepath, interrogator='optasense'):
 
         elif interrogator == 'alcatel':
             metadata = get_metadata_alcatel(filepath)
+        
+        elif interrogator == 'onyx':
+            metadata = get_metadata_onyx(filepath)
 
     else:
         raise ValueError('Interrogator name incorrect')
@@ -154,6 +157,47 @@ def get_metadata_silixa(filepath):
     return meta_data
 
 
+def get_metadata_onyx(filepath):
+    """Gets DAS acquisition parameters for the onyx interrogator 
+
+    Parameters
+    ----------
+    filepath : string
+        a string containing the full path to the data to load
+
+    Returns
+    -------
+    metadata : dict
+        dictionary filled with metadata, key's breakdown:\n
+        fs: the sampling frequency (Hz)\n
+        dx: interval between two virtual sensing points also called channel spacing (m)\n
+        nx: the number of spatial samples also called channels\n
+        ns: the number of time samples\n
+        n: refractive index of the fiber\n
+        GL: the gauge length (m)\n
+        scale_factor: the value to convert DAS data from strain rate to strain
+
+    """
+
+    # Make sure the file exists
+    if os.path.exists(filepath):
+        fp1 = h5py.File(filepath, 'r')
+        fs = fp1['Acquisition']['Raw[0]'].attrs['OutputDataRate'] # sampling rate in Hz
+        dx = fp1['Acquisition'].attrs['SpatialSamplingInterval'] # channel spacing in m
+        ns = fp1['Acquisition']['Raw[0]']['RawDataTime'].attrs['Count']
+        n = 1.4682 # refractive index TODO: check if it is correct, it is not in the metadata
+        GL = fp1['Acquisition'].attrs['GaugeLength'] # gauge length in m
+        nx = fp1['Acquisition']['Raw[0]'].attrs['NumberOfLoci'] # number of channels
+        scale_factor = 115e-9 # According to Brad
+        print(scale_factor)
+
+        meta_data = {'fs': fs, 'dx': dx, 'ns': ns,'n': n,'GL': GL, 'nx':nx , 'scale_factor': scale_factor}
+    else:
+        raise FileNotFoundError(f'File {filepath} not found')
+    
+    return meta_data
+
+
 def raw2strain(trace, metadata):
     """Transform the amplitude of raw das data from strain-rate to strain according to scale factor
 
@@ -208,8 +252,16 @@ def load_das_data(filename, selected_channels, metadata):
         # Data matrix
         raw_data = fp['Acquisition/Raw[0]/RawData']
 
+        # Check the orientation of the data compared to the metadata
+        if raw_data.shape[0] == metadata["nx"]:
+            # Data is in the correct orientation
+            pass
+        elif raw_data.shape[1] == metadata["nx"]:
+            # Data is transposed without loading in memory
+            raw_data = raw_data[:,:].T
+
         # Selection the traces corresponding to the desired channels
-        # Loaded as float64, float 32 might be sufficient? 
+        # Loaded as float64, float 32 might be sufficient?
         trace = raw_data[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
         trace = raw2strain(trace, metadata)
 

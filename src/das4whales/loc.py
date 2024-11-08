@@ -54,7 +54,7 @@ def calc_phi_vector(cable_pos, whale_pos):
     return np.arctan2(whale_pos[1]-cable_pos[:,1], whale_pos[0]-cable_pos[:,0])
 
 
-def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False):
+def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None):
     """
     Solve the least squares problem to localize the whale
 
@@ -83,7 +83,9 @@ def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False):
 
     # Make a first guess of the whale position
     #TODO: make first guess a parameter
-    n = np.array([40000, 23000, -60, np.min(Ti)])
+    n = np.array([40000, 1000, -30, np.min(Ti)])
+    if ninit is not None:
+        n = ninit
 
     # Regularization parameter
     lambda_reg = 1e-5
@@ -114,6 +116,7 @@ def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False):
 
         dn = np.linalg.inv(G.T @ G + lambda_identity) @ G.T @ dt
 
+        # Damping factor
         if j<4:
             n += 0.7 * dn
         else:

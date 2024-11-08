@@ -75,9 +75,10 @@ def test_pick_times():
     # Test case 1
     x = np.array([[1, 2, 3, 2, 1],[1, 2, 3, 2, 1]])
     threshold = 3
+    ipi = 1
     import scipy.signal as sp
     print(abs(sp.hilbert(x[0])))
-    result = pick_times(x, threshold)
+    result = pick_times(x, threshold, ipi)
     print(result)
     assert len(result) == 2
 
