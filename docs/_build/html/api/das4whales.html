@@ -392,7 +392,7 @@ Date: 2023-2024</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The file path to the data file.</p></li>
-<li><p><strong>interrogator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The interrogator type, one of {‘optasense’, ‘silixa’, ‘mars’, ‘alcatel’, ‘onyx’}.
+<li><p><strong>interrogator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The interrogator type, one of {‘optasense’, ‘silixa’, ‘mars’, ‘alcatel’}.
 Defaults to ‘optasense’.</p></li>
 </ul>
 </dd>
@@ -405,31 +405,6 @@ interrogator is found.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><strong>ValueError</strong></a> – If the interrogator name is not in the predefined list.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="das4whales.data_handle.get_metadata_onyx">
-<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">get_metadata_onyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#get_metadata_onyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.get_metadata_onyx" title="Link to this definition">¶</a></dt>
-<dd><p>Gets DAS acquisition parameters for the onyx interrogator</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filepath</strong> (<em>string</em>) – a string containing the full path to the data to load</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><p><strong>metadata</strong> – dictionary filled with metadata, key’s breakdown:</p>
-<p>fs: the sampling frequency (Hz)</p>
-<p>dx: interval between two virtual sensing points also called channel spacing (m)</p>
-<p>nx: the number of spatial samples also called channels</p>
-<p>ns: the number of time samples</p>
-<p>n: refractive index of the fiber</p>
-<p>GL: the gauge length (m)</p>
-<p>scale_factor: the value to convert DAS data from strain rate to strain</p>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -758,8 +733,7 @@ and the kernel.</p>
 <dd><p>Convert pick times from a list of lists to a numpy array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>peaks_indexes_m</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>lists</em>) – A list of lists containing the pick times. The indexes of each list correspond to the space index.
-[[t1, t2, t3, …], [t1, t2, t3, …], …]</p>
+<dd class="field-odd"><p><strong>peaks_indexes_m</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>lists</em>) – A list of lists containing the pick times.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A numpy array containing a tuple (time index, spatial index) of the converted pick times.</p>
@@ -777,8 +751,8 @@ and the kernel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The ending frequency of the chirp signal.</p></li>
-<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The starting frequency of the chirp signal.</p></li>
+<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The starting frequency of the chirp signal.</p></li>
+<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The ending frequency of the chirp signal.</p></li>
 <li><p><strong>duration</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The duration of the chirp signal in seconds.</p></li>
 <li><p><strong>sampling_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The sampling rate of the chirp signal in Hz.</p></li>
 </ul>
@@ -799,8 +773,8 @@ and the kernel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The ending frequency of the chirp signal.</p></li>
-<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The starting frequency of the chirp signal.</p></li>
+<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The starting frequency of the chirp signal.</p></li>
+<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The ending frequency of the chirp signal.</p></li>
 <li><p><strong>duration</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The duration of the chirp signal in seconds.</p></li>
 <li><p><strong>sampling_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The sampling rate of the chirp signal in Hz.</p></li>
 </ul>
@@ -906,7 +880,7 @@ multiplied by the number of columns in the spectrogram.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.detect.pick_times">
-<span class="sig-prename descclassname"><span class="pre">das4whales.detect.</span></span><span class="sig-name descname"><span class="pre">pick_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corr_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ipi_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/detect.html#pick_times"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.detect.pick_times" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.detect.</span></span><span class="sig-name descname"><span class="pre">pick_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corr_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/detect.html#pick_times"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.detect.pick_times" title="Link to this definition">¶</a></dt>
 <dd><p>Detects the peak times in a correlation matrix.</p>
 <p>This function takes a correlation matrix, computes the Hilbert transform of each correlation,
 and detects the peak times based on a given threshold.</p>
@@ -915,7 +889,6 @@ and detects the peak times based on a given threshold.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>corr_m</strong> (<em>numpy.ndarray</em>) – The correlation matrix.</p></li>
 <li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – The threshold value for peak detection. Defaults to 0.3.</p></li>
-<li><p><strong>ipi_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The minimum inter-pulse interval in indexes.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1488,16 +1461,6 @@ Default is 3500 m/s.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="das4whales.dsp.moving_average">
-<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">moving_average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#moving_average"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.moving_average" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="das4whales.dsp.moving_average_matrix">
-<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">moving_average_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#moving_average_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.moving_average_matrix" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="das4whales.dsp.normalize_median">
 <span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">normalize_median</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#normalize_median"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.normalize_median" title="Link to this definition">¶</a></dt>
 <dd><p>Normalize the input trace by its median.</p>
@@ -1970,7 +1933,7 @@ Date: 2024-06-18</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.loc.solve_lq">
-<span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">solve_lq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ti</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cable_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nbiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ninit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#solve_lq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.solve_lq" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">solve_lq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ti</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cable_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nbiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#solve_lq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.solve_lq" title="Link to this definition">¶</a></dt>
 <dd><p>Solve the least squares problem to localize the whale</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2328,7 +2291,7 @@ Date: 2023-2024</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.plot.plot_fk_domain">
-<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_fk_domain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fk_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_lims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_fk_domain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_fk_domain" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_fk_domain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fk_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_fk_domain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_fk_domain" title="Link to this definition">¶</a></dt>
 <dd><p>Spatio-spectral representation (f-k plot) of the strain data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2341,8 +2304,6 @@ Date: 2023-2024</p>
 <li><p><strong>fig_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a><em>, </em><em>optional</em>) – Tuple of the figure dimensions, by default (12, 10)</p></li>
 <li><p><strong>v_min</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – Sets the min nano strain amplitudes of the colorbar, by default None</p></li>
 <li><p><strong>v_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – Sets the max nano strain amplitudes of the colorbar, by default None</p></li>
-<li><p><strong>fk_params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary containing the fmin, fmax, c_min, and c_max parameters, by default None</p></li>
-<li><p><strong>ax_lims</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>, </em><em>optional</em>) – List of the form [f_min, f_max, k_min, k_max] for zoomed plots, by default None</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -2738,7 +2699,6 @@ as per docs, [‘x’, ‘b’, and ‘a’] are required</p></li>
 <li><a class="reference internal" href="#das4whales.data_handle.calc_dist_to_xidx"><code class="docutils literal notranslate"><span class="pre">calc_dist_to_xidx()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.dl_file"><code class="docutils literal notranslate"><span class="pre">dl_file()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.get_acquisition_parameters"><code class="docutils literal notranslate"><span class="pre">get_acquisition_parameters()</span></code></a></li>
-<li><a class="reference internal" href="#das4whales.data_handle.get_metadata_onyx"><code class="docutils literal notranslate"><span class="pre">get_metadata_onyx()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.get_metadata_optasense"><code class="docutils literal notranslate"><span class="pre">get_metadata_optasense()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.get_metadata_silixa"><code class="docutils literal notranslate"><span class="pre">get_metadata_silixa()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.get_selected_channels"><code class="docutils literal notranslate"><span class="pre">get_selected_channels()</span></code></a></li>
@@ -2789,8 +2749,6 @@ as per docs, [‘x’, ‘b’, and ‘a’] are required</p></li>
 <li><a class="reference internal" href="#das4whales.dsp.hybrid_ninf_filter_design"><code class="docutils literal notranslate"><span class="pre">hybrid_ninf_filter_design()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.hybrid_ninf_gs_filter_design"><code class="docutils literal notranslate"><span class="pre">hybrid_ninf_gs_filter_design()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.instant_freq"><code class="docutils literal notranslate"><span class="pre">instant_freq()</span></code></a></li>
-<li><a class="reference internal" href="#das4whales.dsp.moving_average"><code class="docutils literal notranslate"><span class="pre">moving_average()</span></code></a></li>
-<li><a class="reference internal" href="#das4whales.dsp.moving_average_matrix"><code class="docutils literal notranslate"><span class="pre">moving_average_matrix()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.normalize_median"><code class="docutils literal notranslate"><span class="pre">normalize_median()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.normalize_std"><code class="docutils literal notranslate"><span class="pre">normalize_std()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.snr_tr_array"><code class="docutils literal notranslate"><span class="pre">snr_tr_array()</span></code></a></li>

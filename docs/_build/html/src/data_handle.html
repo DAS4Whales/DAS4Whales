@@ -332,7 +332,7 @@ Date: 2023-2024</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The file path to the data file.</p></li>
-<li><p><strong>interrogator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The interrogator type, one of {‘optasense’, ‘silixa’, ‘mars’, ‘alcatel’, ‘onyx’}.
+<li><p><strong>interrogator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The interrogator type, one of {‘optasense’, ‘silixa’, ‘mars’, ‘alcatel’}.
 Defaults to ‘optasense’.</p></li>
 </ul>
 </dd>
@@ -345,31 +345,6 @@ interrogator is found.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><strong>ValueError</strong></a> – If the interrogator name is not in the predefined list.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="das4whales.data_handle.get_metadata_onyx">
-<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">get_metadata_onyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#get_metadata_onyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.get_metadata_onyx" title="Link to this definition">¶</a></dt>
-<dd><p>Gets DAS acquisition parameters for the onyx interrogator</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filepath</strong> (<em>string</em>) – a string containing the full path to the data to load</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><p><strong>metadata</strong> – dictionary filled with metadata, key’s breakdown:</p>
-<p>fs: the sampling frequency (Hz)</p>
-<p>dx: interval between two virtual sensing points also called channel spacing (m)</p>
-<p>nx: the number of spatial samples also called channels</p>
-<p>ns: the number of time samples</p>
-<p>n: refractive index of the fiber</p>
-<p>GL: the gauge length (m)</p>
-<p>scale_factor: the value to convert DAS data from strain rate to strain</p>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -600,7 +575,6 @@ interrogator is found.</p>
 <li><a class="reference internal" href="#das4whales.data_handle.calc_dist_to_xidx"><code class="docutils literal notranslate"><span class="pre">calc_dist_to_xidx()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.dl_file"><code class="docutils literal notranslate"><span class="pre">dl_file()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.get_acquisition_parameters"><code class="docutils literal notranslate"><span class="pre">get_acquisition_parameters()</span></code></a></li>
-<li><a class="reference internal" href="#das4whales.data_handle.get_metadata_onyx"><code class="docutils literal notranslate"><span class="pre">get_metadata_onyx()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.get_metadata_optasense"><code class="docutils literal notranslate"><span class="pre">get_metadata_optasense()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.get_metadata_silixa"><code class="docutils literal notranslate"><span class="pre">get_metadata_silixa()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.get_selected_channels"><code class="docutils literal notranslate"><span class="pre">get_selected_channels()</span></code></a></li>
