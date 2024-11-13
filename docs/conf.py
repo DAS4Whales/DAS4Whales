@@ -71,7 +71,7 @@ html_theme_options = {
         "color-link": "#ffb703",  # Coral
         "color-link--hover": "#fb8500",  # Darker Coral
     },
-    'github_url': 'https://github.com/qgoestch/DAS4Whales'
+    'github_url': 'https://github.com/DAS4Whales/DAS4Whales'
 }
 
 html_static_path = ['_static']
