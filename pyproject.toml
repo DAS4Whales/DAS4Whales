@@ -30,7 +30,7 @@ dependencies = [
     "nptdms",
     "librosa",
     "matplotlib",
-    "numpy<2",
+    "numpy",
     "scipy",
     "wget",
     "dask[complete]",
