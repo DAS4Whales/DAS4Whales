@@ -10,7 +10,7 @@ build:
     python: "3.12"
   commands:
     - pip install nox
-    - nox -s docs $READTHEDOCS_OUTPUT/html
+    - nox -s docs -- -b html docs/_build/html
       # - asdf plugin add uv
       # - asdf install uv latest
       # - asdf global uv latest
