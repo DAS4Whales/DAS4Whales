@@ -8,9 +8,15 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.12"
+  dependencies:
+    - nox  # Install nox
+    - furo
+    - myst_parser >=0.13
+    - sphinx >=4.0
+    - sphinx-copybutton
+    - sphinx-autodoc-typehints
   commands:
-    - pip install nox
-    - nox -s docs
+    - nox -s docs $READTHEDOCS_OUTPUT/html
       # - asdf plugin add uv
       # - asdf install uv latest
       # - asdf global uv latest
