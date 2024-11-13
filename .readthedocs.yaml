@@ -9,12 +9,10 @@ build:
   tools:
     python: "3.12"
   commands:
-    - pip install nox
-    - nox -s docs -- -b html docs/_build/html
-      # - asdf plugin add uv
-      # - asdf install uv latest
-      # - asdf global uv latest
-      # - uv venv
-      # - uv pip install .[docs]
-      # - .venv/bin/python -m sphinx -T -b html -d docs/_build/doctrees -D
-      #   language=en docs $READTHEDOCS_OUTPUT/html
+    - asdf plugin add uv
+    - asdf install uv latest
+    - asdf global uv latest
+    - uv venv
+    - uv pip install .[docs]
+    - .venv/bin/python -m sphinx -T -b html -d docs/_build/doctrees -D
+      language=en docs $READTHEDOCS_OUTPUT/html
