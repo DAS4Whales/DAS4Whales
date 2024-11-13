@@ -1,5 +1,5 @@
 # DAS4Whales
-[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/qgoestch/DAS4Whales)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/DAS4Whales/DAS4Whales)
 ```{toctree}
 :maxdepth: 1
 :caption: Getting Started
