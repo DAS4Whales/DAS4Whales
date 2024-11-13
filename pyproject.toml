@@ -67,7 +67,5 @@ docs = [
   "sphinx >=4.0",
   "sphinx-copybutton",
   "sphinx-autodoc-typehints",
-  "llvmlite==0.39.1",  # Ensure this is compatible
-  "numba==0.56.4",     # Ensure this is compatible
 ]
 
