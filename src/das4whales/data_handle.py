@@ -314,7 +314,7 @@ def load_mtpl_das_data(filepaths, selected_channels, metadata, timestamp, time_w
     # Print the input timestamp
     print(f'timestamp_input: {timestamp}')
     
-    # Convert timestamp to microseconds since epoch
+    # Convert timestamp to microseconds
     timestamp = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S.%f')
     timestamp = timestamp.replace(tzinfo=timezone.utc)
     timestamp_us = timestamp.timestamp() * 1e6
