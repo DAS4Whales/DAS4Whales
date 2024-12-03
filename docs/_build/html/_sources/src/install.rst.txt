@@ -39,7 +39,7 @@ Follow these steps to install DAS4Whales:
 
     .. code-block:: bash
     
-        pip install 'git+https://github.com/qgoestch/DAS4Whales'
+        pip install 'git+https://github.com/DAS4Whales/DAS4Whales'
 
 4. Verify the installation:
 
