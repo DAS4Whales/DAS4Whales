@@ -116,6 +116,10 @@ def gabor_filt_design(theta_c0, plot=False):
         The Gabor filters.
 
     """
+    # Sampling frequency (CAUTION: only for visualization of the filter shape, not for the actual processing)
+    fs = 200
+    # Spatial resolution (CAUTION: only for visualization of the filter shape, not for the actual processing)
+    dx = 4.0838094
 
     # Define parameters for the Gabor filter
     ksize = 100  # Kernel size 
@@ -129,17 +133,37 @@ def gabor_filt_design(theta_c0, plot=False):
     gabor_filtdown = np.flipud(gabor_filtup)
 
     if plot:
-        plt.figure(figsize=(6, 6))
-        # plt.subplot(121)
-        plt.imshow(gabor_filtup, origin='lower', cmap='RdBu_r', vmin=-1, vmax=1, aspect='equal')
-        plt.xlabel('Time indices')
-        plt.ylabel('Distance indices')
-        plt.colorbar(orientation='horizontal', pad=0.2)
+        fig, ax = plt.subplots(figsize=(12, 8))
+        # Primary image
+        im = ax.imshow(gabor_filtup, origin='lower', cmap='RdBu_r', vmin=-1, vmax=1, aspect='equal')
+        ax.set_xlabel('Time indices')
+        ax.set_ylabel('Distance indices')
 
-        # plt.subplot(122)
-        # plt.imshow(gabor_filtdown, origin='lower', cmap='RdBu_r', vmin=-1, vmax=1, aspect='equal')
-        # plt.xlabel('Time indices')
-        # plt.colorbar(orientation='horizontal', pad=0.2)
+        # Filter ticks within visible range
+        visible_xticks = ax.get_xticks()[(ax.get_xticks() >= ax.get_xlim()[0]) & (ax.get_xticks() <= ax.get_xlim()[1])]
+        visible_yticks = ax.get_yticks()[(ax.get_yticks() >= ax.get_ylim()[0]) & (ax.get_yticks() <= ax.get_ylim()[1])]
+
+        # Add a secondary x-axis (top) for time in seconds
+        ax2 = ax.secondary_xaxis('top')
+        ax2.set_xticks(visible_xticks)
+        ax2.set_xticklabels(np.round(np.linspace(0, ksize / fs, len(visible_xticks)), 2))
+        ax2.set_xlabel('Time [s]')
+
+        # Add a secondary y-axis (right) for distance in meters
+        ax3 = ax.secondary_yaxis('right')
+        ax3.set_yticks(visible_yticks)
+        ax3.set_yticklabels(np.linspace(0, ksize * dx, len(visible_yticks)).astype(int))
+        ax3.set_ylabel('Distance [m]')
+
+        # Add a colorbar with adjusted padding
+        cbar = plt.colorbar(im, ax=ax, orientation='vertical', pad=0.25, aspect=30)
+        cbar.set_label('Gain []')
+
+        # xlims and ylims
+        ax.set_xlim(0, ksize)
+        ax.set_ylim(0, ksize)
+        
+        plt.grid()
         plt.tight_layout()
         plt.show()
     return gabor_filtup, gabor_filtdown
