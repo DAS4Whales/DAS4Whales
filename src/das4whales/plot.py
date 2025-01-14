@@ -81,7 +81,7 @@ def plot_tx(trace, time, dist, title_time_info=0, fig_size=(12, 10), v_min=None,
     shw = plt.imshow(abs(trace) * 1e9, extent=[time[0], time[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
                      origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
     plt.ylabel('Distance (km)')
-    plt.xlabel('Time (s)')
+    plt.xlabel('Time [s]')
     bar = fig.colorbar(shw, aspect=30, pad=0.015)
     bar.set_label(cbar_label)
 	
@@ -143,7 +143,7 @@ def plot_tx_env(trace, time, dist, title_time_info=0, fig_size=(12, 10), v_min=N
     shw = plt.imshow(abs(trace), extent=[time[0], time[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
                      origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
     plt.ylabel('Distance (km)')
-    plt.xlabel('Time (s)')
+    plt.xlabel('Time [s]')
     bar = fig.colorbar(shw, aspect=30, pad=0.015)
     bar.set_label(cbar_label)
 
@@ -208,7 +208,7 @@ def plot_tx_lined(trace, ln_idx, time, dist, title_time_info=0, fig_size=(12, 10
                      origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
     plt.plot([time[0], time[-1]], [dist[ln_idx] * 1e-3, dist[ln_idx] * 1e-3], 'w--', linewidth=3)
     plt.ylabel('Distance (km)')
-    plt.xlabel('Time (s)')
+    plt.xlabel('Time [s]')
     bar = fig.colorbar(shw, aspect=30, pad=0.015)
     bar.set_label('Strain Envelope (x$10^{-9}$)')
 
@@ -305,7 +305,7 @@ def plot_fx(trace, dist, fs, title_time_info=0, win_s=2, nfft=4096, fig_size=(12
 
         ax.set_xlim([f_min, f_max])
         if r == rows-1:
-            ax.set_xlabel('Frequency (Hz)')
+            ax.set_xlabel('Frequency [Hz]')
         else:
             ax.set_xticks([])
             ax.xaxis.set_tick_params(labelbottom=False)
@@ -333,7 +333,7 @@ def plot_fx(trace, dist, fs, title_time_info=0, win_s=2, nfft=4096, fig_size=(12
     plt.show()
 
 
-def plot_spectrogram(p, tt, ff, fig_size=(17, 5), v_min=None, v_max=None, f_min=None, f_max=None):
+def plot_spectrogram(p, tt, ff, fig_size=(20, 6), v_min=None, v_max=None, f_min=None, f_max=None):
     """
     Plot a spectrogram.
 
@@ -364,14 +364,15 @@ def plot_spectrogram(p, tt, ff, fig_size=(17, 5), v_min=None, v_max=None, f_min=
     roseus = import_roseus()
     fig, ax = plt.subplots(figsize=fig_size)
 
-    shw = ax.pcolormesh(tt, ff, p, shading='auto', cmap=roseus, vmin=v_min, vmax=v_max)
+    shw = ax.pcolormesh(tt, ff, p, shading='auto', cmap=roseus, vmin=v_min, vmax=v_max, rasterized=True)
     ax.set_ylim(f_min, f_max)
-    ax.set_xlabel('Time (s)')
-    ax.set_ylabel('Frequency (Hz)')
+    ax.set_xlabel('Time [s]')
+    ax.set_ylabel('Frequency [Hz]')
 
     # Colorbar
     bar = fig.colorbar(shw, aspect=30, pad=0.015)
     bar.set_label('dB (strain x$10^{-9}$)')
+    plt.tight_layout()
     plt.show()
 
 
@@ -398,19 +399,19 @@ def plot_3calls(channel, time, t1, t2, t3):
 
     """
     
-    plt.figure(figsize=(12,4))
+    plt.figure(figsize=(17,6))
 
     plt.subplot(211)
     plt.plot(time, channel, ls='-')
     plt.xlim([time[0], time[-1]])
-    plt.ylabel('strain [-]')
+    plt.ylabel('Strain [-]')
     plt.grid()
     plt.tight_layout()
 
     plt.subplot(234)
     plt.plot(time, channel)
-    plt.ylabel('strain [-]')
-    plt.xlabel('time [s]')
+    plt.ylabel('Strain [-]')
+    plt.xlabel('Time [s]')
     plt.xlim([t1, t1+2.])
     plt.grid()
     plt.tight_layout()
@@ -418,14 +419,14 @@ def plot_3calls(channel, time, t1, t2, t3):
     plt.subplot(235)
     plt.plot(time, channel)   
     plt.xlim([t2, t2+2.])
-    plt.xlabel('time [s]')
+    plt.xlabel('Time [s]')
     plt.grid()
     plt.tight_layout()
 
     plt.subplot(236)
     plt.plot(time, channel)   
     plt.xlim([t3, t3+2.])
-    plt.xlabel('time [s]')
+    plt.xlabel('Time [s]')
     plt.grid()
     plt.tight_layout()
 
@@ -468,11 +469,11 @@ def design_mf(trace, hnote, lnote, th, tl, time, fs):
     fi_mf = instant_freq(dummy_chan, fs)
 
     # Plot the generated linear chirp signal
-    plt.figure(figsize=(18, 4))
+    plt.figure(figsize=(18, 8))
     plt.subplot(121)
-    plt.plot(time, (trace) / (np.max(abs(trace))), label='normalized measured fin call')
-    plt.plot(time, (dummy_chan) / (np.max(abs(dummy_chan))), label='template')
-    plt.title('fin whale call template - HF note')
+    plt.plot(time, (trace) / (np.max(abs(trace))), label='Normalized measured fin call', lw=3)
+    plt.plot(time, (dummy_chan) / (np.max(abs(dummy_chan))), label='Synthetic template', lw=3)
+    plt.title('Fin whale call template design - HF note')
     plt.xlabel('Time (seconds)')
     plt.ylabel('Amplitude')
     plt.xlim(th-0.5, th+1.5)
@@ -480,8 +481,8 @@ def design_mf(trace, hnote, lnote, th, tl, time, fs):
     plt.legend()
 
     plt.subplot(122)
-    plt.plot(time[1:], fi, label='measured fin call')
-    plt.plot(time[1:], fi_mf, label='template')
+    plt.plot(time[1:], fi, label='Measured fin call', lw=3)
+    plt.plot(time[1:], fi_mf, label='Synthetic template', lw=3)
     plt.xlim([th-0.5, th+1.5])
     plt.ylim([15., 35])
     plt.xlabel('Time (seconds)')
@@ -858,7 +859,7 @@ def plot_fk_domain(trace, fs, dx, selected_channels, title_time_info=0, fig_size
     plt.xlabel('Frequency [Hz]')
     plt.ylabel('Wavenumber [m$^{-1}$]')
     bar = fig.colorbar(shw, aspect=30, pad=0.015)
-    bar.set_label('Spectrum [ ]')
+    bar.set_label('Amplitude [arbitrary units]')
     if fk_params is not None:
         plt.vlines(fk_params['fmin'], k[0], k[-1], color='tab:orange', linestyle='--', label='fmin', lw=2)
         plt.vlines(fk_params['fmax'], k[0], k[-1], color='tab:red', linestyle='--', label='fmax', lw=2)
@@ -879,8 +880,8 @@ def plot_fk_domain(trace, fs, dx, selected_channels, title_time_info=0, fig_size
     if ax_lims is not None:
         plt.xlim(ax_lims[0], ax_lims[1])
         plt.ylim(ax_lims[2], ax_lims[3])
-    # plt.xlim([12, 30])
-    # plt.ylim([0, 0.025])
+        # plt.xlim([12, 30])
+        # plt.ylim([0, 0.025])
     
     # Display legend if needed
     if fk_params is not None:
