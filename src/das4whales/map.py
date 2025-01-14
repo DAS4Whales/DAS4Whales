@@ -16,6 +16,7 @@ import matplotlib.colors as mcolors
 import pandas as pd
 import xarray as xr
 import pyproj
+import cmocean.cm as cmo
 
 def load_cable_coordinates(filepath, dx):
     """
@@ -136,41 +137,71 @@ def plot_cables2D(df_north, df_south, bathy, xlon, ylat):
         The latitude data vector.
     """
     
-    # Chose a colormap to be sure that values above 0 are white, and values below 0 are blue
-    colors_undersea = plt.cm.Blues_r(np.linspace(0, 0.5, 100)) # blue colors for under the sea
-    colors_land = np.array([[1, 1, 1, 1]] * 40)  # white for above zero
+    # Create two list of coordinates, for ponts every 10 km along the cables, the spatial resolution is 2m 
+    opticald_n = []
+    opticald_s = []
+
+    for i in range(int(10000/2), len(df_north), int(10000/2)):
+        opticald_n.append((df_north['lon'][i], df_north['lat'][i]))
+
+    for i in range(int(10000/2), len(df_south), int(10000/2)):
+        opticald_s.append((df_south['lon'][i], df_south['lat'][i]))
+
+    colors_undersea = cmo.deep_r(np.linspace(0, 1, 256)) # blue colors for under the sea
+    colors_land = np.array([[0.5, 0.5, 0.5, 1]])  # Solid gray for above sea level
 
     # Combine the color maps
     all_colors = np.vstack((colors_undersea, colors_land))
     custom_cmap = mcolors.LinearSegmentedColormap.from_list('custom_cmap', all_colors)
+
+    # Set extent of the plot
     extent = [xlon[0], xlon[-1], ylat[0], ylat[-1]]
 
     # Set the light source
     ls = LightSource(azdeg=350, altdeg=45)
 
-    plt.figure(figsize=(14, 8))
+    plt.figure(figsize=(14, 7))
     ax = plt.gca()
+
     # Plot the bathymetry relief in background
-    rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay')
-    plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower')
+    rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay', vmin=np.min(bathy), vmax=0)
+    plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower' , vmin=np.min(bathy), vmax=0)
 
     # Plot the cable location in 2D
-    ax.plot(df_north['lon'], df_north['lat'], 'tab:red', label='North cable')
-    ax.plot(df_south['lon'], df_south['lat'], 'tab:orange', label='South cable')
+    ax.plot(df_north['lon'], df_north['lat'], 'tab:red', label='North cable', lw=2.5)
+    ax.plot(df_south['lon'], df_south['lat'], 'tab:orange', label='South cable', lw=2.5)
 
-    # Draw isoline at 0
-    ax.contour(bathy, levels=[0], colors='k', extent=extent)
+    # Add dashed contours at selected depths with annotations
+    depth_levels = [-1500, -1000, -600, -250, -80]
+
+    contour_dashed = ax.contour(bathy, levels=depth_levels, colors='k', linestyles='--', extent=extent, alpha=0.6)
+    ax.clabel(contour_dashed, fmt='%d m', inline=True)
+
+    # Plot points along the cable every 10 km in terms of optical distance
+    for i, point in enumerate(opticald_n, start=1):
+        # Plot the points
+        ax.plot(point[0], point[1], '.', color='k')
+        # Annotate the points with the distance
+        ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, 8), ha='center', fontsize=12)
+
+    for i, point in enumerate(opticald_s, start=1):
+        ax.plot(point[0], point[1], '.', color='k')
+        ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, -15), ha='center', fontsize=12)
 
     # Use a proxy artist for the color bar
-    im = ax.imshow(bathy, cmap=custom_cmap, extent=extent, aspect='equal', origin='lower')
-    plt.colorbar(im, ax=ax, label='Depth [m]', aspect=55, pad=0.15, orientation='horizontal')
+    im = ax.imshow(bathy, cmap=custom_cmap, extent=extent, aspect='equal', origin='lower', vmin=np.min(bathy), vmax=0)
+    im_ratio = bathy.shape[1] / bathy.shape[0]
+    plt.colorbar(im, ax=ax, label='Depth [m]', pad=0.02, orientation='vertical', aspect=25, fraction=0.0145)
+
     im.remove()
 
-    plt.subplots_adjust(bottom=0.0, top=1, left=0.0, right=1)
-    plt.xlabel('Longitude')
-    plt.ylabel('Latitude')
+    # Set the labels
+    plt.xlabel('Longitude [°]')
+    plt.ylabel('Latitude [°]')
+    plt.legend(loc='upper left')
 
-    plt.legend(loc='upper center')
+    # Dashed grid lines
+    plt.grid(linestyle='--', alpha=0.6, color='k')
     plt.tight_layout()
     plt.show()
 
