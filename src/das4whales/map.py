@@ -226,9 +226,19 @@ def plot_cables2D_m(df_north, df_south, bathy, xm, ym):
         The y data vector in meters.
     """
     
+    # Create two list of coordinates, for ponts every 10 km along the cables, the spatial resolution is 2m 
+    opticald_n = []
+    opticald_s = []
+
+    for i in range(int(10000/2), len(df_north), int(10000/2)):
+        opticald_n.append((df_north['x'][i], df_north['y'][i]))
+
+    for i in range(int(10000/2), len(df_south), int(10000/2)):
+        opticald_s.append((df_south['x'][i], df_south['y'][i]))
+
     # Chose a colormap to be sure that values above 0 are white, and values below 0 are blue
-    colors_undersea = plt.cm.Blues_r(np.linspace(0, 0.5, 100)) # blue colors for under the sea
-    colors_land = np.array([[1, 1, 1, 1]] * 40)  # white for above zero
+    colors_undersea = cmo.deep_r(np.linspace(0, 1, 256)) # blue colors for under the sea
+    colors_land = np.array([[0.5, 0.5, 0.5, 1]])  # Solid gray for above sea level
 
     # Combine the color maps
     all_colors = np.vstack((colors_undersea, colors_land))
@@ -241,19 +251,32 @@ def plot_cables2D_m(df_north, df_south, bathy, xm, ym):
     plt.figure(figsize=(14, 9))
     ax = plt.gca()
     # Plot the bathymetry relief in background
-    rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay')
-    plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower')
+    rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay', vmin=np.min(bathy), vmax=0)
+    plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower', vmin=np.min(bathy), vmax=0)
 
-    ax.plot(df_north['x'] , df_north['y'] , 'tab:red', label='North cable')
-    ax.plot(df_south['x'], df_south['y'], 'tab:orange', label='South cable')
+    ax.plot(df_north['x'] , df_north['y'] , 'tab:red', label='North cable', lw=2.5)
+    ax.plot(df_south['x'], df_south['y'], 'tab:orange', label='South cable', lw=2.5)
 
-    # Draw isoline at 0
-    ax.contour(bathy, levels=[0], colors='k', extent=extent)
+    # Add dashed contours at selected depths with annotations
+    depth_levels = [-1500, -1000, -600, -250, -80]
+
+    contour_dashed = ax.contour(bathy, levels=depth_levels, colors='k', linestyles='--', extent=extent, alpha=0.6)
+    ax.clabel(contour_dashed, fmt='%d m', inline=True)
+
+    # Plot points along the cable every 10 km in terms of optical distance
+    for i, point in enumerate(opticald_n, start=1):
+        ax.plot(point[0], point[1], '.', color='k')
+        ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, 8), ha='center', fontsize=12)
+
+    for i, point in enumerate(opticald_s, start=1):
+        ax.plot(point[0], point[1], '.', color='k')
+        ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, -15), ha='center', fontsize=12)
 
     # Use a proxy artist for the color bar
-    im = ax.imshow(bathy, cmap=custom_cmap, extent=extent, aspect='equal', origin='lower')
-    
-    plt.colorbar(im, ax=ax, label='Depth [m]', aspect=55, pad=0.15, orientation='horizontal')
+    im = ax.imshow(bathy, cmap=custom_cmap, extent=extent, aspect='equal', origin='lower', vmin=np.min(bathy), vmax=0)
+    im_ratio = bathy.shape[1] / bathy.shape[0]
+    plt.colorbar(im, ax=ax, label='Depth [m]', pad=0.02, orientation='vertical', aspect=25, fraction=0.0195)
+
     im.remove()
 
     plt.subplots_adjust(bottom=0.0, top=1, left=0.0, right=1)
@@ -262,7 +285,8 @@ def plot_cables2D_m(df_north, df_south, bathy, xm, ym):
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
 
-    plt.legend(loc='upper center')
+    plt.legend(loc='upper left')
+    plt.grid(linestyle='--', alpha=0.6, color='k')
     plt.tight_layout()
     plt.show()
 
