@@ -1,0 +1,66 @@
+
+# Create a grid of coordinates, choosing the spacing of the grid
+dx_grid = 2000 # [m]
+dy_grid = 2000 # [m]
+xg, yg = np.meshgrid(np.arange(xf, x0, dx_grid), np.arange(y0, yf, dy_grid))
+
+ti = 0
+zg = -40
+
+interpolator = RegularGridInterpolator((x, y),  bathy.T)
+bathy_interp = interpolator((xg, yg))
+
+# Remove points if the ocean depth is too shallow (i.e., less than -25 m)
+mask = bathy_interp < -25
+
+# Compute arrival times only for valid grid points
+xg[~mask] = np.nan
+yg[~mask] = np.nan
+# Compute arrival times for the grid (Compute times from euclidian distance over a speed)
+arr_tg = dw.loc.calc_arrival_times(ti, n_cable_pos, (xg, yg, zg), c0)
+
+# Make a delayed picks array for all the grid points, hf calls
+# Precompute the time indices
+idx_hf_times = np.array(peakshf[1]) / fs
+
+# Broadcast the time indices delayed by the theoretical arrival times for the grid points
+delayed_picks_hf = idx_hf_times[None, None, :] - arr_tg[:, :, peakshf[0]]
+
+# Compute KDEs for all delayed picks
+Nkde = 60
+kde_hf = np.empty((xg.shape[0], yg.shape[1], Nkde))
+shape_x, shape_y, _ = delayed_picks_hf.shape
+t_grid = np.linspace(np.nanmin(delayed_picks_hf, axis=2), np.nanmax(delayed_picks_hf, axis=2), Nkde)
+
+# Define KDE computation as a delayed function
+def compute_kde(delayed_picks, t_kde, bin_width):
+    if not np.isnan(delayed_picks).all():
+        t_min, t_max = np.min(t_kde), np.max(t_kde)
+        kde = gaussian_kde(delayed_picks, bw_method=bin_width / (t_max - t_min))
+        return kde(t_kde)
+    else:
+        return np.full(len(t_kde), np.nan)
+
+# Create a Dask delayed computation for each (i, j)
+kde_hf_tasks = [
+    [
+        delayed(compute_kde)(delayed_picks_hf[i, j, :], t_grid[:, i, j], bin_width)
+        for j in range(shape_y)
+    ]
+    for i in range(shape_x)
+]
+
+# Convert list of lists of delayed objects into a single delayed object
+kde_hf_delayed = delayed(np.array)(kde_hf_tasks)
+
+# Convert delayed object into a Dask array
+kde_hf_dask = da.from_delayed(kde_hf_delayed, shape=(shape_x, shape_y, Nkde), dtype=np.float64)
+
+# Compute the final result
+kde_hf = kde_hf_dask.compute()
+
+# find the three indexes of the maximum value of the kde
+max_kde = np.nanmax(kde_hf)
+max_kde_idx = np.where(kde_hf == max_kde)
+xmax, ymax, tmax = max_kde_idx[0][0], max_kde_idx[1][0], max_kde_idx[2][0]
+

@@ -39,9 +39,9 @@ def calc_arrival_times(t0, cable_pos, pos, c0):
     # Extract cable positions
     x_cable, y_cable, z_cable = cable_pos[:, 0], cable_pos[:, 1], cable_pos[:, 2]
     
-    # Check if pos is a grid or single point
-    if isinstance(pos[0], np.ndarray):
-        # Grid case
+    # Check if pos is a grid, a flattened grid or a single point
+    if isinstance(pos[0], np.ndarray) and pos[0].ndim == 2:
+        # Grid case (np.meshgrid)
         xg, yg, zg = pos
         x_exp = xg[:, :, np.newaxis]  # Shape (M, L, 1)
         y_exp = yg[:, :, np.newaxis]
@@ -51,6 +51,19 @@ def calc_arrival_times(t0, cable_pos, pos, c0):
         dist = np.sqrt((x_cable[np.newaxis, np.newaxis, :] - x_exp) ** 2 +
                        (y_cable[np.newaxis, np.newaxis, :] - y_exp) ** 2 +
                        (z_cable[np.newaxis, np.newaxis, :] - z_exp) ** 2)
+        
+    elif isinstance(pos[0], np.ndarray) and pos[0].ndim == 1: #flattened grid case
+        # Flattened grid case
+        xg, yg, zg = pos
+        x_exp = xg[:, np.newaxis]
+        y_exp = yg[:, np.newaxis]
+        z_exp = zg
+
+        # Calculate distances for flattened grid
+        dist = np.sqrt((x_cable[np.newaxis, :] - x_exp) ** 2 +
+                       (y_cable[np.newaxis, :] - y_exp) ** 2 +
+                       (z_cable[np.newaxis, :] - z_exp) ** 2)
+        
     else:
         # Single point case
         x, y, z = pos
