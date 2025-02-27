@@ -107,7 +107,7 @@ def calc_phi_vector(cable_pos, whale_pos):
     return np.arctan2(whale_pos[1]-cable_pos[:,1], whale_pos[0]-cable_pos[:,0])
 
 
-def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None):
+def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None, residuals=False):
     """
     Solve the least squares problem to localize the whale
 
@@ -184,8 +184,11 @@ def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None):
     # Compute final residuals
     res = Ti - calc_arrival_times(n[-1], cable_pos, n[:3], c0)
 
-    return n, res
-
+    if residuals:
+        return n, res
+    else:
+        return n
+    
 
 def cal_variance_residuals(arrtimes, predic_arrtimes, fix_z=False):
     """Compute the variance of the residuals of the arrival times
