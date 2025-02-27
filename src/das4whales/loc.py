@@ -181,7 +181,10 @@ def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None):
 
         print(f'Iteration {j+1}: x = {n[0]:.4f} m, y = {n[1]:.4f}, z = {n[2]:.4f}, ti = {n[3]:.4f}')
 
-    return n
+    # Compute final residuals
+    res = Ti - calc_arrival_times(n[-1], cable_pos, n[:3], c0)
+
+    return n, res
 
 
 def cal_variance_residuals(arrtimes, predic_arrtimes, fix_z=False):
