@@ -5,7 +5,7 @@ This module provides various functions to handle DAS data, including loading, do
 It aims at having specific functions for each interrogator type.
 
 Authors: Léa Bouffaut, Quentin Goestchel, Erfan Horeh
-Date: 2023-2024
+Date: 2023-2024-2025
 """
 
 import h5py
@@ -47,7 +47,7 @@ def get_acquisition_parameters(filepath, interrogator='optasense'):
         If the interrogator name is not in the predefined list.
     """
     # List the known used interrogators:
-    interrogator_list = ['optasense', 'silixa', 'mars', 'alcatel']
+    interrogator_list = ['optasense', 'silixa', 'mars', 'asn']
     if interrogator in interrogator_list:
 
         if interrogator == 'optasense':
@@ -59,17 +59,16 @@ def get_acquisition_parameters(filepath, interrogator='optasense'):
         elif interrogator == 'mars':
             metadata = get_metadata_mars(filepath)
 
-        elif interrogator == 'alcatel':
-            metadata = get_metadata_alcatel(filepath)
+        elif interrogator == 'asn':
+            metadata = get_metadata_asn(filepath)
 
     else:
         raise ValueError('Interrogator name incorrect')
 
     return metadata
 
-
 def get_metadata_optasense(filepath):
-    """Gets DAS acquisition parameters for the optasense interrogator 
+    """Gets DAS acquisition parameters for the optasense interrogator e.g., OOI South C1 data
 
     Parameters
     ----------
@@ -108,7 +107,6 @@ def get_metadata_optasense(filepath):
         raise FileNotFoundError(f'File {filepath} not found')
 
     return meta_data
-
 
 def get_metadata_silixa(filepath):
     """Gets DAS acquisition parameters for the silixa interrogator 
@@ -153,6 +151,36 @@ def get_metadata_silixa(filepath):
     
     return meta_data
 
+def get_metadata_asn(filepath):
+    """
+    Gets DAS acquisition parameters e.g. Svalbard
+
+    Inputs:
+    :param filename: a string containing the full path to the data to load
+
+    Outputs:
+    :return: fs: the sampling frequency (Hz)
+    :return: dx: interval between two virtual sensing points also called channel spacing (m)
+    :return: nx: the number of spatial samples also called channels
+    :return: ns: the number of time samples
+    :return: gauge_length: the gauge length (m)
+    :return: scale_factor: the value to convert DAS data from strain rate to strain
+
+    """
+
+    fp = h5py.File(filepath, 'r')
+
+    fs = 1/fp['header']['dt'][()]  # sampling rate in Hz
+    dx = fp['header']['dx'][()]*fp['demodSpec']['roiDec'][()]  # channel spacing in m
+    dx = dx[0]
+    nx = fp['header']['dimensionRanges']['dimension1']['size'][()] # number of channels
+    nx = nx[0]
+    ns = fp['header']['dimensionRanges']['dimension0']['size'][()]  # number of samples
+    gauge_length = fp['header']['gaugeLength'][()]  # gauge length in m
+    n = fp['cableSpec']['refractiveIndex'][()]  # refractive index of the fiber
+    scale_factor = fp['header']['sensitivities'][()]
+    metadata = {'fs': fs, 'dx': dx, 'ns': ns, 'GL': gauge_length, 'nx': nx, 'scale_factor': scale_factor}
+    return metadata
 
 def raw2strain(trace, metadata):
     """Transform the amplitude of raw das data from strain-rate to strain according to scale factor
