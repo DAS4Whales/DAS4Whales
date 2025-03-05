@@ -12,16 +12,18 @@ import h5py
 import wget
 import os
 import numpy as np
+import csv
 import dask.array as da
 from datetime import datetime
 import pandas as pd
 from nptdms import TdmsFile
 
-
+# Test for the package
 def hello_world_das_package():
     print("Yepee! You now have access to all the functionalities of the das4whale python package!")
 
 
+# Read metadata
 # Definition of the functions for DAS data conditioning
 def get_acquisition_parameters(filepath, interrogator='optasense'):
     """
@@ -182,6 +184,7 @@ def get_metadata_asn(filepath):
     metadata = {'fs': fs, 'dx': dx, 'ns': ns, 'GL': gauge_length, 'nx': nx, 'scale_factor': scale_factor}
     return metadata
 
+# Load/download das data as strain
 def raw2strain(trace, metadata):
     """Transform the amplitude of raw das data from strain-rate to strain according to scale factor
 
@@ -203,7 +206,6 @@ def raw2strain(trace, metadata):
     trace -= np.mean(trace, axis=1, keepdims=True)
     trace *= metadata["scale_factor"] 
     return trace
-
 
 def load_das_data(filename, selected_channels, metadata):
     """
@@ -257,7 +259,6 @@ def load_das_data(filename, selected_channels, metadata):
 
     return trace, tx, dist, file_begin_time_utc
 
-
 def dl_file(url):
     """Download the file at the given url
 
@@ -282,7 +283,7 @@ def dl_file(url):
         print(f'Downloaded {filename}')
     return filepath #TODO: add filenames as output to create large daskarrays
 
-
+# Load cable position information
 def load_cable_coordinates(filepath, dx):
     """
     Load the cable coordinates from a text file.
@@ -306,3 +307,85 @@ def load_cable_coordinates(filepath, dx):
     df['chan_m'] = df['chan_idx'] * dx
 
     return df
+
+def get_cable_lat_lon_depth(file, selected_channels):
+    """
+    Extract latitude, longitude, and depth information from a CSV or TXT file for selected cable channels.
+
+    Parameters
+    ----------
+    file : str
+        The file path to the CSV or TXT file containing latitude, longitude, and depth information.
+    selected_channels : tuple
+        A tuple containing three integers: (start, stop, step) used to slice and select cable channels.
+
+    Returns
+    -------
+    position : dict
+        A dictionary containing the extracted information for the selected channels:
+        - 'chan_idx_oj': list of floats, representing the selected cable channel indices.
+        - 'lat': list of floats, representing the selected latitude values.
+        - 'lon': list of floats, representing the selected longitude values.
+        - 'depth': list of floats, representing the selected depth values in absolute magnitude.
+    """
+    # Prepare lists
+    channel = []
+    lat = []
+    lon = []
+    depth = []
+
+    # Read the latitude, longitude, and depth data from the CSV/TXT file
+    with open(file, mode='r') as file:
+        csv_file = csv.reader(file, delimiter=' ')
+        for lines in csv_file:
+            # Filter out empty strings
+            lines = [line for line in lines if line]
+            channel.append(float(lines[0]))
+            lat.append(float(lines[1]))
+            lon.append(float(lines[2]))
+            depth.append(abs(float(lines[3])))
+
+    # Select the specified channels
+    channel = channel[selected_channels[0]:selected_channels[1]:selected_channels[2]]
+    lat = lat[selected_channels[0]:selected_channels[1]:selected_channels[2]]
+    lon = lon[selected_channels[0]:selected_channels[1]:selected_channels[2]]
+    depth = depth[selected_channels[0]:selected_channels[1]:selected_channels[2]]
+
+    # Store latitude, longitude, and depth in a dictionary
+    position = {
+        'chan_idx_oj': channel,
+        'lat': lat,
+        'lon': lon,
+        'depth': depth,
+    }
+
+    return position
+
+# Load annotation files
+def load_annotation_csv(filepath):
+    """
+    Load the annotation data from a CSV file. The file must include the following columns:
+    'file_name', 'apex', 'offset', 'start_time', 'whale_side', as output from the DAS Source Locator
+    annotation application (https://github.com/leabouffaut/DASSourceLocator).
+
+    Parameters
+    ----------
+    filepath : str
+        The file path to the annotation CSV file to load.
+
+    Returns
+    -------
+    annotations : pandas.DataFrame
+        A DataFrame containing the following columns:
+        - 'file_name': str, names of files
+        - 'apex': int, apex values
+        - 'offset': int, offset values
+        - 'start_time': float, start times
+        - 'whale_side': str, indicating the side of the whale (e.g., 'left' or 'right').
+    """
+
+    # load the .csv file and create a pandas dataframe
+    annotations = pd.read_csv(filepath, header=0, keep_default_na=False)
+    annotations.columns = ['file_name', 'apex', 'offset', 'start_time', 'whale_side']
+
+    return annotations

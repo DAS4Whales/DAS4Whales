@@ -4,7 +4,7 @@ dsp.py - Digital Signal Processing module for DAS4Whales
 This module provides various functions for digital signal processing of DAS strain data.
 
 Authors: Léa Bouffaut, Quentin Goestchel
-Date: 2023-2024
+Date: 2023-2024-2025
 """
 
 import numpy as np
@@ -13,6 +13,47 @@ import librosa
 import sparse
 from scipy import ndimage
 from numpy.fft import fft2, fftfreq, fftshift, ifft2, ifftshift
+
+# Digital sampling
+def resample(tr, fs, desired_fs):
+    """
+    Resample a multi-channel signal to a desired sampling frequency.
+
+    Parameters
+    ----------
+    tr : ndarray
+        Input signal with shape `(n_channels, n_samples)`, where `n_channels` is the number of channels
+        and `n_samples` is the number of time samples.
+    fs : int
+        Original sampling frequency of the input signal (in Hz).
+    desired_fs : int
+        Desired sampling frequency after resampling (in Hz).
+
+    Returns
+    -------
+    tuple
+        A tuple containing:
+        - tr_downsampled (ndarray): Downsampled signal with shape `(n_channels, n_samples_downsampled)`.
+        - fs_downsampled (int): Sampling frequency after downsampling (equals `desired_fs`).
+        - tx_downsampled (ndarray): New time vector corresponding to the downsampled signal,
+          with shape `(n_samples_downsampled,)`.
+    """
+    # 1) Filter the signal if downsampling is needed
+    if desired_fs < fs:
+        # Butterworth low-pass filter
+        sos = sp.butter(8, desired_fs / 2, 'low', fs=fs, output='sos')
+        tr = sp.sosfiltfilt(sos, tr, axis=-1)
+
+    # 2) Resample
+    tr_downsampled = librosa.resample(
+        tr, axis=1, orig_sr=fs, target_sr=desired_fs, res_type='soxr_vhq')  # axis specifies the time axis
+    fs_downsampled = desired_fs
+    n_channels, n_samples = tr_downsampled.shape
+
+    # 3) New time vector
+    tx_downsampled = np.arange(n_samples) / fs_downsampled
+
+    return tr_downsampled, fs_downsampled, tx_downsampled
 
 # Transformations
 def get_fx(trace, nfft):
