@@ -1,3 +1,11 @@
+"""
+spatial.py - Spatial calculations for DAS data analysis in DAS4Whales.
+
+
+Authors: Léa Bouffaut
+Date: 2025
+"""
+
 import numpy as np
 
 def to_rad(degree):
