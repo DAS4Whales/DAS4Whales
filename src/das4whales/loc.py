@@ -3,12 +3,13 @@ loc.py - Localisation module for the das4whales package.
 
 This module provides functions for localizing the source of a sound source recorded by a DAS array.
 
-Author: Quentin Goestchel
-Date: 2024-06-18
+Author: Quentin Goestchel, Léa Bouffaut
+Date: 2024-06-18/2025-03-05
 """
 
 import sys
 import numpy as np
+from spatial import calc_das_section_bearing, calc_source_position_lat_lon, calc_dist_lat_lon
 
 def calc_arrival_times(t0, cable_pos, pos, c0):
     """
@@ -24,6 +25,55 @@ def calc_arrival_times(t0, cable_pos, pos, c0):
 
     return t0 + th_arrtimes
 
+def calc_theory_toa(das_position, whale_position, dist, c0=1490):
+    """
+    Calculate theoretical Time of Arrival (TOA) for a whale call with known position relative to the cable.
+
+    Args:
+        das_position (dict): A dictionary containing latitude, longitude, and depth information of the cable (DAS) positions.
+        whale_position (dict): A dictionary containing at least whale apex, offset, side and depth
+        dist (numpy.ndarray): An array containing distances along the cable.
+        c0 (float, optional): The speed of sound in water in meters per second. Defaults to 1490 m/s.
+
+    Returns:
+        numpy.ndarray: An array containing the theoretical TOAs for each position along the cable.
+    """
+
+    # Find the index of whale_apex_m in dist
+    ind_whale_apex = np.where(dist >= whale_position['apex'])[0][0]
+
+    # Get the bearing of the DAS cable around whale position
+    step = 3
+    das_bearing = calc_das_section_bearing(
+        das_position['lat'][ind_whale_apex - step],
+        das_position['lon'][ind_whale_apex - step],
+        das_position['lat'][ind_whale_apex + step],
+        das_position['lon'][ind_whale_apex + step])
+
+    # Get the whale position
+    whale_position['lat'], whale_position['lon'] = calc_source_position_lat_lon(
+        das_position['lat'][ind_whale_apex],
+        das_position['lon'][ind_whale_apex],
+        whale_position['offset'],
+        das_bearing,
+        whale_position['side'])
+
+    # Create an updated whale position dictionary
+    # print(f"whale position {whale_position}")
+
+    # Calculate 3D distance for each element in DAS_position
+    distances = calc_dist_lat_lon(whale_position, das_position)
+
+    # Calculate depth differences
+    depth_diff = np.array(das_position['depth']) - whale_position['depth']
+
+    # Calculate total distance (3D)
+    total_distance = np.sqrt(distances ** 2 + depth_diff ** 2)
+
+    # Calculate theoretical TOAs
+    toa = (total_distance - np.min(total_distance)) / c0
+
+    return toa
 
 def calc_distance_matrix(cable_pos, whale_pos):
     """
@@ -218,3 +268,4 @@ def calc_uncertainty_position(cable_pos, whale_pos, c0, var, fix_z=False):
     unc = np.sqrt(np.diag(cov))
 
     return unc
+
