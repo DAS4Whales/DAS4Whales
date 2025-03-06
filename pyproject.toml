@@ -46,7 +46,8 @@ dependencies = [
     "numpydoc",
     "pyproj",
     "pandas",
-    "deprecation"
+    "deprecation",
+    "simpleDAS"
 ]
 
 [project.urls]
