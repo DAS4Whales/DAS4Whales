@@ -12,17 +12,70 @@ import numpy as np
 
 def calc_arrival_times(t0, cable_pos, pos, c0):
     """
-    Get the theoretical arrival times of a whale call at a given distance along the cable
+    Calculate theoretical arrival times of a whale call at a grid of positions or a single point.
+
+    Parameters
+    ----------
+    t0 : float or np.ndarray
+        Initial time offset. Can be a scalar or an array of time offsets.
+
+    cable_pos : np.ndarray
+        Array of cable positions with shape (N, 3), where N is the number of channels.
+        Each row represents [x, y, z] coordinates of a cable position.
+
+    pos : tuple of np.ndarray or float
+        If a grid is used, provide a tuple (xg, yg, zg) with xg and yg as 2D arrays.  
+        For a single point, provide (x, y, z) as floats or 1D arrays.
+
+    c0 : float
+        Speed of sound in water (in meters per second).
+
+    Returns
+    -------
+    th_arrtimes : np.ndarray
+        Theoretical arrival times at each grid point or point source.  
+        Shape is (M, L, N) for a grid, or (N,) for a single point.
     """
-    # Whale position or potential whale position
-    x, y, z = pos
-
-    # Cable positions for each channel
+    # Extract cable positions
     x_cable, y_cable, z_cable = cable_pos[:, 0], cable_pos[:, 1], cable_pos[:, 2]
+    
+    # Check if pos is a grid, a flattened grid or a single point
+    if isinstance(pos[0], np.ndarray) and pos[0].ndim == 2:
+        # Grid case (np.meshgrid)
+        xg, yg, zg = pos
+        x_exp = xg[:, :, np.newaxis]  # Shape (M, L, 1)
+        y_exp = yg[:, :, np.newaxis]
+        z_exp = zg  # Scalar or array
 
-    th_arrtimes = np.sqrt((x_cable - x) ** 2 + (y_cable - y) ** 2 + (z_cable - z) ** 2) / c0
+        # Calculate distances for grid
+        dist = np.sqrt((x_cable[np.newaxis, np.newaxis, :] - x_exp) ** 2 +
+                       (y_cable[np.newaxis, np.newaxis, :] - y_exp) ** 2 +
+                       (z_cable[np.newaxis, np.newaxis, :] - z_exp) ** 2)
+        
+    elif isinstance(pos[0], np.ndarray) and pos[0].ndim == 1: #flattened grid case
+        # Flattened grid case
+        xg, yg, zg = pos
+        x_exp = xg[:, np.newaxis]
+        y_exp = yg[:, np.newaxis]
+        z_exp = zg
 
-    return t0 + th_arrtimes
+        # Calculate distances for flattened grid
+        dist = np.sqrt((x_cable[np.newaxis, :] - x_exp) ** 2 +
+                       (y_cable[np.newaxis, :] - y_exp) ** 2 +
+                       (z_cable[np.newaxis, :] - z_exp) ** 2)
+        
+    else:
+        # Single point case
+        x, y, z = pos
+        dist = np.sqrt((x_cable - x) ** 2 +
+                       (y_cable - y) ** 2 +
+                       (z_cable - z) ** 2)
+
+    # Calculate arrival times
+    th_arrtimes = t0 + dist / c0
+
+    return th_arrtimes
+
 
 
 def calc_distance_matrix(cable_pos, whale_pos):
@@ -54,7 +107,7 @@ def calc_phi_vector(cable_pos, whale_pos):
     return np.arctan2(whale_pos[1]-cable_pos[:,1], whale_pos[0]-cable_pos[:,0])
 
 
-def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None):
+def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None, residuals=False, verbose=False):
     """
     Solve the least squares problem to localize the whale
 
@@ -124,12 +177,19 @@ def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None):
 
         if fix_z:
             # reappend z to n in index 2 (before index 3)
-            n = np.insert(n, 2, dz)            
+            n = np.insert(n, 2, dz) 
+                       
+        if verbose:
+            print(f'Iteration {j+1}: x = {n[0]:.4f} m, y = {n[1]:.4f}, z = {n[2]:.4f}, ti = {n[3]:.4f}')
 
-        print(f'Iteration {j+1}: x = {n[0]:.4f} m, y = {n[1]:.4f}, z = {n[2]:.4f}, ti = {n[3]:.4f}')
+    # Compute final residuals
+    res = Ti - calc_arrival_times(n[-1], cable_pos, n[:3], c0)
 
-    return n
-
+    if residuals:
+        return n, res
+    else:
+        return n
+    
 
 def cal_variance_residuals(arrtimes, predic_arrtimes, fix_z=False):
     """Compute the variance of the residuals of the arrival times

@@ -46,7 +46,8 @@ dependencies = [
     "numpydoc",
     "pyproj",
     "pandas",
-    "deprecation"
+    "deprecation",
+    "cmocean"
 ]
 
 [project.urls]
