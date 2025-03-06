@@ -54,7 +54,7 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/DAS4Whales/DAS4Whales"
 
-[tool.hatch.version]
+[tool.hatch.version]  
 path = "src/das4whales/__init__.py"
 
 [tool.hatch.build.targets.sdist]
