@@ -49,6 +49,7 @@ dependencies = [
     "deprecation",
     "cmocean",
     "simpleDAS@git+https://github.com/ASN-Norway/simpleDAS"
+    "simpleDAS"
 ]
 
 [project.urls]
