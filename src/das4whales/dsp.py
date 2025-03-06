@@ -386,7 +386,7 @@ def fk_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min
             ax1 = plt.subplot(gs[0])
             ax1.imshow(fk_filter_matrix, extent=[min(freq), max(freq), min(knum), max(knum)], aspect='auto', origin='lower')
             ax1.hlines(knum[len(knum)//2 + 420], min(freq), max(freq), color='tab:orange', lw=2, ls=':')
-            ax1.vlines(freq[len(freq)//2 + 1500], min(knum), max(knum), color='tab:blue', lw=2, ls=':')
+            ax1.vlines(freq[len(freq)//2 + 100], min(knum), max(knum), color='tab:blue', lw=2, ls=':')
             # colorbar
             # cbar = plt.colorbar(ax1.imshow(fk_filter_matrix, extent=[min(freq), max(freq), min(knum), max(knum)], aspect='auto', origin='lower'))
             ax1.set_ylabel('k [m$^{-1}$]')
@@ -402,7 +402,7 @@ def fk_filter_design(trace_shape, selected_channels, dx, fs, cs_min=1400, cp_min
 
             # Wavenumber slice display
             ax3 = plt.subplot(gs[1], sharey=ax1)
-            ax3.plot(fk_filter_matrix[:, len(freq)//2 + 1500], knum, lw=3, color='tab:blue')
+            ax3.plot(fk_filter_matrix[:, len(freq)//2 + 100], knum, lw=3, color='tab:blue')
             ax3.set_xlabel('Gain []')
             ax3.set_ylabel('k [m$^{-1}$]')
             ax3.yaxis.set_label_position("right")
@@ -917,23 +917,23 @@ def hybrid_ninf_gs_filter_design(trace_shape, selected_channels, dx, fs, fk_para
             # plt.rc('xtick', labelsize=16)  
             # plt.rc('ytick', labelsize=16)
 
-            fig = plt.figure(figsize=(18, 10))
+            fig = plt.figure(figsize=(14.8, 8.8))
             gs = gridspec.GridSpec(2, 2, width_ratios=[5, 1], height_ratios=[6, 2])
 
             # Matrix display
             ax1 = plt.subplot(gs[0])
             ax1.imshow(fk_filter_matrix, extent=[min(freq), max(freq), min(knum), max(knum)], aspect='auto', origin='lower')
-            ax1.hlines(knum[len(knum)//2 + 420], min(freq), max(freq), color='tab:orange', lw=2, ls=':')
-            ax1.vlines(freq[len(freq)//2 + 1500], min(knum), max(knum), color='tab:blue', lw=2, ls=':')
+            ax1.hlines(knum[len(knum)//2 + 420], min(freq), max(freq), color='tab:orange', lw=4, ls=':')
+            ax1.vlines(freq[len(freq)//2 + 1500], min(knum), max(knum), color='tab:blue', lw=4, ls=':')
             # colorbar
             # cbar = plt.colorbar(ax1.imshow(fk_filter_matrix, extent=[min(freq), max(freq), min(knum), max(knum)], aspect='auto', origin='lower'))
-            ax1.set_ylabel('k [m$^{-1}$]')
-            ax1.set_xlabel('f [Hz]')
+            ax1.set_ylabel('Wavenumber [m$^{-1}$]')
+            # ax1.set_xlabel('Frequency [Hz]')
             
             # Frequency slice display
             ax2 = plt.subplot(gs[2], sharex=ax1)
             ax2.plot(freq, fk_filter_matrix[len(knum)//2 + 420, :], lw=3, color='tab:orange')
-            ax2.set_xlabel('f [Hz]')
+            ax2.set_xlabel('Frequency [Hz]')
             ax2.set_ylabel('Gain []')
             ax2.set_xlim([min(freq), max(freq)])
             ax2.grid()
@@ -942,7 +942,7 @@ def hybrid_ninf_gs_filter_design(trace_shape, selected_channels, dx, fs, fk_para
             ax3 = plt.subplot(gs[1], sharey=ax1)
             ax3.plot(fk_filter_matrix[:, len(freq)//2 + 1500], knum, lw=3, color='tab:blue')
             ax3.set_xlabel('Gain []')
-            ax3.set_ylabel('k [m$^{-1}$]')
+            ax3.set_ylabel('Wavenumber [m$^{-1}$]')
             ax3.yaxis.set_label_position("right")
             ax3.set_ylim([min(knum), max(knum)])
             ax3.invert_xaxis()
