@@ -47,7 +47,8 @@ dependencies = [
     "pyproj",
     "pandas",
     "deprecation",
-    "cmocean"
+    "cmocean",
+    "simpleDAS@git+https://github.com/ASN-Norway/simpleDAS.git"
 ]
 
 [project.urls]
