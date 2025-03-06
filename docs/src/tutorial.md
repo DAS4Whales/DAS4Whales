@@ -3,7 +3,7 @@
 ### Import the DAS4Whales module and dependencies from GitHub
 If not in a Jupyter notebook, follow the [Installation instructions](install.rst), otherwise, run the following cell to install the module
 ```python
-!python3 -m pip install 'git+https://github.com/qgoestch/DAS4Whales'
+!python3 -m pip install 'git+https://github.com/DAS4Whales/DAS4Whales'
 ```
 
 ### Import the DAS4Whales module and dependencies for the example
@@ -25,7 +25,7 @@ url = 'http://piweb.ooirsn.uw.edu/das/data/Optasense/NorthCable/TransmitFiber/' 
         'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-03T15_06_51-0700/'\
         'North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5'
 
-filepath = dw.data_handle.dl_file(url)
+filepath, filename = dw.data_handle.dl_file(url)
 ```
 
     North-C1-LR-P1kHz-GL50m-Sp2m-FS200Hz_2021-11-04T020002Z.h5 already stored locally
@@ -66,6 +66,9 @@ print(f'Number of time samples: {metadata["ns"]}')
 As displayed above, the channel spacing (spatial sampling all along the fiber) is very narrow, close to 2 m.
 The following allows to re-sample the data spatially and select a region of interest, in the interest of minimizing the matrix's size.
 
+```{warning}
+Depending on the RAM available on your computer, you may need to adjust (lower) the number of channels selected and the channel interval.
+```
 
 ```python
 selected_channels_m = [20000, 65000, 10]  # list of values in meters corresponding to the starting,
@@ -138,15 +141,21 @@ The spatio-temporal plot (t-x plot) shows temporal variations of the strain alon
 ### Filtering in the frequency-wavenumber domain (f-k) and corresponding t-x plot
 
 The spatio-temporal DAS strain data is transformed in the frequency-wavenumber (f-k) domain by applying a 2D FFT. There, it is possible to apply a fan filter to select only certain speeds and then, go back to the time domain. This process is available using successively:
-* `das4whales.dsp.fk_filter_design(params)`, that creates the filter
-* `das4whales.dsp.fk_filter_filt(params)`, that transforms the data to the f-k domain, applies the filter and transforms the data back to the t-x domain
+* `das4whales.dsp.hybrid_ninf_gs_filter_design(params)`, that creates the filter
+* `das4whales.dsp.fk_filter_sparsefilt(params)`, that transforms the data to the f-k domain, applies the filter and transforms the data back to the t-x domain
 
 
 ```python
-# Create the f-k filter
-fk_filter = dw.dsp.hybrid_ninf_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, 
-                                    cs_min=1400, cp_min=1480, cp_max=3300, cs_max=3500, fmin=10, fmax=30, display_filter=True)
+# Set the wanted parameters for the f-k filter
+fk_params_s = {
+    'c_min': 1400., # m.s-1
+    'c_max': 3500., # m.s-1
+    'fmin': 10., # Hz
+    'fmax': 30. # Hz
+}
 
+# Create the f-k filter
+fk_filter = dw.dsp.hybrid_ninf_gs_filter_design((tr.shape[0],tr.shape[1]), selected_channels, dx, fs, fk_params_s, display_filter=True)
 # Print the compression ratio given by the sparse matrix usage
 dw.tools.disp_comprate(fk_filter)
 
@@ -166,12 +175,13 @@ dw.plot.plot_tx(sp.hilbert(trf_fk, axis=1), time, dist, fileBeginTimeUTC, fig_si
     
 
 
-    The size of the sparse filter is 0.0194 Gib
+    The size of the sparse filter is 0.0359 Gib
     The size of the dense filter is 0.49 Gib
-    The compression ratio is 25.42 (96.1 %)
+    The compression ratio is 13.73 (92.7 %)
 
-
-
+```{warning} 
+The output of the above cell shows the difference between a sparse and a dense filter matrix. The values will depend on the selected channels and the parameters of the filter. If not needed, comment out the line `dw.tools.disp_comprate(fk_filter)` to avoid the output.
+```
     
 ![png](DAS4Whales_ExampleNotebook_files/DAS4Whales_ExampleNotebook_18_2.png)
     

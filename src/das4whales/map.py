@@ -62,7 +62,7 @@ def load_bathymetry(filepath):
     """
 
     # Import the bathymetry data
-    ds = xr.open_dataset('data/GMRT_OOI_RCA_Cables.grd')
+    ds = xr.open_dataset(filepath, engine='scipy')
     # Extract the bathymetry values
     bathy = ds['z'].values
 
@@ -86,7 +86,7 @@ def load_bathymetry(filepath):
     print(f'latitude longitude span: x0 = {x0}, xf = {xf}, y0 = {y0}, yf = {yf}')
 
     # Create the x and y coordinates vectors
-    print(bathy.shape)
+    # print(bathy.shape)
     dim = bathy.shape
     xlon = np.linspace(x0, xf, dim[1])
     ylat = np.linspace(y0, yf, dim[0])
@@ -148,41 +148,88 @@ def plot_cables2D(df_north, df_south, bathy, xlon, ylat):
     # Set the light source
     ls = LightSource(azdeg=350, altdeg=45)
 
-    plt.figure(figsize=(14, 7))
+    plt.figure(figsize=(14, 8))
     ax = plt.gca()
     # Plot the bathymetry relief in background
     rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay')
     plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower')
 
-    # TODO: Make this less ugly
-    # Check if df_north is a dataframe
-    if not isinstance(df_north, pd.DataFrame):
-        # Plot the cable location in 2D
-        ax.plot(df_north[0], df_north[1], 'tab:red', label='North cable')
-        ax.plot(df_south[0], df_south[1], 'tab:orange', label='South cable')
-    else:
-        # Plot the cable location in 2D
-        ax.plot(df_north['lon'], df_north['lat'], 'tab:red', label='North cable')
-        ax.plot(df_south['lon'], df_south['lat'], 'tab:orange', label='South cable')
-        # plt.plot(xlon[0], ylat[-1], 'o', color='tab:red', label='test' )
+    # Plot the cable location in 2D
+    ax.plot(df_north['lon'], df_north['lat'], 'tab:red', label='North cable')
+    ax.plot(df_south['lon'], df_south['lat'], 'tab:orange', label='South cable')
 
     # Draw isoline at 0
     ax.contour(bathy, levels=[0], colors='k', extent=extent)
 
     # Use a proxy artist for the color bar
     im = ax.imshow(bathy, cmap=custom_cmap, extent=extent, aspect='equal', origin='lower')
-    plt.colorbar(im, ax=ax, label='Depth [m]', aspect=50, pad=0.1, orientation='horizontal')
+    plt.colorbar(im, ax=ax, label='Depth [m]', aspect=55, pad=0.15, orientation='horizontal')
     im.remove()
 
-    if not isinstance(df_north, pd.DataFrame):
-        # Set the labels
-        plt.xlabel('UTM x [m]')
-        plt.ylabel('UTM y [m]')
+    plt.subplots_adjust(bottom=0.0, top=1, left=0.0, right=1)
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
 
-    else:
-        # Set the labels
-        plt.xlabel('Longitude')
-        plt.ylabel('Latitude')
+    plt.legend(loc='upper center')
+    plt.tight_layout()
+    plt.show()
+
+    return
+
+
+def plot_cables2D_m(df_north, df_south, bathy, xm, ym):
+    """
+    Plot the cables on the bathymetry map.
+
+    Parameters
+    ----------
+    df_north : pandas.DataFrame
+        The dataframe containing the north cable coordinates.
+    df_south : pandas.DataFrame
+        The dataframe containing the south cable coordinates.
+    bathy : np.ndarray
+        The bathymetry data array. zij = bathy[i,j] is the depth at the point (xlon[j], ylat[i]).
+    xm : np.ndarray
+        The x data vector in meters.
+    ym : np.ndarray
+        The y data vector in meters.
+    """
+    
+    # Chose a colormap to be sure that values above 0 are white, and values below 0 are blue
+    colors_undersea = plt.cm.Blues_r(np.linspace(0, 0.5, 100)) # blue colors for under the sea
+    colors_land = np.array([[1, 1, 1, 1]] * 40)  # white for above zero
+
+    # Combine the color maps
+    all_colors = np.vstack((colors_undersea, colors_land))
+    custom_cmap = mcolors.LinearSegmentedColormap.from_list('custom_cmap', all_colors)
+    extent = [xm[0], xm[-1], ym[0], ym[-1]]
+
+    # Set the light source
+    ls = LightSource(azdeg=350, altdeg=45)
+
+    plt.figure(figsize=(14, 9))
+    ax = plt.gca()
+    # Plot the bathymetry relief in background
+    rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay')
+    plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower')
+
+    ax.plot(df_north['x'] , df_north['y'] , 'tab:red', label='North cable')
+    ax.plot(df_south['x'], df_south['y'], 'tab:orange', label='South cable')
+
+    # Draw isoline at 0
+    ax.contour(bathy, levels=[0], colors='k', extent=extent)
+
+    # Use a proxy artist for the color bar
+    im = ax.imshow(bathy, cmap=custom_cmap, extent=extent, aspect='equal', origin='lower')
+    
+    plt.colorbar(im, ax=ax, label='Depth [m]', aspect=55, pad=0.15, orientation='horizontal')
+    im.remove()
+
+    plt.subplots_adjust(bottom=0.0, top=1, left=0.0, right=1)
+    
+    # Set the labels
+    plt.xlabel('x [m]')
+    plt.ylabel('y [m]')
 
     plt.legend(loc='upper center')
     plt.tight_layout()
@@ -209,7 +256,7 @@ def plot_cables3D(df_north, df_south, bathy, xlon, ylat):
         The latitude data vector.
     """
 
-    fig = plt.figure(figsize=(16, 10))
+    fig = plt.figure(figsize=(12, 10))
     ax = fig.add_subplot(111, projection='3d')
     # Plot the bathymetry
     X, Y = np.meshgrid(xlon, ylat)
@@ -218,18 +265,27 @@ def plot_cables3D(df_north, df_south, bathy, xlon, ylat):
     rstride = X.shape[0] // 100
     cstride = X.shape[1] // 50
 
-    print(rstride, cstride)
+    # print(rstride, cstride)
     # Plot the surface
     ax.plot_surface(X, Y, bathy, cmap='Blues_r', alpha=0.7, antialiased=True, rstride=rstride, cstride=cstride)
     # Plot the cables
     ax.plot(df_north['lon'], df_north['lat'], df_north['depth'], 'tab:red', label='North cable', lw=4)
     ax.plot(df_south['lon'], df_south['lat'], df_south['depth'], 'tab:orange', label='South cable', lw=4)
-    ax.set_xlabel('Longitude')
-    ax.set_ylabel('Latitude')
-    ax.set_zlabel('Depth [m]')
+    # Set labels distance to the axis
+    ax.set_xlabel('Longitude', labelpad=30)
+    ax.set_ylabel('Latitude', labelpad=30)
+    ax.set_zlabel('Depth [m]', labelpad=35)
+
+    # Set the distance between tick labels and axis
+    ax.tick_params(axis='x', pad=10)  # Adjust X-axis tick label distance
+    ax.tick_params(axis='y', pad=10)  # Adjust Y-axis tick label distance
+    ax.tick_params(axis='z', pad=20)  # Adjust Z-axis tick label distance
+    # Set the angle of view
+    ax.view_init(elev=40, azim=250)
     ax.set_aspect('equalxy')
     ax.legend()
     plt.show()
+    plt.close()
 
     return
 
@@ -252,10 +308,10 @@ def plot_cables3D_m(df_north, df_south, bathy, x, y):
         The y data vector.
     """
 
-    fig = plt.figure(figsize=(16, 10))
+    fig = plt.figure(figsize=(12, 11))
     ax = fig.add_subplot(111, projection='3d')
     # Plot the bathymetry
-    X, Y = np.meshgrid(x, y)
+    X, Y = np.meshgrid(x / 1e3, y / 1e3) 
 
     # Set the stride of the plot by dividing the number of points by 100 in the x direction and 50 in the y direction
     rstride = X.shape[0] // 100
@@ -265,13 +321,26 @@ def plot_cables3D_m(df_north, df_south, bathy, x, y):
     # Plot the surface
     ax.plot_surface(X, Y, bathy, cmap='Blues_r', alpha=0.7, antialiased=True, rstride=rstride, cstride=cstride)
     # Plot the cables
-    ax.plot(df_north['x'], df_north['y'], df_north['depth'], 'tab:red', label='North cable', lw=4)
-    ax.plot(df_south['x'], df_south['y'], df_south['depth'], 'tab:orange', label='South cable', lw=4)
-    ax.set_xlabel('x [m]')
-    ax.set_ylabel('y [m]')
-    ax.set_zlabel('Depth [m]')
+    ax.plot(df_north['x'] / 1e3, df_north['y'] / 1e3, df_north['depth'], 'tab:red', label='North cable', lw=4)
+    ax.plot(df_south['x'] / 1e3, df_south['y'] / 1e3, df_south['depth'], 'tab:orange', label='South cable', lw=4)
+
+    ax.invert_yaxis()
+
+    # Set labels distance to the axis
+    ax.set_xlabel('x [km]', labelpad=30)
+    ax.set_ylabel('y [km]', labelpad=35)
+    ax.set_zlabel('Depth [m]', labelpad=35)
+
+    # Set the distance between tick labels and axis
+    ax.tick_params(axis='x')  # Adjust X-axis tick label distance
+    ax.tick_params(axis='y')  # Adjust Y-axis tick label distance
+    ax.tick_params(axis='z', pad=20)  # Adjust Z-axis tick label distance
+    # Set the angle of view
+    ax.view_init(elev=40, azim=70)
+
     ax.set_aspect('equalxy')
     ax.legend()
+    plt.subplots_adjust(bottom=0.0, top=1, left=0.0, right=1)
     plt.show()
 
     return

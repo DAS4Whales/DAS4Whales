@@ -20,6 +20,7 @@ classifiers = [
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -29,7 +30,7 @@ dependencies = [
     "nptdms",
     "librosa",
     "matplotlib",
-    "numpy<2",
+    "numpy",
     "scipy",
     "wget",
     "dask[complete]",
@@ -45,10 +46,11 @@ dependencies = [
     "numpydoc",
     "pyproj",
     "pandas",
+    "deprecation"
 ]
 
 [project.urls]
-Homepage = "https://github.com/leabouffaut/DAS4Whales"
+Homepage = "https://github.com/DAS4Whales/DAS4Whales"
 
 [tool.hatch.version]
 path = "src/das4whales/__init__.py"

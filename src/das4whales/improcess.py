@@ -17,10 +17,12 @@ import torch.nn.functional as F
 import torchvision.transforms as transforms
 from skimage.transform import radon, iradon
 from scipy.ndimage import gaussian_filter as scipy_gaussian_filter
+from scipy.ndimage import median_filter
+from joblib import Parallel, delayed
 from tqdm import tqdm
 
 
-def scale_pixels(img):
+def scale_pixels(img, scale_factor=1):
     """Scale the pixel values of an image.
 
     This function scales the pixel values of an image to the range [0, 1].
@@ -30,6 +32,9 @@ def scale_pixels(img):
     img : numpy.ndarray
         The input image.
 
+    scale_factor : float, optional (default=1)
+        The scaling factor.
+
     Returns
     -------
     numpy.ndarray
@@ -37,7 +42,7 @@ def scale_pixels(img):
 
     """
 
-    img = (img - img.min())/(img.max() - img.min())
+    img = (img - img.min()) / (img.max() - img.min()) * scale_factor
     return img
 
 
@@ -124,17 +129,17 @@ def gabor_filt_design(theta_c0, plot=False):
     gabor_filtdown = np.flipud(gabor_filtup)
 
     if plot:
-        plt.figure(figsize=(6, 4))
-        plt.subplot(121)
+        plt.figure(figsize=(6, 6))
+        # plt.subplot(121)
         plt.imshow(gabor_filtup, origin='lower', cmap='RdBu_r', vmin=-1, vmax=1, aspect='equal')
         plt.xlabel('Time indices')
         plt.ylabel('Distance indices')
-        plt.colorbar(orientation='horizontal')
+        plt.colorbar(orientation='horizontal', pad=0.2)
 
-        plt.subplot(122)
-        plt.imshow(gabor_filtdown, origin='lower', cmap='RdBu_r', vmin=-1, vmax=1, aspect='equal')
-        plt.xlabel('Time indices')
-        plt.colorbar(orientation='horizontal')
+        # plt.subplot(122)
+        # plt.imshow(gabor_filtdown, origin='lower', cmap='RdBu_r', vmin=-1, vmax=1, aspect='equal')
+        # plt.xlabel('Time indices')
+        # plt.colorbar(orientation='horizontal', pad=0.2)
         plt.tight_layout()
         plt.show()
     return gabor_filtup, gabor_filtdown
@@ -414,7 +419,6 @@ def binning(image, ft, fx):
 
     # img = cv2.resize(image, (0, 0), fx=ft, fy=fx, interpolation=cv2.INTER_AREA)
 
-
     imagebin = transforms.ToTensor()(image)    
     imagebin = transforms.Resize((int(image.shape[0] * fx) , int(image.shape[1] * ft)))(imagebin)
     img = imagebin.numpy()[0]
@@ -454,3 +458,35 @@ def apply_smooth_mask(array, mask, sigma=1.5):
     return masked_array
 
 
+def apply_median_filter_chunk(array_chunk, size):
+    return median_filter(array_chunk, size=size)
+
+
+def par_medfilt(array, size, n_jobs=-1):
+    """Apply median filter to an array in parallel.
+
+    This function applies median filter to an array in parallel.
+
+    Parameters
+    ----------
+    array : numpy.ndarray
+        The input array.
+    size : int
+        The size of the filter.
+    n_jobs : int, optional (default=-1)
+        The number of jobs to run in parallel.
+
+    Returns
+    -------
+    numpy.ndarray
+        The filtered array.
+
+    """
+
+    # Split the array into chunks, along rows
+    ch_array = np.array_split(array, n_jobs, axis=0)
+
+    # Apply median filter to the array in parallel
+    filtered_array = Parallel(n_jobs=n_jobs)(delayed(apply_median_filter_chunk)(ch, size) for ch in ch_array)
+
+    return np.vstack(filtered_array)

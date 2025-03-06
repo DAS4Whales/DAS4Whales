@@ -23,9 +23,9 @@ def gen_linear_chirp(fmin, fmax, duration, sampling_rate):
     Parameters
     ----------
     fmin : float
-        The starting frequency of the chirp signal.
-    fmax : float
         The ending frequency of the chirp signal.
+    fmax : float
+        The starting frequency of the chirp signal.
     duration : float
         The duration of the chirp signal in seconds.
     sampling_rate : int
@@ -47,9 +47,9 @@ def gen_hyperbolic_chirp(fmin, fmax, duration, sampling_rate):
     Parameters
     ----------
     fmin : float
-        The starting frequency of the chirp signal.
-    fmax : float
         The ending frequency of the chirp signal.
+    fmax : float
+        The starting frequency of the chirp signal.
     duration : float
         The duration of the chirp signal in seconds.
     sampling_rate : int
@@ -109,6 +109,7 @@ def shift_xcorr(x, y):
         1D array cross-correlation betweem x and y, only for positive lags
     """
     corr = sp.correlate(x, y, mode='full', method='fft')
+    # TODO: Modify to use with the short window values (mode = 'same' instead of 'full')
     return corr[len(x)-1 :]
 
 
@@ -166,9 +167,64 @@ def compute_cross_correlogram(data, template):
     return cross_correlogram
 
 
+def calc_nmf(data, template):
+    """
+    Calculate the normalized matched filter between the input data and the template.
+
+    Parameters
+    ----------
+    data : numpy.ndarray
+        The input data array.
+    template : numpy.ndarray
+        The template array.
+
+    Returns
+    -------
+    numpy.ndarray
+        The normalized matched filter array (vector). 
+    """
+    nmf = sp.correlate(data, template, mode='same', method='fft') / np.sqrt((np.sum(data ** 2) * np.sum(template ** 2)))
+    return nmf
+
+
+def calc_nmf_correlogram(data, template):
+    """
+    Calculate the normalized matched filter correlogram between the input data and the template.
+
+    Parameters
+    ----------
+    data : numpy.ndarray
+        The input data array.
+    template : numpy.ndarray
+        The template array.
+
+    Returns
+    -------
+    numpy.ndarray
+        The normalized matched filter correlogram array.
+    """
+    # Normalize data along axis 1 by its maximum (peak normalization)
+    norm_data = (data - np.mean(data, axis=1, keepdims=True)) / np.max(np.abs(data), axis=1, keepdims=True)
+    template = (template - np.mean(template)) / np.max(np.abs(template))
+
+    # Compute correlation along axis 1
+    nmf_correlogram = np.empty_like(data)
+
+    for i in tqdm(range(data.shape[0])):
+        nmf_correlogram[i, :] = calc_nmf(data[i, :], template)
+
+    # Parallelized version:
+    # with concurrent.futures.ThreadPoolExecutor() as executor:
+    #     results = [executor.submit(calc_nmf, data[i, :], template) for i in range(data.shape[0])]
+    #     # Use tqdm to display a progress bar for the as_completed iterator
+    #     for i, future in enumerate(tqdm(concurrent.futures.as_completed(results), total=len(results))):
+    #         nmf_correlogram[i, :] = future.result()
+
+    return nmf_correlogram
+
+
 def pick_times_env(corr_m, threshold):
-    # TODO: Parallelize this function
-    """Detects the peak times in a correlation matrix.
+    """Detects the peak times in a correlation matrix. Parallelized version : pick_times_par
 
     This function takes a correlation matrix, computes the Hilbert transform of each correlation,
     and detects the peak times based on a given threshold.
@@ -190,6 +246,8 @@ def pick_times_env(corr_m, threshold):
 
     for corr in tqdm(corr_m, desc="Processing corr_m"):
         peaks_indexes = sp.find_peaks(abs(sp.hilbert(corr)), prominence=threshold)[0]  # Change distance in indexes, ex: 'distance=200'
+        peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=th)
+
         peaks_indexes_m.append(peaks_indexes)
     
     return peaks_indexes_m
@@ -246,7 +304,7 @@ def pick_times_par(corr_m, threshold):
     return peaks_indexes_m
 
 
-def pick_times(corr_m, threshold):
+def pick_times(corr_m, threshold, ipi_idx):
     """Detects the peak times in a correlation matrix.
 
     This function takes a correlation matrix, computes the Hilbert transform of each correlation,
@@ -258,6 +316,8 @@ def pick_times(corr_m, threshold):
         The correlation matrix.
     threshold : float, optional
         The threshold value for peak detection. Defaults to 0.3.
+    ipi_idx : int
+        The minimum inter-pulse interval in indexes.
 
     Returns
     -------
@@ -267,8 +327,8 @@ def pick_times(corr_m, threshold):
     """
     peaks_indexes_m = []
 
-    for corr in tqdm(corr_m, desc="Processing corr_m"):
-        peaks_indexes = sp.find_peaks(corr, prominence=threshold)[0]
+    for corr in tqdm(corr_m, desc=f"Picking times, threshold: {threshold}, ipi: {ipi_idx} time samples"):
+        peaks_indexes,_ = sp.find_peaks(corr, distance = ipi_idx, height=threshold)
         peaks_indexes_m.append(peaks_indexes)
     
     return peaks_indexes_m
@@ -281,7 +341,8 @@ def convert_pick_times(peaks_indexes_m):
     Parameters
     ----------
     peaks_indexes_m : list of lists
-        A list of lists containing the pick times.
+        A list of lists containing the pick times. The indexes of each list correspond to the space index.
+        [[t1, t2, t3, ...], [t1, t2, t3, ...], ...]
 
     Returns
     -------

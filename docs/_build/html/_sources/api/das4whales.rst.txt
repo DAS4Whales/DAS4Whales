@@ -49,18 +49,10 @@ das4whales.improcess module
    :undoc-members:
    :show-inheritance:
 
-das4whales.plot module
-----------------------
+das4whales.loc module
+---------------------
 
-.. automodule:: das4whales.plot
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-das4whales.tools module
------------------------
-
-.. automodule:: das4whales.tools
+.. automodule:: das4whales.loc
    :members:
    :undoc-members:
    :show-inheritance:
@@ -73,10 +65,18 @@ das4whales.map module
    :undoc-members:
    :show-inheritance:
 
-das4whales.loc module
----------------------
+das4whales.plot module
+----------------------
 
-.. automodule:: das4whales.loc
+.. automodule:: das4whales.plot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+das4whales.tools module
+-----------------------
+
+.. automodule:: das4whales.tools
    :members:
    :undoc-members:
    :show-inheritance:

@@ -110,16 +110,16 @@ def main(url):
 
         ## Compute the SNR matrix version
         # Infinite cosine tapers
-        SNR_m = dw.dsp.snr_tr_array(trf_fk_inf_cos, env=True)  # 10 * np.log10(trf_fk_inf_cos ** 2 / np.std(trf_fk_inf_cos, axis=1, keepdims=True) ** 2)
+        SNR_m = dw.dsp.snr_tr_array(trf_fk_inf_cos)  # 10 * np.log10(trf_fk_inf_cos ** 2 / np.std(trf_fk_inf_cos, axis=1, keepdims=True) ** 2)
 
         # Infinite gaussian tapers
-        SNR_m2 = dw.dsp.snr_tr_array(trf_fk_inf_gs, env=True)
+        SNR_m2 = dw.dsp.snr_tr_array(trf_fk_inf_gs)
 
         # Non-infinite gaussian tapers
-        SNR_m3 = dw.dsp.snr_tr_array(trf_fk_nf_gs, env=True)
+        SNR_m3 = dw.dsp.snr_tr_array(trf_fk_nf_gs)
 
         # Non-infinite cosine tapers
-        SNR_m4 = dw.dsp.snr_tr_array(trf_fk_nf_cos, env=True)
+        SNR_m4 = dw.dsp.snr_tr_array(trf_fk_nf_cos)
 
         # Plot the SNR matrix 
         dw.plot.snr_matrix(SNR_m4, time, dist, 20, fileBeginTimeUTC)

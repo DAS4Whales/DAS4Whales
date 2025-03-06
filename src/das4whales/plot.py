@@ -40,7 +40,7 @@ def plot_rawdata(trace, time, dist, fig_size=(12, 10)):
     plt.show()
 
 
-def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=None, v_max=None):
+def plot_tx(trace, time, dist, title_time_info=0, fig_size=(12, 10), v_min=None, v_max=None, cbar_label='Strain Envelope (x$10^{-9}$)'):
     """
     Spatio-temporal representation (t-x plot) of the strain data
 
@@ -52,8 +52,9 @@ def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=N
         The corresponding time vector
     dist : np.ndarray
         The corresponding distance along the FO cable vector
-    file_begin_time_utc : int or datetime.datetime, optional
-        The time stamp of the represented file (default is 0)
+    title_time_info : int, str, or datetime.datetime, optional
+        A time reference to display or the plot title. Can be a UTC timestamp (int), 
+        a formatted string, or a `datetime.datetime` object (default is 0).
     fig_size : tuple, optional
         Tuple of the figure dimensions (default is (12, 10))
     v_min : float, optional
@@ -77,22 +78,158 @@ def plot_tx(trace, time, dist, file_begin_time_utc=0, fig_size=(12, 10), v_min=N
     fig = plt.figure(figsize=fig_size)
     #TODO determine if the envelope should be implemented here rather than just abs
     # Replace abs(trace) per abs(sp.hilbert(trace, axis=1)) ? 
-    shw = plt.imshow(abs(trace) * 10 ** 9, extent=[time[0], time[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
+    shw = plt.imshow(abs(trace) * 1e9, extent=[time[0], time[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
                      origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
     plt.ylabel('Distance (km)')
     plt.xlabel('Time (s)')
     bar = fig.colorbar(shw, aspect=30, pad=0.015)
-    bar.set_label('Strain Envelope (x$10^{-9}$)')
-
-    if isinstance(file_begin_time_utc, datetime):
-        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
+    bar.set_label(cbar_label)
+	
+    if title_time_info:
+        if isinstance(title_time_info, datetime):
+            title_text = title_time_info.strftime("%Y-%m-%d %H:%M:%S")
+        elif isinstance(title_time_info, str):
+            title_text = title_time_info
+        elif isinstance(title_time_info, int):
+            title_text = datetime.utcfromtimestamp(title_time_info).strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            raise ValueError("title_time_info must be an int, str, or datetime.datetime.")
+        plt.title(title_text, loc='right')
+	
     plt.tight_layout()
     plt.show()
 
     return
 
 
-def plot_fx(trace, dist, fs, file_begin_time_utc=0, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0,
+def plot_tx_env(trace, time, dist, title_time_info=0, fig_size=(12, 10), v_min=None, v_max=None, cbar_label='Strain Envelope (x$10^{-9}$)'):
+    """
+    Spatio-temporal representation (t-x plot) of the strain data envelope
+
+    Parameters:
+    ----------
+    trace : np.ndarray
+        A [channel x time sample] nparray containing the strain data in the spatio-temporal domain
+    time : np.ndarray
+        The corresponding time vector
+    dist : np.ndarray
+        The corresponding distance along the FO cable vector
+    title_time_info : int, str, or datetime.datetime, optional
+        A time reference to display or the plot title. Can be a UTC timestamp (int), 
+        a formatted string, or a `datetime.datetime` object (default is 0).
+    fig_size : tuple, optional
+        Tuple of the figure dimensions (default is (12, 10))
+    v_min : float, optional
+        Sets the min nano strain amplitudes of the colorbar (default is None)
+    v_max : float, optional
+        Sets the max nano strain amplitudes of the colorbar (default is None)
+
+    Returns:
+    -------
+    None
+
+    Notes:
+    ------
+    This function plots a spatio-temporal representation (t-x plot) of the strain data. It uses the given strain data,
+    time vector, and distance vector to create the plot. The plot shows the strain envelope as a color map, with time
+    on the x-axis and distance on the y-axis. The color of each point in the plot represents the strain amplitude at
+    that point. The function also supports customizing the figure size, colorbar limits, and title.
+
+    """
+
+    fig = plt.figure(figsize=fig_size)
+    #TODO determine if the envelope should be implemented here rather than just abs
+    # Replace abs(trace) per abs(sp.hilbert(trace, axis=1)) ? 
+    shw = plt.imshow(abs(trace), extent=[time[0], time[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
+                     origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
+    plt.ylabel('Distance (km)')
+    plt.xlabel('Time (s)')
+    bar = fig.colorbar(shw, aspect=30, pad=0.015)
+    bar.set_label(cbar_label)
+
+    if title_time_info:
+        if isinstance(title_time_info, datetime):
+            title_text = title_time_info.strftime("%Y-%m-%d %H:%M:%S")
+        elif isinstance(title_time_info, str):
+            title_text = title_time_info
+        elif isinstance(title_time_info, int):
+            title_text = datetime.utcfromtimestamp(title_time_info).strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            raise ValueError("title_time_info must be an int, str, or datetime.datetime.")
+        plt.title(title_text, loc='right')
+
+    plt.tight_layout()
+    plt.show()
+
+    return
+
+
+def plot_tx_lined(trace, ln_idx, time, dist, title_time_info=0, fig_size=(12, 10), v_min=None, v_max=None):
+    """
+    Spatio-temporal representation (t-x plot) of the strain data
+
+    Parameters:
+    ----------
+    trace : np.ndarray
+        A [channel x time sample] nparray containing the strain data in the spatio-temporal domain
+    ln_idx : int
+        The index of the line to be plotted
+    time : np.ndarray
+        The corresponding time vector
+    dist : np.ndarray
+        The corresponding distance along the FO cable vector
+    title_time_info : int, str, or datetime.datetime, optional
+        A time reference to display or the plot title. Can be a UTC timestamp (int), 
+        a formatted string, or a `datetime.datetime` object (default is 0).
+    fig_size : tuple, optional
+        Tuple of the figure dimensions (default is (12, 10))
+    v_min : float, optional
+        Sets the min nano strain amplitudes of the colorbar (default is None)
+    v_max : float, optional
+        Sets the max nano strain amplitudes of the colorbar (default is None)
+
+    Returns:
+    -------
+    None
+
+    Notes:
+    ------
+    This function plots a spatio-temporal representation (t-x plot) of the strain data with a line highlighted for a given channel index. 
+    It uses the given strain data, time vector, and distance vector to create the plot. The plot shows the strain envelope as a color map, with time
+    on the x-axis and distance on the y-axis. The color of each point in the plot represents the strain amplitude at
+    that point. The function also supports customizing the figure size, colorbar limits, and title.
+
+    """
+
+    fig = plt.figure(figsize=fig_size)
+    #TODO determine if the envelope should be implemented here rather than just abs
+    # Replace abs(trace) per abs(sp.hilbert(trace, axis=1)) ? 
+    shw = plt.imshow(abs(trace) * 10 ** 9, extent=[time[0], time[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
+                     origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
+    plt.plot([time[0], time[-1]], [dist[ln_idx] * 1e-3, dist[ln_idx] * 1e-3], 'w--', linewidth=3)
+    plt.ylabel('Distance (km)')
+    plt.xlabel('Time (s)')
+    bar = fig.colorbar(shw, aspect=30, pad=0.015)
+    bar.set_label('Strain Envelope (x$10^{-9}$)')
+
+    if title_time_info:
+        if isinstance(title_time_info, datetime):
+            title_text = title_time_info.strftime("%Y-%m-%d %H:%M:%S")
+        elif isinstance(title_time_info, str):
+            title_text = title_time_info
+        elif isinstance(title_time_info, int):
+            title_text = datetime.utcfromtimestamp(title_time_info).strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            raise ValueError("title_time_info must be an int, str, or datetime.datetime.")
+        plt.title(title_text, loc='right')
+
+    plt.tight_layout()
+    plt.show()
+
+    return
+
+
+def plot_fx(trace, dist, fs, title_time_info=0, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0,
             f_max=100, v_min=None, v_max=None):
     """
     Spatio-spectral (f-k plot) of the strain data
@@ -105,8 +242,9 @@ def plot_fx(trace, dist, fs, file_begin_time_utc=0, win_s=2, nfft=4096, fig_size
         The corresponding distance along the FO cable vector
     fs : float
         The sampling frequency (Hz)
-    file_begin_time_utc : int or datetime.datetime, optional
-        The time stamp of the represented file, by default 0
+    title_time_info : int, str, or datetime.datetime, optional
+        A time reference to display or the plot title. Can be a UTC timestamp (int), 
+        a formatted string, or a `datetime.datetime` object (default is 0).
     win_s : int, optional
         The duration of each f-k plot (s), by default 2
     nfft : int, optional
@@ -136,7 +274,7 @@ def plot_fx(trace, dist, fs, file_begin_time_utc=0, win_s=2, nfft=4096, fig_size
 
     Examples
     --------
-    >>> plot_fx(trace, dist, fs, file_begin_time_utc=0, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0,
+    >>> plot_fx(trace, dist, fs, title_time_info=0, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0,
                 f_max=100, v_min=None, v_max=None)
     """
 
@@ -178,8 +316,16 @@ def plot_fx(trace, dist, fs, file_begin_time_utc=0, win_s=2, nfft=4096, fig_size
             ax.set_yticks([])
             ax.yaxis.set_tick_params(labelleft=False)
 
-    if isinstance(file_begin_time_utc, datetime):
-        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
+    if title_time_info:
+        if isinstance(title_time_info, datetime):
+            title_text = title_time_info.strftime("%Y-%m-%d %H:%M:%S")
+        elif isinstance(title_time_info, str):
+            title_text = title_time_info
+        elif isinstance(title_time_info, int):
+            title_text = datetime.utcfromtimestamp(title_time_info).strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            raise ValueError("title_time_info must be an int, str, or datetime.datetime.")
+        plt.title(title_text, loc='right')
 
     # Colorbar
     bar = fig.colorbar(shw, ax=axes.ravel().tolist())
@@ -342,6 +488,7 @@ def design_mf(trace, hnote, lnote, th, tl, time, fs):
     plt.ylabel('Instantaneous frequency [Hz]')
     plt.legend()
     plt.grid()
+    plt.tight_layout()
     plt.show()
 
     plt.figure(figsize=(18, 4))
@@ -370,7 +517,7 @@ def design_mf(trace, hnote, lnote, th, tl, time, fs):
     return
 
 
-def detection_mf(trace, peaks_idx_HF, peaks_idx_LF, time, dist, fs, dx, selected_channels, file_begin_time_utc=None):
+def detection_mf(trace, peaks_idx_HF, peaks_idx_LF, time, dist, fs, dx, selected_channels, title_time_info=None):
     """Plot the strain trace matrix [dist x time] with call detection above it
 
     Parameters
@@ -391,8 +538,9 @@ def detection_mf(trace, peaks_idx_HF, peaks_idx_LF, time, dist, fs, dx, selected
         spatial step
     selected_channels : list
         list of selected channels indexes [start, stop, step]
-    file_begin_time_utc : int, optional
-        time stamp of file, by default 0
+    title_time_info : int, str, or datetime.datetime, optional
+        A time reference to display or the plot title. Can be a UTC timestamp (int), 
+        a formatted string, or a `datetime.datetime` object (default is 0).
     """    
 
     fig = plt.figure(figsize=(12,10))
@@ -406,8 +554,16 @@ def detection_mf(trace, peaks_idx_HF, peaks_idx_LF, time, dist, fs, dx, selected
     plt.legend(loc="upper right")
     # plt.savefig('test.pdf', format='pdf')
 
-    if isinstance(file_begin_time_utc, datetime):
-        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
+    if title_time_info:
+        if isinstance(title_time_info, datetime):
+            title_text = title_time_info.strftime("%Y-%m-%d %H:%M:%S")
+        elif isinstance(title_time_info, str):
+            title_text = title_time_info
+        elif isinstance(title_time_info, int):
+            title_text = datetime.utcfromtimestamp(title_time_info).strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            raise ValueError("title_time_info must be an int, str, or datetime.datetime.")
+        plt.title(title_text, loc='right')
 
     plt.tight_layout()
     plt.show()
@@ -415,7 +571,7 @@ def detection_mf(trace, peaks_idx_HF, peaks_idx_LF, time, dist, fs, dx, selected
     return
 
 
-def detection_spectcorr(trace, peaks_idx_HF, peaks_idx_LF, time, dist, spectro_fs, dx, selected_channels, file_begin_time_utc=None):
+def detection_spectcorr(trace, peaks_idx_HF, peaks_idx_LF, time, dist, spectro_fs, dx, selected_channels, title_time_info=None):
     """Plot the strain trace matrix [dist x time] with call detection above it
 
     Parameters
@@ -436,8 +592,9 @@ def detection_spectcorr(trace, peaks_idx_HF, peaks_idx_LF, time, dist, spectro_f
         spatial step
     selected_channels : list
         list of selected channels indexes [start, stop, step]
-    file_begin_time_utc : int, optional
-        time stamp of file, by default 0
+    title_time_info : int, str, or datetime.datetime, optional
+        A time reference to display or the plot title. Can be a UTC timestamp (int), 
+        a formatted string, or a `datetime.datetime` object (default is 0).
     """    
 
     fig = plt.figure(figsize=(12,10))
@@ -452,8 +609,16 @@ def detection_spectcorr(trace, peaks_idx_HF, peaks_idx_LF, time, dist, spectro_f
     plt.legend(loc="upper right")
     # plt.savefig('test.pdf', format='pdf')
 
-    if isinstance(file_begin_time_utc, datetime):
-        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
+    if title_time_info:
+        if isinstance(title_time_info, datetime):
+            title_text = title_time_info.strftime("%Y-%m-%d %H:%M:%S")
+        elif isinstance(title_time_info, str):
+            title_text = title_time_info
+        elif isinstance(title_time_info, int):
+            title_text = datetime.utcfromtimestamp(title_time_info).strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            raise ValueError("title_time_info must be an int, str, or datetime.datetime.")
+        plt.title(title_text, loc='right')
 
     plt.tight_layout()
     plt.show()
@@ -461,7 +626,7 @@ def detection_spectcorr(trace, peaks_idx_HF, peaks_idx_LF, time, dist, spectro_f
     return
 
 
-def detection_grad(trace, peaks_idx, time, dist, fs, dx, selected_channels, file_begin_time_utc=None):
+def detection_grad(trace, peaks_idx, time, dist, fs, dx, selected_channels, title_time_info=None):
     """Plot the strain trace matrix [dist x time] with call detection above it
 
     Parameters
@@ -482,8 +647,9 @@ def detection_grad(trace, peaks_idx, time, dist, fs, dx, selected_channels, file
         spatial step
     selected_channels : list
         list of selected channels indexes [start, stop, step]
-    file_begin_time_utc : int, optional
-        time stamp of file, by default 0
+    title_time_info : int, str, or datetime.datetime, optional
+        A time reference to display or the plot title. Can be a UTC timestamp (int), 
+        a formatted string, or a `datetime.datetime` object (default is 0).
     """    
 
     fig = plt.figure(figsize=(12,10))
@@ -496,8 +662,16 @@ def detection_grad(trace, peaks_idx, time, dist, fs, dx, selected_channels, file
     plt.legend(loc="upper right")
     # plt.savefig('test.pdf', format='pdf')
 
-    if isinstance(file_begin_time_utc, datetime):
-        plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
+    if title_time_info:
+        if isinstance(title_time_info, datetime):
+            title_text = title_time_info.strftime("%Y-%m-%d %H:%M:%S")
+        elif isinstance(title_time_info, str):
+            title_text = title_time_info
+        elif isinstance(title_time_info, int):
+            title_text = datetime.utcfromtimestamp(title_time_info).strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            raise ValueError("title_time_info must be an int, str, or datetime.datetime.")
+        plt.title(title_text, loc='right')
 
     plt.tight_layout()
     plt.show()
@@ -505,7 +679,7 @@ def detection_grad(trace, peaks_idx, time, dist, fs, dx, selected_channels, file
     return
 
 
-def snr_matrix(snr_m, time, dist, vmax, file_begin_time_utc=None, title=None):
+def snr_matrix(snr_m, time, dist, vmax, title_time_info=None):
     """Matrix plot of the local signal to noise ratio (SNR)
 
     Parameters
@@ -527,11 +701,16 @@ def snr_matrix(snr_m, time, dist, vmax, file_begin_time_utc=None, title=None):
     plt.xlabel('Time [s]')
     plt.ylabel('Distance [km]')
     
-    if isinstance(file_begin_time_utc, datetime):
-        if isinstance(title, str):
-            plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S")+'/ '+title, loc='right')
+    if title_time_info:
+        if isinstance(title_time_info, datetime):
+            title_text = title_time_info.strftime("%Y-%m-%d %H:%M:%S")
+        elif isinstance(title_time_info, str):
+            title_text = title_time_info
+        elif isinstance(title_time_info, int):
+            title_text = datetime.utcfromtimestamp(title_time_info).strftime("%Y-%m-%d %H:%M:%S")
         else:
-            plt.title(file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S"), loc='right')
+            raise ValueError("title_time_info must be an int, str, or datetime.datetime.")
+        plt.title(title_text, loc='right')
 
     plt.tight_layout()
     plt.show()
@@ -539,7 +718,7 @@ def snr_matrix(snr_m, time, dist, vmax, file_begin_time_utc=None, title=None):
     return
 
 
-def plot_cross_correlogramHL(corr_m_HF, corr_m_LF, time, dist, maxv, minv=0, file_begin_time_utc=None):
+def plot_cross_correlogramHL(corr_m_HF, corr_m_LF, time, dist, maxv, minv=0, title_time_info=None):
     """
     Plot the cross-correlogram between HF and LF notes.
 
@@ -557,8 +736,9 @@ def plot_cross_correlogramHL(corr_m_HF, corr_m_LF, time, dist, maxv, minv=0, fil
         The maximum value for the colorbar.
     minv : int, optional
         The minimum value for the colorbar. Default is 0.
-    file_begin_time_utc : datetime.datetime, optional
-        The beginning time of the file in UTC. Default is None.
+    title_time_info : int, str, or datetime.datetime, optional
+        A time reference to display or the plot title. Can be a UTC timestamp (int), 
+        a formatted string, or a `datetime.datetime` object (default is 0).
 
     Returns
     -------
@@ -581,7 +761,7 @@ def plot_cross_correlogramHL(corr_m_HF, corr_m_LF, time, dist, maxv, minv=0, fil
     return
 
 
-def plot_cross_correlogram(corr_m, time, dist, maxv, minv=0, file_begin_time_utc=None):
+def plot_cross_correlogram(corr_m, time, dist, maxv, minv=0, title_time_info=None):
     """
     Plot the cross-correlogram between HF and LF notes.
 
@@ -597,8 +777,9 @@ def plot_cross_correlogram(corr_m, time, dist, maxv, minv=0, file_begin_time_utc
         The maximum value for the colorbar.
     minv : int, optional
         The minimum value for the colorbar. Default is 0.
-    file_begin_time_utc : datetime.datetime, optional
-        The beginning time of the file in UTC. Default is None.
+    title_time_info : int, str, or datetime.datetime, optional
+        A time reference to display or the plot title. Can be a UTC timestamp (int), 
+        a formatted string, or a `datetime.datetime` object (default is 0).
 
     Returns
     -------
@@ -614,6 +795,99 @@ def plot_cross_correlogram(corr_m, time, dist, maxv, minv=0, file_begin_time_utc
     cbar.set_label('Cross-correlation envelope []')
     plt.show()
 
+    return
+
+
+def plot_fk_domain(trace, fs, dx, selected_channels, title_time_info=0, fig_size=(12, 10), v_min=None, v_max=None, fk_params=None, ax_lims=None):
+    """
+    Spatio-spectral representation (f-k plot) of the strain data
+
+    Parameters
+    ----------
+    trace : np.ndarray
+        A [channel x time sample] nparray containing the strain data in the spatio-temporal domain
+    fs : float
+        The sampling frequency (Hz)
+    dx : float
+        The spatial step (m)
+    selected_channels : list
+        List of selected channels indexes [start, stop, step]
+    title_time_info : int, str, or datetime.datetime, optional
+        A time reference to display or the plot title. Can be a UTC timestamp (int), 
+        a formatted string, or a `datetime.datetime` object (default is 0).
+    fig_size : tuple, optional
+        Tuple of the figure dimensions, by default (12, 10)
+    v_min : float, optional
+        Sets the min nano strain amplitudes of the colorbar, by default None
+    v_max : float, optional
+        Sets the max nano strain amplitudes of the colorbar, by default None
+    fk_params : dict, optional
+        Dictionary containing the fmin, fmax, c_min, and c_max parameters, by default None
+    ax_lims : list, optional
+        List of the form [f_min, f_max, k_min, k_max] for zoomed plots, by default None
+
+    Returns
+    -------
+    None
+
+    Notes
+    -----
+    This function plots the spatio-spectral representation (f-k plot) of the strain data.
+
+    - The frequency axis is created using the FFT.
+    - The strain data is processed and plotted.
+
+    Examples
+    --------
+    >>> plot_fk_domain(trace, time, dist, title_time_info=0, fig_size=(12, 10), v_min=None, v_max=None)
+
+    """
+    f = np.fft.fftshift(np.fft.fftfreq(trace.shape[1], d=1 / fs))   
+    k = np.fft.fftshift(np.fft.fftfreq(trace.shape[0], d=dx * selected_channels[2]))
+
+    # Taper the data
+    # win_x = sp.windows.tukey(trace.shape[1], alpha=0.1)
+    # win_y = sp.windows.tukey(trace.shape[0], alpha=0.1)
+
+    # win_2d = np.sqrt(np.outer(win_y, win_x))
+    fk = np.fft.fftshift(np.fft.fft2(trace))
+
+
+    fig = plt.figure(figsize=fig_size)
+    shw = plt.imshow(abs(fk), extent=[f[0], f[-1], k[0], k[-1]], aspect='auto', origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
+    plt.xlabel('Frequency [Hz]')
+    plt.ylabel('Wavenumber [m$^{-1}$]')
+    bar = fig.colorbar(shw, aspect=30, pad=0.015)
+    bar.set_label('Spectrum [ ]')
+    if fk_params is not None:
+        plt.vlines(fk_params['fmin'], k[0], k[-1], color='tab:orange', linestyle='--', label='fmin', lw=2)
+        plt.vlines(fk_params['fmax'], k[0], k[-1], color='tab:red', linestyle='--', label='fmax', lw=2)
+        plt.plot(f, f / fk_params['c_min'], color='tab:pink', linestyle='--', label=f'c = {fk_params["c_min"]:.2f} m/s', lw=2)
+        plt.plot(f, f / fk_params['c_max'], color='white', linestyle='--', label=f'c = {fk_params["c_max"]:.2f} m/s', lw=2)
+        
+    if title_time_info:
+        if isinstance(title_time_info, datetime):
+            title_text = title_time_info.strftime("%Y-%m-%d %H:%M:%S")
+        elif isinstance(title_time_info, str):
+            title_text = title_time_info
+        elif isinstance(title_time_info, int):
+            title_text = datetime.utcfromtimestamp(title_time_info).strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            raise ValueError("title_time_info must be an int, str, or datetime.datetime.")
+        plt.title(title_text, loc='right')
+    
+    if ax_lims is not None:
+        plt.xlim(ax_lims[0], ax_lims[1])
+        plt.ylim(ax_lims[2], ax_lims[3])
+    # plt.xlim([12, 30])
+    # plt.ylim([0, 0.025])
+    
+    # Display legend if needed
+    if fk_params is not None:
+        plt.legend()
+    
+    plt.tight_layout()
+    plt.show()
     return
 
 

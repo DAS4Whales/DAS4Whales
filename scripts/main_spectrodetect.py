@@ -110,8 +110,8 @@ def main(url):
     dw.plot.plot_cross_correlogramHL(correlogram_HF, correlogram_LF, time, dist, 0.5 * maxv)
 
     # Study SNR detection
-    SNR_hf = dw.dsp.snr_tr_array(correlogram_HF, env=True)
-    SNR_lf = dw.dsp.snr_tr_array(correlogram_LF, env=True)
+    SNR_hf = dw.dsp.snr_tr_array(correlogram_HF)
+    SNR_lf = dw.dsp.snr_tr_array(correlogram_LF)
     dw.plot.snr_matrix(SNR_hf, tt, dist, 20, fileBeginTimeUTC, '/spectrodetect: HF')
     dw.plot.snr_matrix(SNR_lf, tt, dist, 20, fileBeginTimeUTC, '/spectrodetect: LF')
     # Find the arrival times and store them in a list of arrays format 
