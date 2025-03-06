@@ -9,7 +9,7 @@ Date: 2024-06-18/2025-03-05
 
 import sys
 import numpy as np
-from spatial import calc_das_section_bearing, calc_source_position_lat_lon, calc_dist_lat_lon
+from das4whales.spatial import calc_das_section_bearing, calc_source_position_lat_lon, calc_dist_lat_lon
 
 def calc_arrival_times(t0, cable_pos, pos, c0):
     """
