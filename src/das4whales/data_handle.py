@@ -15,6 +15,7 @@ import numpy as np
 import csv
 import dask.array as da
 from datetime import datetime
+from simpledas import simpleDASreader as sd
 import pandas as pd
 from nptdms import TdmsFile
 
@@ -111,7 +112,8 @@ def get_metadata_optasense(filepath):
     return meta_data
 
 def get_metadata_silixa(filepath):
-    """Gets DAS acquisition parameters for the silixa interrogator 
+    """
+    Gets DAS acquisition parameters for the silixa interrogator
 
     Parameters
     ----------
@@ -155,18 +157,23 @@ def get_metadata_silixa(filepath):
 
 def get_metadata_asn(filepath):
     """
-    Gets DAS acquisition parameters e.g. Svalbard
+    Gets DAS acquisition parameters for the ASN interrogator e.g., Svalbard data
 
-    Inputs:
-    :param filename: a string containing the full path to the data to load
+    Parameters
+    ----------
+    filepath : string
+        a string containing the full path to the data to load
 
-    Outputs:
-    :return: fs: the sampling frequency (Hz)
-    :return: dx: interval between two virtual sensing points also called channel spacing (m)
-    :return: nx: the number of spatial samples also called channels
-    :return: ns: the number of time samples
-    :return: gauge_length: the gauge length (m)
-    :return: scale_factor: the value to convert DAS data from strain rate to strain
+    Returns
+    -------
+    metadata : dict
+        Dictionary filled with metadata, key's breakdown:\n
+        fs: the sampling frequency (Hz)\n
+        dx: interval between two virtual sensing points also called channel spacing (m)\n
+        nx: the number of spatial samples also called channels\n
+        ns: the number of time samples\n
+        GL: the gauge length (m)\n
+        scale_factor: the value to convert DAS data from strain rate to strain
 
     """
 
@@ -186,7 +193,8 @@ def get_metadata_asn(filepath):
 
 # Load/download das data as strain
 def raw2strain(trace, metadata):
-    """Transform the amplitude of raw das data from strain-rate to strain according to scale factor
+    """
+    Transform the amplitude of raw das data from strain-rate to strain according to scale factor
 
 
     Parameters
@@ -207,18 +215,20 @@ def raw2strain(trace, metadata):
     trace *= metadata["scale_factor"] 
     return trace
 
-def load_das_data(filename, selected_channels, metadata):
+def load_das_data(filename, selected_channels, metadata, interrogator='optasense'):
     """
     Load the DAS data corresponding to the input file name as strain according to the selected channels.
 
     Parameters
     ----------
+
     filename : str
         A string containing the full path to the data to load.
     selected_channels : list
         A list containing the selected channels.
     metadata : dict
         A dictionary filled with metadata (sampling frequency, channel spacing, scale factor...).
+    interrogator : name of used interrogators. Supports
 
     Returns
     -------
@@ -234,28 +244,45 @@ def load_das_data(filename, selected_channels, metadata):
     if not os.path.exists(filename):
         raise FileNotFoundError(f'File {filename} not found')
 
-    with h5py.File(filename, 'r') as fp:
-        # Data matrix
-        raw_data = fp['Acquisition/Raw[0]/RawData']
+    if interrogator == 'optasense' or 'silixa':
 
-        # Selection the traces corresponding to the desired channels
-        # Loaded as float64, float 32 might be sufficient? 
-        trace = raw_data[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
-        trace = raw2strain(trace, metadata)
+        with h5py.File(filename, 'r') as fp:
+            # Data matrix
+            raw_data = fp['Acquisition/Raw[0]/RawData']
 
-        # UTC Time vector for naming
-        raw_data_time = fp['Acquisition']['Raw[0]']['RawDataTime']
+            # Selection the traces corresponding to the desired channels
+            # Loaded as float64, float 32 might be sufficient?
+            trace = raw_data[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
+            trace = raw2strain(trace, metadata)
+
+            # UTC Time vector for naming
+            raw_data_time = fp['Acquisition']['Raw[0]']['RawDataTime']
+
+            # For future save
+            file_begin_time_utc = datetime.utcfromtimestamp(raw_data_time[0] * 1e-6)
+
+    elif interrogator == 'asn':
+        dfdas = sd.load_DAS_files(filename, chIndex=None, samples=None, sensitivitySelect=-3,
+                                  userSensitivity={'sensitivity': metadata['scale_factor'],
+                                                   'sensitivityUnit': 'rad/(m*strain)'},
+                                  integrate=True, unwr=True)
+
+        trace = dfdas.values.T
+        trace = trace[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
 
         # For future save
-        file_begin_time_utc = datetime.utcfromtimestamp(raw_data_time[0] * 1e-6)
+        file_begin_time_utc = dfdas.meta['time']
 
-        # Store the following as the dimensions of our data block
-        nnx = trace.shape[0]
-        nns = trace.shape[1]
+    else:
+        raise ValueError('Interrogator name incorrect or not supported')
 
-        # Define new time and distance axes
-        tx = np.arange(nns) / metadata["fs"]
-        dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * metadata["dx"]        
+    # Store the following as the dimensions of our data block
+    nnx = trace.shape[0]
+    nns = trace.shape[1]
+
+    # Define new time and distance axes
+    tx = np.arange(nns) / metadata['fs']
+    dist = (np.arange(nnx) * selected_channels[2] + selected_channels[0]) * metadata['dx']
 
     return trace, tx, dist, file_begin_time_utc
 
