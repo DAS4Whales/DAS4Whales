@@ -48,13 +48,13 @@ dependencies = [
     "pandas",
     "deprecation",
     "cmocean",
-    "simpledas@git+https://github.com/ASN-Norway/simpleDAS"
+    "simpledas@git+https://github.com/qgoestch/simpleDAS" ## TODO: change to https://github.com/ASN-Norway/simpleDAS when https://github.com/ASN-Norway/simpleDAS/issues/9 is resolved
 ]
 
 [project.urls]
 Homepage = "https://github.com/DAS4Whales/DAS4Whales"
 
-[tool.hatch.version]
+[tool.hatch.version]  
 path = "src/das4whales/__init__.py"
 
 [tool.hatch.build.targets.sdist]
