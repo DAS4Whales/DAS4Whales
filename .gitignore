@@ -52,3 +52,11 @@ data/
 .vscode/
 
 main_dharriscollab.py
+
+# pdf files
+
+*.pdf
+
+# out and figs folders
+out/
+figs/
