@@ -14,10 +14,13 @@ import os
 import numpy as np
 import csv
 import dask.array as da
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from simpledas import simpleDASreader as sd
 import pandas as pd
 from nptdms import TdmsFile
+import re
+from urllib.parse import urljoin
+
 
 # Test for the package
 def hello_world_das_package():
@@ -601,3 +604,49 @@ def get_selected_channels(selected_channels_m, dx):
                                            # numbers
     return selected_channels
 
+
+def extract_timestamp(filename):
+    """Extract timestamp from filename in format YYYY-MM-DDTHHMMSSZ."""
+    match = re.search(r'(\d{4}-\d{2}-\d{2}T\d{6})Z', filename)
+    if match:
+        return datetime.strptime(match.group(1), '%Y-%m-%dT%H%M%S').replace(tzinfo=timezone.utc)
+    return None
+
+def generate_file_list(base_url, start_file, duration):
+    """
+    Generate a list of file URLs that correspond to a given time range, starting from a known file.
+    
+    Parameters
+    ----------
+    base_url : str
+        The base URL where the files are hosted.
+    start_file : str
+        Filename of the first file to use as reference.
+    duration : int
+        Duration in seconds.
+
+    Returns
+    -------
+    list of str
+        List of full file URLs covering the time range.
+    """
+    # Extract start time from filename
+    start_time = extract_timestamp(start_file)
+    if start_time is None:
+        raise ValueError("Could not extract timestamp from filename.")
+    
+    selected_files = [urljoin(base_url, start_file)]
+    accumulated_time = 0
+    current_file = start_file
+    
+    while accumulated_time < duration:
+        # Infer the next file timestamp by checking the difference between current and next
+        next_time = start_time + timedelta(seconds=60)  # Default to 60s step
+        next_filename = re.sub(r'(\d{4}-\d{2}-\d{2}T\d{6})Z', next_time.strftime('%Y-%m-%dT%H%M%S') + 'Z', current_file)
+        
+        selected_files.append(urljoin(base_url, next_filename))
+        accumulated_time += 60  # Assume 60s duration per file; adjust as needed
+        start_time = next_time
+        current_file = next_filename
+    
+    return selected_files

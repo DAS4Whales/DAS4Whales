@@ -126,144 +126,12 @@ def main(urls, selected_channels_m):
         # Free memory
         del trf_fk
         gc.collect()
-
-        ######  Perform the time picking on the matched filtered traces ######
-        SNR_hfn = dw.dsp.snr_tr_array(nmf_m_HF)
-        SNR_lfn = dw.dsp.snr_tr_array(nmf_m_LF)
-
-        SNR_hfn = cv2.GaussianBlur(SNR_hfn, (9, 73), 0)
-        SNR_lfn = cv2.GaussianBlur(SNR_lfn, (9, 73), 0)
-
-        # Threshold the SNR matrix in an efficient way
-        SNR_hfn = np.where(SNR_hfn < 0, 0, SNR_hfn)
-        SNR_lfn = np.where(SNR_lfn < 0, 0, SNR_lfn)
-
-        ipi = 2 # Inter pulse interval in seconds
-        th = 4. # Threshold for the peak detection in dB
-
-        peaks_indexes_HF = []
-        peaks_indexes_LF = []
-
-        for corr in tqdm(SNR_hfn, desc="Picking times"):
-                peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=th)
-                peaks_indexes_HF.append(peaks_indexes)
-
-        for corr in tqdm(SNR_lfn, desc="Picking times"):
-                peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=th)  
-                peaks_indexes_LF.append(peaks_indexes)
-
-        peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
-        peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
-
-        print('HF detections before denoising:', len(peaks_indexes_tp_HF[0]))
-        print('LF detections before denoising:', len(peaks_indexes_tp_LF[0]))
-
-        cable = filename.split('-')[0]
-        if cable == 'North':
-                fignum = 28
-        if cable == 'South':
-                fignum = 32
-
-        # Sorth the sizes of the picks by SNR
-        sizes_hf = SNR_hfn[peaks_indexes_tp_HF[0], peaks_indexes_tp_HF[1]]
-        sizes_lf = SNR_lfn[peaks_indexes_tp_LF[0], peaks_indexes_tp_LF[1]]
-
-        # Scale the sizes of the picks
-        max_size = 140
-        min_size = 2
-
-        # Scale the sizes to the range [0, 1]
-        sizes_hf_scaled = min_size + (sizes_hf - np.min(sizes_hf)) / (np.max(sizes_hf) - np.min(sizes_hf)) * (max_size - min_size)
-        sizes_lf_scaled = min_size + (sizes_lf - np.min(sizes_lf)) / (np.max(sizes_lf) - np.min(sizes_lf)) * (max_size - min_size)
-
-        plt.figure(figsize=(12,10))
-        plt.scatter(peaks_indexes_tp_HF[1] / fs, (peaks_indexes_tp_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:blue', marker='.', s=sizes_hf_scaled, rasterized=True)
-        plt.xlabel('Time (s)')
-        plt.ylabel('Distance (km)')
-        plt.title(f'HF note picks, {metadata["cablename"]}', loc='right')
-
-        # Legend
-        # Create a set of legend handles with different sizes
-        handles = [
-        plt.scatter([], [], s=min(sizes_hf_scaled), color='tab:blue', label=f'Min SNR: {sizes_hf.min():.1f}'),
-        plt.scatter([], [], s=(min(sizes_hf_scaled) + max(sizes_hf_scaled)) / 2, color='tab:blue', label=f'Mid SNR: {np.median(sizes_hf):.1f}'),
-        plt.scatter([], [], s=max(sizes_hf_scaled), color='tab:blue', label=f'Max SNR: {sizes_hf.max():.1f}')
-        ]
-
-        plt.legend(handles=handles, title="SNR Sizes", scatterpoints=1, loc='upper right')
-        plt.savefig(f"figs/Figure_{fignum}.pdf")
-        fignum += 1
-        # plt.show()
-
-
-        plt.figure(figsize=(12,10))
-        plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:red', marker='.', s=sizes_lf_scaled, rasterized=True)
-        plt.xlabel('Time (s)')
-        plt.ylabel('Distance (km)')
-        plt.title(f'LF note picks, {metadata["cablename"]}', loc='right')
-
-        # Legend
-        # Create a set of legend handles with different sizes
-        handles = [
-        plt.scatter([], [], s=min(sizes_lf_scaled), color='tab:red', label=f'Min SNR: {sizes_lf.min():.1f}'),
-        plt.scatter([], [], s=(min(sizes_lf_scaled) + max(sizes_lf_scaled)) / 2, color='tab:red', label=f'Mid SNR: {np.median(sizes_lf):.1f}'),
-        plt.scatter([], [], s=max(sizes_lf_scaled), color='tab:red', label=f'Max SNR: {sizes_lf.max():.1f}')
-        ]
-
-        plt.legend(handles=handles, title="SNR Sizes", scatterpoints=1, loc='upper right')
-        plt.savefig(f"figs/Figure_{fignum}.pdf")
-        fignum += 1
-        # plt.show()
-
-        # Make a count of the detections depending on IPI and threshold
-        thresholds = np.arange(2, 20.5, 0.5) # Thresholds in dB
-        IPIs = np.arange(0, 5.5, 0.5) # Inter pulse intervals in seconds
-        IPIs[0] = 1/fs # Force the first IPI to be the sampling period
-        detect_cptHFnoise = [[], []]
-        detect_cptLFnoise = [[], []]
-
-        for t in tqdm(thresholds, desc=f"Picking times, iterating over thresholds"):
-                peaks_indexes_HF = []
-                peaks_indexes_LF = []
-
-                for corr in SNR_hfn:
-                        peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=t)
-                        peaks_indexes_HF.append(peaks_indexes)
-
-                for corr in SNR_lfn:
-                        peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=t)  
-                        peaks_indexes_LF.append(peaks_indexes)
-
-                peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
-                peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
-
-                detect_cptHFnoise[0].append(len(peaks_indexes_tp_HF[0]))
-                detect_cptLFnoise[0].append(len(peaks_indexes_tp_LF[0]))
-
-        for it in tqdm(IPIs, desc=f"Picking times, iterating over IPIs"):
-                peaks_indexes_HF = []
-                peaks_indexes_LF = []
-
-                for corr in SNR_hfn:
-                        peaks_indexes,_ = sp.find_peaks(corr, distance = it * fs, height=th)
-                        peaks_indexes_HF.append(peaks_indexes)
-
-                for corr in SNR_lfn:
-                        peaks_indexes,_ = sp.find_peaks(corr, distance = it * fs, height=th)  
-                        peaks_indexes_LF.append(peaks_indexes)
-
-                peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
-                peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
-
-                detect_cptHFnoise[1].append(len(peaks_indexes_tp_HF[0]))
-                detect_cptLFnoise[1].append(len(peaks_indexes_tp_LF[0]))
-
-
-        # Free memory
-        del SNR_lfn, SNR_hfn, peaks_indexes_HF, peaks_indexes_LF, peaks_indexes_tp_HF, peaks_indexes_tp_LF
-        gc.collect()
         
         ########  Perform the time picking on the denoised mf traces #########
+        # Inter pulse interval and threshold
+        ipi = 2
+        th = 4
+        fignum = 1
 
         # Normalize the matched filtered traces
         nmf_m_HF = dw.dsp.normalize_std(nmf_m_HF)
@@ -299,8 +167,8 @@ def main(urls, selected_channels_m):
         peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
 
         # Save the time picking results
-        # np.save(f'out/peaks_indexes_tp_HF_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}_ipi{ipi}_th_{th}.npy', peaks_indexes_tp_HF)
-        # np.save(f'out/peaks_indexes_tp_LF_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}_ipi{ipi}_th_{th}.npy', peaks_indexes_tp_LF)
+        np.save(f'out/peaks_indexes_tp_HF_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}_ipi{ipi}_th_{th}.npy', peaks_indexes_tp_HF)
+        np.save(f'out/peaks_indexes_tp_LF_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}_ipi{ipi}_th_{th}.npy', peaks_indexes_tp_LF)
 
         # # Save the SNR matrixes 
         # np.save(f'out/SNR_hf_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}.npy', SNR_hf)
@@ -357,72 +225,6 @@ def main(urls, selected_channels_m):
         plt.legend(handles=handles, title="SNR Sizes", scatterpoints=1, loc='upper right')
         plt.savefig(f"figs/Figure_{fignum}.pdf")
         fignum += 1
-        # plt.show()
-
-        # Make a count of the detections depending on IPI and threshold
-        detect_cptHF = [[], []]
-        detect_cptLF = [[], []]
-
-        for t in tqdm(thresholds, desc=f"Picking times, iterating over thresholds"):
-                peaks_indexes_HF = []
-                peaks_indexes_LF = []
-
-                for corr in SNR_hf:
-                        peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=t)
-                        peaks_indexes_HF.append(peaks_indexes)
-
-                for corr in SNR_lf:
-                        peaks_indexes,_ = sp.find_peaks(corr, distance = ipi * fs, height=t)  
-                        peaks_indexes_LF.append(peaks_indexes)
-
-                peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
-                peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
-
-                detect_cptHF[0].append(len(peaks_indexes_tp_HF[0]))
-                detect_cptLF[0].append(len(peaks_indexes_tp_LF[0]))
-        
-        for it in tqdm(IPIs, desc=f"Picking times, iterating over IPIs"):
-                peaks_indexes_HF = []
-                peaks_indexes_LF = []
-
-                for corr in SNR_hf:
-                        peaks_indexes,_ = sp.find_peaks(corr, distance = it * fs, height=th)
-                        peaks_indexes_HF.append(peaks_indexes)
-
-                for corr in SNR_lf:
-                        peaks_indexes,_ = sp.find_peaks(corr, distance = it * fs, height=th)  
-                        peaks_indexes_LF.append(peaks_indexes)
-
-                peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
-                peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
-
-                detect_cptHF[1].append(len(peaks_indexes_tp_HF[0]))
-                detect_cptLF[1].append(len(peaks_indexes_tp_LF[0]))
-
-        # Plot the results of the denoising impact on detection counts
-        plt.figure(figsize=(12,10))
-        # subplot of the superior line
-        plt.subplot(211)
-        plt.plot(thresholds, detect_cptHFnoise[0], label='HF noise', lw=2)
-        plt.plot(thresholds, detect_cptLFnoise[0], label='LF noise', lw=2)
-        plt.plot(thresholds, detect_cptHF[0], label='HF denoised', lw=2, ls='--')
-        plt.plot(thresholds, detect_cptLF[0], label='LF denoised', lw=2, ls='--')
-        plt.ylabel('Number of detections')
-        plt.xlabel('Threshold (dB)')
-        plt.legend()
-        plt.grid()
-
-        # subplot of the inferior line
-        plt.subplot(212)
-        plt.plot(IPIs, detect_cptHFnoise[1], label='HF noise', lw=2)
-        plt.plot(IPIs, detect_cptLFnoise[1], label='LF noise', lw=2)
-        plt.plot(IPIs, detect_cptHF[1], label='HF denoised', lw=2, ls='--')
-        plt.plot(IPIs, detect_cptLF[1], label='LF denoised', lw=2, ls='--')
-        plt.ylabel('Number of detections')
-        plt.xlabel('Inter pulse interval (s)')
-        plt.legend()
-        plt.grid()
-
         plt.tight_layout()
         plt.show()
         return      
