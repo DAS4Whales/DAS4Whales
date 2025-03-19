@@ -204,8 +204,7 @@ def main(urls, selected_channels_m):
         ]
 
         plt.legend(handles=handles, title="SNR Sizes", scatterpoints=1, loc='upper right')
-        plt.savefig(f"figs/Figure_{fignum}.pdf")
-        fignum += 1
+        plt.savefig(f"figs/Peaks_HF_{metadata['cablename']}_{metadata['fileBeginTimeUTC']}_ipi{ipi}_th_{th}.pdf")
         # plt.show()
 
         plt.figure(figsize=(12,10))
@@ -223,8 +222,7 @@ def main(urls, selected_channels_m):
         ]
 
         plt.legend(handles=handles, title="SNR Sizes", scatterpoints=1, loc='upper right')
-        plt.savefig(f"figs/Figure_{fignum}.pdf")
-        fignum += 1
+        plt.savefig(f"figs/Peaks_LF_{metadata['cablename']}_{metadata['fileBeginTimeUTC']}_ipi{ipi}_th_{th}.pdf")
         plt.tight_layout()
         plt.show()
         return      
