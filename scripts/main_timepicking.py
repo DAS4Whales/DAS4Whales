@@ -1,6 +1,7 @@
 
 # Libraries import
 import numpy as np
+import xarray as xr
 import scipy.signal as sp
 import matplotlib.pyplot as plt
 import das4whales as dw
@@ -51,13 +52,15 @@ def main(urls, selected_channels_m):
                 ', step: ',selected_channels[2], 
                 'equivalent to ',selected_channels[2]*dx,' m')
 
-
+                metadata["selected_channels"] = selected_channels
+                metadata["selected_channels_m"] = selected_channels_m
                 ### Load raw DAS data
                 
                 # Loads the data using the pre-defined selected channels. 
 
                 tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_das_data(filepath, selected_channels, metadata)
                 metadata["fileBeginTimeUTC"] = fileBeginTimeUTC.strftime("%Y-%m-%d_%H:%M:%S")
+                metadata["data_shape"] = tr.shape
         # South cable plots
         else:
                 # Download the DAS data
@@ -75,6 +78,9 @@ def main(urls, selected_channels_m):
 
                 selected_channels = dw.data_handle.get_selected_channels(selected_channels_m, dx)
 
+                metadata["selected_channels"] = selected_channels
+                metadata["selected_channels_m"] = selected_channels_m
+
                 timestamp = '2021-11-04 02:00:02.025000'
                 duration = 60
                 selected_channels = dw.data_handle.get_selected_channels(selected_channels_m, dx)
@@ -82,6 +88,7 @@ def main(urls, selected_channels_m):
                 # Load the data
                 tr, time, dist, fileBeginTimeUTC = dw.data_handle.load_mtpl_das_data(filepaths, selected_channels, metadata, timestamp, duration)
                 metadata["fileBeginTimeUTC"] = fileBeginTimeUTC.strftime("%Y-%m-%d_%H:%M:%S")
+                metadata["data_shape"] = tr.shape
 
         # Create the f-k filters
         fk_params = {   # Parameters for the signal
@@ -166,9 +173,19 @@ def main(urls, selected_channels_m):
         peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
         peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
 
-        # Save the time picking results
-        np.save(f'out/peaks_indexes_tp_HF_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}_ipi{ipi}_th_{th}.npy', peaks_indexes_tp_HF)
-        np.save(f'out/peaks_indexes_tp_LF_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}_ipi{ipi}_th_{th}.npy', peaks_indexes_tp_LF)
+        # Save the time picking results, along with the metadata
+        ds = xr.Dataset(
+                {
+                        'peaks_indexes_tp_HF': (['coord', 'peak_HF'], peaks_indexes_tp_HF),
+                        'peaks_indexes_tp_LF': (['coord', 'peak_LF'], peaks_indexes_tp_LF)
+                },
+                coords={
+                        "coord": ["time_idx", "dist_idx"],  # Naming the tuple components
+                },
+                attrs=metadata
+        )
+
+        ds.to_netcdf(f'out/peaks_indexes_tp_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}_ipi{ipi}_th_{th}.nc')
 
         # # Save the SNR matrixes 
         # np.save(f'out/SNR_hf_{metadata["cablename"]}_{metadata["fileBeginTimeUTC"]}.npy', SNR_hf)
