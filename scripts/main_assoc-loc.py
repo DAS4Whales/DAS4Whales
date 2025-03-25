@@ -14,7 +14,7 @@ from scipy.interpolate import RegularGridInterpolator
 import cmocean.cm as cmo
 
 def plot_associated(peaks, longi_offset, associated_list, localizations, cable_pos, dist, dx, c0, fs):
-    plt.figure(figsize=(20,8))
+    fig = plt.figure(figsize=(20,8))
 
     # Plot the time picks with colored associated ones
     plt.subplot(1, 2, 1)
@@ -34,7 +34,7 @@ def plot_associated(peaks, longi_offset, associated_list, localizations, cable_p
     plt.grid(linestyle='--', alpha=0.6)
     plt.xlabel('Time [s]')
     plt.ylabel('Distance [km]')
-    plt.show()
+    return fig
 
 
 def compute_kde(delayed_picks, t_kde, bin_width):
@@ -159,7 +159,7 @@ def associate_picks(kde, t_grid, longi_offset, up_peaks, arr_tg, dx, c0, w_eval,
 
 def plot_reject_pick(peaks, longi_offset, dist, dx, associated_list, rejected_list, rejected_hyperbolas, fs):
     # Plot the selected picks alongside the original picks
-    plt.figure(figsize=(20,8))
+    fig = plt.figure(figsize=(20,8))
     plt.subplot(2, 2, 1)
     plt.scatter(peaks[1][:] / fs, (longi_offset + peaks[0][:]) * dx * 1e-3, label='HF', s=0.5)
     plt.xlabel('Time [s]')
@@ -179,7 +179,8 @@ def plot_reject_pick(peaks, longi_offset, dist, dx, associated_list, rejected_li
     for select in rejected_list:
         plt.scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3, label='LF', s=0.5)
     plt.xlabel('Time [s]')
-    return plt.gcf()
+    return fig
+
 
 def plot_pick_analysis(associated_list, fs, dx, longi_offset, cable_pos, dist, window_size=5, mu_ref=None, sigma_ref=None):
         """
@@ -285,7 +286,6 @@ def plot_pick_analysis(associated_list, fs, dx, longi_offset, cable_pos, dist, w
             
         plt.tight_layout()
         return fig
-
 
 
 def loc_from_picks(associated_list, cable_pos, c0, fs):
@@ -485,12 +485,16 @@ def main(nds_path, s_ds_path):
 
     fig = plot_reject_pick(n_peaks, n_longi_offset, n_dist, dx, n_associated_list, n_rejected_list, n_rejected_hyperbolas, fs)
     fig.savefig(f'figs/rej_associated_calls_north_{fileBeginTimeUTC}.png')
+    # clear the figure
+    plt.clf()
+
     fig = plot_reject_pick(s_peaks, s_longi_offset, s_dist, dx, s_associated_list, s_rejected_list, s_rejected_hyperbolas, fs)
     fig.savefig(f'figs/rej_associated_calls_south_{fileBeginTimeUTC}.png')
+    plt.clf()
 
     # Example usage:
-    fig = plot_pick_analysis(n_associated_list, fs, dx, n_longi_offset, n_cable_pos, n_dist)
-    fig = plot_pick_analysis(s_associated_list, fs, dx, s_longi_offset, s_cable_pos, s_dist)
+    # fig = plot_pick_analysis(n_associated_list, fs, dx, n_longi_offset, n_cable_pos, n_dist)
+    # fig = plot_pick_analysis(s_associated_list, fs, dx, s_longi_offset, s_cable_pos, s_dist)
 
     # Localize using the selected picks
     n_localizations, n_alt_localizations = loc_from_picks(n_associated_list, n_cable_pos, c0, fs)
