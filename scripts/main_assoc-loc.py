@@ -7,13 +7,11 @@ import pandas as pd
 import matplotlib.colors as mcolors
 from matplotlib.colors import LightSource
 from tqdm import tqdm
-import dask.array as da
-# from dask import delayed
 from joblib import Parallel, delayed
 from scipy.stats import gaussian_kde
 from sklearn.neighbors import KernelDensity
-from scipy.optimize import curve_fit
-
+from scipy.interpolate import RegularGridInterpolator
+import cmocean.cm as cmo
 
 def plot_associated(peaks, longi_offset, associated_list, localizations, cable_pos, dist, dx, c0, fs):
     plt.figure(figsize=(20,8))
@@ -159,7 +157,6 @@ def associate_picks(kde, t_grid, longi_offset, up_peaks, arr_tg, dx, c0, w_eval,
         arr_tg = np.delete(arr_tg, imax, axis=0)
 
     return up_peaks, arr_tg, associated_list, used_hyperbolas, rejected_list, rejected_hyperbolas
-
 
 
 def plot_reject_pick(peaks, longi_offset, dist, dx, associated_list, rejected_list, rejected_hyperbolas, fs):
@@ -329,6 +326,7 @@ def main(nds_path, s_ds_path):
     snx = s_ds.attrs['data_shape'][0]
     n_selected_channels_m = n_ds.attrs['selected_channels_m']
     s_selected_channels_m = s_ds.attrs['selected_channels_m']
+    fileBeginTimeUTC = n_ds.attrs['fileBeginTimeUTC']
         
     # Constants management
     c0 = 1480
@@ -357,8 +355,8 @@ def main(nds_path, s_ds_path):
     s_peaks = speakshf
 
     # Import the cable location
-    df_north = pd.read_csv('../data/north_DAS_multicoord.csv')
-    df_south = pd.read_csv('../data/south_DAS_multicoord.csv')
+    df_north = pd.read_csv('data/north_DAS_multicoord.csv')
+    df_south = pd.read_csv('data/south_DAS_multicoord.csv')
 
     # Extract the part of the dataframe used for the time picking process
     idx_shift0 = int(n_begin_chan - df_north["chan_idx"].iloc[0]) # Shift between the cable locations (starting at the beach) and the channel locations
@@ -372,7 +370,7 @@ def main(nds_path, s_ds_path):
     df_south_used = df_south.iloc[idx_shift0:idx_shiftn:s_selected_channels[2]][:snx]
 
     # Import the bathymetry data
-    bathy, xlon, ylat = dw.map.load_bathymetry('../data/GMRT_OOI_RCA_Cables.grd')
+    bathy, xlon, ylat = dw.map.load_bathymetry('data/GMRT_OOI_RCA_Cables.grd')
     print(f'Origin of the corrdinates. Latitude = {ylat[0]}, Longitude = {xlon[-1]}')
 
     utm_x0, utm_y0 = dw.map.latlon_to_utm(xlon[0], ylat[0])
@@ -388,7 +386,7 @@ def main(nds_path, s_ds_path):
     x = np.linspace(x0, xf, len(xlon))
     y = np.linspace(y0, yf, len(ylat))
 
-    dw.map.plot_cables2D(df_north, df_south, bathy, xlon, ylat)
+    # dw.map.plot_cables2D(df_north, df_south, bathy, xlon, ylat)
 
     # Cable geometry (make it correspond to x,y,z = cable_pos[:, 0], cable_pos[:, 1], cable_pos[:, 2])
     n_cable_pos = np.zeros((len(df_north_used), 3))
@@ -401,8 +399,6 @@ def main(nds_path, s_ds_path):
     s_cable_pos[:, 0] = df_south_used['x']
     s_cable_pos[:, 1] = df_south_used['y']
     s_cable_pos[:, 2] = df_south_used['depth']
-
-    from scipy.interpolate import RegularGridInterpolator
 
     # Create a grid of coordinates, choosing the spacing of the grid
     dx_grid = 2000 # [m]
@@ -448,19 +444,6 @@ def main(nds_path, s_ds_path):
     n_arr_tg = dw.loc.calc_arrival_times(ti, n_cable_pos, (xg, yg, zg), c0)
     s_arr_tg = dw.loc.calc_arrival_times(ti, s_cable_pos, (xg, yg, zg), c0)
 
-    # Plot the arrival times for the grid
-    plt.figure(figsize=(20,8))
-    plt.subplot(1,2,1)
-    plt.title('North Cable')
-    for i in range(xg.shape[0]):
-                plt.plot(n_arr_tg[i, :], n_dist/1e3, ls='-', lw=1, color='tab:blue', alpha=0.1)
-
-    plt.subplot(1,2,2)
-    plt.title('South Cable')
-    for i in range(xg.shape[0]):
-                plt.plot(s_arr_tg[i, :], s_dist/1e3, ls='-', lw=1, color='tab:blue', alpha=0.1)
-    plt.show()
-
     pbar = tqdm(range(iterations), desc="Associated calls: 0")
 
     # Start the loop that runs for a fixed number of iterations
@@ -503,20 +486,23 @@ def main(nds_path, s_ds_path):
 
     print(f"Test completed with {iterations} iterations.")
 
-    plot_reject_pick(n_peaks, n_longi_offset, n_dist, dx, n_associated_list, n_rejected_list, n_rejected_hyperbolas)
-    plot_reject_pick(s_peaks, s_longi_offset, s_dist, dx, s_associated_list, s_rejected_list, s_rejected_hyperbolas)
+    fig = plot_reject_pick(n_peaks, n_longi_offset, n_dist, dx, n_associated_list, n_rejected_list, n_rejected_hyperbolas)
+    fig.savefig(f'figs/rej_associated_calls_north_{fileBeginTimeUTC}.png')
+    fig = plot_reject_pick(s_peaks, s_longi_offset, s_dist, dx, s_associated_list, s_rejected_list, s_rejected_hyperbolas)
+    fig.savefig(f'figs/rej_associated_calls_south_{fileBeginTimeUTC}.png')
 
     # Example usage:
-    fig = plot_pick_analysis(n_associated_list[:10], fs, dx, n_longi_offset, n_cable_pos, n_dist)
-    fig = plot_pick_analysis(s_associated_list[:10], fs, dx, s_longi_offset, s_cable_pos, s_dist)
-    plt.show()
+    fig = plot_pick_analysis(n_associated_list, fs, dx, n_longi_offset, n_cable_pos, n_dist)
+    fig = plot_pick_analysis(s_associated_list, fs, dx, s_longi_offset, s_cable_pos, s_dist)
 
     # Localize using the selected picks
     n_localizations, n_alt_localizations = loc_from_picks(n_associated_list, n_cable_pos, c0, fs)
     s_localizations, s_alt_localizations = loc_from_picks(s_associated_list, s_cable_pos, c0, fs)
 
-    plot_associated(n_peaks, n_longi_offset, n_associated_list, n_localizations, n_cable_pos, n_dist, dx, c0, fs)
-    plot_associated(s_peaks, s_longi_offset, s_associated_list, s_localizations, s_cable_pos, s_dist, dx, c0, fs)
+    fig = plot_associated(n_peaks, n_longi_offset, n_associated_list, n_localizations, n_cable_pos, n_dist, dx, c0, fs)
+    fig.savefig(f'figs/associated_calls_north_{fileBeginTimeUTC}.png')
+    fig = plot_associated(s_peaks, s_longi_offset, s_associated_list, s_localizations, s_cable_pos, s_dist, dx, c0, fs)
+    fig.savefig(f'figs/associated_calls_south_{fileBeginTimeUTC}.png')
 
     # Create two list of coordinates, for ponts every 10 km along the cables, the spatial resolution is 2m 
     opticald_n = []
@@ -529,7 +515,6 @@ def main(nds_path, s_ds_path):
         opticald_s.append((df_south['x'][i], df_south['y'][i]))
 
     # Plot the grid points on the map
-    import cmocean.cm as cmo
     colors_undersea = cmo.deep_r(np.linspace(0, 1, 256)) # blue colors for under the sea
     colors_land = np.array([[0.5, 0.5, 0.5, 1]])  # Solid gray for above sea level
 
@@ -596,13 +581,15 @@ def main(nds_path, s_ds_path):
     plt.legend(loc='upper left')
     plt.grid(linestyle='--', alpha=0.6, color='k')
     plt.tight_layout()
-    plt.show()
+    plt.savefig(f'figs/localized_calls_{fileBeginTimeUTC}.png')
+
+    print('File processed and figures saved.')
 
     return
 
 
 if __name__ == "__main__":
-    nds_path = '../out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi2_th_4.nc'
-    sds_path = '../out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi2_th_4.nc'
+    nds_path = 'out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi2_th_4.nc'
+    sds_path = 'out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi2_th_4.nc'
     main(nds_path, nds_path)
 
