@@ -311,9 +311,9 @@ def loc_from_picks(associated_list, cable_pos, c0, fs):
     return localizations, alt_localizations
 
 
-def main(nds_path, s_ds_path):
+def main(n_ds_path, s_ds_path):
     # Load the peak indexes and the metadata
-    n_ds = xr.load_dataset(nds_path) 
+    n_ds = xr.load_dataset(n_ds_path) 
     s_ds = xr.load_dataset(s_ds_path)
 
     # Constants from the metadata
@@ -592,5 +592,5 @@ def main(nds_path, s_ds_path):
 if __name__ == "__main__":
     nds_path = 'out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi2_th_4.nc'
     sds_path = 'out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi2_th_4.nc'
-    main(nds_path, nds_path)
+    main(nds_path, sds_path)
 
