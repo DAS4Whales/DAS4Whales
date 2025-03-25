@@ -558,15 +558,15 @@ def main(n_ds_path, s_ds_path):
     for i, loc in enumerate(n_localizations):
         # Put label only for the first point
         if i == 0:
-            ax.plot(loc[0], loc[1], 'o',  c='tab:purple', lw=4, label='Localized call - north')
+            ax.plot(loc[0], loc[1], 'o', lw=4, label='Localized call - north')
         else:
-            ax.plot(loc[0], loc[1], 'o', c='tab:purple', lw=4)
+            ax.plot(loc[0], loc[1], 'o', lw=4)
     for i, loc in enumerate(s_localizations):
         # Put label only for the first point
         if i == 0:
-            ax.plot(loc[0], loc[1], 'o', c='tab:green', label='Localized call - south', lw=4)
+            ax.plot(loc[0], loc[1], 'd', label='Localized call - south', lw=4)
         else:
-            ax.plot(loc[0], loc[1], 'o', c='tab:green', lw=4)
+            ax.plot(loc[0], loc[1], 'd', lw=4)
 
     # Use a proxy artist for the color bar
     im = ax.imshow(bathy, cmap=custom_cmap, extent=extent, aspect='equal', origin='lower', vmin=np.min(bathy), vmax=0)
