@@ -128,6 +128,7 @@ def calc_theory_toa(das_position, whale_position, dist, c0=1490):
 
     return toa
 
+
 def calc_distance_matrix(cable_pos, whale_pos):
     """
     Compute the distance matrix between the cable and the whale
@@ -329,3 +330,25 @@ def calc_uncertainty_position(cable_pos, whale_pos, c0, var, fix_z=False):
 
     return unc
 
+
+def loc_from_picks(associated_list, cable_pos, c0, fs):
+    localizations = []
+    alt_localizations = []
+
+    for select in associated_list:
+        idxmin_t = np.argmin(select[1][:])
+        apex_loc = cable_pos[:, 0][select[0][idxmin_t]]
+        Ti = select[1][:] / fs
+        Nbiter = 20
+
+        # Initial guess (apex_loc, mean_y, -30m, min(Ti))
+        n_init = [apex_loc, np.mean(cable_pos[:,1]), -40, np.min(Ti)]
+        print(f'Initial guess: {n_init[0]:.2f} m, {n_init[1]:.2f} m, {n_init[2]:.2f} m, {n_init[3]:.2f} s')
+        # Solve the least squares problem
+        n = dw.loc.solve_lq(Ti, cable_pos[select[0][:]], c0, Nbiter, fix_z=True, ninit=n_init)
+        nalt = dw.loc.solve_lq(Ti, cable_pos[select[0][:]], c0, Nbiter-1, fix_z=True, ninit=n_init)
+
+        localizations.append(n)
+        alt_localizations.append(nalt)
+
+    return localizations, alt_localizations

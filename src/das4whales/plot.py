@@ -892,6 +892,161 @@ def plot_fk_domain(trace, fs, dx, selected_channels, title_time_info=0, fig_size
     return
 
 
+def plot_associated(peaks, longi_offset, associated_list, localizations, cable_pos, dist, dx, c0, fs):
+    plt.figure(figsize=(20,8))
+
+    # Plot the time picks with colored associated ones
+    plt.subplot(1, 2, 1)
+    plt.scatter(peaks[1][:] / fs, (longi_offset + peaks[0][:]) * dx * 1e-3, label='LF', s=0.5, alpha=0.2, color='tab:grey')
+    for i, select in enumerate(associated_list):
+        plt.scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3, label='LF', s=0.5)
+    plt.xlim(0, 60)
+    plt.xlabel('Time [s]')
+    plt.ylabel('Distance [km]')
+
+    # Plot the time picks with the the predicted hyperbola
+    plt.subplot(1, 2, 2)
+    for i, select in enumerate(associated_list):
+        plt.scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3, label='LF', s=0.5)
+        plt.plot(dw.loc.calc_arrival_times(localizations[i][-1], cable_pos, localizations[i][:3], c0), dist/1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
+        # plt.plot(select[1][:] / fs, dw.loc.calc_arrival_times(0, cable_pos, alt_localizations[i][:3], c0), color='tab:orange', ls='-', lw=1)
+    plt.grid(linestyle='--', alpha=0.6)
+    plt.xlabel('Time [s]')
+    plt.ylabel('Distance [km]')
+    plt.show()
+
+
+def plot_reject_pick(peaks, longi_offset, dist, dx, associated_list, rejected_list, rejected_hyperbolas, fs):
+    # Plot the selected picks alongside the original picks
+    plt.figure(figsize=(20,8))
+    plt.subplot(2, 2, 1)
+    plt.scatter(peaks[1][:] / fs, (longi_offset + peaks[0][:]) * dx * 1e-3, label='HF', s=0.5)
+    plt.xlabel('Time [s]')
+    plt.ylabel('Distance [km]')
+    plt.subplot(2, 2, 2)
+    for select in associated_list:
+        plt.scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3, label='LF', s=0.5)
+    plt.xlabel('Time [s]') 
+    # Plot the deleted hyperbolas
+    plt.subplot(2, 2, 3)
+    for hyp in rejected_hyperbolas:
+        plt.plot(hyp, dist/1e3, label='Rejected hyperbola')
+    plt.xlabel('Time [s]')
+    plt.ylabel('Distance [km]')
+    # plot the rejected picks
+    plt.subplot(2, 2, 4)
+    for select in rejected_list:
+        plt.scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3, label='LF', s=0.5)
+    plt.xlabel('Time [s]')
+    plt.show()
+
+
+def plot_pick_analysis(associated_list, fs, dx, longi_offset, cable_pos, dist, window_size=5, mu_ref=None, sigma_ref=None):
+        """
+        Create detailed plots of seismic picks with continuity analysis and a normalized curvature score.
+        
+        Parameters:
+        -----------
+        associated_list : list
+            List of tuples containing pick coordinates and times
+        fs : float
+            Sampling frequency
+        dx : float
+            Spatial sampling interval
+        longi_offset : float
+            Longitudinal offset value
+        window_size : float, optional
+            Size of analysis window in seconds (default: 5)
+        mu_ref : float, optional
+            Reference mean curvature for normalization (default: computed from data)
+        sigma_ref : float, optional
+            Reference standard deviation of curvature for normalization (default: computed from data)
+        
+        Returns:
+        --------
+        fig : matplotlib.figure.Figure
+            The created figure object
+        """
+        
+        fig = plt.figure(figsize=(24, 8))
+        
+        curvature_means = []
+        curvature_stds = []
+        
+        for i, select in enumerate(associated_list):
+            times = select[1][:] / fs
+            distances = (longi_offset + select[0][:]) * dx * 1e-3
+            
+            ax = plt.subplot(1, 2*len(associated_list), (i + 1) * 2 - 1)
+            if i == 0:
+                ax.set_ylabel('Distance [km]')
+            ax.scatter(times, distances, label='All Picks', s=0.5, color='gray', alpha=0.5)
+            
+            window_mask = (times > np.min(times)) & (times < np.min(times) + window_size)
+            window_times = times[window_mask]
+            window_distances = distances[window_mask]
+            
+            ax.plot(window_times, window_distances, 
+                    label='Windowed Picks', 
+                    lw=2, 
+                    color='tab:red', 
+                    alpha=0.6)
+            # Calulate least squares fit
+            idxmin_t = np.argmin(select[1][:])
+            apex_loc = cable_pos[:, 0][select[0][idxmin_t]]
+            Ti = select[1][:] / fs
+            Nbiter = 20
+
+            # Initial guess (apex_loc, mean_y, -30m, min(Ti))
+            n_init = [apex_loc, np.mean(cable_pos[:,1]), -40, np.min(Ti)]
+
+            # Solve the least squares problem
+            n, residuals = dw.loc.solve_lq(Ti, cable_pos[select[0][:]], c0, Nbiter, fix_z=True, ninit=n_init, residuals=True)
+            loc_hyerbola = dw.loc.calc_arrival_times(n[-1], cable_pos, n[:3], c0)
+            test = np.cumsum(abs(residuals))
+            # rms residual
+            rms = np.sqrt(np.mean(residuals[window_mask]**2))
+            # rms *= 1e4
+
+            left_cs = np.cumsum(abs(residuals[idxmin_t::-1]))
+            right_cs = np.cumsum(abs(residuals[idxmin_t:]))
+            mod_cs = np.concatenate((left_cs[::-1], right_cs[1:]))
+
+            mask_resi = mod_cs < 1500
+            # plot indexes for which only the cumulative sum is less than 1000
+            ax.scatter(select[1][mask_resi] / fs, (longi_offset + select[0][mask_resi]) * dx * 1e-3, label='HF', s=1, color='tab:blue')
+            ax.plot(loc_hyerbola, dist/1e3, label='Hyperbola', color='tab:green', alpha=0.5)
+
+            # Plot residuals
+            # ax.plot(abs(residuals), distances, label='Residuals', color='tab:orange', alpha=0.5)
+            # ax.plot(abs(residuals[window_mask]), window_distances, label='Windowed Residuals', color='tab:blue', alpha=0.5)
+            # ax.plot(np.cumsum(residuals), distances, label='Cumulative Residuals', color='tab:green', alpha=0.5)
+            
+
+            # Calculate curvature
+            ddx = np.diff(window_times)
+            ddy = np.diff(window_distances)
+            ddx2 = np.diff(ddx)
+            ddy2 = np.diff(ddy)
+            curvature = np.abs(ddx2 * ddy[1:] - ddx[1:] * ddy2) / (ddx[1:]**2 + ddy[1:]**2)**(3/2)
+            # curvature = curvature[curvature > 10e-10]
+            curvature_mean = np.mean(curvature)
+
+            ax.set_title(f"Pick Analysis\n"
+                            f"$\\mu_k$ = {compute_curvature(window_times, window_distances):.2f}\n"
+                            f"$\\mu_r$ = {np.mean(abs(residuals[window_mask])):.2f}\n"
+                            f"$RMS$ = {rms:.2f}\n",
+                            fontsize=10)
+            ax.set_xlabel('Time [s]')
+            
+            ax = plt.subplot(1, 2*len(associated_list), (i + 2) * 2 - 2)
+            ax.plot(mod_cs, distances, label='Modified Cumulative Residuals', color='tab:purple', alpha=0.5)
+            ax.set_xlabel('Cumulative Residuals')
+            
+        plt.tight_layout()
+        return fig
+
+
 def import_roseus():
     """
     Import the colormap from the colormap/roseus_matplotlib.py file

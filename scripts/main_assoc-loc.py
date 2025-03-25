@@ -122,8 +122,6 @@ def associate_picks(kde, t_grid, longi_offset, up_peaks, arr_tg, dx, c0, w_eval,
     # rms residual
     rms = np.sqrt(np.mean(residuals[window_mask]**2))
     
-
-    # if np.mean(abs(residuals[window_mask])) < 0.5:
     if rms < .5:
         # Compute the residual cumsum from the minimum time, in positive and negative directions
         #TODO: change variable names
@@ -181,8 +179,7 @@ def plot_reject_pick(peaks, longi_offset, dist, dx, associated_list, rejected_li
     for select in rejected_list:
         plt.scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3, label='LF', s=0.5)
     plt.xlabel('Time [s]')
-    plt.show()
-
+    return plt.gcf()
 
 def plot_pick_analysis(associated_list, fs, dx, longi_offset, cable_pos, dist, window_size=5, mu_ref=None, sigma_ref=None):
         """
@@ -426,7 +423,7 @@ def main(nds_path, s_ds_path):
     dt_sel = 1.4 # [s] Selected time "distance" from the theoretical arrival time
     w_eval = 5 # [s] Width of the evaluation window for curvature estimation
     # Set the number of iterations for testing
-    iterations = 40
+    iterations = 4
 
     # Initialize the max_kde variable to enter the loop
     n_associated_list = []
@@ -486,9 +483,9 @@ def main(nds_path, s_ds_path):
 
     print(f"Test completed with {iterations} iterations.")
 
-    fig = plot_reject_pick(n_peaks, n_longi_offset, n_dist, dx, n_associated_list, n_rejected_list, n_rejected_hyperbolas)
+    fig = plot_reject_pick(n_peaks, n_longi_offset, n_dist, dx, n_associated_list, n_rejected_list, n_rejected_hyperbolas, fs)
     fig.savefig(f'figs/rej_associated_calls_north_{fileBeginTimeUTC}.png')
-    fig = plot_reject_pick(s_peaks, s_longi_offset, s_dist, dx, s_associated_list, s_rejected_list, s_rejected_hyperbolas)
+    fig = plot_reject_pick(s_peaks, s_longi_offset, s_dist, dx, s_associated_list, s_rejected_list, s_rejected_hyperbolas, fs)
     fig.savefig(f'figs/rej_associated_calls_south_{fileBeginTimeUTC}.png')
 
     # Example usage:
