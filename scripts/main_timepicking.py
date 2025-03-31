@@ -174,14 +174,21 @@ def main(urls, selected_channels_m):
         peaks_indexes_tp_HF = dw.detect.convert_pick_times(peaks_indexes_HF)
         peaks_indexes_tp_LF = dw.detect.convert_pick_times(peaks_indexes_LF)
 
+        flat_snr_hf = SNR_hf[peaks_indexes_tp_HF[0], peaks_indexes_tp_HF[1]]
+        flat_snr_lf = SNR_lf[peaks_indexes_tp_LF[0], peaks_indexes_tp_LF[1]]
+
         # Save the time picking results, along with the metadata
         ds = xr.Dataset(
                 {
                         'peaks_indexes_tp_HF': (['coord', 'peak_HF'], peaks_indexes_tp_HF),
-                        'peaks_indexes_tp_LF': (['coord', 'peak_LF'], peaks_indexes_tp_LF)
+                        'peaks_indexes_tp_LF': (['coord', 'peak_LF'], peaks_indexes_tp_LF),
+                        'SNR_hf': (['peak_HF'], flat_snr_hf),  # Fixed key name and dimension
+                        'SNR_lf': (['peak_LF'], flat_snr_lf),  # Fixed key name and dimension
                 },
                 coords={
                         "coord": ["time_idx", "dist_idx"],  # Naming the tuple components
+                        "peak_HF": range(flat_snr_hf.shape[0]),  # Define coordinate for HF peaks
+                        "peak_LF": range(flat_snr_lf.shape[0]),  # Define coordinate for LF peaks
                 },
                 attrs=metadata
         )
