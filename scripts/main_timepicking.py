@@ -182,8 +182,8 @@ def main(urls, selected_channels_m):
                 {
                         'peaks_indexes_tp_HF': (['coord', 'peak_HF'], peaks_indexes_tp_HF),
                         'peaks_indexes_tp_LF': (['coord', 'peak_LF'], peaks_indexes_tp_LF),
-                        'SNR_hf': (['peak_HF'], flat_snr_hf),  # Fixed key name and dimension
-                        'SNR_lf': (['peak_LF'], flat_snr_lf),  # Fixed key name and dimension
+                        'SNR_hf': (['peak_HF'], flat_snr_hf),  # 
+                        'SNR_lf': (['peak_LF'], flat_snr_lf),  # 
                 },
                 coords={
                         "coord": ["time_idx", "dist_idx"],  # Naming the tuple components
