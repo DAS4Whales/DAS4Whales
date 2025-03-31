@@ -8,6 +8,7 @@ import das4whales as dw
 import cv2
 import gc
 from tqdm import tqdm
+import argparse
 
 # Comment out these lines to enable the plots to display
 import matplotlib
@@ -242,10 +243,87 @@ def main(urls, selected_channels_m):
         plt.savefig(f"figs/Peaks_LF_{metadata['cablename']}_{metadata['fileBeginTimeUTC']}_ipi{ipi}_th_{th}.pdf")
         plt.tight_layout()
         plt.show()
-        return      
+        return
+
+
+def parse_input_line(input_line):
+    """
+    Parses a single input line containing timestamp, file lists, and channel parameters.
+
+    Expected format of the input line:
+        TIMESTAMP NorthFILE1 NorthFILE2 ... northCHANNEL_MIN northCHANNEL_MAX northCHANNEL_STEP \
+                  SouthFILE1 SouthFILE2 ... southCHANNEL_MIN southCHANNEL_MAX southCHANNEL_STEP
+
+    Example:
+        2025-03-29T12:00:00 north_file1.h5 north_file2.h5 12000 66000 5 
+                             south_file1.h5 south_file2.h5 12000 95000 5
+
+    - TIMESTAMP: UTC timestamp of the window (YYYY-MM-DDTHH:MM:SS)
+    - NorthFILEs: List of North cable file URLs (can be multiple)
+    - northCHANNEL_MIN, northCHANNEL_MAX, northCHANNEL_STEP: Integer values for channel range
+    - SouthFILEs: List of South cable file URLs (can be multiple)
+    - southCHANNEL_MIN, southCHANNEL_MAX, southCHANNEL_STEP: Integer values for channel range
+
+    Parameters
+    ----------
+    input_line : str
+        A space-separated string containing all the required information.
+
+    Returns
+    -------
+    tuple
+        (timestamp, list of north files, list of north channel params, list of south files, list of south channel params)
+    """
+    # Split the input line into components
+    input_line = input_line.split()
+    
+    # Extract timestamp (first element)
+    timestamp_str = input_line[0]
+    timestamp = timestamp_str.replace("T", " ")  # Replace 'T' with space for datetime
+
+    # Initialize lists for north and south files
+    north_files = []
+    i = 1
+    # Collect all north files (assuming they start with "http")
+    while input_line[i].startswith("http"):
+        north_files.append(input_line[i])
+        i += 1
+    
+    # Extract north channel parameters (next three elements)
+    selected_channels_m_north = [int(input_line[i]), int(input_line[i+1]), int(input_line[i+2])]
+    i += 3  # Move past the channel parameters
+
+    # Initialize south files list
+    south_files = []
+    # Collect all south files (assuming they start with "http")
+    while input_line[i].startswith("http"):
+        south_files.append(input_line[i])
+        i += 1
+    
+    # Extract south channel parameters (next three elements)
+    selected_channels_m_south = [int(input_line[i]), int(input_line[i+1]), int(input_line[i+2])]
+
+    # Return the parsed components as a tuple
+    return timestamp, north_files, selected_channels_m_north, south_files, selected_channels_m_south
 
 
 if __name__ == '__main__':
+        # parser = argparse.ArgumentParser(description="Process DAS data files.")
+        # parser.add_argument("--input", type=str, required=True, help="Full input line")
+        # args = parser.parse_args()
+
+        # # Parse the input line
+        # timestamp, urls_north, selected_channels_m_north, urls_south, selected_channels_m_south = parse_input_line(args.input)
+
+        # print(f"Timestamp: {timestamp}")
+        # print(f"North files: {urls_north}")
+        # print(f"North channel params: {selected_channels_m_north}")
+        # print(f"South files: {urls_south}")
+        # print(f"South channel params: {selected_channels_m_south}")
+
+        # main(urls_north, selected_channels_m_north, timestamp)
+        # # gc.collect()
+        # main(urls_south, selected_channels_m_south, timestamp)
 
         # The dataset of this example is constituted of 60s time series along the north and south cables
         url_north = ['http://piweb.ooirsn.uw.edu/das/data/Optasense/NorthCable/TransmitFiber/'\
