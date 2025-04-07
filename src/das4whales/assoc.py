@@ -10,9 +10,10 @@ Date: 2024
 import numpy as np
 import das4whales as dw
 from sklearn.neighbors import KernelDensity
+from scipy.stats import gaussian_kde
 
 
-def compute_kde(delayed_picks, t_kde, bin_width):
+def compute_kde(delayed_picks, t_kde, bin_width, weights=None):
     """Computes the KDE of the delayed picks.
 
     Parameters
@@ -30,12 +31,16 @@ def compute_kde(delayed_picks, t_kde, bin_width):
         KDE density values.  
     
     """
-
-    # kde = gaussian_kde(delayed_picks, bw_method=bin_width / (np.max(t_kde) - np.min(t_kde)))
-    kde = KernelDensity(kernel="epanechnikov", bandwidth=bin_width, algorithm='ball_tree')
-    kde.fit(delayed_picks[:, None]) # Reshape to (n_samples, 1)
-    log_dens = kde.score_samples(t_kde[:, np.newaxis]) # Evaluate on grid
-    return np.exp(log_dens) # Convert log-density to normal density
+    if weights is not None:
+        # Use weighted KDE, Scipy's gaussian_kde is faster that sklearn's KernelDensity for weighted KDE
+        kde = gaussian_kde(delayed_picks, bw_method=bin_width / (np.max(t_kde) - np.min(t_kde)), weights=weights)
+        density = kde(t_kde)
+    else:
+        kde = KernelDensity(kernel="epanechnikov", bandwidth=bin_width, algorithm='ball_tree')
+        kde.fit(delayed_picks[:, None]) # Reshape to (n_samples, 1)
+        log_dens = kde.score_samples(t_kde[:, np.newaxis]) # Evaluate on grid
+        density = np.exp(log_dens) # Convert log-density to normal density
+    return density
 
 
 def compute_selected_picks(peaks, hyperbola, dt_sel, fs):
