@@ -33,7 +33,7 @@ def compute_kde(delayed_picks, t_kde, bin_width, weights=None):
     """
     if weights is not None:
         # Use weighted KDE, Scipy's gaussian_kde is faster that sklearn's KernelDensity for weighted KDE
-        kde = gaussian_kde(delayed_picks, bw_method=bin_width / (np.max(t_kde) - np.min(t_kde)), weights=weights)
+        kde = gaussian_kde(delayed_picks, bw_method=bin_width/np.std(delayed_picks), weights=weights)
         density = kde(t_kde)
     else:
         kde = KernelDensity(kernel="epanechnikov", bandwidth=bin_width, algorithm='ball_tree')
@@ -134,4 +134,66 @@ def associate_picks(kde, t_grid, longi_offset, up_peaks, arr_tg, dx, c0, w_eval,
         # Remove the hyperbola from the list
         arr_tg = np.delete(arr_tg, imax, axis=0)
 
-    return up_peaks, arr_tg, associated_list, used_hyperbolas, rejected_list, rejected_hyperbolas
+    return up_peaks, arr_tg, associated_list, used_hyperbolas, rejected_list, rejected_hyperbolas\
+    
+
+def loc_from_picks(idx_dist, idx_time, cable_pos, c0, fs, Nbiter=20):
+    """
+    Solve the least squares localization problem for a single cable using the picks' indices.
+    
+    Parameters
+    ----------
+    idx_dist : array-like
+        The indices for the cable positions.
+    idx_time : array-like
+        The times corresponding to the cable positions.
+    cable_pos : array-like
+        The positions of the cable.
+    c0 : float
+        The speed of sound or another relevant constant for localization.
+    fs : float
+        The sampling frequency.
+    Nbiter : int, optional
+        The number of iterations for the least squares solution, default is 20.
+    
+    Returns
+    -------
+    tuple
+        A tuple containing the solution and the residuals of the least squares problem.
+    """
+    idxmin_t = np.argmin(idx_time)  # Find the index of the minimum time
+    times = idx_time / fs
+    apex_loc = cable_pos[:, 0][idx_dist[idxmin_t]]  # Find the apex location from the minimum time index
+    init = [apex_loc, np.mean(cable_pos[:, 1]), -40, np.min(times)]  # Initial guess for the localization
+    
+    # Solve the least squares problem using the provided parameters
+    n, residuals = dw.loc.solve_lq(times, cable_pos[idx_dist], c0, Nbiter, fix_z=True, ninit=init, residuals=True)
+    
+    return n, residuals
+
+
+def compute_cumsum(residuals, idx_t, threshold=1500):
+    """
+    Compute a mask based on the cumulative sum of residuals.
+
+    Parameters
+    ----------
+    residuals : array-like
+        The residuals for the localization.
+    idx_t : array-like
+        The time indices for the residuals.
+    threshold : float, optional
+        The threshold value for the cumulative sum to generate the mask (default is 1500).
+
+    Returns
+    -------
+    mask_resi : array-like
+        A boolean mask where cumulative residuals are less than the threshold.
+    """
+    idx_min_t = np.argmin(idx_t)  # Find the index of the minimum time
+    left_cs = np.cumsum(abs(residuals[idx_min_t::-1]))  # Cumulative sum for the left side
+    right_cs = np.cumsum(abs(residuals[idx_min_t:]))   # Cumulative sum for the right side
+    mod_cs = np.concatenate((left_cs[::-1], right_cs[1:]))  # Combine both sides
+    mask_resi = mod_cs < threshold  # Create the mask based on the threshold
+    
+    return mask_resi
