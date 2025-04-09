@@ -186,7 +186,6 @@ def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None, residuals=Fa
     """
 
     # Make a first guess of the whale position
-    #TODO: make first guess a parameter
     n = np.array([40000, 1000, -30, np.min(Ti)])
     if ninit is not None:
         n = ninit

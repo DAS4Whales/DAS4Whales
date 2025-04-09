@@ -9,6 +9,8 @@ import cv2
 import gc
 from tqdm import tqdm
 import argparse
+import matplotlib.cm as cm
+import matplotlib.colors as colors
 
 # Comment out these lines to enable the plots to display
 import matplotlib
@@ -202,54 +204,34 @@ def main(urls, selected_channels_m):
         print('HF detections after denoising:', len(peaks_indexes_tp_HF[0]))
         print('LF detections after denoising:', len(peaks_indexes_tp_LF[0]))
 
-                # Sorth the sizes of the picks by SNR
-        sizes_hf = SNR_hf[peaks_indexes_tp_HF[0], peaks_indexes_tp_HF[1]]
-        sizes_lf = SNR_lf[peaks_indexes_tp_LF[0], peaks_indexes_tp_LF[1]]
-
-        # Scale the sizes of the picks
-        max_size = 140
-        min_size = 2
-
-        # Scale the sizes to the range [0, 1]
-        sizes_hf_scaled = min_size + (sizes_hf - np.min(sizes_hf)) / (np.max(sizes_hf) - np.min(sizes_hf)) * (max_size - min_size)
-        sizes_lf_scaled = min_size + (sizes_lf - np.min(sizes_lf)) / (np.max(sizes_lf) - np.min(sizes_lf)) * (max_size - min_size)
+        # Determine common color scale
+        vmin = min(np.min(flat_snr_hf), np.min(flat_snr_lf))
+        vmax = max(np.max(flat_snr_hf), np.max(flat_snr_lf))
+        cmap = cm.plasma  # Define colormap
+        norm = colors.Normalize(vmin=vmin, vmax=vmax)  # Normalize color range
 
         plt.figure(figsize=(12,10))
-        plt.scatter(peaks_indexes_tp_HF[1] / fs, (peaks_indexes_tp_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:blue', marker='.', s=sizes_hf_scaled, rasterized=True)
+        plt.scatter(peaks_indexes_tp_HF[1] / fs, (peaks_indexes_tp_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, 
+                         c=flat_snr_hf, cmap=cmap, norm=norm, s=flat_snr_hf)
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
         plt.title(f'HF note picks denoised, {metadata["cablename"]}', loc='right')
-
-        # Legend
-        # Create a set of legend handles with different sizes
-        handles = [
-        plt.scatter([], [], s=min(sizes_hf_scaled), color='tab:blue', label=f'Min SNR: {sizes_hf.min():.1f}'),
-        plt.scatter([], [], s=(min(sizes_hf_scaled) + max(sizes_hf_scaled)) / 2, color='tab:blue', label=f'Mid SNR: {np.median(sizes_hf):.1f}'),
-        plt.scatter([], [], s=max(sizes_hf_scaled), color='tab:blue', label=f'Max SNR: {sizes_hf.max():.1f}')
-        ]
-
-        plt.legend(handles=handles, title="SNR Sizes", scatterpoints=1, loc='upper right')
-        plt.savefig(f"figs/Peaks_HF_{metadata['cablename']}_{metadata['fileBeginTimeUTC']}_ipi{ipi}_th_{th}.pdf")
+        plt.grid(linestyle='--', alpha=0.5)
+        plt.colorbar(label='SNR', orientation='vertical', fraction=0.02, pad=0.02)
+        plt.savefig(f"figs/tpicks/Peaks_HF_{metadata['cablename']}_{metadata['fileBeginTimeUTC']}_ipi{ipi}_th_{th}.pdf")
         # plt.show()
 
         plt.figure(figsize=(12,10))
-        plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='tab:red', marker='.', s=sizes_lf_scaled, rasterized=True)
+        plt.scatter(peaks_indexes_tp_LF[1] / fs, (peaks_indexes_tp_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, 
+                         c=flat_snr_lf, cmap=cmap, norm=norm, s=flat_snr_lf)
+        plt.grid(linestyle='--', alpha=0.5)
+        plt.colorbar(label='SNR', orientation='vertical', fraction=0.02, pad=0.02)
         plt.xlabel('Time (s)')
         plt.ylabel('Distance (km)')
         plt.title(f'LF note picks denoised, {metadata["cablename"]}', loc='right')
-
-        # Legend
-        # Create a set of legend handles with different sizes
-        handles = [
-        plt.scatter([], [], s=min(sizes_lf_scaled), color='tab:red', label=f'Min SNR: {sizes_lf.min():.1f}'),
-        plt.scatter([], [], s=(min(sizes_lf_scaled) + max(sizes_lf_scaled)) / 2, color='tab:red', label=f'Mid SNR: {np.median(sizes_lf):.1f}'),
-        plt.scatter([], [], s=max(sizes_lf_scaled), color='tab:red', label=f'Max SNR: {sizes_lf.max():.1f}')
-        ]
-
-        plt.legend(handles=handles, title="SNR Sizes", scatterpoints=1, loc='upper right')
-        plt.savefig(f"figs/Peaks_LF_{metadata['cablename']}_{metadata['fileBeginTimeUTC']}_ipi{ipi}_th_{th}.pdf")
-        plt.tight_layout()
-        plt.show()
+        plt.savefig(f"figs/tpicks/Peaks_LF_{metadata['cablename']}_{metadata['fileBeginTimeUTC']}_ipi{ipi}_th_{th}.pdf")
+        # plt.tight_layout()
+        # plt.show()
         return
 
 
