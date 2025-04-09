@@ -158,83 +158,103 @@ def calc_phi_vector(cable_pos, whale_pos):
     return np.arctan2(whale_pos[1]-cable_pos[:,1], whale_pos[0]-cable_pos[:,0])
 
 
-def solve_lq(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None, residuals=False, verbose=False):
+def solve_lq(Ti, cable_pos, c0, Nbiter=10,  SNR=None, fix_z=False, ninit=None, residuals=False, verbose=False):
     """
-    Solve the least squares problem to localize the whale
-
-
+    Solve the least squares problem to localize the whale with optional SNR weighting
+    
     Parameters
     ----------
-
     Ti : np.ndarray
         Array of arrival times at each cable position [channel x 1]
-    
     cable_pos : np.ndarray
         Array of cable positions [channel x 3]
-
     c0 : float
         Speed of sound in water considered constant
-    
+    SNR : np.ndarray, optional
+        Array of signal-to-noise ratios in dB for each measurement [channel x 1]
     Nbiter : int, optional (default=10)
         Number of iterations for the least squares algorithm
-
+    fix_z : bool, optional (default=False)
+        Whether to fix the z-coordinate
+    ninit : np.ndarray, optional
+        Initial guess for n
+    residuals : bool, optional (default=False)
+        Whether to return residuals
+    verbose : bool, optional (default=False)
+        Whether to print iteration details
+        
     Returns
     -------
     n : np.ndarray
         Estimated whale position and time of emission vector [x, y, z, t0]
-
+    res : np.ndarray, optional
+        Residuals if residuals=True
     """
-
     # Make a first guess of the whale position
     n = np.array([40000, 1000, -30, np.min(Ti)])
     if ninit is not None:
         n = ninit
-
+        
     # Regularization parameter
     lambda_reg = 1e-5
-
+    
+    # Create weight matrix from SNR values if provided
+    if SNR is not None:
+        # Convert SNR from dB to linear scale
+        linear_snr = 10**(SNR/10)
+        
+        # Use SNR as weights - higher SNR = more weight
+        W = np.diag(linear_snr)
+        
+        # Optional: normalize weights to sum to number of measurements
+        # This keeps the overall influence of the regularization term similar
+        W = W * (len(SNR) / np.sum(linear_snr))
+    else:
+        # Use uniform weights if no SNR provided
+        W = np.eye(len(Ti))
+    
     for j in range(Nbiter):
         thj = calc_theta_vector(cable_pos, n)
         phij = calc_phi_vector(cable_pos, n)
         dt = Ti - calc_arrival_times(n[-1], cable_pos, n[:3], c0)
-
+        
         # Fixed z case
         if fix_z:
             # Save z value to reappend it after the least squares computation
             dz = n[2]
-            n_fz = np.delete(n, 2) # Remove z from the vector n
-            del n # Delete n to reassign it with the new value
-            n = n_fz # Reassign n without z
-
+            n_fz = np.delete(n, 2)  # Remove z from the vector n
+            del n  # Delete n to reassign it with the new value
+            n = n_fz  # Reassign n without z
+            
             # Compute the least squares coefficients matrix
             G = np.array([np.cos(thj) * np.cos(phij) / c0, np.cos(thj) * np.sin(phij) / c0, np.ones_like(thj)]).T
-
         # Free z case
         else:
             # Compute the least squares coefficients matrix
             G = np.array([np.cos(thj) * np.cos(phij) / c0, np.cos(thj) * np.sin(phij) / c0, np.sin(thj) / c0, np.ones_like(thj)]).T
-
+        
         # Adding regularization to avoid singular matrix error
         lambda_identity = lambda_reg * np.eye(G.shape[1])
-
-        dn = np.linalg.inv(G.T @ G + lambda_identity) @ G.T @ dt
-
+        
+        # Weighted least squares solution: (G^T W G + λI)^(-1) G^T W dt
+        dn = np.linalg.inv(G.T @ W @ G + lambda_identity) @ G.T @ W @ dt
+        
         # Damping factor
-        if j<4:
+        if j < 4:
             n += 0.7 * dn
         else:
             n += dn
-
+            
         if fix_z:
             # reappend z to n in index 2 (before index 3)
-            n = np.insert(n, 2, dz) 
-                       
+            n = np.insert(n, 2, dz)
+            
         if verbose:
             print(f'Iteration {j+1}: x = {n[0]:.4f} m, y = {n[1]:.4f}, z = {n[2]:.4f}, ti = {n[3]:.4f}')
-
+    
     # Compute final residuals
     res = Ti - calc_arrival_times(n[-1], cable_pos, n[:3], c0)
-
+    
     if residuals:
         return n, res
     else:

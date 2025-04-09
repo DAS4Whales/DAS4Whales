@@ -197,3 +197,16 @@ def compute_cumsum(residuals, idx_t, threshold=1500):
     mask_resi = mod_cs < threshold  # Create the mask based on the threshold
     
     return mask_resi
+
+
+def select_snr(up_peaks, selected_peaks, snr):
+    print(np.shape(up_peaks), np.shape(selected_peaks), np.shape(snr))
+    # Start with a mask of all True
+    mask = np.zeros(up_peaks.shape[1], dtype=bool)
+
+    # Accumulate the mask for each selected pair (d, t)
+    for d, t in zip(selected_peaks[0], selected_peaks[1]):
+        mask |= (up_peaks[0, :] == d) & (up_peaks[1, :] == t)
+
+    # Return the snr values for the selected (d, t) pairs
+    return snr[mask]
