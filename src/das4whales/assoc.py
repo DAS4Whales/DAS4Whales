@@ -210,3 +210,48 @@ def select_snr(up_peaks, selected_peaks, snr):
 
     # Return the snr values for the selected (d, t) pairs
     return snr[mask]
+
+
+def remove_peaks(up_peaks, idx_dist, idx_time, mask_resi, snr):
+    mask = np.ones(up_peaks.shape[1], dtype=bool)
+    for d, t in zip(idx_dist[mask_resi], idx_time[mask_resi]):
+        mask &= ~((up_peaks[0, :] == d) & (up_peaks[1, :] == t))
+    return up_peaks[:, mask], snr[mask]
+
+
+def remove_peaks_tolerance(up_peaks, idx_dist, idx_time, mask_resi, snr, dist_tol=0, dt_tol=10):
+    """
+    Removes peaks from up_peaks that are close (in index space) to (dist, time) values.
+
+    Parameters
+    ----------
+    up_peaks : np.ndarray
+        2 x N array of peaks (row 0: dist_idx, row 1: time_idx).
+    idx_dist : np.ndarray
+        Array of distance indices of picks to compare.
+    idx_time : np.ndarray
+        Array of time indices of picks to compare.
+    mask_resi : np.ndarray of bool
+        Mask to select which (idx_dist, idx_time) pairs to use.
+    snr : np.ndarray
+        SNR values associated with each peak (same length as up_peaks.shape[1]).
+    dist_tol : int
+        Distance tolerance in index units.
+    dt_tol : int
+        Time tolerance in index units.
+
+    Returns
+    -------
+    up_peaks_new : np.ndarray
+        Filtered up_peaks with nearby picks removed.
+    snr_new : np.ndarray
+        Filtered SNR array.
+    """
+    mask = np.ones(up_peaks.shape[1], dtype=bool)
+
+    for d, t in zip(idx_dist[mask_resi], idx_time[mask_resi]):
+        dist_match = np.abs(up_peaks[0, :] - d) <= dist_tol
+        time_match = np.abs(up_peaks[1, :] - t) <= dt_tol
+        mask &= ~(dist_match & time_match)
+
+    return up_peaks[:, mask], snr[mask]
