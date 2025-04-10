@@ -43,6 +43,37 @@ def compute_kde(delayed_picks, t_kde, bin_width, weights=None):
     return density
 
 
+def fast_kde_rect(delayed_picks, t_kde, overlap=None, bin_width=None, weights=None):
+    """
+    Fast KDE approximation using histogram and optional rectangular smoothing.
+    
+    Parameters
+    ----------
+    delayed_picks : array-like
+        Delayed picks array.
+    t_kde : array-like
+        Time grid for the KDE.
+    """
+    # Histogram the picks
+    hist_range = (t_kde[0], t_kde[-1])
+    bins = len(t_kde)
+    
+    hist, _ = np.histogram(delayed_picks, bins=bins, range=hist_range, weights=weights)
+    
+    # Optional rectangular smoothing
+    if overlap is None:
+        overlap = np.diff(t_kde).mean()
+    if bin_width is None:
+        bin_width = 2 * overlap
+    kernel_bins = int(np.round(bin_width / overlap))
+    if kernel_bins % 2 == 0:
+        kernel_bins += 1  # Ensure odd length
+    kernel = np.ones(kernel_bins) / kernel_bins
+    hist = sp.convolve(hist, kernel, mode="same")
+    
+    return hist / np.trapezoid(hist, t_kde)  # Normalize to match KDE style
+
+
 def compute_selected_picks(peaks, hyperbola, dt_sel, fs):
     """Selects picks that are closest to the hyperbola within a given time window."""
     selected_picks = ([], [])
