@@ -286,3 +286,95 @@ def remove_peaks_tolerance(up_peaks, idx_dist, idx_time, mask_resi, snr, dist_to
         mask &= ~(dist_match & time_match)
 
     return up_peaks[:, mask], snr[mask]
+
+
+def save_assoc(
+    filename,
+    pair_assoc, pair_loc,
+    associations, localizations,
+    n_used_hyperbolas, n_rejected_hyperbolas,
+    s_used_hyperbolas, s_rejected_hyperbolas,
+    n_rejected_list, s_rejected_list,
+    n_ds, s_ds,
+    dt_kde, bin_width, dt_tol,
+    n_shape_x, s_shape_x,
+    dt_sel, w_eval, iterations
+):
+    nhf_assoc_list_pair, nlf_assoc_list_pair, shf_assoc_list_pair, slf_assoc_list_pair = pair_assoc
+    nhf_pair_loc, nlf_pair_loc, shf_pair_loc, slf_pair_loc = pair_loc
+    nhf_associated_list, nlf_associated_list, shf_associated_list, slf_associated_list = associations
+    nhf_localizations, nlf_localizations, shf_localizations, slf_localizations = localizations
+
+    results = {
+        "assoc_pair": {
+            "north": {
+                "hf": nhf_assoc_list_pair,
+                "lf": nlf_assoc_list_pair
+            },
+            "south": {
+                "hf": shf_assoc_list_pair,
+                "lf": slf_assoc_list_pair
+            }
+        },
+        "pair_loc": {
+            "north": {
+                "hf": nhf_pair_loc,
+                "lf": nlf_pair_loc
+            },
+            "south": {
+                "hf": shf_pair_loc,
+                "lf": slf_pair_loc
+            }
+        },
+        "assoc": {
+            "north": {
+                "hf": nhf_associated_list,
+                "lf": nlf_associated_list
+            },
+            "south": {
+                "hf": shf_associated_list,
+                "lf": slf_associated_list
+            }
+        },
+        "localizations": {
+            "north": {
+                "hf": nhf_localizations,
+                "lf": nlf_localizations
+            },
+            "south": {
+                "hf": shf_localizations,
+                "lf": slf_localizations
+            }
+        },
+        "hyperbolas": {
+            "north": {
+                "used": n_used_hyperbolas,
+                "rejected": n_rejected_hyperbolas
+            },
+            "south": {
+                "used": s_used_hyperbolas,
+                "rejected": s_rejected_hyperbolas
+            }
+        },
+        "rejected": {
+            "north": n_rejected_list,
+            "south": s_rejected_list    
+        },
+        "metadata": {
+            "north": dict(n_ds.attrs),
+            "south": dict(s_ds.attrs),
+            "assoc_meta": {
+                "dt_kde" : dt_kde,
+                "bin_width" : bin_width,
+                "dt_tol" : dt_tol,
+                "n_shape_x" : n_shape_x,
+                "s_shape_x" : s_shape_x,
+                "dt_sel" : dt_sel,
+                "w_eval" : w_eval,
+                "iterations" : iterations
+            }
+        }
+    }
+
+    with open(filename, "wb") as f:
+        pickle.dump(results, f)

@@ -411,8 +411,8 @@ def latlon_to_utm(lon, lat, zone=10):
         The longitude.
     lat : float
         The latitude.
-    zone : int
-        The UTM zone.
+    zone : int, optional
+        The UTM zone (default is 10).
 
     Returns
     -------
@@ -433,3 +433,36 @@ def latlon_to_utm(lon, lat, zone=10):
     utm_x, utm_y = transformer.transform(lon, lat)
 
     return utm_x, utm_y
+
+
+def utm_to_latlon(utm_x, utm_y, zone=10):
+    """
+    Convert UTM coordinates to latitude and longitude for a specified zone.
+
+    Parameters
+    ----------
+    utm_x : float
+        The UTM x coordinate.
+    utm_y : float
+        The UTM y coordinate.
+    zone : int, optional
+        The UTM zone (default is 10).
+
+    Returns
+    -------
+    lon : float
+        The longitude.
+    lat : float
+        The latitude.
+    """
+    # Define the UTM coordinate system for the specified zone and the WGS84 coordinate system
+    utm_zone = pyproj.CRS(f"EPSG:326{zone:02d}")
+    wgs84 = pyproj.CRS("EPSG:4326")
+
+    # Create a transformer object to convert from UTM to WGS84
+    transformer = pyproj.Transformer.from_crs(utm_zone, wgs84, always_xy=True)
+
+    # Perform the transformation
+    lon, lat = transformer.transform(utm_x, utm_y)
+
+    return lon, lat
