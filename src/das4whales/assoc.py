@@ -11,6 +11,13 @@ import numpy as np
 import das4whales as dw
 from sklearn.neighbors import KernelDensity
 from scipy.stats import gaussian_kde
+import pickle
+import matplotlib.pyplot as plt
+from matplotlib.colors import LightSource
+import matplotlib.cm as cm
+import matplotlib.colors as colors
+import scipy.signal as sp
+import das4whales as dw
 
 
 def compute_kde(delayed_picks, t_kde, bin_width, weights=None):
@@ -74,7 +81,7 @@ def fast_kde_rect(delayed_picks, t_kde, overlap=None, bin_width=None, weights=No
     return hist / np.trapezoid(hist, t_kde)  # Normalize to match KDE style
 
 
-def compute_selected_picks(peaks, hyperbola, dt_sel, fs):
+def select_picks(peaks, hyperbola, dt_sel, fs):
     """Selects picks that are closest to the hyperbola within a given time window."""
     selected_picks = ([], [])
     for i, idx in enumerate(peaks[1]):
@@ -168,7 +175,7 @@ def associate_picks(kde, t_grid, longi_offset, up_peaks, arr_tg, dx, c0, w_eval,
     return up_peaks, arr_tg, associated_list, used_hyperbolas, rejected_list, rejected_hyperbolas\
     
 
-def loc_from_picks(idx_dist, idx_time, cable_pos, c0, fs, Nbiter=20):
+def loc_picks(idx_dist, idx_time, cable_pos, c0, fs, Nbiter=20):
     """
     Solve the least squares localization problem for a single cable using the picks' indices.
     
@@ -378,3 +385,234 @@ def save_assoc(
 
     with open(filename, "wb") as f:
         pickle.dump(results, f)
+
+
+## Plotting functions ----- ------------------------------------------------ 
+
+
+def plot_peaks(peaks, SNR, selected_channels_m, dx, fs):
+    nhf_peaks, nlf_peaks, shf_peaks, slf_peaks = peaks
+    nhf_SNR, nlf_SNR, shf_SNR, slf_SNR = SNR
+    n_selected_channels_m, s_selected_channels_m = selected_channels_m
+
+    # Determine common color scale
+    vmin = min(np.min(nhf_SNR), np.min(nlf_SNR), np.min(shf_SNR), np.min(slf_SNR))
+    vmax = max(np.max(nhf_SNR), np.max(nlf_SNR), np.max(shf_SNR), np.max(slf_SNR))
+    cmap = cm.plasma  # Define colormap
+    norm = colors.Normalize(vmin=vmin, vmax=vmax)  # Normalize color range
+
+    # Create figure
+    fig, axes = plt.subplots(2, 2, figsize=(20, 16), sharex=True, sharey=False)
+
+    # First subplot
+    sc1 = axes[0, 0].scatter(nhf_peaks[1][:] / fs, (n_selected_channels_m[0] + nhf_peaks[0][:] * dx) * 1e-3, 
+                            c=nhf_SNR, cmap=cmap, norm=norm, s=nhf_SNR)
+    axes[0, 0].set_title('North Cable - HF')
+    axes[0, 0].set_ylabel('Distance [km]')
+    axes[0, 0].grid(linestyle='--', alpha=0.5)
+
+    # Second subplot
+    sc2 = axes[0, 1].scatter(nlf_peaks[1][:] / fs, (n_selected_channels_m[0] + nlf_peaks[0][:] * dx) * 1e-3, 
+                            c=nlf_SNR, cmap=cmap, norm=norm, s=nlf_SNR)
+    axes[0, 1].set_title('North Cable - LF')
+    axes[0, 1].grid(linestyle='--', alpha=0.5)
+
+    # Third subplot
+    sc3 = axes[1, 0].scatter(shf_peaks[1][:] / fs, (s_selected_channels_m[0] + shf_peaks[0][:] * dx) * 1e-3, 
+                            c=shf_SNR, cmap=cmap, norm=norm, s=shf_SNR)
+    axes[1, 0].set_title('South Cable - HF')
+    axes[1, 0].set_xlabel('Time [s]')
+    axes[1, 0].set_ylabel('Distance [km]')
+    axes[1, 0].grid(linestyle='--', alpha=0.5)
+
+    # Fourth subplot
+    sc4 = axes[1, 1].scatter(slf_peaks[1][:] / fs, (s_selected_channels_m[0] + slf_peaks[0][:] * dx) * 1e-3, 
+                            c=slf_SNR, cmap=cmap, norm=norm, s=slf_SNR)
+    axes[1, 1].set_title('South Cable - LF')
+    axes[1, 1].set_xlabel('Time [s]')
+    axes[1, 1].grid(linestyle='--', alpha=0.5)
+
+    # Create a single colorbar for all subplots
+    cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=axes, orientation='vertical', fraction=0.02, pad=0.02)
+    cbar.set_label('SNR')
+
+    return fig
+
+
+def plot_reject_pick(peaks, longi_offset, dist, dx, associated_list, rejected_list, rejected_hyperbolas, fs):
+    # Plot the selected picks alongside the original picks
+    plt.figure(figsize=(20,8))
+    plt.subplot(2, 2, 1)
+    plt.scatter(peaks[1][:] / fs, (longi_offset + peaks[0][:]) * dx * 1e-3, label='HF', s=0.5)
+    plt.xlabel('Time [s]')
+    plt.ylabel('Distance [km]')
+    plt.subplot(2, 2, 2)
+    for select in associated_list:
+        plt.scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3, label='LF', s=0.5)
+    plt.xlabel('Time [s]') 
+    # Plot the deleted hyperbolas
+    plt.subplot(2, 2, 3)
+    for hyp in rejected_hyperbolas:
+        plt.plot(hyp, dist/1e3, label='Rejected hyperbola')
+    plt.xlabel('Time [s]')
+    plt.ylabel('Distance [km]')
+    # plot the rejected picks
+    plt.subplot(2, 2, 4)
+    for select in rejected_list:
+        plt.scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3, label='LF', s=0.5)
+    plt.xlabel('Time [s]')
+    plt.show()
+
+
+def plot_associated_bicable(n_peaks, s_peaks, longi_offset, pair_assoc_list, pair_loc_list, associated_list, localizations,
+                            n_cable_pos, s_cable_pos, n_dist, s_dist, dx, c0, fs):
+    
+    nhf_assoc_pair, nlf_assoc_pair, shf_assoc_pair, slf_assoc_pair = pair_assoc_list
+    nhf_associated_list, nlf_associated_list, shf_associated_list, slf_associated_list = associated_list
+    nhf_loc_pair, nlf_loc_pair, shf_loc_pair, slf_loc_pair = pair_loc_list
+    nhf_localizations, nlf_localizations, shf_localizations, slf_localizations = localizations
+
+    fig, axes = plt.subplots(2, 2, figsize=(20, 16), sharex=True, sharey=False)
+
+    # Get color palettes
+    hf_palette = plt.get_cmap('Reds_r')
+    lf_palette = plt.get_cmap('Blues_r')
+
+    # Assign color per HF/LF event
+    nbhf = len(nhf_assoc_pair) + len(shf_assoc_pair) + len(nhf_associated_list) + len(shf_associated_list)
+    nblf = len(nlf_assoc_pair) + len(slf_assoc_pair) + len(nlf_associated_list) + len(slf_associated_list)
+
+    hf_colors = [hf_palette(i / max(nbhf - 1, 1)) for i in range(nbhf)]
+    lf_colors = [lf_palette(i / max(nblf - 1, 1)) for i in range(nblf)]
+
+    # First subplot — North raw picks and associated
+    # -- Raw picks --
+    axes[0, 0].scatter(n_peaks[1][:] / fs, (longi_offset + n_peaks[0][:]) * dx * 1e-3,
+                       label='All peaks', s=0.5, alpha=0.2, color='tab:grey')
+    # -- Associated picks - pairs --
+    for i, select in enumerate(nhf_assoc_pair):
+        axes[0, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
+                           color=hf_colors[i], s=10, marker='>')
+        
+    for i, select in enumerate(nlf_assoc_pair):
+        axes[0, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
+                           color=lf_colors[i], s=10, marker='o')
+        
+    # -- Associated picks - single --
+    for i, select in enumerate(nhf_associated_list):
+        idx_offset = len(nhf_assoc_pair) + len(shf_assoc_pair)
+        axes[0, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
+                           color=hf_colors[i+idx_offset], s=10, marker='>')
+    for i, select in enumerate(nlf_associated_list):
+        idx_offset = len(nlf_assoc_pair) + len(slf_assoc_pair)
+        # print(i, idx_offset, len(nhf_assoc_pair), len(shf_assoc_pair), len(nhf_associated_list)print(len(lf_colors), len(nlf_associated_list)))
+        axes[0, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
+                           color=lf_colors[i+idx_offset], s=10, marker='o')
+    axes[0, 0].set_title('North')
+    axes[0, 0].set_ylabel('Distance [km]')
+    axes[0, 0].set_xlim(0, 60)
+
+    # Second subplot — North with arrival curves
+    # -- Associated picks - pairs --
+    for i, select in enumerate(nhf_assoc_pair):
+        axes[0, 1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
+                           color=hf_colors[i], s=10, marker='>')
+        axes[0, 1].plot(dw.loc.calc_arrival_times(nhf_loc_pair[i][-1], n_cable_pos, 
+                                                  nhf_loc_pair[i][:3], c0),
+                                                  n_dist / 1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
+                                                  
+    for i, select in enumerate(nlf_assoc_pair):
+        axes[0, 1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
+                           color=lf_colors[i], s=10, marker='o')
+        axes[0, 1].plot(dw.loc.calc_arrival_times(nlf_loc_pair[i][-1], n_cable_pos,
+                                                  nlf_loc_pair[i][:3], c0),
+                                                  n_dist / 1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
+        
+    # -- Associated picks - single --
+    for i, select in enumerate(nhf_associated_list):
+        idx_offset = len(nhf_assoc_pair) + len(shf_assoc_pair)
+        axes[0, 1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
+                           color=hf_colors[i+idx_offset], s=10, marker='>')
+        axes[0, 1].plot(dw.loc.calc_arrival_times(nhf_localizations[i][-1], n_cable_pos,
+                                                  nhf_localizations[i][:3], c0),
+                                                  n_dist / 1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
+        
+    for i, select in enumerate(nlf_associated_list):
+        idx_offset = len(nlf_assoc_pair) + len(slf_assoc_pair)
+        axes[0, 1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
+                           color=lf_colors[i+idx_offset], s=10, marker='o')
+        axes[0, 1].plot(dw.loc.calc_arrival_times(nlf_localizations[i][-1], n_cable_pos,
+                                                  nlf_localizations[i][:3], c0),
+                        n_dist / 1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
+
+    # Third subplot — South raw picks and associated
+    # -- Raw picks --
+    axes[1, 0].scatter(s_peaks[1][:] / fs, (longi_offset + s_peaks[0][:]) * dx * 1e-3,
+                       label='All peaks', s=0.5, alpha=0.2, color='tab:grey')
+    # -- Associated picks - pairs --
+    for i, select in enumerate(shf_assoc_pair):
+        axes[1, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
+                           color=hf_colors[i], s=10, marker='>')
+        
+    for i, select in enumerate(slf_assoc_pair):
+        axes[1, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
+                           color=lf_colors[i], s=10, marker='o')
+        
+    # -- Associated picks - single --
+    for i, select in enumerate(shf_associated_list):
+        idx_offset = len(nhf_assoc_pair) + len(shf_assoc_pair) + len(nhf_associated_list)
+        axes[1, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
+                           color=hf_colors[i+idx_offset], s=10, marker='>')
+        
+    for i, select in enumerate(slf_associated_list):
+        idx_offset = len(nlf_assoc_pair) + len(slf_assoc_pair) + len(nlf_associated_list)
+        axes[1, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
+                           color=lf_colors[i+idx_offset], s=10, marker='o')
+    axes[1, 0].set_title('South')
+    axes[1, 0].set_ylabel('Distance [km]')
+    axes[1, 0].set_xlabel('Time [s]')
+
+    # Fourth subplot — South with arrival curves
+    # -- Associated picks - pairs --
+    for i, select in enumerate(shf_assoc_pair):
+        axes[1, 1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
+                           color=hf_colors[i], s=10, marker='>')
+        axes[1, 1].plot(dw.loc.calc_arrival_times(shf_loc_pair[i][-1], s_cable_pos,
+                                                  shf_loc_pair[i][:3], c0),
+                        s_dist / 1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
+        
+    for i, select in enumerate(slf_assoc_pair):
+        axes[1, 1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
+                           color=lf_colors[i], s=10, marker='o')
+        axes[1, 1].plot(dw.loc.calc_arrival_times(slf_loc_pair[i][-1], s_cable_pos,
+                                                  slf_loc_pair[i][:3], c0),
+                        s_dist / 1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
+        
+    # -- Associated picks - single --
+    for i, select in enumerate(shf_associated_list):
+        idx_offset = len(nhf_assoc_pair) + len(shf_assoc_pair) + len(nhf_associated_list)
+        axes[1, 1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
+                           color=hf_colors[i+idx_offset], s=10, marker='>')
+        axes[1, 1].plot(dw.loc.calc_arrival_times(shf_localizations[i][-1], s_cable_pos,
+                                                  shf_localizations[i][:3], c0),
+                        s_dist / 1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
+        
+    for i, select in enumerate(slf_associated_list):
+        idx_offset = len(nlf_assoc_pair) + len(slf_assoc_pair) + len(nlf_associated_list)
+        axes[1, 1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
+                           color=lf_colors[i+idx_offset], s=10, marker='o')
+        axes[1, 1].plot(dw.loc.calc_arrival_times(slf_localizations[i][-1], s_cable_pos,
+                                                  slf_localizations[i][:3], c0),
+                        s_dist / 1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
+
+    axes[1, 1].set_xlabel('Time [s]')
+
+    # Add a common legend
+    hf_handle = plt.Line2D([], [], marker='>', color='w', label='HF',
+                           markerfacecolor='tab:red', markersize=10)
+    lf_handle = plt.Line2D([], [], marker='o', color='w', label='LF',
+                           markerfacecolor='tab:blue', markersize=10)
+    for ax in axes.flat:
+        ax.grid(linestyle='--', alpha=0.6)
+        ax.legend(handles=[hf_handle, lf_handle], loc='upper right', fontsize=10)
+    return fig
