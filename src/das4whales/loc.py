@@ -364,10 +364,64 @@ def loc_from_picks(associated_list, cable_pos, c0, fs):
         n_init = [apex_loc, np.mean(cable_pos[:,1]), -40, np.min(Ti)]
         print(f'Initial guess: {n_init[0]:.2f} m, {n_init[1]:.2f} m, {n_init[2]:.2f} m, {n_init[3]:.2f} s')
         # Solve the least squares problem
-        n = dw.loc.solve_lq(Ti, cable_pos[select[0][:]], c0, Nbiter, fix_z=True, ninit=n_init)
-        nalt = dw.loc.solve_lq(Ti, cable_pos[select[0][:]], c0, Nbiter-1, fix_z=True, ninit=n_init)
+        n = solve_lq(Ti, cable_pos[select[0][:]], c0, Nbiter, fix_z=True, ninit=n_init)
+        nalt = solve_lq(Ti, cable_pos[select[0][:]], c0, Nbiter-1, fix_z=True, ninit=n_init)
 
         localizations.append(n)
         alt_localizations.append(nalt)
 
+    return localizations, alt_localizations
+
+
+def loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter=20):
+    """
+    Solve the least squares localization problem for a single cable using the picks' indices.
+    
+    Parameters
+    ----------
+    idx_dist : array-like
+        The indices for the cable positions.
+    idx_time : array-like
+        The times corresponding to the cable positions.
+    cable_pos : tuple
+        A tuple containing the positions of the north and south cables.
+    c0 : float
+        The speed of sound or another relevant constant for localization.
+    fs : float
+        The sampling frequency.
+    Nbiter : int, optional
+        The number of iterations for the least squares solution, default is 20.
+    
+    Returns
+    -------
+    tuple
+        A tuple containing the solution and the residuals of the least squares problem.
+    """
+
+    n_cable_pos, s_cable_pos = cable_pos
+    bicable_pos = np.concatenate((n_cable_pos[n_assoc[0]], s_cable_pos[s_assoc[0]]))
+    idx_time = np.concatenate((n_assoc[1], s_assoc[1]))
+    idxmin_t = np.argmin(idx_time)  # Find the index of the minimum time
+
+    times = idx_time / fs
+    apex_loc = bicable_pos[idxmin_t, 0]  # Find the apex location from the minimum time index
+    init = [apex_loc, np.mean(bicable_pos[:, 1]), -40, np.min(times)]  # Initial guess for the localization
+    
+    # Solve the least squares problem using the provided parameters
+    n, residuals = solve_lq(times, bicable_pos, c0, Nbiter, fix_z=True, ninit=init, residuals=True)
+    
+    return n, residuals
+
+def loc_picks_bicable_list(n_assoc_list, s_assoc_list, cable_pos, c0, fs, Nbiter=20):
+    if len(n_assoc_list) != len(s_assoc_list):
+        raise ValueError("The lengths of n_assoc_list and s_assoc_list must be equal.")
+
+    localizations = []
+    alt_localizations = []
+    for i in range(len(n_assoc_list)):
+        n_assoc = n_assoc_list[i]
+        s_assoc = s_assoc_list[i]
+        n_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter)
+        localizations.append(n_loc)
+        alt_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter-1)
     return localizations, alt_localizations

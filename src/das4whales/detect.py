@@ -360,6 +360,7 @@ def convert_pick_times(peaks_indexes_m):
             peaks_indexes_tp[1].append(el)
 
     peaks_indexes_tp = np.asarray(peaks_indexes_tp)
+    # TODO: test = np.column_stack((nlf_assoc_list[0][0], nlf_assoc_list[0][1]))
 
     return peaks_indexes_tp
 

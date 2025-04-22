@@ -237,6 +237,50 @@ def compute_cumsum(residuals, idx_t, threshold=1500):
     return mask_resi
 
 
+def get_window_mask(times, w_eval):
+    """
+    Returns a boolean mask for values in `times` that fall within a window
+    starting at the minimum time and extending for `w_eval` units.
+
+    Parameters
+    ----------
+    times : np.ndarray
+        Array of time values (can be empty).
+    w_eval : float
+        Window duration.
+
+    Returns
+    -------
+    np.ndarray
+        Boolean mask with the same shape as `times`.
+    """
+    if times.size == 0:
+        return np.zeros_like(times, dtype=bool)
+    t0 = np.min(times)
+    return (times >= t0) & (times < t0 + w_eval)
+
+
+def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 5):
+    idxmin_t = np.argmin(idx_time)
+    mask_resi = abs(residuals) < 1
+    distances = (longi_offset + idx_dist) * dx * 1e-3
+
+    # Distance gaps evaluation
+    gaps = np.diff(distances)
+    # Remove points after a large gap from the minimum 
+    for l, gap in enumerate(gaps[idxmin_t:]):
+        if gap > gap_tresh:
+            mask_resi[idxmin_t + l + 1:] = False
+            break
+
+    # Remove points before a large gap from the minimum, in the reverse direction
+    for l, gap in enumerate(gaps[idxmin_t-1::-1]):
+        if gap > gap_tresh:
+            mask_resi[:idxmin_t - l] = False
+            break
+    return mask_resi
+
+
 def select_snr(up_peaks, selected_peaks, snr):
     print(np.shape(up_peaks), np.shape(selected_peaks), np.shape(snr))
     # Start with a mask of all True
