@@ -289,11 +289,36 @@ def calc_dist_weighting(dist, discut, disw1, disw2):
                                                         (discut * (disw2 - disw1))))
 
     # Create weight matrix: 
-    W = np.diag(weights)
-    return W
+    return weights
 
 
-def solve_lq_dist(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None, residuals=False, verbose=False):
+def calc_res_weighting(res, rmscut, rmsw1, rmsw2):
+    weights = np.zeros_like(res)
+    rms = np.sqrt(np.mean(res**2))
+    abs_res = np.abs(res)
+    
+    if rms > rmscut:  # poor solution
+        # Set weights to 1 for residuals less than rmscut * rmsw1
+        weights[abs_res < rms * rmsw1] = 1
+        
+        # Apply cosine taper for residuals between rmscut * rmsw1 and rmscut * rmsw2
+        taper_indices = (abs_res >= rms * rmsw1) & (abs_res < rms * rmsw2)
+        if np.any(taper_indices):
+            weights[taper_indices] = 0.5 * (1 + np.cos(np.pi * (abs_res[taper_indices] - rms * rmsw1) / 
+                                                    (rms * (rmsw2 - rmsw1))))
+    else:  # good solution
+        # Set weights to 1 for residuals less than rmscut * rmsw1
+        weights[abs_res < rmscut * rmsw1] = 1
+        
+        # Apply cosine taper for residuals between rmscut * rmsw1 and rmscut * rmsw2
+        taper_indices = (abs_res >= rmscut * rmsw1) & (abs_res < rmscut * rmsw2)
+        if np.any(taper_indices):
+            weights[taper_indices] = 0.5 * (1 + np.cos(np.pi * (abs_res[taper_indices] - rmscut * rmsw1) / 
+                                                    (rmscut * (rmsw2 - rmsw1))))
+    return weights
+
+
+def solve_lq_weight(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None, residuals=False, verbose=False):
     """
     Solve the least squares problem to localize the whale with distance weighting
     
@@ -336,6 +361,11 @@ def solve_lq_dist(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None, residua
     discut = 10000 # 10 km
     disw1 = 1 # Cosine taper starts 
     disw2 = 3 # Cosine taper ends
+
+    # Residual weighting parameters
+    rmscut = 0.1 # 0.1 s
+    rmsw1 = 1
+    rmsw2 = 3
     
     for j in range(Nbiter):
         thj = calc_theta_vector(cable_pos, n)
@@ -343,7 +373,8 @@ def solve_lq_dist(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None, residua
         dt = Ti - calc_arrival_times(n[-1], cable_pos, n[:3], c0)
         dist = calc_distance_matrix(cable_pos, n[:3])
 
-        W = calc_dist_weighting(dist, discut, disw1, disw2)
+        w = calc_dist_weighting(dist, discut, disw1, disw2) * calc_res_weighting(dt, rmscut, rmsw1, rmsw2)
+        W = np.diag(w)
         
         # Fixed z case
         if fix_z:
@@ -378,7 +409,8 @@ def solve_lq_dist(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None, residua
             n = np.insert(n, 2, dz)
             
         if verbose:
-            print(f'Iteration {j+1}: x = {n[0]:.4f} m, y = {n[1]:.4f}, z = {n[2]:.4f}, ti = {n[3]:.4f}')
+            current_rms = np.sqrt(np.mean(dt**2))
+            print(f'Iteration {j+1}: x = {n[0]:.4f} m, y = {n[1]:.4f}, z = {n[2]:.4f}, ti = {n[3]:.4f}, RMS = {current_rms:.6f}')
     
     # Compute final residuals
     res = Ti - calc_arrival_times(n[-1], cable_pos, n[:3], c0)
