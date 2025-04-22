@@ -259,7 +259,39 @@ def solve_lq(Ti, cable_pos, c0, Nbiter=10,  SNR=None, fix_z=False, ninit=None, r
         return n, res
     else:
         return n
-    
+
+
+def calc_dist_weighting(dist, discut, disw1, disw2):
+    # Initialize weights
+    weights = np.zeros_like(dist)
+
+    # Find second minimum distance
+    if len(dist) > 1:
+        dmin2 = np.partition(dist, 1)[1]
+        
+        if dmin2 > discut:  # Event outside the network
+            # Set weights to 1 for distances less than dmin2 * disw1
+            weights[dist < dmin2 * disw1] = 1
+            
+            # Apply cosine taper for distances between dmin2 * disw1 and dmin2 * disw2
+            taper_indices = (dist >= dmin2 * disw1) & (dist < dmin2 * disw2)
+            if np.any(taper_indices):
+                weights[taper_indices] = 0.5 * (1 + np.cos(np.pi * (dist[taper_indices] - dmin2 * disw1) / 
+                                                        (dmin2 * (disw2 - disw1))))
+        else:  # Event inside the network
+            # Set weights to 1 for distances less than discut * disw1
+            weights[dist < discut * disw1] = 1
+            
+            # Apply cosine taper for distances between discut * disw1 and discut * disw2
+            taper_indices = (dist >= discut * disw1) & (dist < discut * disw2)
+            if np.any(taper_indices):
+                weights[taper_indices] = 0.5 * (1 + np.cos(np.pi * (dist[taper_indices] - discut * disw1) / 
+                                                        (discut * (disw2 - disw1))))
+
+    # Create weight matrix: 
+    W = np.diag(weights)
+    return W
+
 
 def solve_lq_dist(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None, residuals=False, verbose=False):
     """
@@ -300,46 +332,18 @@ def solve_lq_dist(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None, residua
         
     # Regularization parameter
     lambda_reg = 1e-5
-
-    # Create distance vector
-    dist = calc_distance_matrix(cable_pos, n[:3])
+    # Distance weighting parameters
     discut = 10000 # 10 km
     disw1 = 1 # Cosine taper starts 
     disw2 = 3 # Cosine taper ends
-
-    # Initialize weights
-    weights = np.zeros_like(dist)
-
-    # Find second minimum distance
-    if len(dist) > 1:
-        dmin2 = np.partition(dist, 1)[1]
-        
-        if dmin2 > discut:  # Event outside the network
-            # Set weights to 1 for distances less than dmin2 * disw1
-            weights[dist < dmin2 * disw1] = 1
-            
-            # Apply cosine taper for distances between dmin2 * disw1 and dmin2 * disw2
-            taper_indices = (dist >= dmin2 * disw1) & (dist < dmin2 * disw2)
-            if np.any(taper_indices):
-                weights[taper_indices] = 0.5 * (1 + np.cos(np.pi * (dist[taper_indices] - dmin2 * disw1) / 
-                                                        (dmin2 * (disw2 - disw1))))
-        else:  # Event inside the network
-            # Set weights to 1 for distances less than discut * disw1
-            weights[dist < discut * disw1] = 1
-            
-            # Apply cosine taper for distances between discut * disw1 and discut * disw2
-            taper_indices = (dist >= discut * disw1) & (dist < discut * disw2)
-            if np.any(taper_indices):
-                weights[taper_indices] = 0.5 * (1 + np.cos(np.pi * (dist[taper_indices] - discut * disw1) / 
-                                                        (discut * (disw2 - disw1))))
-
-    # Create weight matrix: 
-    W = np.diag(weights)    
     
     for j in range(Nbiter):
         thj = calc_theta_vector(cable_pos, n)
         phij = calc_phi_vector(cable_pos, n)
         dt = Ti - calc_arrival_times(n[-1], cable_pos, n[:3], c0)
+        dist = calc_distance_matrix(cable_pos, n[:3])
+
+        W = calc_dist_weighting(dist, discut, disw1, disw2)
         
         # Fixed z case
         if fix_z:

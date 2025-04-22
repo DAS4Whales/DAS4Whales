@@ -205,7 +205,7 @@ def loc_picks(idx_dist, idx_time, cable_pos, c0, fs, Nbiter=20):
     init = [apex_loc, np.mean(cable_pos[:, 1]), -40, np.min(times)]  # Initial guess for the localization
     
     # Solve the least squares problem using the provided parameters
-    n, residuals = dw.loc.solve_lq(times, cable_pos[idx_dist], c0, Nbiter, fix_z=True, ninit=init, residuals=True)
+    n, residuals = dw.loc.solve_lq_dist(times, cable_pos[idx_dist], c0, Nbiter, fix_z=True, ninit=init, residuals=True)
     
     return n, residuals
 
