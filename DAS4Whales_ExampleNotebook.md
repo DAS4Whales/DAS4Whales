@@ -233,7 +233,7 @@ In the following example, the FFT is applied to each channel of 2-s clips of the
 
 ```python
 # Spatio-spectral plot
-dw.plot.plot_fx(trf_fk, dist, fs, file_begin_time_utc=fileBeginTimeUTC, win_s=2,
+dw.plot.plot_fx(trf_fk, dist, fs, title_time_info=fileBeginTimeUTC, win_s=2,
                 nfft=512,  f_min=10, f_max=35, fig_size=(25, 10), 
                 v_min = 0, v_max = 0.1)
 ```

@@ -1072,7 +1072,7 @@ def fk_filter_sparsefilt(trace, fk_filter_matrix, tapering=False):
     # Apply the filter
     fk_filtered_trace = fk_trace * fk_filter_matrix
     # Back to the t-x domain
-    trace = np.fft.ifft2(np.fft.ifftshift(fk_filtered_trace.todense()))
+    trace = np.fft.ifft2(np.fft.ifftshift(fk_filtered_trace.toarray()))
 
     return trace.real
 
