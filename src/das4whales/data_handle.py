@@ -255,8 +255,7 @@ def raw2strain(trace, metadata):
         a [channel x time sample] nparray containing the strain data in the spatio-temporal domain
     """    
     # Remove the mean trend from each channel and scale
-
-    trace -= np.mean(trace, axis=1, keepdims=True)
+    trace -= np.mean(trace, axis=1, keepdims=True)  # using np.median() is also possible, depending on the nature of the noise
     trace *= metadata["scale_factor"] 
     return trace
 

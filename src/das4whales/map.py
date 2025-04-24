@@ -141,10 +141,10 @@ def plot_cables2D(df_north, df_south, bathy, xlon, ylat):
     opticald_n = []
     opticald_s = []
 
-    for i in range(int(10000/2), len(df_north), int(10000/2)):
+    for i in range(int(10000/2-df_north["chan_idx"].iloc[0]), len(df_north), int(10000/2)):
         opticald_n.append((df_north['lon'][i], df_north['lat'][i]))
 
-    for i in range(int(10000/2), len(df_south), int(10000/2)):
+    for i in range(int(10000/2-df_south["chan_idx"].iloc[0]), len(df_south), int(10000/2)):
         opticald_s.append((df_south['lon'][i], df_south['lat'][i]))
 
     colors_undersea = cmo.deep_r(np.linspace(0, 1, 256)) # blue colors for under the sea

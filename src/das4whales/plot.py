@@ -373,7 +373,8 @@ def plot_spectrogram(p, tt, ff, fig_size=(20, 6), v_min=None, v_max=None, f_min=
     bar = fig.colorbar(shw, aspect=30, pad=0.015)
     bar.set_label('dB (strain x$10^{-9}$)')
     plt.tight_layout()
-    plt.show()
+    # plt.show()
+    return fig
 
 
 def plot_3calls(channel, time, t1, t2, t3):
@@ -888,7 +889,7 @@ def plot_fk_domain(trace, fs, dx, selected_channels, title_time_info=0, fig_size
         plt.legend()
     
     plt.tight_layout()
-    plt.show()
+    # plt.show()
     return
 
 
