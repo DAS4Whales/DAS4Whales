@@ -31,7 +31,7 @@ def plot_rawdata(trace, time, dist, fig_size=(12, 10)):
     """    
 
     fig = plt.figure(figsize=fig_size)
-    wv = plt.imshow(trace * 1e9, aspect='auto', cmap='RdBu', extent=[min(time),max(time),min(dist)*1e-3,max(dist)*1e-3], origin='lower', vmin=-500, vmax=500)
+    wv = plt.imshow(trace * 1e9, aspect='auto', cmap='RdBu', extent=[min(time),max(time),min(dist)*1e-3,max(dist)*1e-3], origin='lower', vmin=-500, vmax=500, interpolation_stage='data')
     plt.title('Raw DAS data')
     plt.ylabel('Distance [km]')
     plt.xlabel('Time [s]')
@@ -79,7 +79,7 @@ def plot_tx(trace, time, dist, title_time_info=0, fig_size=(12, 10), v_min=None,
     #TODO determine if the envelope should be implemented here rather than just abs
     # Replace abs(trace) per abs(sp.hilbert(trace, axis=1)) ? 
     shw = plt.imshow(abs(trace) * 1e9, extent=[time[0], time[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
-                     origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
+                     origin='lower', cmap='turbo', vmin=v_min, vmax=v_max, interpolation_stage='data')
     plt.ylabel('Distance (km)')
     plt.xlabel('Time [s]')
     bar = fig.colorbar(shw, aspect=30, pad=0.015)
@@ -141,7 +141,7 @@ def plot_tx_env(trace, time, dist, title_time_info=0, fig_size=(12, 10), v_min=N
     #TODO determine if the envelope should be implemented here rather than just abs
     # Replace abs(trace) per abs(sp.hilbert(trace, axis=1)) ? 
     shw = plt.imshow(abs(trace), extent=[time[0], time[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
-                     origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
+                     origin='lower', cmap='turbo', vmin=v_min, vmax=v_max, interpolation_stage='data')
     plt.ylabel('Distance (km)')
     plt.xlabel('Time [s]')
     bar = fig.colorbar(shw, aspect=30, pad=0.015)
@@ -205,7 +205,7 @@ def plot_tx_lined(trace, ln_idx, time, dist, title_time_info=0, fig_size=(12, 10
     #TODO determine if the envelope should be implemented here rather than just abs
     # Replace abs(trace) per abs(sp.hilbert(trace, axis=1)) ? 
     shw = plt.imshow(abs(trace) * 10 ** 9, extent=[time[0], time[-1], dist[0] * 1e-3, dist[-1] * 1e-3, ], aspect='auto',
-                     origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
+                     origin='lower', cmap='turbo', vmin=v_min, vmax=v_max, interpolation_stage='data')
     plt.plot([time[0], time[-1]], [dist[ln_idx] * 1e-3, dist[ln_idx] * 1e-3], 'w--', linewidth=3)
     plt.ylabel('Distance (km)')
     plt.xlabel('Time [s]')
@@ -301,7 +301,7 @@ def plot_fx(trace, dist, fs, title_time_info=0, win_s=2, nfft=4096, fig_size=(12
         ax = axes[r][c]
 
         shw = ax.imshow(fx, extent=[freq[0], freq[-1], dist[0] * 1e-3, dist[-1] * 1e-3], aspect='auto',
-                        origin='lower', cmap='jet', vmin=v_min, vmax=v_max)
+                        origin='lower', cmap='jet', vmin=v_min, vmax=v_max, interpolation_stage='data')
 
         ax.set_xlim([f_min, f_max])
         if r == rows-1:
@@ -600,7 +600,7 @@ def detection_spectcorr(trace, peaks_idx_HF, peaks_idx_LF, time, dist, spectro_f
     """    
 
     fig = plt.figure(figsize=(12,10))
-    cplot = plt.imshow(abs(sp.hilbert(trace, axis=1)) * 1e9, extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='jet', origin='lower',  aspect='auto', vmin=0, vmax=0.4, alpha=0.35)
+    cplot = plt.imshow(abs(sp.hilbert(trace, axis=1)) * 1e9, extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='jet', origin='lower',  aspect='auto', vmin=0, vmax=0.4, alpha=0.35, interpolation_stage='data')
     plt.scatter(peaks_idx_HF[1] / spectro_fs, (peaks_idx_HF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='red', marker='x', label='HF call')
     plt.scatter(peaks_idx_LF[1] / spectro_fs, (peaks_idx_LF[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='green', marker='.', label='LF_note')
 
@@ -655,7 +655,7 @@ def detection_grad(trace, peaks_idx, time, dist, fs, dx, selected_channels, titl
     """    
 
     fig = plt.figure(figsize=(12,10))
-    cplot = plt.imshow(abs(sp.hilbert(trace, axis=1)) * 1e9, extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='jet', origin='lower',  aspect='auto', vmin=0, vmax=0.4, alpha=0.35)
+    cplot = plt.imshow(abs(sp.hilbert(trace, axis=1)) * 1e9, extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='jet', origin='lower',  aspect='auto', vmin=0, vmax=0.4, alpha=0.35, interpolation_stage='data')
     plt.scatter(peaks_idx[1] / fs, (peaks_idx[0] * selected_channels[2] + selected_channels[0]) * dx /1e3, color='red', marker='x', label='Fin call')
     bar = fig.colorbar(cplot, aspect=30, pad=0.015)
     bar.set_label('Strain Envelope [-] (x$10^{-9}$)')
@@ -696,7 +696,7 @@ def snr_matrix(snr_m, time, dist, vmax, title_time_info=None):
         maximun value of the plot (dB)
     """    
     fig = plt.figure(figsize=(12, 10))
-    snrp = plt.imshow(snr_m, extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='turbo', origin='lower',  aspect='auto', vmin=0, vmax=vmax)
+    snrp = plt.imshow(snr_m, extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='turbo', origin='lower',  aspect='auto', vmin=0, vmax=vmax, interpolation_stage='data')
     bar = fig.colorbar(snrp, aspect=30, pad=0.015)
     bar.set_label('SNR [dB]')
     bar.ax.yaxis.set_major_formatter(tkr.FormatStrFormatter('%.0f'))
@@ -747,12 +747,12 @@ def plot_cross_correlogramHL(corr_m_HF, corr_m_LF, time, dist, maxv, minv=0, tit
     None
     """
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8), constrained_layout=True)
-    im1 = ax1.imshow(abs(sp.hilbert(corr_m_HF, axis=1)), extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='turbo', origin='lower', aspect='auto', vmin=minv, vmax=maxv) 
+    im1 = ax1.imshow(abs(sp.hilbert(corr_m_HF, axis=1)), extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='turbo', origin='lower', aspect='auto', vmin=minv, vmax=maxv, interpolation_stage='data') 
     ax1.set_xlabel('Time [s]') 
     ax1.set_ylabel('Distance [km]') 
     ax1.set_title('HF note', loc='right')
 
-    im2 = ax2.imshow(abs(sp.hilbert(corr_m_LF, axis=1)), extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='turbo',origin='lower', aspect='auto', vmin=minv, vmax=maxv) 
+    im2 = ax2.imshow(abs(sp.hilbert(corr_m_LF, axis=1)), extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='turbo',origin='lower', aspect='auto', vmin=minv, vmax=maxv, interpolation_stage='data') 
     ax2.set_xlabel('Time [s]') 
     ax2.set_title('LF note', loc='right')
 
@@ -788,7 +788,7 @@ def plot_cross_correlogram(corr_m, time, dist, maxv, minv=0, title_time_info=Non
     None
     """
     fig, ax = plt.subplots(figsize=(12, 10), constrained_layout=True)
-    im = ax.imshow(abs(sp.hilbert(corr_m, axis=1)), extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='turbo', origin='lower', aspect='auto', vmin=minv, vmax=maxv) 
+    im = ax.imshow(abs(sp.hilbert(corr_m, axis=1)), extent=[time[0], time[-1], dist[0] / 1e3, dist[-1] / 1e3], cmap='turbo', origin='lower', aspect='auto', vmin=minv, vmax=maxv, interpolation_stage='data') 
     ax.set_xlabel('Time [s]') 
     ax.set_ylabel('Distance [km]') 
     ax.set_title('Cross-correlogram', loc='right')
@@ -856,7 +856,7 @@ def plot_fk_domain(trace, fs, dx, selected_channels, title_time_info=0, fig_size
 
 
     fig = plt.figure(figsize=fig_size)
-    shw = plt.imshow(abs(fk), extent=[f[0], f[-1], k[0], k[-1]], aspect='auto', origin='lower', cmap='turbo', vmin=v_min, vmax=v_max)
+    shw = plt.imshow(abs(fk), extent=[f[0], f[-1], k[0], k[-1]], aspect='auto', origin='lower', cmap='turbo', vmin=v_min, vmax=v_max, interpolation_stage='data')
     plt.xlabel('Frequency [Hz]')
     plt.ylabel('Wavenumber [m$^{-1}$]')
     bar = fig.colorbar(shw, aspect=30, pad=0.015)
