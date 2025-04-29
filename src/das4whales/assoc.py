@@ -260,13 +260,24 @@ def get_window_mask(times, w_eval):
     return (times >= t0) & (times < t0 + w_eval)
 
 
-def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 5):
+def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 4):
     idxmin_t = np.argmin(idx_time)
     mask_resi = abs(residuals) < 1
     distances = (longi_offset + idx_dist) * dx * 1e-3
+    gaps = np.zeros_like(distances)
+
+    rms_total = np.sqrt(np.mean(residuals**2))
+    mask_resi = abs(residuals) <  1.5 * rms_total
+    # Find the gaps only for the valid (masked) distances
+    valid_distances = distances[mask_resi]
+    if valid_distances.size > 1:
+        gaps_valid = np.abs(np.diff(valid_distances))
+        # Assign the gaps to the correct positions
+        idx_valid = np.flatnonzero(mask_resi)
+        gaps[idx_valid[:-1]] = gaps_valid
 
     # Distance gaps evaluation
-    gaps = np.diff(distances)
+    # gaps = np.diff(distances)
     # Remove points after a large gap from the minimum 
     for l, gap in enumerate(gaps[idxmin_t:]):
         if gap > gap_tresh:

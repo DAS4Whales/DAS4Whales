@@ -363,7 +363,7 @@ def solve_lq_weight(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None, resid
     disw2 = 3 # Cosine taper ends
 
     # Residual weighting parameters
-    rmscut = 0.1 # 0.1 s
+    rmscut = 0.2 # 0.1 s
     rmsw1 = 1
     rmsw2 = 3
     
@@ -371,10 +371,14 @@ def solve_lq_weight(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None, resid
         thj = calc_theta_vector(cable_pos, n)
         phij = calc_phi_vector(cable_pos, n)
         dt = Ti - calc_arrival_times(n[-1], cable_pos, n[:3], c0)
-        dist = calc_distance_matrix(cable_pos, n[:3])
 
-        w = calc_dist_weighting(dist, discut, disw1, disw2) * calc_res_weighting(dt, rmscut, rmsw1, rmsw2)
-        W = np.diag(w)
+        # Start the hypoinverse weighting only after 4 iterations
+        if j <4:
+            W = np.eye(len(Ti))
+        else:
+            dist = calc_distance_matrix(cable_pos, n[:3])
+            w = calc_dist_weighting(dist, discut, disw1, disw2) * calc_res_weighting(dt, rmscut, rmsw1, rmsw2)
+            W = np.diag(w)
         
         # Fixed z case
         if fix_z:
