@@ -260,10 +260,11 @@ def get_window_mask(times, w_eval):
     return (times >= t0) & (times < t0 + w_eval)
 
 
-def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 4):
+def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 3):
     idxmin_t = np.argmin(idx_time)
-    mask_resi = abs(residuals) < 1
     distances = (longi_offset + idx_dist) * dx * 1e-3
+
+    mask_dist = abs(distances - distances[idxmin_t]) < 40 # Distance mask, 40 km from the minimum
     gaps = np.zeros_like(distances)
 
     rms_total = np.sqrt(np.mean(residuals**2))
@@ -289,7 +290,7 @@ def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 4)
         if gap > gap_tresh:
             mask_resi[:idxmin_t - l] = False
             break
-    return mask_resi
+    return mask_resi & mask_dist
 
 
 def select_snr(up_peaks, selected_peaks, snr):
