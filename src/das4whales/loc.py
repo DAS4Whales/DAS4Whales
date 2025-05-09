@@ -10,6 +10,7 @@ Date: 2024-06-18/2025-03-05
 import sys
 import numpy as np
 from das4whales.spatial import calc_das_section_bearing, calc_source_position_lat_lon, calc_dist_lat_lon
+from tqdm import tqdm
 
 def calc_arrival_times(t0, cable_pos, pos, c0):
     """
@@ -537,6 +538,7 @@ def loc_from_picks(associated_list, cable_pos, c0, fs):
     return localizations, alt_localizations
 
 
+# Localization functions for bicable data
 def loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter=20):
     """
     Solve the least squares localization problem for a single cable using the picks' indices.
@@ -572,9 +574,10 @@ def loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter=20):
     init = [apex_loc, np.mean(bicable_pos[:, 1]), -40, np.min(times)]  # Initial guess for the localization
     
     # Solve the least squares problem using the provided parameters
-    n, residuals = solve_lq(times, bicable_pos, c0, Nbiter, fix_z=True, ninit=init, residuals=True)
+    n, residuals = solve_lq_weight(times, bicable_pos, c0, Nbiter, fix_z=True, ninit=init, residuals=True)
     
     return n, residuals
+
 
 def loc_picks_bicable_list(n_assoc_list, s_assoc_list, cable_pos, c0, fs, Nbiter=20):
     if len(n_assoc_list) != len(s_assoc_list):
@@ -582,7 +585,7 @@ def loc_picks_bicable_list(n_assoc_list, s_assoc_list, cable_pos, c0, fs, Nbiter
 
     localizations = []
     alt_localizations = []
-    for i in range(len(n_assoc_list)):
+    for i in tqdm(range(len(n_assoc_list))):
         n_assoc = n_assoc_list[i]
         s_assoc = s_assoc_list[i]
         n_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter)

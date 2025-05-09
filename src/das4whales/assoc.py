@@ -260,7 +260,7 @@ def get_window_mask(times, w_eval):
     return (times >= t0) & (times < t0 + w_eval)
 
 
-def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 3):
+def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 5):
     idxmin_t = np.argmin(idx_time)
     distances = (longi_offset + idx_dist) * dx * 1e-3
 
