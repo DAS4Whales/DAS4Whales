@@ -529,8 +529,8 @@ def loc_from_picks(associated_list, cable_pos, c0, fs):
         n_init = [apex_loc, np.mean(cable_pos[:,1]), -40, np.min(Ti)]
         print(f'Initial guess: {n_init[0]:.2f} m, {n_init[1]:.2f} m, {n_init[2]:.2f} m, {n_init[3]:.2f} s')
         # Solve the least squares problem
-        n = solve_lq(Ti, cable_pos[select[0][:]], c0, Nbiter, fix_z=True, ninit=n_init)
-        nalt = solve_lq(Ti, cable_pos[select[0][:]], c0, Nbiter-1, fix_z=True, ninit=n_init)
+        n = solve_lq_weight(Ti, cable_pos[select[0][:]], c0, Nbiter, fix_z=True, ninit=n_init)
+        nalt = loc.solve_lq_weight(Ti, cable_pos[select[0][:]], c0, Nbiter-1, fix_z=True, ninit=n_init)
 
         localizations.append(n)
         alt_localizations.append(nalt)
