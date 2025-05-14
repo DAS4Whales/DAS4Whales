@@ -517,25 +517,26 @@ def calc_uncertainty_position(cable_pos, whale_pos, c0, var, fix_z=False):
 
 def loc_from_picks(associated_list, cable_pos, c0, fs):
     localizations = []
-    alt_localizations = []
+    # alt_localizations = []
 
     for select in associated_list:
-        idxmin_t = np.argmin(select[1][:])
-        apex_loc = cable_pos[:, 0][select[0][idxmin_t]]
-        Ti = select[1][:] / fs
-        Nbiter = 20
+        if len(select[0]) >= 3500:
+            idxmin_t = np.argmin(select[1][:])
+            apex_loc = cable_pos[:, 0][select[0][idxmin_t]]
+            Ti = select[1][:] / fs
+            Nbiter = 20
 
-        # Initial guess (apex_loc, mean_y, -30m, min(Ti))
-        n_init = [apex_loc, np.mean(cable_pos[:,1]), -40, np.min(Ti)]
-        print(f'Initial guess: {n_init[0]:.2f} m, {n_init[1]:.2f} m, {n_init[2]:.2f} m, {n_init[3]:.2f} s')
-        # Solve the least squares problem
-        n = solve_lq_weight(Ti, cable_pos[select[0][:]], c0, Nbiter, fix_z=True, ninit=n_init)
-        nalt = loc.solve_lq_weight(Ti, cable_pos[select[0][:]], c0, Nbiter-1, fix_z=True, ninit=n_init)
+            # Initial guess (apex_loc, mean_y, -30m, min(Ti))
+            n_init = [apex_loc, np.mean(cable_pos[:,1]), -40, np.min(Ti)]
+            # print(f'Initial guess: {n_init[0]:.2f} m, {n_init[1]:.2f} m, {n_init[2]:.2f} m, {n_init[3]:.2f} s')
+            # Solve the least squares problem
+            n = solve_lq_weight(Ti, cable_pos[select[0][:]], c0, Nbiter, fix_z=True, ninit=n_init)
+            # nalt = solve_lq_weight(Ti, cable_pos[select[0][:]], c0, Nbiter-1, fix_z=True, ninit=n_init)
 
-        localizations.append(n)
-        alt_localizations.append(nalt)
+            localizations.append(n)
+        # alt_localizations.append(nalt)
 
-    return localizations, alt_localizations
+    return localizations #, alt_localizations
 
 
 # Localization functions for bicable data
@@ -588,7 +589,12 @@ def loc_picks_bicable_list(n_assoc_list, s_assoc_list, cable_pos, c0, fs, Nbiter
     for i in tqdm(range(len(n_assoc_list))):
         n_assoc = n_assoc_list[i]
         s_assoc = s_assoc_list[i]
-        n_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter)
-        localizations.append(n_loc)
-        alt_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter-1)
-    return localizations, alt_localizations
+        if len(n_assoc[0]) >= 3500 and len(s_assoc[0]) >= 3500:
+            # Solve the least squares problem
+            n_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter)
+            localizations.append(n_loc)
+            # alt_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter-1)
+        # n_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter)
+        # localizations.append(n_loc)
+        # alt_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter-1)
+    return localizations #, alt_localizations
