@@ -5,6 +5,7 @@ DAS4Whales_ExampleNotebook.ipynb
 # Development jupyter notebooks
 devnotebooks/
 dev.ipynb
+*.ipynb
 
 # macOS system file
 .DS_Store
