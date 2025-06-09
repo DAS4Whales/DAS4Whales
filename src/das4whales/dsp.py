@@ -9,6 +9,7 @@ Date: 2023-2024-2025
 
 import numpy as np
 import scipy.signal as sp
+import scipy.fft as sfft
 import librosa
 import sparse
 from scipy import ndimage
@@ -1065,14 +1066,20 @@ def fk_filter_sparsefilt(trace, fk_filter_matrix, tapering=False):
     """
     if tapering:
         trace = taper_data(trace)
+    
+    trace = np.asarray(trace, dtype=np.complex64)
 
     # Calculate the frequency-wavenumber spectrum
-    fk_trace = np.fft.fftshift(np.fft.fft2(trace))
+    fk_trace = np.fft.fftshift(sfft.fft2(trace, workers=-1))
 
     # Apply the filter
     fk_filtered_trace = fk_trace * fk_filter_matrix
+
+    if isinstance(fk_filtered_trace, sparse.COO):
+        # Convert the sparse matrix to a dense format
+        fk_filtered_trace = fk_filtered_trace.todense()
     # Back to the t-x domain
-    trace = np.fft.ifft2(np.fft.ifftshift(fk_filtered_trace.todense()))
+    trace = sfft.ifft2(np.fft.ifftshift(fk_filtered_trace), workers=-1)
 
     return trace.real
 
