@@ -3,7 +3,6 @@
 DAS4Whales_ExampleNotebook.ipynb
 
 # Development jupyter notebooks
-devnotebooks/
 dev.ipynb
 *.ipynb
 
@@ -61,3 +60,6 @@ main_dharriscollab.py
 # out and figs folders
 out/
 figs/
+
+# Animation files
+*.mp4
