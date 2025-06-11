@@ -269,32 +269,35 @@ n_heatmap = np.max(n_kde_hf, axis=1)
 s_heatmap = np.max(s_kde_hf, axis=1)
 
 # Combined heatmap from summing the kdes
-sum_kde_hf = n_kde_hf + s_kde_hf + n_kde_lf + s_kde_lf
+sum_kde = n_kde_hf + s_kde_hf + n_kde_lf + s_kde_lf
 # Hadamard product of the two kdes
-prod_kde_hf = n_kde_hf * s_kde_hf * n_kde_lf * s_kde_lf
+prod_kde = n_kde_hf * s_kde_hf * n_kde_lf * s_kde_lf
 
-mu = np.mean(sum_kde_hf, axis=1)
-sigma = np.std(sum_kde_hf, axis=1)
+mu = np.mean(sum_kde)
+mu_t = np.mean(sum_kde, axis=1)
+mu_sp= np.mean(sum_kde, axis=0)
+
+sigma = np.std(sum_kde)
+sigma_t = np.std(sum_kde, axis=1)
+sigma_sp = np.std(sum_kde, axis=0)
+
+print(np.shape(t_kde))
 
 # -
 
-idx = 0
-alph = 1
-plt.figure(figsize=(20, 8))
-plt.plot(t_kde, sum_kde_hf[idx, :], label='North HF', color='tab:blue')
-plt.hlines(y = mu[idx], xmin=t_kde[0], xmax=t_kde[-1], color='tab:blue', ls='--', label='Mean')
-plt.hlines(y = sigma[idx], xmin=t_kde[0], xmax=t_kde[-1], color='tab:blue', ls='-.', label='Std')
-plt.hlines(y = mu[idx] + alph*sigma[idx], xmin=t_kde[0], xmax=t_kde[-1], color='tab:blue', ls=':', label='Mean + 2*std')
-plt.hlines(y = mu[idx] - alph*sigma[idx], xmin=t_kde[0], xmax=t_kde[-1], color='tab:blue', ls=':', label='Mean - 2*std')
-
-
 # ## Plot the Heatmap for the north cable
 
-mu_sp = np.mean(mu)
-sigma_sp = np.std(sigma)
-heatmap = np.max(prod_kde_hf, axis=1) 
-fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, heatmap)
+# +
+maxsum = np.max(sum_kde, axis=1)
+maxprod = np.max(prod_kde, axis=1)
+binary = np.ones_like(maxprod)
+
+threshold = np.percentile(maxsum, 45)  # keep top 3%
+binary[maxsum < threshold] = 0
+fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, binary)
 plt.show()
+
+print(f'ratio of points above the threshold: {np.sum(binary) / binary.size:.2f}')
 
 # +
 # import numpy as np
