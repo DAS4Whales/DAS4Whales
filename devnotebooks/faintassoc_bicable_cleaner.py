@@ -275,6 +275,18 @@ for iteration in pbar:
         for i in range(s_shape_x)
     ))
 
+    # Reduced the number of grid points to speed up the process 
+    if iteration == 0:  
+        sum_kde = n_kde_hf + n_kde_lf + s_kde_hf + s_kde_lf
+        maxsum = np.max(sum_kde, axis=1)
+        binary = np.ones_like(maxsum)
+        threshold = np.percentile(maxsum, 40)  # keep top 55%
+        grid_mask = maxsum >= threshold
+        n_arr_tg = n_arr_tg[grid_mask]
+        s_arr_tg = s_arr_tg[grid_mask]
+        n_shape_x = n_arr_tg.shape[0]
+        s_shape_x = s_arr_tg.shape[0]
+
     # PART 2: FIND MAXIMA AND COMPUTE THEORETICAL ARRIVALS
     # ===================================================
     
