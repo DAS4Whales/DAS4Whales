@@ -13,7 +13,7 @@
 #     name: python3
 # ---
 
-# # Attempt at associating the faint calls using line detection
+# # Heatmap from the rectangular kernel density estimation
 
 from IPython import get_ipython
 ipython = get_ipython()
@@ -41,8 +41,8 @@ from sklearn.neighbors import KernelDensity
 from scipy.optimize import curve_fit
 
 # Load the peak indexes and the metadata
-n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi2_th_4.nc') 
-s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi2_th_4.nc')
+n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc') 
+s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
 
 # +
 # Constants from the metadata
@@ -82,57 +82,21 @@ sSNRhf = s_ds["SNR_hf"].values
 sSNRlf = s_ds["SNR_lf"].values
 
 # +
-# Determine common color scale
-vmin = min(np.min(nSNRhf), np.min(nSNRlf), np.min(sSNRhf), np.min(sSNRlf))
-vmax = max(np.max(nSNRhf), np.max(nSNRlf), np.max(sSNRhf), np.max(sSNRlf))
-cmap = cm.plasma  # Define colormap
-norm = colors.Normalize(vmin=vmin, vmax=vmax)  # Normalize color range
+peaks = (npeakshf, npeakslf, speakshf, speakslf)
+SNRs = (nSNRhf, nSNRlf, sSNRhf, sSNRlf)
+selected_channels_m = (n_selected_channels_m, s_selected_channels_m)
 
-# Create figure
-fig, axes = plt.subplots(2, 2, figsize=(20, 16), sharex=True, sharey=False)
-
-# First subplot
-sc1 = axes[0, 0].scatter(npeakshf[1][:] / fs, (n_selected_channels_m[0] + npeakshf[0][:] * dx) * 1e-3, 
-                         c=nSNRhf, cmap=cmap, norm=norm, s=nSNRhf)
-axes[0, 0].set_title('North Cable - HF')
-axes[0, 0].set_ylabel('Distance [km]')
-axes[0, 0].grid(linestyle='--', alpha=0.5)
-
-# Second subplot
-sc2 = axes[0, 1].scatter(npeakslf[1][:] / fs, (n_selected_channels_m[0] + npeakslf[0][:] * dx) * 1e-3, 
-                         c=nSNRlf, cmap=cmap, norm=norm, s=nSNRlf)
-axes[0, 1].set_title('North Cable - LF')
-axes[0, 1].grid(linestyle='--', alpha=0.5)
-
-# Third subplot
-sc3 = axes[1, 0].scatter(speakshf[1][:] / fs, (s_selected_channels_m[0] + speakshf[0][:] * dx) * 1e-3, 
-                         c=sSNRhf, cmap=cmap, norm=norm, s=sSNRhf)
-axes[1, 0].set_title('South Cable - HF')
-axes[1, 0].set_xlabel('Time [s]')
-axes[1, 0].set_ylabel('Distance [km]')
-axes[1, 0].grid(linestyle='--', alpha=0.5)
-
-# Fourth subplot
-sc4 = axes[1, 1].scatter(speakslf[1][:] / fs, (s_selected_channels_m[0] + speakslf[0][:] * dx) * 1e-3, 
-                         c=sSNRlf, cmap=cmap, norm=norm, s=sSNRlf)
-axes[1, 1].set_title('South Cable - LF')
-axes[1, 1].set_xlabel('Time [s]')
-axes[1, 1].grid(linestyle='--', alpha=0.5)
-
-# Create a single colorbar for all subplots
-cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=axes, orientation='vertical', fraction=0.02, pad=0.02)
-cbar.set_label('SNR')
-
+dw.assoc.plot_peaks(peaks, SNRs, selected_channels_m, dx, fs)
 plt.show()
 
-# -
-
+# +
 # Choose to work on the HF or LF calls
-n_peaks = npeakshf
-s_peaks = speakshf
-n_SNR = nSNRhf
-s_SNR = sSNRhf
-print(s_peaks.shape)
+# n_peaks = npeakshf
+# s_peaks = speakshf
+# n_SNR = nSNRhf
+# s_SNR = sSNRhf
+# print(s_peaks.shape)
+# -
 
 # ## Plot the map 
 
@@ -214,87 +178,41 @@ xg, yg = xg[mask], yg[mask]
 # In case of a meshgrid object (non flattened), use the following code:
 # xg[~mask] = np.nan
 # yg[~mask] = np.nan
-
-# +
-# Define KDE computation as a delayed function
-# Define KDE computation as a delayed function
-def compute_kde(delayed_picks, t_kde, bin_width, weights=None):
-    """Computes the KDE of the delayed picks.
-
-    Parameters
-    ----------
-    delayed_picks : array-like
-        Delayed picks array.
-    t_kde : array-like
-        Time grid for the KDE.
-    bin_width : float
-        Bin width for the KDE.
-
-    Returns
-    -------
-    array-like
-        KDE density values.  
-    
-    """
-    if weights is not None:
-        # Use weighted KDE, Scipy's gaussian_kde is faster that sklearn's KernelDensity for weighted KDE
-        kde = gaussian_kde(delayed_picks, bw_method=bin_width / (np.max(t_kde) - np.min(t_kde)), weights=weights)
-        density = kde(t_kde)
-    else:
-        kde = KernelDensity(kernel="epanechnikov", bandwidth=bin_width, algorithm='ball_tree')
-        kde.fit(delayed_picks[:, None]) # Reshape to (n_samples, 1)
-        log_dens = kde.score_samples(t_kde[:, np.newaxis]) # Evaluate on grid
-        density = np.exp(log_dens) # Convert log-density to normal density
-    return density
-
-
-def compute_selected_picks(peaks, hyperbola, dt_sel, fs):
-    """Selects picks that are closest to the hyperbola within a given time window."""
-    selected_picks = ([], [])
-    for i, idx in enumerate(peaks[1]):
-        dist_idx = peaks[0][i]
-        pick_time = idx / fs
-
-        if hyperbola[dist_idx] - dt_sel < pick_time < hyperbola[dist_idx] + dt_sel:
-            if dist_idx in selected_picks[0]:
-                existing_idx = selected_picks[0].index(dist_idx)
-                if abs(hyperbola[dist_idx] - pick_time) < abs(hyperbola[dist_idx] - selected_picks[1][existing_idx] / fs):
-                    selected_picks[1][existing_idx] = idx  # Replace with closer pick
-            else:
-                selected_picks[0].append(dist_idx)
-                selected_picks[1].append(idx)
-    
-    return np.array(selected_picks[0]), np.array(selected_picks[1])
-
-
-def compute_curvature(w_times, w_distances):
-    """Computes curvature using second derivatives."""
-    ddx = np.diff(w_times)
-    ddy = np.diff(w_distances)
-    ddx2 = np.diff(ddx)
-    ddy2 = np.diff(ddy)
-    curvature = np.abs(ddx2 * ddy[1:] - ddx[1:] * ddy2) / (ddx[1:]**2 + ddy[1:]**2)**(3/2)
-    return np.mean(curvature)
-
-
 # -
 
-# Compute KDEs for all delayed picks
-Nkde = 300
+# Parameters for the association process
+dt_kde = 0.5 # [s] Time resolution of the KDE
 bin_width = 1
-kde_hf = np.empty((xg.shape[0], Nkde))
-shape_x = xg.shape[0]
+# dt_kde = 0.25 # [s] Time resolution of the KDE (overlap)
+# bin_width = 1.5
+dt_tol = int(0.8 * fs) # [samples] Tolerance for the time index when removing picks
+n_shape_x = xg.shape[0]
+s_shape_x = xg.shape[0]
 dt_sel = 1.4 # [s] Selected time "distance" from the theoretical arrival time
 w_eval = 5 # [s] Width of the evaluation window for curvature estimation
+rms_threshold = 0.5
 # Set the number of iterations for testing
-iterations = 40
+iterations = 15
 
-# Initialize the max_kde variable to enter the loop
-n_up_peaks = np.copy(n_peaks)
-s_up_peaks = np.copy(s_peaks)
-s_arr_tg = dw.loc.calc_arrival_times(ti, s_cable_pos, (xg, yg, zg), c0)
+n_up_peaks_hf = np.copy(npeakshf)
+s_up_peaks_hf = np.copy(speakshf)
+n_up_peaks_lf = np.copy(npeakslf)
+s_up_peaks_lf = np.copy(speakslf)
 n_arr_tg = dw.loc.calc_arrival_times(ti, n_cable_pos, (xg, yg, zg), c0)
+s_arr_tg = dw.loc.calc_arrival_times(ti, s_cable_pos, (xg, yg, zg), c0)
 
+# +
+# Precompute the time indices from peaks for both frequency bands and cables
+n_idx_times_hf = np.array(n_up_peaks_hf[1]) / fs
+n_idx_times_lf = np.array(n_up_peaks_lf[1]) / fs
+s_idx_times_hf = np.array(s_up_peaks_hf[1]) / fs
+s_idx_times_lf = np.array(s_up_peaks_lf[1]) / fs
+
+# Calculate delayed picks for all grid points
+n_delayed_picks_hf = n_idx_times_hf[None, :] - n_arr_tg[:, n_up_peaks_hf[0]]
+n_delayed_picks_lf = n_idx_times_lf[None, :] - n_arr_tg[:, n_up_peaks_lf[0]]
+s_delayed_picks_hf = s_idx_times_hf[None, :] - s_arr_tg[:, s_up_peaks_hf[0]]
+s_delayed_picks_lf = s_idx_times_lf[None, :] - s_arr_tg[:, s_up_peaks_lf[0]]
 
 # +
 # Plot the arrival times for the grid
@@ -312,31 +230,38 @@ for i in range(xg.shape[0]):
 plt.show()
 
 # +
+# Find the global min and max for KDE time range
+all_delayed_picks = [n_delayed_picks_hf, n_delayed_picks_lf, s_delayed_picks_hf, s_delayed_picks_lf]
+global_min = min(np.min(arr) for arr in all_delayed_picks)
+global_max = max(np.max(arr) for arr in all_delayed_picks)
 
-# Precompute the time indices
-n_idx_times = np.array(n_up_peaks[1]) / fs # Update with the remaining peaks
-s_idx_times = np.array(s_up_peaks[1]) / fs # Update with the remaining peaks
+# Create time bins for KDE
+Nkde = np.ceil((global_max - global_min) / dt_kde).astype(int) + 1
+t_kde = np.linspace(global_min, global_max, Nkde)
 
-# Make a delayed picks array for all the grid points
-# Broadcast the time indices delayed by the theoretical arrival times for the grid points
-n_delayed_picks_hf = n_idx_times[None, :] - n_arr_tg[:, n_up_peaks[0]]
-s_delayed_picks_hf = s_idx_times[None, :] - s_arr_tg[:, s_up_peaks[0]]
-
-# Generate a time grid for each grid point by linearly spacing Nkde points 
-# between the minimum and maximum delayed pick times. Transpose to ensure 
-# the shape (shape_x, Nkde) (shape_x, Nkde) delayed_picks shape for consistency with KDE computation.
-n_t_grid = np.linspace(np.min(n_delayed_picks_hf, axis=1), np.max(n_delayed_picks_hf, axis=1), Nkde).T
-s_t_grid = np.linspace(np.min(s_delayed_picks_hf, axis=1), np.max(s_delayed_picks_hf, axis=1), Nkde).T
-
-# Parallelized KDE computation
+# Compute KDEs in parallel for each type
+# North high frequency
 n_kde_hf = np.array(Parallel(n_jobs=-1)(
-    delayed(compute_kde)(n_delayed_picks_hf[i, :], n_t_grid[i, :], bin_width, weights=n_SNR) 
-    for i in range(shape_x)
+    delayed(dw.assoc.fast_kde_rect)(n_delayed_picks_hf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=nSNRhf) 
+    for i in range(n_shape_x)
 ))
 
+# North low frequency
+n_kde_lf = np.array(Parallel(n_jobs=-1)(
+    delayed(dw.assoc.fast_kde_rect)(n_delayed_picks_lf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=nSNRlf)
+    for i in range(n_shape_x)
+))
+
+# South high frequency
 s_kde_hf = np.array(Parallel(n_jobs=-1)(
-    delayed(compute_kde)(s_delayed_picks_hf[i, :], s_t_grid[i, :], bin_width, weights=s_SNR)
-    for i in range(shape_x)
+    delayed(dw.assoc.fast_kde_rect)(s_delayed_picks_hf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=sSNRhf)
+    for i in range(s_shape_x)
+))
+
+# South low frequency
+s_kde_lf = np.array(Parallel(n_jobs=-1)(
+    delayed(dw.assoc.fast_kde_rect)(s_delayed_picks_lf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=sSNRlf)
+    for i in range(s_shape_x)
 ))
 
 # +
@@ -344,438 +269,31 @@ n_heatmap = np.max(n_kde_hf, axis=1)
 s_heatmap = np.max(s_kde_hf, axis=1)
 
 # Combined heatmap from summing the kdes
-sum_kde_hf = n_kde_hf + s_kde_hf
+sum_kde_hf = n_kde_hf + s_kde_hf + n_kde_lf + s_kde_lf
 # Hadamard product of the two kdes
-prod_kde_hf = n_kde_hf * s_kde_hf
+prod_kde_hf = n_kde_hf * s_kde_hf * n_kde_lf * s_kde_lf
 
-p_heatmap = np.max(prod_kde_hf, axis=1)
-s_heatmap = np.max(s_kde_hf, axis=1)
+mu = np.mean(sum_kde_hf, axis=1)
+sigma = np.std(sum_kde_hf, axis=1)
+
 # -
+
+idx = 0
+alph = 1
+plt.figure(figsize=(20, 8))
+plt.plot(t_kde, sum_kde_hf[idx, :], label='North HF', color='tab:blue')
+plt.hlines(y = mu[idx], xmin=t_kde[0], xmax=t_kde[-1], color='tab:blue', ls='--', label='Mean')
+plt.hlines(y = sigma[idx], xmin=t_kde[0], xmax=t_kde[-1], color='tab:blue', ls='-.', label='Std')
+plt.hlines(y = mu[idx] + alph*sigma[idx], xmin=t_kde[0], xmax=t_kde[-1], color='tab:blue', ls=':', label='Mean + 2*std')
+plt.hlines(y = mu[idx] - alph*sigma[idx], xmin=t_kde[0], xmax=t_kde[-1], color='tab:blue', ls=':', label='Mean - 2*std')
+
 
 # ## Plot the Heatmap for the north cable
 
-# +
-# Plot the grid points on the map
-import cmocean.cm as cmo
-colors_undersea = cmo.deep_r(np.linspace(0, 1, 256)) # blue colors for under the sea
-colors_land = np.array([[0.5, 0.5, 0.5, 1]])  # Solid gray for above sea level
-
-# Combine the color maps
-all_colors = np.vstack((colors_undersea, colors_land))
-custom_cmap = mcolors.LinearSegmentedColormap.from_list('custom_cmap', all_colors)
-
-extent = [x[0], x[-1], y[0], y[-1]]
-
-# Set the light source
-ls = LightSource(azdeg=350, altdeg=45)
-
-plt.figure(figsize=(14, 7))
-ax = plt.gca()
-
-# Plot the bathymetry relief in background
-rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay', vmin=np.min(bathy), vmax=0)
-plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower' , vmin=np.min(bathy), vmax=0)
-
-# Plot the cable location in 2D
-ax.plot(df_north['x'], df_north['y'], 'tab:red', label='North cable', lw=2.5)
-ax.plot(df_south['x'], df_south['y'], 'tab:orange', label='South cable', lw=2.5)
-
-# Plot the used cable locations
-ax.plot(df_north_used['x'], df_north_used['y'], 'tab:green', label='Used cable locations')
-
-# Plot the grid points
-ax.scatter(xg, yg, c='k', s=1)
-
-# Plot the heatmaps over the grid points
-ax.tricontourf(xg, yg, n_heatmap, levels=20, cmap='hot', alpha=0.5)
-
-# Plot points along the cable every 10 km in terms of optical distance
-# for i, point in enumerate(opticald_n, start=1):
-#     # Plot the points
-#     ax.plot(point[0], point[1], '.', color='k')
-#     # Annotate the points with the distance
-#     ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, 5), ha='center', fontsize=8)
-
-# for i, point in enumerate(opticald_s, start=1):
-#     ax.plot(point[0], point[1], '.', color='k')
-#     ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, -15), ha='center', fontsize=8)
-
-
-# Add dashed contours at selected depths with annotations
-# depth_levels = [-20]
-
-# contour_dashed = ax.contour(bathy, levels=depth_levels, colors='k', linestyles='--', extent=extent, alpha=0.6)
-# ax.clabel(contour_dashed, fmt='%d m', inline=True, fontsize=9)
-
-# Use a proxy artist for the color bar
-im = ax.imshow(bathy, cmap=custom_cmap, extent=extent, aspect='equal', origin='lower', vmin=np.min(bathy), vmax=0)
-im_ratio = bathy.shape[1] / bathy.shape[0]
-plt.colorbar(im, ax=ax, label='Depth [m]', pad=0.02, orientation='vertical', aspect=25, fraction=0.0195)
-im.remove()
-# Set the labels
-plt.xlabel('x [m]')
-plt.ylabel('y [m]')
-plt.legend(loc='upper left')
-plt.tight_layout()
-plt.savefig('cable_Grid.pdf')
-plt.show()
-# -
-
-# ## Plot the heatmap for the south cable
-
-# +
-# Plot the grid points on the map
-import cmocean.cm as cmo
-colors_undersea = cmo.deep_r(np.linspace(0, 1, 256)) # blue colors for under the sea
-colors_land = np.array([[0.5, 0.5, 0.5, 1]])  # Solid gray for above sea level
-
-# Combine the color maps
-all_colors = np.vstack((colors_undersea, colors_land))
-custom_cmap = mcolors.LinearSegmentedColormap.from_list('custom_cmap', all_colors)
-
-extent = [x[0], x[-1], y[0], y[-1]]
-
-# Set the light source
-ls = LightSource(azdeg=350, altdeg=45)
-
-plt.figure(figsize=(14, 7))
-ax = plt.gca()
-
-# Plot the bathymetry relief in background
-rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay', vmin=np.min(bathy), vmax=0)
-plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower' , vmin=np.min(bathy), vmax=0)
-
-# Plot the cable location in 2D
-ax.plot(df_north['x'], df_north['y'], 'tab:red', label='North cable', lw=2.5)
-ax.plot(df_south['x'], df_south['y'], 'tab:orange', label='South cable', lw=2.5)
-
-# Plot the used cable locations
-ax.plot(df_south_used['x'], df_south_used['y'], 'tab:green', label='Used cable locations')
-
-# Plot the grid points
-ax.scatter(xg, yg, c='k', s=1)
-
-# Plot the heatmaps over the grid points
-ax.tricontourf(xg, yg, s_heatmap, levels=20, cmap='hot', alpha=0.5)
-
-# Plot points along the cable every 10 km in terms of optical distance
-# for i, point in enumerate(opticald_n, start=1):
-#     # Plot the points
-#     ax.plot(point[0], point[1], '.', color='k')
-#     # Annotate the points with the distance
-#     ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, 5), ha='center', fontsize=8)
-
-# for i, point in enumerate(opticald_s, start=1):
-#     ax.plot(point[0], point[1], '.', color='k')
-#     ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, -15), ha='center', fontsize=8)
-
-
-# Add dashed contours at selected depths with annotations
-# depth_levels = [-20]
-
-# contour_dashed = ax.contour(bathy, levels=depth_levels, colors='k', linestyles='--', extent=extent, alpha=0.6)
-# ax.clabel(contour_dashed, fmt='%d m', inline=True, fontsize=9)
-
-# Use a proxy artist for the color bar
-im = ax.imshow(bathy, cmap=custom_cmap, extent=extent, aspect='equal', origin='lower', vmin=np.min(bathy), vmax=0)
-im_ratio = bathy.shape[1] / bathy.shape[0]
-plt.colorbar(im, ax=ax, label='Depth [m]', pad=0.02, orientation='vertical', aspect=25, fraction=0.0195)
-im.remove()
-# Set the labels
-plt.xlabel('x [m]')
-plt.ylabel('y [m]')
-plt.legend(loc='upper left')
-plt.tight_layout()
-plt.savefig('cable_Grid.pdf')
-plt.show()
-# -
-
-# ## Plot the heatmaps for the North and South cables combined
-
-# ### Sum of the maximums
-
-# +
-# Plot the grid points on the map
-import cmocean.cm as cmo
-colors_undersea = cmo.deep_r(np.linspace(0, 1, 256)) # blue colors for under the sea
-colors_land = np.array([[0.5, 0.5, 0.5, 1]])  # Solid gray for above sea level
-
-# Combine the color maps
-all_colors = np.vstack((colors_undersea, colors_land))
-custom_cmap = mcolors.LinearSegmentedColormap.from_list('custom_cmap', all_colors)
-
-extent = [x[0], x[-1], y[0], y[-1]]
-
-# Set the light source
-ls = LightSource(azdeg=350, altdeg=45)
-
-plt.figure(figsize=(14, 7))
-ax = plt.gca()
-
-# Plot the bathymetry relief in background
-rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay', vmin=np.min(bathy), vmax=0)
-plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower' , vmin=np.min(bathy), vmax=0)
-
-# Plot the cable location in 2D
-ax.plot(df_north['x'], df_north['y'], 'tab:red', label='North cable', lw=2.5)
-ax.plot(df_south['x'], df_south['y'], 'tab:orange', label='South cable', lw=2.5)
-
-# Plot the used cable locations
-ax.plot(df_south_used['x'], df_south_used['y'], 'tab:green', label='Used cable locations')
-ax.plot(df_north_used['x'], df_north_used['y'], 'tab:green')
-
-# Plot the grid points
-ax.scatter(xg, yg, c='k', s=1)
-
-# Plot the heatmaps over the grid points
-
-ax.tricontourf(xg, yg, n_heatmap + s_heatmap, levels=20, cmap='hot', alpha=0.5)
-
-# Plot points along the cable every 10 km in terms of optical distance
-# for i, point in enumerate(opticald_n, start=1):
-#     # Plot the points
-#     ax.plot(point[0], point[1], '.', color='k')
-#     # Annotate the points with the distance
-#     ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, 5), ha='center', fontsize=8)
-
-# for i, point in enumerate(opticald_s, start=1):
-#     ax.plot(point[0], point[1], '.', color='k')
-#     ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, -15), ha='center', fontsize=8)
-
-
-# Add dashed contours at selected depths with annotations
-# depth_levels = [-20]
-
-# contour_dashed = ax.contour(bathy, levels=depth_levels, colors='k', linestyles='--', extent=extent, alpha=0.6)
-# ax.clabel(contour_dashed, fmt='%d m', inline=True, fontsize=9)
-
-# Use a proxy artist for the color bar
-im = ax.imshow(bathy, cmap=custom_cmap, extent=extent, aspect='equal', origin='lower', vmin=np.min(bathy), vmax=0)
-im_ratio = bathy.shape[1] / bathy.shape[0]
-plt.colorbar(im, ax=ax, label='Depth [m]', pad=0.02, orientation='vertical', aspect=25, fraction=0.0195)
-im.remove()
-# Set the labels
-plt.xlabel('x [m]')
-plt.ylabel('y [m]')
-plt.legend(loc='upper left')
-plt.tight_layout()
-plt.savefig('cable_Grid.pdf')
-plt.show()
-# -
-
-# ### Maximum of the sum
-
-# +
-# Plot the grid points on the map
-import cmocean.cm as cmo
-colors_undersea = cmo.deep_r(np.linspace(0, 1, 256)) # blue colors for under the sea
-colors_land = np.array([[0.5, 0.5, 0.5, 1]])  # Solid gray for above sea level
-
-# Combine the color maps
-all_colors = np.vstack((colors_undersea, colors_land))
-custom_cmap = mcolors.LinearSegmentedColormap.from_list('custom_cmap', all_colors)
-
-extent = [x[0], x[-1], y[0], y[-1]]
-
-# Set the light source
-ls = LightSource(azdeg=350, altdeg=45)
-
-plt.figure(figsize=(14, 7))
-ax = plt.gca()
-
-# Plot the bathymetry relief in background
-rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay', vmin=np.min(bathy), vmax=0)
-plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower' , vmin=np.min(bathy), vmax=0)
-
-# Plot the cable location in 2D
-ax.plot(df_north['x'], df_north['y'], 'tab:red', label='North cable', lw=2.5)
-ax.plot(df_south['x'], df_south['y'], 'tab:orange', label='South cable', lw=2.5)
-
-# Plot the used cable locations
-ax.plot(df_south_used['x'], df_south_used['y'], 'tab:green', label='Used cable locations')
-ax.plot(df_north_used['x'], df_north_used['y'], 'tab:green')
-
-# Plot the grid points
-ax.scatter(xg, yg, c='k', s=1)
-
-# Plot the heatmaps over the grid points
-
-ax.tricontourf(xg, yg, s_heatmap, levels=20, cmap='hot', alpha=0.5)
-
-# Plot points along the cable every 10 km in terms of optical distance
-# for i, point in enumerate(opticald_n, start=1):
-#     # Plot the points
-#     ax.plot(point[0], point[1], '.', color='k')
-#     # Annotate the points with the distance
-#     ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, 5), ha='center', fontsize=8)
-
-# for i, point in enumerate(opticald_s, start=1):
-#     ax.plot(point[0], point[1], '.', color='k')
-#     ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, -15), ha='center', fontsize=8)
-
-
-# Add dashed contours at selected depths with annotations
-# depth_levels = [-20]
-
-# contour_dashed = ax.contour(bathy, levels=depth_levels, colors='k', linestyles='--', extent=extent, alpha=0.6)
-# ax.clabel(contour_dashed, fmt='%d m', inline=True, fontsize=9)
-
-# Use a proxy artist for the color bar
-im = ax.imshow(bathy, cmap=custom_cmap, extent=extent, aspect='equal', origin='lower', vmin=np.min(bathy), vmax=0)
-im_ratio = bathy.shape[1] / bathy.shape[0]
-plt.colorbar(im, ax=ax, label='Depth [m]', pad=0.02, orientation='vertical', aspect=25, fraction=0.0195)
-im.remove()
-# Set the labels
-plt.xlabel('x [m]')
-plt.ylabel('y [m]')
-plt.legend(loc='upper left')
-plt.tight_layout()
-plt.savefig('cable_Grid.pdf')
-plt.show()
-# -
-
-# #### Maximum of the product
-
-# +
-# Plot the grid points on the map
-import cmocean.cm as cmo
-colors_undersea = cmo.deep_r(np.linspace(0, 1, 256)) # blue colors for under the sea
-colors_land = np.array([[0.5, 0.5, 0.5, 1]])  # Solid gray for above sea level
-
-# Combine the color maps
-all_colors = np.vstack((colors_undersea, colors_land))
-custom_cmap = mcolors.LinearSegmentedColormap.from_list('custom_cmap', all_colors)
-
-extent = [x[0], x[-1], y[0], y[-1]]
-
-# Set the light source
-ls = LightSource(azdeg=350, altdeg=45)
-
-plt.figure(figsize=(14, 7))
-ax = plt.gca()
-
-# Plot the bathymetry relief in background
-rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay', vmin=np.min(bathy), vmax=0)
-plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower' , vmin=np.min(bathy), vmax=0)
-
-# Plot the cable location in 2D
-ax.plot(df_north['x'], df_north['y'], 'tab:red', label='North cable', lw=2.5)
-ax.plot(df_south['x'], df_south['y'], 'tab:orange', label='South cable', lw=2.5)
-
-# Plot the used cable locations
-ax.plot(df_south_used['x'], df_south_used['y'], 'tab:green', label='Used cable locations')
-ax.plot(df_north_used['x'], df_north_used['y'], 'tab:green')
-
-# Plot the grid points
-ax.scatter(xg, yg, c='k', s=1)
-
-# Plot the heatmaps over the grid points
-
-ax.tricontourf(xg, yg, p_heatmap, levels=20, cmap='hot', alpha=0.5)
-
-# Plot points along the cable every 10 km in terms of optical distance
-# for i, point in enumerate(opticald_n, start=1):
-#     # Plot the points
-#     ax.plot(point[0], point[1], '.', color='k')
-#     # Annotate the points with the distance
-#     ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, 5), ha='center', fontsize=8)
-
-# for i, point in enumerate(opticald_s, start=1):
-#     ax.plot(point[0], point[1], '.', color='k')
-#     ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, -15), ha='center', fontsize=8)
-
-
-# Add dashed contours at selected depths with annotations
-# depth_levels = [-20]
-
-# contour_dashed = ax.contour(bathy, levels=depth_levels, colors='k', linestyles='--', extent=extent, alpha=0.6)
-# ax.clabel(contour_dashed, fmt='%d m', inline=True, fontsize=9)
-
-# Use a proxy artist for the color bar
-im = ax.imshow(bathy, cmap=custom_cmap, extent=extent, aspect='equal', origin='lower', vmin=np.min(bathy), vmax=0)
-im_ratio = bathy.shape[1] / bathy.shape[0]
-plt.colorbar(im, ax=ax, label='Depth [m]', pad=0.02, orientation='vertical', aspect=25, fraction=0.0195)
-im.remove()
-# Set the labels
-plt.xlabel('x [m]')
-plt.ylabel('y [m]')
-plt.legend(loc='upper left')
-plt.tight_layout()
-plt.savefig('cable_Grid.pdf')
-plt.show()
-# -
-
-# ## Plot the heat map only for the points above the mean of the kde
-
-# +
-# Plot the grid points on the map
-import cmocean.cm as cmo
-colors_undersea = cmo.deep_r(np.linspace(0, 1, 256)) # blue colors for under the sea
-colors_land = np.array([[0.5, 0.5, 0.5, 1]])  # Solid gray for above sea level
-
-# Combine the color maps
-all_colors = np.vstack((colors_undersea, colors_land))
-custom_cmap = mcolors.LinearSegmentedColormap.from_list('custom_cmap', all_colors)
-
-extent = [x[0], x[-1], y[0], y[-1]]
-
-# Set the light source
-ls = LightSource(azdeg=350, altdeg=45)
-
-plt.figure(figsize=(14, 7))
-ax = plt.gca()
-
-# Plot the bathymetry relief in background
-rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay', vmin=np.min(bathy), vmax=0)
-plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower' , vmin=np.min(bathy), vmax=0)
-
-# Plot the cable location in 2D
-ax.plot(df_north['x'], df_north['y'], 'tab:red', label='North cable', lw=2.5)
-ax.plot(df_south['x'], df_south['y'], 'tab:orange', label='South cable', lw=2.5)
-
-# Plot the used cable locations
-ax.plot(df_south_used['x'], df_south_used['y'], 'tab:green', label='Used cable locations')
-ax.plot(df_north_used['x'], df_north_used['y'], 'tab:green')
-
-# Plot the grid points
-ax.scatter(xg, yg, c='k', s=1)
-
-# Plot the heatmaps over the grid points
-
-comb = n_heatmap / np.max(n_heatmap) * s_heatmap / np.max(s_heatmap)
-comb[comb < np.mean(comb)] = 0
-comb[comb > np.mean(comb)] = 1
-ax.tricontourf(xg, yg, comb, levels=1, cmap='binary_r', alpha=0.5)
-
-# Plot points along the cable every 10 km in terms of optical distance
-# for i, point in enumerate(opticald_n, start=1):
-#     # Plot the points
-#     ax.plot(point[0], point[1], '.', color='k')
-#     # Annotate the points with the distance
-#     ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, 5), ha='center', fontsize=8)
-
-# for i, point in enumerate(opticald_s, start=1):
-#     ax.plot(point[0], point[1], '.', color='k')
-#     ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, -15), ha='center', fontsize=8)
-
-
-# Add dashed contours at selected depths with annotations
-# depth_levels = [-20]
-
-# contour_dashed = ax.contour(bathy, levels=depth_levels, colors='k', linestyles='--', extent=extent, alpha=0.6)
-# ax.clabel(contour_dashed, fmt='%d m', inline=True, fontsize=9)
-
-# Use a proxy artist for the color bar
-im = ax.imshow(bathy, cmap=custom_cmap, extent=extent, aspect='equal', origin='lower', vmin=np.min(bathy), vmax=0)
-im_ratio = bathy.shape[1] / bathy.shape[0]
-plt.colorbar(im, ax=ax, label='Depth [m]', pad=0.02, orientation='vertical', aspect=25, fraction=0.0195)
-im.remove()
-# Set the labels
-plt.xlabel('x [m]')
-plt.ylabel('y [m]')
-plt.legend(loc='upper left')
-plt.tight_layout()
-plt.savefig('cable_Grid.pdf')
+mu_sp = np.mean(mu)
+sigma_sp = np.std(sigma)
+heatmap = np.max(prod_kde_hf, axis=1) 
+fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, heatmap)
 plt.show()
 
 # +

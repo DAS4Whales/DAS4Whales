@@ -18,6 +18,9 @@ import matplotlib.cm as cm
 import matplotlib.colors as colors
 import scipy.signal as sp
 import das4whales as dw
+import cmocean.cm as cmo
+import matplotlib.colors as mcolors
+import pandas as pd
 
 
 def compute_kde(delayed_picks, t_kde, bin_width, weights=None):
@@ -672,3 +675,55 @@ def plot_associated_bicable(n_peaks, s_peaks, longi_offset, pair_assoc_list, pai
         ax.grid(linestyle='--', alpha=0.6)
         ax.legend(handles=[hf_handle, lf_handle], loc='upper right', fontsize=10)
     return fig
+
+
+def plot_kdesurf(df_north: pd.DataFrame, df_south: pd.DataFrame, bathy: np.ndarray, 
+                 x: np.ndarray, y: np.ndarray, xg: np.ndarray, yg: np.ndarray, 
+                 heatmap: np.ndarray) -> plt.Figure:
+    """
+    """
+    # Plot the grid points on the map
+    colors_undersea = cmo.deep_r(np.linspace(0, 1, 256)) # blue colors for under the sea
+    colors_land = np.array([[0.5, 0.5, 0.5, 1]])  # Solid gray for above sea level
+
+    # Combine the color maps
+    all_colors = np.vstack((colors_undersea, colors_land))
+    custom_cmap = mcolors.LinearSegmentedColormap.from_list('custom_cmap', all_colors)
+
+    extent = [x[0], x[-1], y[0], y[-1]]
+
+    # Set the light source
+    ls = LightSource(azdeg=350, altdeg=45)
+
+    fig = plt.figure(figsize=(14, 7))
+    ax = plt.gca()
+
+    # Plot the bathymetry relief in background
+    rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay', vmin=np.min(bathy), vmax=0)
+    plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower' , vmin=np.min(bathy), vmax=0)
+
+    # Plot the cable location in 2D
+    ax.plot(df_north['x'], df_north['y'], 'tab:red', label='North cable', lw=2.5)
+    ax.plot(df_south['x'], df_south['y'], 'tab:orange', label='South cable', lw=2.5)
+
+    # Plot the used cable locations
+    # ax.plot(df_north_used['x'], df_north_used['y'], 'tab:green', label='Used cable locations')
+
+    # Plot the grid points
+    ax.scatter(xg, yg, c='k', s=1)
+
+    # Plot the heatmaps over the grid points
+    ax.tricontourf(xg, yg, heatmap, levels=20, cmap='hot', alpha=0.5)
+
+    # Use a proxy artist for the color bar
+    im = ax.tricontourf(xg, yg, heatmap, levels=20, cmap='hot', alpha=0.5)
+
+    im_ratio = bathy.shape[1] / bathy.shape[0]
+    plt.colorbar(im, ax=ax, label='Depth [m]', pad=0.02, orientation='vertical', aspect=25, fraction=0.0195)
+    im.remove()
+    # Set the labels
+    plt.xlabel('x [m]')
+    plt.ylabel('y [m]')
+    plt.legend(loc='upper left')
+    plt.tight_layout()
+    return fig    
