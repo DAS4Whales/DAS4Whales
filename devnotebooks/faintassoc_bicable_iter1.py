@@ -393,6 +393,48 @@ plt.grid(linestyle='--', alpha=0.5)
 
 plt.savefig('../figs/toa.pdf', bbox_inches='tight')
 plt.show()
+# -
+
+print(xg.shape)
+
+# +
+# Plot the arrival times for the grid
+cmap = plt.get_cmap('plasma')
+examples= [6, 480, 700] # Example indices to plot
+plt.figure(figsize=(20,8))
+plt.subplot(1,2,1)
+plt.title('North Cable')
+for i in range(xg.shape[0]):
+    plt.plot(n_arr_tg[i, :], n_dist/1e3, ls='-', lw=0.5, color='tab:blue', alpha=0.1)
+for i in examples:
+    color = cmap(i / xg.shape[0]) 
+    plt.plot(n_arr_tg[i, :], n_dist/1e3, ls='-', lw=2, color=color)
+
+plt.xlabel('Time [s]')
+plt.ylabel('Distance [km]')
+plt.xlabel('Time [s]')
+# Remove the upper part of the bounding box 
+plt.gca().spines['top'].set_visible(False)
+plt.gca().spines['right'].set_visible(False)
+plt.grid(linestyle='--', alpha=0.5)
+
+plt.subplot(1,2,2)
+plt.title('South Cable')
+for i in range(xg.shape[0]):
+            plt.plot(s_arr_tg[i, :], s_dist/1e3, ls='-', lw=0.5, color='tab:blue', alpha=0.1)
+
+for i in examples:
+    color = cmap(i / xg.shape[0]) 
+    plt.plot(s_arr_tg[i, :], s_dist/1e3, ls='-', lw=2, color=color)
+
+plt.xlabel('Time [s]')
+# Remove the upper part of the bounding box 
+plt.gca().spines['top'].set_visible(False)
+plt.gca().spines['right'].set_visible(False)
+plt.grid(linestyle='--', alpha=0.5)
+
+plt.savefig('../figs/toa.pdf', bbox_inches='tight')
+plt.show()
 
 # +
 n_idx_times_hf = np.array(n_up_peaks_hf[1]) / fs # Update with the remaining peaks
