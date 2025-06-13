@@ -31,11 +31,12 @@ hv.extension('bokeh')
 pn.extension()
 # -
 
-output_dir = "out"
+batch_number = 1
+output_dir = os.path.join('denoised_data', f'Batch_{batch_number}')
 north_files = sorted(glob.glob(os.path.join("..", output_dir, "Denoised_SNR_North_*.nc")))
 south_files = sorted(glob.glob(os.path.join("..", output_dir, "Denoised_SNR_South_*.nc")))
 
-id = 0
+id = 0 # 0 to 11 
 print(f"Loading {north_files[id]}\n        {south_files[id]}")
 
 # +
@@ -54,10 +55,9 @@ utc_time_vals = pd.to_datetime(s_ds['utc_time'].values)
 
 # +
 # ---------- Output files ----------
-
 utc_begin    = n_ds.attrs['fileBeginTimeUTC']
-output_north = f'annotated_calls_north_{utc_begin}.csv'
-output_south = f'annotated_calls_south_{utc_begin}.csv'
+output_north = f'Batch{batch_number}/annotated_calls_north_{utc_begin}.csv'
+output_south = f'Batch{batch_number}/annotated_calls_south_{utc_begin}.csv'
 
 n_filename = os.path.basename(north_files[id])
 s_filename = os.path.basename(south_files[id])
