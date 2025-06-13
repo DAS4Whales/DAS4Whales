@@ -63,3 +63,6 @@ figs/
 
 # Animation files
 *.mp4
+
+# Denoised data files
+denoised_data/
