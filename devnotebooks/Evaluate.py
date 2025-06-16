@@ -83,13 +83,13 @@ import pickle
 from collections import defaultdict
 
 # First batch of data
-with open('../denoised_data/Batch_2/association_2021-11-03_22:15:42.pkl', 'rb') as f:
+with open('../denoised_data/Batch_3/association_2021-11-04_16:08:32.pkl', 'rb') as f:
     # Load the association object
     association = pickle.load(f)
 
 # Load annotations
-n_annotations = pd.read_csv('../Annotate/Batch2/annotated_calls_north_2021-11-03_22:15:42.csv')
-s_annotations = pd.read_csv('../Annotate/Batch2/annotated_calls_south_2021-11-03_22:15:42.csv')
+n_annotations = pd.read_csv('../Annotate/Batch3/annotated_calls_north_2021-11-04_16:08:32.csv')
+s_annotations = pd.read_csv('../Annotate/Batch3/annotated_calls_south_2021-11-04_16:08:32.csv')
 
 # Second batch of data 
 # Load automated association data
@@ -173,7 +173,10 @@ for array, annots, sel_ch, sel_ch_m in [
             else:
                 FN += 1
 
+        # TODO: Solve the case where the pairing is not done in the annotation, then leading to negative FP
         FP = len(pairs_list) + len(single_list) - TP
+        if FP < 0:
+            FP = 0  # Ensure FP is not negative
 
         # Update confusion dict
         confusion[key] = {'TP': TP, 'FP': FP, 'FN': FN}
