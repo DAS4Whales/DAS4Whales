@@ -20,12 +20,12 @@ import pandas as pd
 plt.rcParams['font.size'] = 24
 
 # +
-with open('../out/association_2021-11-04_02:00:52.pkl', 'rb') as f:
+with open('../denoised_data/Batch_1/association_2021-11-04_02:00:02.pkl', 'rb') as f:
     # Load the association object
     association = pickle.load(f)
 
-n_annotations = pd.read_csv('../Annotate/annotated_calls_north_2021-11-04_02:00:52.csv')
-s_annotations = pd.read_csv('../Annotate/annotated_calls_south_2021-11-04_02:00:52.csv')
+n_annotations = pd.read_csv('../Annotate/Batch1/annotated_calls_north_2021-11-04_02:00:02.csv')
+s_annotations = pd.read_csv('../Annotate/Batch1/annotated_calls_south_2021-11-04_02:00:02.csv')
 
 print(association.keys())
 print(association['assoc_pair'].keys())
@@ -83,13 +83,13 @@ import pickle
 from collections import defaultdict
 
 # First batch of data
-with open('../out/association_2021-11-04_02:05:02.pkl', 'rb') as f:
+with open('../denoised_data/Batch_2/association_2021-11-03_22:15:42.pkl', 'rb') as f:
     # Load the association object
     association = pickle.load(f)
 
 # Load annotations
-n_annotations = pd.read_csv('../Annotate/annotated_calls_north_2021-11-04_02:05:02.csv')
-s_annotations = pd.read_csv('../Annotate/annotated_calls_south_2021-11-04_02:05:02.csv')
+n_annotations = pd.read_csv('../Annotate/Batch2/annotated_calls_north_2021-11-03_22:15:42.csv')
+s_annotations = pd.read_csv('../Annotate/Batch2/annotated_calls_south_2021-11-03_22:15:42.csv')
 
 # Second batch of data 
 # Load automated association data
