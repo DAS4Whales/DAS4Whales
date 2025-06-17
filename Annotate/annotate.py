@@ -31,7 +31,7 @@ hv.extension('bokeh')
 pn.extension()
 # -
 
-batch_number = 2
+batch_number = 3
 output_dir = os.path.join('denoised_data', f'Batch_{batch_number}')
 north_files = sorted(glob.glob(os.path.join("..", output_dir, "Denoised_SNR_North_*.nc")))
 south_files = sorted(glob.glob(os.path.join("..", output_dir, "Denoised_SNR_South_*.nc")))
