@@ -292,8 +292,9 @@ maxsum = np.max(sum_kde, axis=1)
 maxprod = np.max(prod_kde, axis=1)
 binary = np.ones_like(maxprod)
 
-threshold = np.percentile(maxsum, 45)  # keep top 3%
+threshold = np.percentile(maxsum, 40)  # keep top 3%
 binary[maxsum < threshold] = 0
+# fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, mu_t+sigma_t)
 fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, binary)
 plt.show()
 
