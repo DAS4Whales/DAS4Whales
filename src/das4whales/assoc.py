@@ -719,7 +719,7 @@ def plot_kdesurf(df_north: pd.DataFrame, df_south: pd.DataFrame, bathy: np.ndarr
     im = ax.tricontourf(xg, yg, heatmap, levels=20, cmap='hot', alpha=0.5)
 
     im_ratio = bathy.shape[1] / bathy.shape[0]
-    plt.colorbar(im, ax=ax, label='Depth [m]', pad=0.02, orientation='vertical', aspect=25, fraction=0.0195)
+    plt.colorbar(im, ax=ax, label='Standard deviaton', pad=0.02, orientation='vertical', aspect=25, fraction=0.0195)
     im.remove()
     # Set the labels
     plt.xlabel('x [m]')
