@@ -332,9 +332,90 @@ for batch in batches:
         print(f"Precision: {batch_precision:.3f}")
         print(f"Recall: {batch_recall:.3f}")
         print(f"F1 Score: {batch_f1:.3f}")
-# -
 
-    # data = summary_df[summary_df['Array_Type'] == array_type]
-    # ax1.bar(x + i*width, data['Precision'], width, label=f'{array_type} Precision')
-    # ax2.bar(x + i*width, data['Recall'], width, label=f'{array_type} Recall')
-    # ax3.bar(x + i*width, data['F1'], width, label=f'{array_type} F1')
+# +
+# Plot the statistics per batch and overall
+fig, axs = plt.subplots(1, 3, figsize=(20, 6), constrained_layout=True)
+
+# Define colors for consistency
+batch_color = 'steelblue'
+overall_color = 'darkorange'
+
+# Collect data for plotting
+batch_names = []
+precision_vals = []
+recall_vals = []
+f1_vals = []
+
+for batch in batches:
+    if batch in confusion:
+        batch_totals = confusion[batch]
+        precision = batch_totals['TP'] / (batch_totals['TP'] + batch_totals['FP']) if (batch_totals['TP'] + batch_totals['FP']) > 0 else 0
+        recall = batch_totals['TP'] / (batch_totals['TP'] + batch_totals['FN']) if (batch_totals['TP'] + batch_totals['FN']) > 0 else 0
+        f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+        
+        batch_names.append(batch)
+        precision_vals.append(precision)
+        recall_vals.append(recall)
+        f1_vals.append(f1)
+
+# Add overall statistics
+batch_names.append('Overall')
+precision_vals.append(Precision)
+recall_vals.append(Recall)
+f1_vals.append(F1)
+
+# Create x positions
+x_pos = range(len(batch_names))
+
+# Plot bars with improved styling
+bars1 = axs[0].bar(x_pos, precision_vals, color=[batch_color] * (len(batch_names)-1) + [overall_color], 
+                   alpha=0.8, edgecolor='white', linewidth=1.5)
+bars2 = axs[1].bar(x_pos, recall_vals, color=[batch_color] * (len(batch_names)-1) + [overall_color], 
+                   alpha=0.8, edgecolor='white', linewidth=1.5)
+bars3 = axs[2].bar(x_pos, f1_vals, color=[batch_color] * (len(batch_names)-1) + [overall_color], 
+                   alpha=0.8, edgecolor='white', linewidth=1.5)
+
+# Add value labels on top of bars
+for ax, vals, bars in zip(axs, [precision_vals, recall_vals, f1_vals], [bars1, bars2, bars3]):
+    for bar, val in zip(bars, vals):
+        height = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                f'{val:.3f}', ha='center', va='bottom', fontweight='bold', fontsize=10)
+
+# Customize axes
+titles = ['Precision', 'Recall', 'F1 Score']
+for i, (ax, title) in enumerate(zip(axs, titles)):
+    ax.set_title(title, fontsize=14, fontweight='bold', pad=20)
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(batch_names, rotation=45, ha='right')
+    ax.set_ylim(0, 1.1)  # Set consistent y-axis limits
+    ax.grid(axis='y', alpha=0.3, linestyle='--')
+    ax.set_ylabel('Score', fontsize=12)
+    
+    # Add horizontal reference lines
+    ax.axhline(y=0.5, color='gray', linestyle=':', alpha=0.5, linewidth=1)
+    ax.axhline(y=0.8, color='green', linestyle=':', alpha=0.5, linewidth=1)
+
+# # Add a main title
+# fig.suptitle('Performance Metrics by Batch', fontsize=16, fontweight='bold', y=0.98)
+
+# # Create a custom legend
+# from matplotlib.patches import Patch
+# legend_elements = [
+#     Patch(facecolor=batch_color, alpha=0.8, label='Individual Batches'),
+#     Patch(facecolor=overall_color, alpha=0.8, label='Overall Performance')
+# ]
+# fig.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(0.98, 0.85))
+
+# Add some styling improvements
+plt.setp(axs, facecolor='#f8f9fa')
+for ax in axs:
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('#cccccc')
+    ax.spines['bottom'].set_color('#cccccc')
+
+# plt.tight_layout()
+plt.show()
+
