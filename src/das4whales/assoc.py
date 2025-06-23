@@ -527,106 +527,109 @@ def plot_associated_bicable(n_peaks, s_peaks, longi_offset, pair_assoc_list, pai
                             n_cable_pos, s_cable_pos, n_dist, s_dist, dx, c0, fs):
     
     nhf_assoc_pair, nlf_assoc_pair, shf_assoc_pair, slf_assoc_pair = pair_assoc_list
-    nhf_associated_list, nlf_associated_list, shf_associated_list, slf_associated_list = associated_list
+    nhf_assoc_list, nlf_assoc_list, shf_assoc_list, slf_assoc_list = associated_list
     nhf_loc_pair, nlf_loc_pair, shf_loc_pair, slf_loc_pair = pair_loc_list
     nhf_localizations, nlf_localizations, shf_localizations, slf_localizations = localizations
-
-    fig, axes = plt.subplots(2, 2, figsize=(20, 16), sharex=True, sharey=False)
+    fig, axes = plt.subplots(2, 2, figsize=(20, 16), sharex=True, sharey=False, constrained_layout=True)
 
     # Get color palettes
-    hf_palette = plt.get_cmap('Reds_r')
-    lf_palette = plt.get_cmap('Blues_r')
+    hf_palette = plt.get_cmap('YlOrRd_r')
+    lf_palette = plt.get_cmap('YlGnBu_r')
 
     # Assign color per HF/LF event
-    nbhf = len(nhf_assoc_pair) + len(shf_assoc_pair) + len(nhf_associated_list) + len(shf_associated_list)
-    nblf = len(nlf_assoc_pair) + len(slf_assoc_pair) + len(nlf_associated_list) + len(slf_associated_list)
+    nbhf = len(nhf_assoc_pair) + len(shf_assoc_pair) + len(nhf_assoc_list) + len(shf_assoc_list)
+    nblf = len(nlf_assoc_pair) + len(slf_assoc_pair) + len(nlf_assoc_list) + len(slf_assoc_list)
 
-    hf_colors = [hf_palette(i / max(nbhf - 1, 1)) for i in range(nbhf)]
-    lf_colors = [lf_palette(i / max(nblf - 1, 1)) for i in range(nblf)]
+    start, end = 0.0, 0.6  # Avoids part of the coolormap that is too light
+
+    hf_colors = [hf_palette(start + (end - start) * i / max(nbhf - 1, 1)) for i in range(nbhf)]
+    lf_colors = [lf_palette(start + (end - start) * i / max(nblf - 1, 1)) for i in range(nblf)]
 
     # First subplot — North raw picks and associated
     # -- Raw picks --
     axes[0, 0].scatter(n_peaks[1][:] / fs, (longi_offset + n_peaks[0][:]) * dx * 1e-3,
-                       label='All peaks', s=0.5, alpha=0.2, color='tab:grey')
+                       label='All peaks', s=0.5, alpha=0.2, color='tab:grey', rasterized=True)
     # -- Associated picks - pairs --
     for i, select in enumerate(nhf_assoc_pair):
         axes[0, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
-                           color=hf_colors[i], s=10, marker='>')
+                           color=hf_colors[i], s=10, marker='>', rasterized=True)
         
     for i, select in enumerate(nlf_assoc_pair):
         axes[0, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
-                           color=lf_colors[i], s=10, marker='o')
+                           color=lf_colors[i], s=10, marker='o', rasterized=True)
         
     # -- Associated picks - single --
-    for i, select in enumerate(nhf_associated_list):
+    for i, select in enumerate(nhf_assoc_list):
         idx_offset = len(nhf_assoc_pair) + len(shf_assoc_pair)
         axes[0, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
-                           color=hf_colors[i+idx_offset], s=10, marker='>')
-    for i, select in enumerate(nlf_associated_list):
+                           color=hf_colors[i+idx_offset], s=10, marker='>', rasterized=True)
+    for i, select in enumerate(nlf_assoc_list):
         idx_offset = len(nlf_assoc_pair) + len(slf_assoc_pair)
-        # print(i, idx_offset, len(nhf_assoc_pair), len(shf_assoc_pair), len(nhf_associated_list)print(len(lf_colors), len(nlf_associated_list)))
+        # print(i, idx_offset, len(nhf_assoc_pair), len(shf_assoc_pair), len(nhf_assoc_list)print(len(lf_colors), len(nlf_assoc_list)))
         axes[0, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
-                           color=lf_colors[i+idx_offset], s=10, marker='o')
-    axes[0, 0].set_title('North')
+                           color=lf_colors[i+idx_offset], s=10, marker='o', rasterized=True)
+    axes[0, 0].set_title('North')       
     axes[0, 0].set_ylabel('Distance [km]')
-    axes[0, 0].set_xlim(0, 60)
+    axes[0, 0].set_xlim(0, 70)
 
     # Second subplot — North with arrival curves
     # -- Associated picks - pairs --
     for i, select in enumerate(nhf_assoc_pair):
         axes[0, 1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
-                           color=hf_colors[i], s=10, marker='>')
+                           color=hf_colors[i], s=10, marker='>', rasterized=True)
         axes[0, 1].plot(dw.loc.calc_arrival_times(nhf_loc_pair[i][-1], n_cable_pos, 
                                                   nhf_loc_pair[i][:3], c0),
                                                   n_dist / 1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
                                                   
     for i, select in enumerate(nlf_assoc_pair):
         axes[0, 1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
-                           color=lf_colors[i], s=10, marker='o')
+                           color=lf_colors[i], s=10, marker='o', rasterized=True)
         axes[0, 1].plot(dw.loc.calc_arrival_times(nlf_loc_pair[i][-1], n_cable_pos,
                                                   nlf_loc_pair[i][:3], c0),
                                                   n_dist / 1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
         
     # -- Associated picks - single --
-    for i, select in enumerate(nhf_associated_list):
+    for i, select in enumerate(nhf_assoc_list):
         idx_offset = len(nhf_assoc_pair) + len(shf_assoc_pair)
         axes[0, 1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
-                           color=hf_colors[i+idx_offset], s=10, marker='>')
+                           color=hf_colors[i+idx_offset], s=10, marker='>', rasterized=True)
         axes[0, 1].plot(dw.loc.calc_arrival_times(nhf_localizations[i][-1], n_cable_pos,
                                                   nhf_localizations[i][:3], c0),
                                                   n_dist / 1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
         
-    for i, select in enumerate(nlf_associated_list):
+    for i, select in enumerate(nlf_assoc_list):
         idx_offset = len(nlf_assoc_pair) + len(slf_assoc_pair)
         axes[0, 1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
-                           color=lf_colors[i+idx_offset], s=10, marker='o')
+                           color=lf_colors[i+idx_offset], s=10, marker='o', rasterized=True)
         axes[0, 1].plot(dw.loc.calc_arrival_times(nlf_localizations[i][-1], n_cable_pos,
                                                   nlf_localizations[i][:3], c0),
                         n_dist / 1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
+    # Remove the y-axis ticks labels
+    axes[0, 1].set_yticklabels([])
 
     # Third subplot — South raw picks and associated
     # -- Raw picks --
     axes[1, 0].scatter(s_peaks[1][:] / fs, (longi_offset + s_peaks[0][:]) * dx * 1e-3,
-                       label='All peaks', s=0.5, alpha=0.2, color='tab:grey')
+                       label='All peaks', s=0.5, alpha=0.2, color='tab:grey', rasterized=True)
     # -- Associated picks - pairs --
     for i, select in enumerate(shf_assoc_pair):
         axes[1, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
-                           color=hf_colors[i], s=10, marker='>')
+                           color=hf_colors[i], s=10, marker='>', rasterized=True)
         
     for i, select in enumerate(slf_assoc_pair):
         axes[1, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
-                           color=lf_colors[i], s=10, marker='o')
+                           color=lf_colors[i], s=10, marker='o', rasterized=True)
         
     # -- Associated picks - single --
-    for i, select in enumerate(shf_associated_list):
-        idx_offset = len(nhf_assoc_pair) + len(shf_assoc_pair) + len(nhf_associated_list)
+    for i, select in enumerate(shf_assoc_list):
+        idx_offset = len(nhf_assoc_pair) + len(shf_assoc_pair) + len(nhf_assoc_list)
         axes[1, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
-                           color=hf_colors[i+idx_offset], s=10, marker='>')
+                           color=hf_colors[i+idx_offset], s=10, marker='>', rasterized=True)
         
-    for i, select in enumerate(slf_associated_list):
-        idx_offset = len(nlf_assoc_pair) + len(slf_assoc_pair) + len(nlf_associated_list)
+    for i, select in enumerate(slf_assoc_list):
+        idx_offset = len(nlf_assoc_pair) + len(slf_assoc_pair) + len(nlf_assoc_list)
         axes[1, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
-                           color=lf_colors[i+idx_offset], s=10, marker='o')
+                           color=lf_colors[i+idx_offset], s=10, marker='o', rasterized=True)
     axes[1, 0].set_title('South')
     axes[1, 0].set_ylabel('Distance [km]')
     axes[1, 0].set_xlabel('Time [s]')
@@ -635,45 +638,93 @@ def plot_associated_bicable(n_peaks, s_peaks, longi_offset, pair_assoc_list, pai
     # -- Associated picks - pairs --
     for i, select in enumerate(shf_assoc_pair):
         axes[1, 1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
-                           color=hf_colors[i], s=10, marker='>')
+                           color=hf_colors[i], s=10, marker='>', rasterized=True)
         axes[1, 1].plot(dw.loc.calc_arrival_times(shf_loc_pair[i][-1], s_cable_pos,
                                                   shf_loc_pair[i][:3], c0),
                         s_dist / 1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
         
     for i, select in enumerate(slf_assoc_pair):
         axes[1, 1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
-                           color=lf_colors[i], s=10, marker='o')
+                           color=lf_colors[i], s=10, marker='o', rasterized=True)
         axes[1, 1].plot(dw.loc.calc_arrival_times(slf_loc_pair[i][-1], s_cable_pos,
                                                   slf_loc_pair[i][:3], c0),
                         s_dist / 1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
         
     # -- Associated picks - single --
-    for i, select in enumerate(shf_associated_list):
-        idx_offset = len(nhf_assoc_pair) + len(shf_assoc_pair) + len(nhf_associated_list)
+    for i, select in enumerate(shf_assoc_list):
+        idx_offset = len(nhf_assoc_pair) + len(shf_assoc_pair) + len(nhf_assoc_list)
         axes[1, 1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
-                           color=hf_colors[i+idx_offset], s=10, marker='>')
+                           color=hf_colors[i+idx_offset], s=10, marker='>', rasterized=True)
         axes[1, 1].plot(dw.loc.calc_arrival_times(shf_localizations[i][-1], s_cable_pos,
                                                   shf_localizations[i][:3], c0),
                         s_dist / 1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
         
-    for i, select in enumerate(slf_associated_list):
-        idx_offset = len(nlf_assoc_pair) + len(slf_assoc_pair) + len(nlf_associated_list)
+    for i, select in enumerate(slf_assoc_list):
+        idx_offset = len(nlf_assoc_pair) + len(slf_assoc_pair) + len(nlf_assoc_list)
         axes[1, 1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
-                           color=lf_colors[i+idx_offset], s=10, marker='o')
+                           color=lf_colors[i+idx_offset], s=10, marker='o', rasterized=True)
         axes[1, 1].plot(dw.loc.calc_arrival_times(slf_localizations[i][-1], s_cable_pos,
                                                   slf_localizations[i][:3], c0),
                         s_dist / 1e3, color='tab:grey', ls='-', lw=2, alpha=0.7)
 
     axes[1, 1].set_xlabel('Time [s]')
+    axes[1, 1].set_yticklabels([])
 
     # Add a common legend
-    hf_handle = plt.Line2D([], [], marker='>', color='w', label='HF',
+    hf_handle = plt.Line2D([], [], marker='>', color='w', label='HF calls',
                            markerfacecolor='tab:red', markersize=10)
-    lf_handle = plt.Line2D([], [], marker='o', color='w', label='LF',
+    lf_handle = plt.Line2D([], [], marker='o', color='w', label='LF calls',
                            markerfacecolor='tab:blue', markersize=10)
+    
+
+    from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+    from matplotlib.colors import ListedColormap
+    import matplotlib.patches as patches
+
+    # Add gradient legend to one of your subplots
+    gradient_values = np.linspace(start, end, 100).reshape(1, -1)
+    hf_cmap_custom = ListedColormap(hf_colors)
+    lf_cmap_custom = ListedColormap(lf_colors)
+
+    # Create a parent container for the legend with frame
+    legend_container = inset_axes(axes[1, 1], width="25%", height="20%", loc='lower right',
+                                bbox_to_anchor=(0, 0.02, 1, 1), bbox_transform=axes[1, 1].transAxes)
+    legend_container.set_xlim(0, 1)
+    legend_container.set_ylim(0, 1)
+    legend_container.set_xticks([])
+    legend_container.set_yticks([])
+
+    # Add frame around the container
+    legend_container.spines['top'].set_visible(True)
+    legend_container.spines['right'].set_visible(True)
+    legend_container.spines['bottom'].set_visible(True)
+    legend_container.spines['left'].set_visible(True)
+    legend_container.spines['top'].set_linewidth(1.5)
+    legend_container.spines['right'].set_linewidth(1.5)
+    legend_container.spines['bottom'].set_linewidth(1.5)
+    legend_container.spines['left'].set_linewidth(1.5)
+    legend_container.spines['top'].set_color('black')
+    legend_container.spines['right'].set_color('black')
+    legend_container.spines['bottom'].set_color('black')
+    legend_container.spines['left'].set_color('black')
+
+    # HF gradient bar (positioned in upper part of container)
+    hf_gradient_ax = inset_axes(legend_container, width="80%", height="35%", loc='upper center',
+                            bbox_to_anchor=(0, 0.15, 1, 0.8), bbox_transform=legend_container.transAxes)
+    hf_gradient_ax.imshow(gradient_values, aspect='auto', cmap=hf_cmap_custom)
+    hf_gradient_ax.set_xticks([])
+    hf_gradient_ax.set_yticks([])
+    hf_gradient_ax.set_title('HF calls ▷', fontsize=12, pad=4)
+
+    # LF gradient bar (positioned in lower part of container)
+    lf_gradient_ax = inset_axes(legend_container, width="80%", height="35%", loc='lower center',
+                            bbox_to_anchor=(0, -0.05, 1, 0.8), bbox_transform=legend_container.transAxes)
+    lf_gradient_ax.imshow(gradient_values, aspect='auto', cmap=lf_cmap_custom)
+    lf_gradient_ax.set_xticks([])
+    lf_gradient_ax.set_yticks([])
+    lf_gradient_ax.set_title('LF calls ●', fontsize=12, pad=4)
     for ax in axes.flat:
         ax.grid(linestyle='--', alpha=0.6)
-        ax.legend(handles=[hf_handle, lf_handle], loc='upper right', fontsize=10)
     return fig
 
 

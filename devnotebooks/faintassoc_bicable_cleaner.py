@@ -41,6 +41,7 @@ from scipy.stats import gaussian_kde
 from sklearn.neighbors import KernelDensity
 from scipy.optimize import curve_fit
 import scipy.signal as sp
+import colorcet as cc
 
 plt.rcParams['font.size'] = 24
 # -
@@ -867,18 +868,17 @@ def plot_associated_bicable(n_peaks, s_peaks, longi_offset, pair_assoc_list, pai
     nhf_assoc_list, nlf_assoc_list, shf_assoc_list, slf_assoc_list = associated_list
     nhf_loc_pair, nlf_loc_pair, shf_loc_pair, slf_loc_pair = pair_loc_list
     nhf_localizations, nlf_localizations, shf_localizations, slf_localizations = localizations
-
     fig, axes = plt.subplots(2, 2, figsize=(20, 16), sharex=True, sharey=False, constrained_layout=True)
 
     # Get color palettes
-    hf_palette = plt.get_cmap('Reds_r')
-    lf_palette = plt.get_cmap('Blues_r')
+    hf_palette = plt.get_cmap('YlOrRd_r')
+    lf_palette = plt.get_cmap('YlGnBu_r')
 
     # Assign color per HF/LF event
     nbhf = len(nhf_assoc_pair) + len(shf_assoc_pair) + len(nhf_assoc_list) + len(shf_assoc_list)
     nblf = len(nlf_assoc_pair) + len(slf_assoc_pair) + len(nlf_assoc_list) + len(slf_assoc_list)
 
-    start, end = 0.0, 0.75  # Avoids the top 15% of the colormap
+    start, end = 0.0, 0.6  # Avoids part of the coolormap that is too light
 
     hf_colors = [hf_palette(start + (end - start) * i / max(nbhf - 1, 1)) for i in range(nbhf)]
     lf_colors = [lf_palette(start + (end - start) * i / max(nblf - 1, 1)) for i in range(nblf)]
@@ -906,7 +906,7 @@ def plot_associated_bicable(n_peaks, s_peaks, longi_offset, pair_assoc_list, pai
         # print(i, idx_offset, len(nhf_assoc_pair), len(shf_assoc_pair), len(nhf_assoc_list)print(len(lf_colors), len(nlf_assoc_list)))
         axes[0, 0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
                            color=lf_colors[i+idx_offset], s=10, marker='o', rasterized=True)
-    axes[0, 0].set_title('North')
+    axes[0, 0].set_title('North')       
     axes[0, 0].set_ylabel('Distance [km]')
     axes[0, 0].set_xlim(0, 70)
 
@@ -1013,11 +1013,57 @@ def plot_associated_bicable(n_peaks, s_peaks, longi_offset, pair_assoc_list, pai
                            markerfacecolor='tab:red', markersize=10)
     lf_handle = plt.Line2D([], [], marker='o', color='w', label='LF calls',
                            markerfacecolor='tab:blue', markersize=10)
+    
+
+    from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+    from matplotlib.colors import ListedColormap
+    import matplotlib.patches as patches
+
+    # Add gradient legend to one of your subplots
+    gradient_values = np.linspace(start, end, 100).reshape(1, -1)
+    hf_cmap_custom = ListedColormap(hf_colors)
+    lf_cmap_custom = ListedColormap(lf_colors)
+
+    # Create a parent container for the legend with frame
+    legend_container = inset_axes(axes[1, 1], width="25%", height="20%", loc='lower right',
+                                bbox_to_anchor=(0, 0.02, 1, 1), bbox_transform=axes[1, 1].transAxes)
+    legend_container.set_xlim(0, 1)
+    legend_container.set_ylim(0, 1)
+    legend_container.set_xticks([])
+    legend_container.set_yticks([])
+
+    # Add frame around the container
+    legend_container.spines['top'].set_visible(True)
+    legend_container.spines['right'].set_visible(True)
+    legend_container.spines['bottom'].set_visible(True)
+    legend_container.spines['left'].set_visible(True)
+    legend_container.spines['top'].set_linewidth(1.5)
+    legend_container.spines['right'].set_linewidth(1.5)
+    legend_container.spines['bottom'].set_linewidth(1.5)
+    legend_container.spines['left'].set_linewidth(1.5)
+    legend_container.spines['top'].set_color('black')
+    legend_container.spines['right'].set_color('black')
+    legend_container.spines['bottom'].set_color('black')
+    legend_container.spines['left'].set_color('black')
+
+    # HF gradient bar (positioned in upper part of container)
+    hf_gradient_ax = inset_axes(legend_container, width="80%", height="35%", loc='upper center',
+                            bbox_to_anchor=(0, 0.15, 1, 0.8), bbox_transform=legend_container.transAxes)
+    hf_gradient_ax.imshow(gradient_values, aspect='auto', cmap=hf_cmap_custom)
+    hf_gradient_ax.set_xticks([])
+    hf_gradient_ax.set_yticks([])
+    hf_gradient_ax.set_title('HF calls ▷', fontsize=12, pad=4)
+
+    # LF gradient bar (positioned in lower part of container)
+    lf_gradient_ax = inset_axes(legend_container, width="80%", height="35%", loc='lower center',
+                            bbox_to_anchor=(0, -0.05, 1, 0.8), bbox_transform=legend_container.transAxes)
+    lf_gradient_ax.imshow(gradient_values, aspect='auto', cmap=lf_cmap_custom)
+    lf_gradient_ax.set_xticks([])
+    lf_gradient_ax.set_yticks([])
+    lf_gradient_ax.set_title('LF calls ●', fontsize=12, pad=4)
     for ax in axes.flat:
         ax.grid(linestyle='--', alpha=0.6)
-        ax.legend(handles=[hf_handle, lf_handle], loc='lower right', handletextpad=0)
     return fig
-
 
 # +
 # Localize using the selected picks
