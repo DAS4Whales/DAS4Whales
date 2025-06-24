@@ -285,6 +285,12 @@ print(np.shape(t_kde))
 
 # -
 
+n_distances = np.sqrt((xg[:, None] - n_cable_pos[:, 0])**2 + (yg[:, None] - n_cable_pos[:, 1])**2 + 200*(zg - n_cable_pos[:, 2])**2)
+s_distances = np.sqrt((xg[:, None] - s_cable_pos[:, 0])**2 + (yg[:, None] - s_cable_pos[:, 1])**2 + 200*(zg - s_cable_pos[:, 2])**2)
+print(n_distances.shape, s_distances.shape)
+distances = n_distances.min(axis=1) + s_distances.min(axis=1)
+distances *= 0.5 # Average distances to both cables
+
 # ## Plot the Heatmap for the north cable
 
 # +
@@ -295,7 +301,7 @@ binary = np.ones_like(maxprod)
 threshold = np.percentile(maxsum, 40)  # keep top 3%
 binary[maxsum < threshold] = 0
 # fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, mu_t+sigma_t)
-fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, binary)
+fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, distances)
 plt.show()
 
 print(f'ratio of points above the threshold: {np.sum(binary) / binary.size:.2f}')

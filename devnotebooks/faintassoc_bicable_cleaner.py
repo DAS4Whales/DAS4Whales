@@ -44,11 +44,17 @@ import scipy.signal as sp
 import colorcet as cc
 
 plt.rcParams['font.size'] = 24
-# -
 
+# +
 # Load the peak indexes and the metadata
-n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc') 
-s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
+
+# Well-behaving data 
+# n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc') 
+# s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
+
+# Problematic data
+n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_08:00:02_ipi3_th_4.nc') 
+s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_08:00:02_ipi3_th_5.nc')
 
 # +
 # Constants from the metadata
@@ -183,6 +189,29 @@ xg, yg = xg[mask], yg[mask]
 # In case of a meshgrid object (non flattened), use the following code:
 # xg[~mask] = np.nan
 # yg[~mask] = np.nan
+
+# +
+# Plot the distance of the grid points to the cable
+n_distances = np.sqrt((xg[:, None] - n_cable_pos[:, 0])**2 + (yg[:, None] - n_cable_pos[:, 1])**2 + (zg - n_cable_pos[:, 2])**2)
+s_distances = np.sqrt((xg[:, None] - s_cable_pos[:, 0])**2 + (yg[:, None] - s_cable_pos[:, 1])**2 + (zg - s_cable_pos[:, 2])**2)
+
+distances = n_distances.min(axis=1) + s_distances.min(axis=1)
+distances *= 0.5 # Average distances to both cables
+
+# Plot the distances
+plt.figure(figsize=(24, 5))
+plt.subplot(1, 2, 1)
+plt.scatter(xg, yg, c=distances, cmap='viridis', s=10, edgecolor='none')
+plt.plot(df_north['x'], df_north['y'], color='orange', label='North cable')
+plt.plot(df_south['x'], df_south['y'], color='red', label='South cable')
+# Reverse x-axis to have the origin at the bottom left
+plt.gca().invert_xaxis()
+plt.xlabel('X (m)')
+plt.ylabel('Y (m)')
+plt.xlim(np.max(xg), np.min(xg))
+plt.ylim(np.min(yg), np.max(yg))
+# plt.axis('equal')       
+plt.show()
 # -
 
 dt_kde = 0.5 # [s] Time resolution of the KDE
