@@ -1046,7 +1046,7 @@ def fk_filter_filt(trace, fk_filter_matrix, tapering=False):
 
     return trace.real
 
-
+# TODO: transfer function from private branche using parallel fft 
 def fk_filter_sparsefilt(trace, fk_filter_matrix, tapering=False):
     """
     Applies a pre-calculated f-k filter to DAS strain data
@@ -1074,7 +1074,7 @@ def fk_filter_sparsefilt(trace, fk_filter_matrix, tapering=False):
 
     if isinstance(fk_filtered_trace, sparse.COO):
         # Convert the sparse matrix to a dense format
-        fk_filtered_trace = fk_filtered_trace.toarray()
+        fk_filtered_trace = fk_filtered_trace.todense()
     # Back to the t-x domain
     trace = np.fft.ifft2(np.fft.ifftshift(fk_filtered_trace))
 
