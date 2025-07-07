@@ -42,8 +42,8 @@ dist_tol = 20   # meters
 # Batch4 2021-11-04_08:00:02
 # Batch5 2021-11-04_12:09:12
 
-batch = '5'
-timestamp = '2021-11-04_12:09:12'
+batch = '4'
+timestamp = '2021-11-04_08:00:02'
 
 def load_data(batch, timestamp):
     """Load the data for a specific batch and timestamp."""
@@ -173,7 +173,7 @@ print(f"\nTotal           {totals['TP']:>5} {totals['FP']:>5} {totals['FN']:>5}"
 # +
 confusion = defaultdict(lambda: {'TP': 0, 'FP': 0, 'FN': 0})
 totals = {'TP': 0, 'FP': 0, 'FN': 0}
-plot_figs = False
+plot_figs = True
 
 for batch in tqdm(batches, desc=f'Processing annotated batches'):
     assoc_files = sorted(glob(f'{data_root}/{batch}/association_*.pkl'))

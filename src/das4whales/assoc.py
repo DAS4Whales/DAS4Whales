@@ -354,6 +354,41 @@ def remove_peaks_tolerance(up_peaks, idx_dist, idx_time, mask_resi, snr, dist_to
     return up_peaks[:, mask], snr[mask]
 
 
+def clean_pairs(
+    primary: list[np.ndarray],
+    counterpart:list[np.ndarray],
+    counterpart_associated: list[np.ndarray],
+) -> None:
+    
+    """
+    """
+    empty_idx = [i for i, arr in enumerate(primary) if arr.size <= 1000]
+
+    for i in reversed(empty_idx):
+        counterpart_associated.append(counterpart.pop(i))
+        primary.pop(i)
+    return
+
+
+def clean_singles(associtations: list[np.ndarray]) -> None:
+    """
+    Cleans the single associations by removing empty arrays.
+    
+    Parameters
+    ----------
+    associtations : list of np.ndarray
+        List of associations to clean.
+    
+    Returns
+    -------
+    None
+    """
+    empty_idx = [i for i, arr in enumerate(associtations) if arr.size <= 1000]
+
+    for i in reversed(empty_idx):
+        associtations.pop(i)
+
+
 def save_assoc(
     filename,
     pair_assoc, pair_loc,
