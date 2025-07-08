@@ -13,7 +13,7 @@
 #     name: python3
 # ---
 
-# # Attempt at associating the faint calls using line detection
+# # Bicable association process with spatial windows for faint calls
 
 from IPython import get_ipython
 ipython = get_ipython()
@@ -101,7 +101,6 @@ sSNRlf = s_ds["SNR_lf"].values
 
 # +
 speakshf = speakshf[:, sSNRhf > 5]
-
 speakslf = speakslf[:, sSNRlf > 5]
 
 sSNRhf = sSNRhf[sSNRhf > 5]
@@ -120,7 +119,6 @@ plt.show()
 # Import the cable location
 df_north = pd.read_csv('../data/north_DAS_multicoord.csv')
 df_south = pd.read_csv('../data/south_DAS_multicoord.csv')
-
 
 # Extract the part of the dataframe used for the time picking process
 idx_shift0 = int(n_begin_chan - df_north["chan_idx"].iloc[0]) # Shift between the cable locations (starting at the beach) and the channel locations
@@ -440,8 +438,8 @@ peaks_far, snr_far = apply_spatial_windows(peaks, SNRs, win_far)
 
 # plt.show()
 
-# -
 
+# +
 dt_kde = 0.5 # [s] Time resolution of the KDE
 bin_width = 1
 # dt_kde = 0.25 # [s] Time resolution of the KDE (overlap)
@@ -455,8 +453,28 @@ rms_threshold = 0.5
 # Set the number of iterations for testing
 iterations = 5
 
+
+config = {
+    'fs': fs,
+    'dt_kde': dt_kde,
+    'bin_width': bin_width,
+    'dt_tol': dt_tol,
+    'dt_sel': dt_sel,
+    'w_eval': w_eval,
+    'rms_threshold': rms_threshold,
+    'iterations': iterations
+}
+
 # +
-# Initialize the max_kde variable to enter the loop
+n_up_peaks_hf = np.copy(npeakshf)
+s_up_peaks_hf = np.copy(speakshf)
+n_up_peaks_lf = np.copy(npeakslf)
+s_up_peaks_lf = np.copy(speakslf)
+
+n_arr_tg = dw.loc.calc_arrival_times(ti, n_cable_pos, (xg, yg, zg), c0)
+s_arr_tg = dw.loc.calc_arrival_times(ti, s_cable_pos, (xg, yg, zg), c0)
+
+# +
 nhf_assoc_list_pair = [] # List to store paired associated picks for the North cable, HF calls
 nlf_assoc_list_pair = [] # List to store paired associated picks for the North cable, LF calls
 nhf_assoc_list = [] # List to store associated picks for the North cable, HF calls
@@ -473,413 +491,44 @@ s_used_hyperbolas = []
 s_rejected_list = []
 s_rejected_hyperbolas = []
 
-n_up_peaks_hf = np.copy(npeakshf)
-s_up_peaks_hf = np.copy(speakshf)
-n_up_peaks_lf = np.copy(npeakslf)
-s_up_peaks_lf = np.copy(speakslf)
+association_lists = [
+    nhf_assoc_list_pair, nlf_assoc_list_pair, shf_assoc_list_pair, slf_assoc_list_pair,
+    nhf_assoc_list, shf_assoc_list, nlf_assoc_list, slf_assoc_list
+    ]
 
-# n_up_peaks_hf = np.copy(peaks_far[0])
-# s_up_peaks_hf = np.copy(peaks_far[2])
-# n_up_peaks_lf = np.copy(peaks_far[1])
-# s_up_peaks_lf = np.copy(peaks_far[3])
-n_arr_tg = dw.loc.calc_arrival_times(ti, n_cable_pos, (xg, yg, zg), c0)
-s_arr_tg = dw.loc.calc_arrival_times(ti, s_cable_pos, (xg, yg, zg), c0)
+hyperbolas = [n_used_hyperbolas, s_used_hyperbolas]
 
-# nSNRhf = np.copy(snr_far[0])
-# nSNRlf = np.copy(snr_far[1])
-# sSNRhf = np.copy(snr_far[2])
-# sSNRlf = np.copy(snr_far[3])
+rejected_lists = [
+    n_rejected_list, s_rejected_list, n_rejected_hyperbolas, s_rejected_hyperbolas
+]
 
 # +
 pbar = tqdm(range(iterations), desc="Associated calls: 0")
 
 for iteration in pbar:
-    # PART 1: PREPARE DATA AND COMPUTE KDEs
-    # =====================================
-    
-    # Precompute the time indices from peaks for both frequency bands and cables
-    n_idx_times_hf = np.array(n_up_peaks_hf[1]) / fs
-    n_idx_times_lf = np.array(n_up_peaks_lf[1]) / fs
-    s_idx_times_hf = np.array(s_up_peaks_hf[1]) / fs
-    s_idx_times_lf = np.array(s_up_peaks_lf[1]) / fs
+    results = dw.assoc.process_iteration(
+    # Peak data
+    n_up_peaks_hf, n_up_peaks_lf, s_up_peaks_hf, s_up_peaks_lf,
+    nSNRhf, nSNRlf, sSNRhf, sSNRlf,
+    # Grid data
+    n_arr_tg, s_arr_tg, n_shape_x, s_shape_x,
+    # Cable positions
+    n_cable_pos, s_cable_pos, n_longi_offset, s_longi_offset,
+    # Association lists
+    association_lists,
+    # Hyperbolas
+    hyperbolas,
+    # Rejected lists
+    rejected_lists,
+    # Parameters
+    fs, dt_kde, bin_width, dt_sel, w_eval, rms_threshold, c0, dx, dt_tol,
+    # Iteration info
+    iteration)
 
-    # Calculate delayed picks for all grid points
-    n_delayed_picks_hf = n_idx_times_hf[None, :] - n_arr_tg[:, n_up_peaks_hf[0]]
-    n_delayed_picks_lf = n_idx_times_lf[None, :] - n_arr_tg[:, n_up_peaks_lf[0]]
-    s_delayed_picks_hf = s_idx_times_hf[None, :] - s_arr_tg[:, s_up_peaks_hf[0]]
-    s_delayed_picks_lf = s_idx_times_lf[None, :] - s_arr_tg[:, s_up_peaks_lf[0]]
-
-    # Find the global min and max for KDE time range
-    all_delayed_picks = [n_delayed_picks_hf, n_delayed_picks_lf, s_delayed_picks_hf, s_delayed_picks_lf]
-    global_min = min(np.min(arr) for arr in all_delayed_picks)
-    global_max = max(np.max(arr) for arr in all_delayed_picks)
-    
-    # Create time bins for KDE
-    Nkde = np.ceil((global_max - global_min) / dt_kde).astype(int) + 1
-    t_kde = np.linspace(global_min, global_max, Nkde)
-
-    # Compute KDEs in parallel for each type
-    # North high frequency
-    n_kde_hf = np.array(Parallel(n_jobs=-1)(
-        delayed(dw.assoc.fast_kde_rect)(n_delayed_picks_hf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=nSNRhf) 
-        for i in range(n_shape_x)
-    ))
-
-    # North low frequency
-    n_kde_lf = np.array(Parallel(n_jobs=-1)(
-        delayed(dw.assoc.fast_kde_rect)(n_delayed_picks_lf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=nSNRlf)
-        for i in range(n_shape_x)
-    ))
-
-    # South high frequency
-    s_kde_hf = np.array(Parallel(n_jobs=-1)(
-        delayed(dw.assoc.fast_kde_rect)(s_delayed_picks_hf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=sSNRhf)
-        for i in range(s_shape_x)
-    ))
-
-    # South low frequency
-    s_kde_lf = np.array(Parallel(n_jobs=-1)(
-        delayed(dw.assoc.fast_kde_rect)(s_delayed_picks_lf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=sSNRlf)
-        for i in range(s_shape_x)
-    ))
-
-    # Reduced the number of grid points to speed up the process 
-    if iteration == 0:  
-        sum_kde = n_kde_hf + n_kde_lf + s_kde_hf + s_kde_lf
-        maxsum = np.max(sum_kde, axis=1)
-        binary = np.ones_like(maxsum)
-        threshold = np.percentile(maxsum, 40)  # keep top 55%
-        grid_mask = maxsum >= threshold
-        n_arr_tg = n_arr_tg[grid_mask]
-        s_arr_tg = s_arr_tg[grid_mask]
-        n_shape_x = n_arr_tg.shape[0]
-        s_shape_x = s_arr_tg.shape[0]
-
-    # PART 2: FIND MAXIMA AND COMPUTE THEORETICAL ARRIVALS
-    # ===================================================
-    
-    # Combine KDEs for high and low frequencies
-    hf_kde = n_kde_hf + s_kde_hf  # Combined HF KDE from north and south
-    lf_kde = n_kde_lf + s_kde_lf  # Combined LF KDE from north and south
-
-    # Find maxima for HF KDE
-    hf_max_idx = np.argmax(hf_kde)
-    hf_imax, hf_tmax = np.unravel_index(hf_max_idx, hf_kde.shape)
-    max_time_hf = t_kde[hf_tmax]
-
-    # Get values from individual KDEs at that time
-    # north_vals = n_kde_hf[:, hf_tmax]
-    # south_vals = s_kde_hf[:, hf_tmax]
-    # if np.max(north_vals) > np.max(south_vals):
-    #     hf_imax = np.argmax(north_vals)
-    # else:
-    #     hf_imax = np.argmax(south_vals)
-
-    # Find maxima for LF KDE
-    lf_max_idx = np.argmax(lf_kde)
-    lf_imax, lf_tmax = np.unravel_index(lf_max_idx, lf_kde.shape)
-    max_time_lf = t_kde[lf_tmax]
-
-    # Get values from individual KDEs at that time
-    # north_vals = n_kde_lf[:, lf_tmax]
-    # south_vals = s_kde_lf[:, lf_tmax]
-    # if np.max(north_vals) > np.max(south_vals):
-    #     lf_imax = np.argmax(north_vals)
-    # else:
-    #     lf_imax = np.argmax(south_vals)
-
-    # Compute theoretical arrival times (hyperbolas)
-    nhf_hyperbola = max_time_hf + n_arr_tg[hf_imax, :]  # North HF theoretical arrivals
-    shf_hyperbola = max_time_hf + s_arr_tg[hf_imax, :]  # South HF theoretical arrivals
-    nlf_hyperbola = max_time_lf + n_arr_tg[lf_imax, :]  # North LF theoretical arrivals
-    slf_hyperbola = max_time_lf + s_arr_tg[lf_imax, :]  # South LF theoretical arrivals
-
-    # PART 3: SELECT PICKS AND COMPUTE RESIDUALS
-    # =========================================
-    
-    # Select picks around each hyperbola within +/- dt_sel
-    nhf_idx_dist, nhf_idx_time = dw.assoc.select_picks(n_up_peaks_hf, nhf_hyperbola, dt_sel, fs)
-    shf_idx_dist, shf_idx_time = dw.assoc.select_picks(s_up_peaks_hf, shf_hyperbola, dt_sel, fs)
-    nlf_idx_dist, nlf_idx_time = dw.assoc.select_picks(n_up_peaks_lf, nlf_hyperbola, dt_sel, fs)
-    slf_idx_dist, slf_idx_time = dw.assoc.select_picks(s_up_peaks_lf, slf_hyperbola, dt_sel, fs)
-
-    # Calculate time indices
-    nhf_times = nhf_idx_time / fs
-    shf_times = shf_idx_time / fs
-    nlf_times = nlf_idx_time / fs
-    slf_times = slf_idx_time / fs
-
-    # Define evaluation windows
-    nhf_window_mask = dw.assoc.get_window_mask(nhf_times, w_eval)
-    shf_window_mask = dw.assoc.get_window_mask(shf_times, w_eval)
-    nlf_window_mask = dw.assoc.get_window_mask(nlf_times, w_eval)
-    slf_window_mask = dw.assoc.get_window_mask(slf_times, w_eval)
-
-    # nhf_window_mask = (nhf_times >= np.min(nhf_times)) & (nhf_times < np.min(nhf_times) + w_eval)
-    # shf_window_mask = (shf_times >= np.min(shf_times)) & (shf_times < np.min(shf_times) + w_eval)
-    # nlf_window_mask = (nlf_times >= np.min(nlf_times)) & (nlf_times < np.min(nlf_times) + w_eval)
-    # slf_window_mask = (slf_times >= np.min(slf_times)) & (slf_times < np.min(slf_times) + w_eval)
-
-    # nhf_idxmin_t = np.argmin(nhf_idx_time)
-    # shf_idxmin_t = np.argmin(shf_idx_time)
-    # nlf_idxmin_t = np.argmin(nlf_idx_time)
-    # slf_idxmin_t = np.argmin(slf_idx_time)
-
-    # nhf_distances = (n_longi_offset + nhf_idx_dist) * dx * 1e-3
-    # shf_distances = (s_longi_offset + shf_idx_dist) * dx * 1e-3
-    # nlf_distances = (n_longi_offset + nlf_idx_dist) * dx * 1e-3
-    # slf_distances = (s_longi_offset + slf_idx_dist) * dx * 1e-3
-
-    # nhf_mask_dist = abs(nhf_distances - nhf_distances[nhf_idxmin_t]) < 40 # Distance mask, 40 km from the minimum
-    # shf_mask_dist = abs(shf_distances - shf_distances[shf_idxmin_t]) < 40 # Distance mask, 40 km from the minimum
-    # nlf_mask_dist = abs(nlf_distances - nlf_distances[nlf_idxmin_t]) < 40 # Distance mask, 40 km from the minimum
-    # slf_mask_dist = abs(slf_distances - slf_distances[slf_idxmin_t]) < 40 # Distance mask, 40 km from the minimum
-
-    # Compute locations and residuals
-    nhf_n, nhf_residuals = dw.assoc.loc_picks(nhf_idx_dist, nhf_idx_time, n_cable_pos, c0, fs)
-    shf_n, shf_residuals = dw.assoc.loc_picks(shf_idx_dist, shf_idx_time, s_cable_pos, c0, fs)
-    nlf_n, nlf_residuals = dw.assoc.loc_picks(nlf_idx_dist, nlf_idx_time, n_cable_pos, c0, fs)
-    slf_n, slf_residuals = dw.assoc.loc_picks(slf_idx_dist, slf_idx_time, s_cable_pos, c0, fs)
-
-    # Calculate RMS residuals
-    nhf_rms = np.sqrt(np.mean(nhf_residuals[nhf_window_mask] ** 2))
-    shf_rms = np.sqrt(np.mean(shf_residuals[shf_window_mask] ** 2))
-    nlf_rms = np.sqrt(np.mean(nlf_residuals[nlf_window_mask] ** 2))
-    slf_rms = np.sqrt(np.mean(slf_residuals[slf_window_mask] ** 2))
-
-    # PART 4: ASSOCIATION LOGIC
-    # ========================
-
-    # Check all cases
-    hf_north_south_good = nhf_rms < rms_threshold and shf_rms < rms_threshold
-    only_hf_north_good = nhf_rms < rms_threshold and shf_rms >= rms_threshold
-    only_hf_south_good = nhf_rms >= rms_threshold and shf_rms < rms_threshold
-    
-    lf_north_south_good = nlf_rms < rms_threshold and slf_rms < rms_threshold
-    only_lf_north_good = nlf_rms < rms_threshold and slf_rms >= rms_threshold
-    only_lf_south_good = nlf_rms >= rms_threshold and slf_rms < rms_threshold
-
-    # HF and LF overlap
-    if abs(max_time_hf - max_time_lf) < 1.4:
-        if hf_kde[hf_imax, hf_tmax] > lf_kde[lf_imax, lf_tmax]:
-            # HF is better
-            lf_north_south_good = False
-            only_lf_north_good = False
-            only_lf_south_good = False
-        else:
-            # LF is better
-            hf_north_south_good = False
-            only_hf_north_good = False
-            only_hf_south_good = False
-
-    processed = False
-
-    # Best case: Both HF and LF are good for both north and south
-    # print(f"nhf_rms: {nhf_rms}, shf_rms: {shf_rms}, nlf_rms: {nlf_rms}, slf_rms: {slf_rms}")
-    if hf_north_south_good and lf_north_south_good:
-        # Process HF first (assuming it has priority)
-        # North cable processing for HF
-        #TODO: reselect picks using the new hyperbola ?
-        #TODO: Fix the logic error happening when max_time_hf == max_time_lf, or filter picks? 
-
-        if max_time_hf >= 0: # Do not associate the edge cases
-            # snr = dw.assoc.select_snr(n_up_peaks_hf, nhf_idx_dist, nhf_idx_time, nSNRhf)
-            mask_resi_n_hf = dw.assoc.filter_peaks(nhf_residuals, nhf_idx_dist, nhf_idx_time, n_longi_offset, dx)
-            # mask_resi_n_hf = np.ones_like(nhf_residuals, dtype=bool)
-            nhf_assoc_list_pair.append(np.asarray((nhf_idx_dist[mask_resi_n_hf], nhf_idx_time[mask_resi_n_hf])))
-            n_used_hyperbolas.append(n_arr_tg[hf_imax, :])
-            n_arr_tg[hf_imax, :] = dw.loc.calc_arrival_times(0, n_cable_pos, nhf_n[:3], c0)
-            
-            # South cable processing for HF
-            mask_resi_s_hf = dw.assoc.filter_peaks(shf_residuals, shf_idx_dist, shf_idx_time, s_longi_offset, dx)
-            # mask_resi_s_hf = np.ones_like(shf_residuals, dtype=bool)
-            shf_assoc_list_pair.append(np.asarray((shf_idx_dist[mask_resi_s_hf], shf_idx_time[mask_resi_s_hf])))
-            s_used_hyperbolas.append(s_arr_tg[hf_imax, :])
-            s_arr_tg[hf_imax, :] = dw.loc.calc_arrival_times(0, s_cable_pos, shf_n[:3], c0)
-        else:
-            mask_resi_n_hf = np.one_like(nhf_residuals, dtype=bool)
-            mask_resi_s_hf = np.one_like(shf_residuals, dtype=bool)
-        
-        # Then process LF
-        if max_time_lf >= 0: # Do not associate the edge cases
-            # North cable processing for LF
-            mask_resi_n_lf = dw.assoc.filter_peaks(nlf_residuals, nlf_idx_dist, nlf_idx_time, n_longi_offset, dx)
-            # mask_resi_n_lf = np.ones_like(nlf_residuals, dtype=bool)
-            nlf_assoc_list_pair.append(np.asarray((nlf_idx_dist[mask_resi_n_lf], nlf_idx_time[mask_resi_n_lf])))
-            n_used_hyperbolas.append(n_arr_tg[lf_imax, :])
-            n_arr_tg[lf_imax, :] = dw.loc.calc_arrival_times(0, n_cable_pos, nlf_n[:3], c0)
-            
-            # South cable processing for LF
-            mask_resi_s_lf = dw.assoc.filter_peaks(slf_residuals, slf_idx_dist, slf_idx_time, s_longi_offset, dx)
-            # mask_resi_s_lf = np.ones_like(slf_residuals, dtype=bool)
-            slf_assoc_list_pair.append(np.asarray((slf_idx_dist[mask_resi_s_lf], slf_idx_time[mask_resi_s_lf])))
-            s_used_hyperbolas.append(s_arr_tg[lf_imax, :])
-            s_arr_tg[lf_imax, :] = dw.loc.calc_arrival_times(0, s_cable_pos, slf_n[:3], c0)
-        else:
-            mask_resi_n_lf = np.ones_like(nlf_residuals, dtype=bool)
-            mask_resi_s_lf = np.ones_like(slf_residuals, dtype=bool)
-        
-        # Remove all selected picks from both frequencies and both cables
-        # Accurate indexes 
-        n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks(n_up_peaks_hf, nhf_idx_dist, nhf_idx_time, mask_resi_n_hf, nSNRhf)
-        n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks(n_up_peaks_lf, nlf_idx_dist, nlf_idx_time, mask_resi_n_lf, nSNRlf)
-        s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks(s_up_peaks_hf, shf_idx_dist, shf_idx_time, mask_resi_s_hf, sSNRhf)
-        s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks(s_up_peaks_lf, slf_idx_dist, slf_idx_time, mask_resi_s_lf, sSNRlf)
-
-        # Fuzzy indexes (For peaks that are associated to hf or lf but also have points in the other band)
-        n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks_tolerance(n_up_peaks_hf, nlf_idx_dist, nlf_idx_time, mask_resi_n_lf, nSNRhf, dt_tol=dt_tol)
-        n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks_tolerance(n_up_peaks_lf, nhf_idx_dist, nhf_idx_time, mask_resi_n_hf, nSNRlf, dt_tol=dt_tol)
-        s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks_tolerance(s_up_peaks_hf, slf_idx_dist, slf_idx_time, mask_resi_s_lf, sSNRhf, dt_tol=dt_tol)
-        s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks_tolerance(s_up_peaks_lf, shf_idx_dist, shf_idx_time, mask_resi_s_hf, sSNRlf, dt_tol=dt_tol)
-
-        processed = True
-
-    # First priority: Case 1 - HF North and South are good
-    elif hf_north_south_good:
-        # North cable processing
-        if max_time_hf >= 0: # Do not associate the edge cases
-            mask_resi_n = dw.assoc.filter_peaks(nhf_residuals, nhf_idx_dist, nhf_idx_time, n_longi_offset, dx)
-            # mask_resi_n = np.ones_like(nhf_residuals, dtype=bool)
-            nhf_assoc_list_pair.append(np.asarray((nhf_idx_dist[mask_resi_n], nhf_idx_time[mask_resi_n])))
-            n_used_hyperbolas.append(n_arr_tg[hf_imax, :])
-            n_arr_tg[hf_imax, :] = dw.loc.calc_arrival_times(0, n_cable_pos, nhf_n[:3], c0)
-        
-            # South cable processing
-            mask_resi_s = dw.assoc.filter_peaks(shf_residuals, shf_idx_dist, shf_idx_time, s_longi_offset, dx)
-            # mask_resi_s = np.ones_like(shf_residuals, dtype=bool)
-            shf_assoc_list_pair.append(np.asarray((shf_idx_dist[mask_resi_s], shf_idx_time[mask_resi_s])))
-            s_used_hyperbolas.append(s_arr_tg[hf_imax, :])
-            s_arr_tg[hf_imax, :] = dw.loc.calc_arrival_times(0, s_cable_pos, shf_n[:3], c0)
-        else:
-            mask_resi_n = np.ones_like(nhf_residuals, dtype=bool)
-            mask_resi_s = np.ones_like(shf_residuals, dtype=bool)
-        
-        # Remove selected picks from both frequency bands (north)
-        n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks(n_up_peaks_hf, nhf_idx_dist, nhf_idx_time, mask_resi_n, nSNRhf)
-        n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks_tolerance(n_up_peaks_lf, nhf_idx_dist, nhf_idx_time, mask_resi_n, nSNRlf, dt_tol=dt_tol)
-
-        # Remove selected picks from both frequency bands (south)
-        s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks(s_up_peaks_hf, shf_idx_dist, shf_idx_time, mask_resi_s, sSNRhf)
-        s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks_tolerance(s_up_peaks_lf, shf_idx_dist, shf_idx_time, mask_resi_s, sSNRlf, dt_tol=dt_tol)
-        
-        processed = True
-
-    # Second priority: Case 2 - LF North and South are good  
-    elif lf_north_south_good:
-        # North cable processing
-        if max_time_lf >= 0: # Do not associate the edge cases
-            mask_resi_n = dw.assoc.filter_peaks(nlf_residuals, nlf_idx_dist, nlf_idx_time, n_longi_offset, dx)
-            # mask_resi_n = np.ones_like(nlf_residuals, dtype=bool)
-            nlf_assoc_list_pair.append(np.asarray((nlf_idx_dist[mask_resi_n], nlf_idx_time[mask_resi_n])))
-            n_used_hyperbolas.append(n_arr_tg[lf_imax, :])
-            n_arr_tg[lf_imax, :] = dw.loc.calc_arrival_times(0, n_cable_pos, nlf_n[:3], c0)
-
-            # South cable processing
-            mask_resi_s = dw.assoc.filter_peaks(slf_residuals, slf_idx_dist, slf_idx_time, s_longi_offset, dx)
-            # mask_resi_s = np.ones_like(slf_residuals, dtype=bool)
-            slf_assoc_list_pair.append(np.asarray((slf_idx_dist[mask_resi_s], slf_idx_time[mask_resi_s])))
-            s_used_hyperbolas.append(s_arr_tg[lf_imax, :])
-            s_arr_tg[lf_imax, :] = dw.loc.calc_arrival_times(0, s_cable_pos, slf_n[:3], c0)
-        else:
-            mask_resi_n = np.ones_like(nlf_residuals, dtype=bool)
-            mask_resi_s = np.ones_like(slf_residuals, dtype=bool)
-
-        # Remove selected picks from both frequency bands (north)
-        n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks(n_up_peaks_lf, nlf_idx_dist, nlf_idx_time, mask_resi_n, nSNRlf)
-        n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks_tolerance(n_up_peaks_hf, nlf_idx_dist, nlf_idx_time, mask_resi_n, nSNRhf, dt_tol=dt_tol)
-
-        # Remove selected picks from both frequency bands (south)
-        s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks(s_up_peaks_lf, slf_idx_dist, slf_idx_time, mask_resi_s, sSNRlf)
-        s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks_tolerance(s_up_peaks_hf, slf_idx_dist, slf_idx_time, mask_resi_s, sSNRhf, dt_tol=dt_tol)
-        
-        processed = True
-    
-    # Lower priority cases - if neither combined case is good, try individual cables
-    if not processed:
-        # Case 3: Only HF North is good
-        if only_hf_north_good:
-            if max_time_hf >= 0:
-                mask_resi = dw.assoc.filter_peaks(nhf_residuals, nhf_idx_dist, nhf_idx_time, n_longi_offset, dx)
-                # mask_resi = np.ones_like(nhf_residuals, dtype=bool)
-                nhf_assoc_list.append(np.asarray((nhf_idx_dist[mask_resi], nhf_idx_time[mask_resi])))
-                n_used_hyperbolas.append(n_arr_tg[hf_imax, :])
-                n_arr_tg[hf_imax, :] = dw.loc.calc_arrival_times(0, n_cable_pos, nhf_n[:3], c0)
-            else:
-                mask_resi = np.ones_like(nhf_residuals, dtype=bool)
-
-            n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks(n_up_peaks_hf, nhf_idx_dist, nhf_idx_time, mask_resi, nSNRhf)
-            n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks_tolerance(n_up_peaks_lf, nhf_idx_dist, nhf_idx_time, mask_resi, nSNRlf, dt_tol=dt_tol)
-            processed = True
-            
-        # Case 4: Only HF South is good
-        elif only_hf_south_good:
-            if max_time_hf >= 0:
-                mask_resi = dw.assoc.filter_peaks(shf_residuals, shf_idx_dist, shf_idx_time, s_longi_offset, dx)
-                # mask_resi = np.ones_like(shf_residuals, dtype=bool)
-                shf_assoc_list.append(np.asarray((shf_idx_dist[mask_resi], shf_idx_time[mask_resi])))
-                s_used_hyperbolas.append(s_arr_tg[hf_imax, :])
-                s_arr_tg[hf_imax, :] = dw.loc.calc_arrival_times(0, s_cable_pos, shf_n[:3], c0)
-            else:
-                mask_resi = np.ones_like(shf_residuals, dtype=bool)
-            
-            s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks(s_up_peaks_hf, shf_idx_dist, shf_idx_time, mask_resi, sSNRhf)
-            s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks_tolerance(s_up_peaks_lf, shf_idx_dist, shf_idx_time, mask_resi, sSNRlf, dt_tol=dt_tol)
-            processed = True
-            
-        # Case 5: Only LF North is good
-        elif only_lf_north_good:
-            if max_time_lf >= 0:
-                mask_resi = dw.assoc.filter_peaks(nlf_residuals, nlf_idx_dist, nlf_idx_time, n_longi_offset, dx)
-                # mask_resi = np.ones_like(nlf_residuals, dtype=bool)
-                nlf_assoc_list.append(np.asarray((nlf_idx_dist[mask_resi], nlf_idx_time[mask_resi])))
-                n_used_hyperbolas.append(n_arr_tg[lf_imax, :])
-                n_arr_tg[lf_imax, :] = dw.loc.calc_arrival_times(0, n_cable_pos, nlf_n[:3], c0)
-            else:
-                mask_resi = np.ones_like(nlf_residuals, dtype=bool)
-            
-            n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks(n_up_peaks_lf, nlf_idx_dist, nlf_idx_time, mask_resi, nSNRlf)
-            n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks_tolerance(n_up_peaks_hf, nlf_idx_dist, nlf_idx_time, mask_resi, nSNRhf, dt_tol=dt_tol)
-            processed = True
-            
-        # Case 6: Only LF South is good
-        elif only_lf_south_good:
-            if max_time_lf >= 0:
-                mask_resi = dw.assoc.filter_peaks(slf_residuals, slf_idx_dist, slf_idx_time, s_longi_offset, dx)
-                # mask_resi = np.ones_like(slf_residuals, dtype=bool)
-                slf_assoc_list.append(np.asarray((slf_idx_dist[mask_resi], slf_idx_time[mask_resi])))
-                s_used_hyperbolas.append(s_arr_tg[lf_imax, :])
-                s_arr_tg[lf_imax, :] = dw.loc.calc_arrival_times(0, s_cable_pos, slf_n[:3], c0)
-            else:
-                mask_resi = np.ones_like(slf_residuals, dtype=bool)
-            
-            s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks(s_up_peaks_lf, slf_idx_dist, slf_idx_time, mask_resi, sSNRlf)
-            s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks_tolerance(s_up_peaks_hf, slf_idx_dist, slf_idx_time, mask_resi, sSNRhf, dt_tol=dt_tol)
-            processed = True
-    
-    # Case 7: No good residuals - reject the hyperbolas
-    if not processed:
-        # Add the rejected hyperbolas to rejection lists
-        n_rejected_list.append(np.asarray((nhf_idx_dist, nhf_idx_time)))
-        n_rejected_list.append(np.asarray((nlf_idx_dist, nlf_idx_time)))
-        n_rejected_hyperbolas.append(n_arr_tg[hf_imax, :])
-        n_rejected_hyperbolas.append(n_arr_tg[lf_imax, :])
-        
-        s_rejected_list.append(np.asarray((shf_idx_dist, shf_idx_time)))
-        s_rejected_list.append(np.asarray((slf_idx_dist, slf_idx_time)))
-        s_rejected_hyperbolas.append(s_arr_tg[hf_imax, :])
-        s_rejected_hyperbolas.append(s_arr_tg[lf_imax, :])
-        
-        # Remove the hyperbolas from the grid arrays
-        n_arr_tg = np.delete(n_arr_tg, hf_imax, axis=0)
-        s_arr_tg = np.delete(s_arr_tg, hf_imax, axis=0)
-        n_shape_x = n_arr_tg.shape[0]
-        s_shape_x = s_arr_tg.shape[0]
-
-    # Update the progress bar with the number of associated calls
-    association_lists = [
-        nhf_assoc_list_pair, nlf_assoc_list_pair, shf_assoc_list_pair, slf_assoc_list_pair,
-        nhf_assoc_list, shf_assoc_list, nlf_assoc_list, slf_assoc_list
-        ]
+    (n_up_peaks_hf, n_up_peaks_lf, s_up_peaks_hf, s_up_peaks_lf,
+    nSNRhf, nSNRlf, sSNRhf, sSNRlf,
+    n_arr_tg, s_arr_tg, n_shape_x, s_shape_x, 
+    association_lists, rejected_lists, hyperbolas) = results
 
     total_associations = sum(len(lst) for lst in association_lists)
     pbar.set_description(f"Associated calls: {total_associations}")
@@ -893,13 +542,11 @@ print(n_up_peaks_hf.shape, nSNRhf.shape)
 print(s_up_peaks_hf.shape, sSNRhf.shape)
 print(n_up_peaks_lf.shape, nSNRlf.shape)
 print(s_up_peaks_lf.shape, sSNRlf.shape)
-
-# +
+# -
 
 peaks_close, snr_close = apply_spatial_windows(up_peaks, SNRs, win_close)
 peaks_mid, snr_mid = apply_spatial_windows(up_peaks, SNRs, win_mid)
 peaks_far, snr_far = apply_spatial_windows(up_peaks, SNRs, win_far)
-# -
 
 dw.assoc.plot_peaks(peaks_far, snr_far, selected_channels_m, dx, fs)
 plt.show()
@@ -922,392 +569,29 @@ iterations = 15
 pbar = tqdm(range(iterations), desc="Associated calls: 0")
 
 for iteration in pbar:
-    # PART 1: PREPARE DATA AND COMPUTE KDEs
-    # =====================================
-    
-    # Precompute the time indices from peaks for both frequency bands and cables
-    n_idx_times_hf = np.array(n_up_peaks_hf[1]) / fs
-    n_idx_times_lf = np.array(n_up_peaks_lf[1]) / fs
-    s_idx_times_hf = np.array(s_up_peaks_hf[1]) / fs
-    s_idx_times_lf = np.array(s_up_peaks_lf[1]) / fs
+    results = dw.assoc.process_iteration(
+    # Peak data
+    n_up_peaks_hf, n_up_peaks_lf, s_up_peaks_hf, s_up_peaks_lf,
+    nSNRhf, nSNRlf, sSNRhf, sSNRlf,
+    # Grid data
+    n_arr_tg, s_arr_tg, n_shape_x, s_shape_x,
+    # Cable positions
+    n_cable_pos, s_cable_pos, n_longi_offset, s_longi_offset,
+    # Association lists
+    association_lists,
+    # Hyperbolas
+    hyperbolas,
+    # Rejected lists
+    rejected_lists,
+    # Parameters
+    fs, dt_kde, bin_width, dt_sel, w_eval, rms_threshold, c0, dx, dt_tol,
+    # Iteration info
+    iteration)
 
-    # Calculate delayed picks for all grid points
-    n_delayed_picks_hf = n_idx_times_hf[None, :] - n_arr_tg[:, n_up_peaks_hf[0]]
-    n_delayed_picks_lf = n_idx_times_lf[None, :] - n_arr_tg[:, n_up_peaks_lf[0]]
-    s_delayed_picks_hf = s_idx_times_hf[None, :] - s_arr_tg[:, s_up_peaks_hf[0]]
-    s_delayed_picks_lf = s_idx_times_lf[None, :] - s_arr_tg[:, s_up_peaks_lf[0]]
-
-    # Find the global min and max for KDE time range
-    all_delayed_picks = [n_delayed_picks_hf, n_delayed_picks_lf, s_delayed_picks_hf, s_delayed_picks_lf]
-    global_min = min(np.min(arr) for arr in all_delayed_picks)
-    global_max = max(np.max(arr) for arr in all_delayed_picks)
-    
-    # Create time bins for KDE
-    Nkde = np.ceil((global_max - global_min) / dt_kde).astype(int) + 1
-    t_kde = np.linspace(global_min, global_max, Nkde)
-
-    # Compute KDEs in parallel for each type
-    # North high frequency
-    n_kde_hf = np.array(Parallel(n_jobs=-1)(
-        delayed(dw.assoc.fast_kde_rect)(n_delayed_picks_hf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=nSNRhf) 
-        for i in range(n_shape_x)
-    ))
-
-    # North low frequency
-    n_kde_lf = np.array(Parallel(n_jobs=-1)(
-        delayed(dw.assoc.fast_kde_rect)(n_delayed_picks_lf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=nSNRlf)
-        for i in range(n_shape_x)
-    ))
-
-    # South high frequency
-    s_kde_hf = np.array(Parallel(n_jobs=-1)(
-        delayed(dw.assoc.fast_kde_rect)(s_delayed_picks_hf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=sSNRhf)
-        for i in range(s_shape_x)
-    ))
-
-    # South low frequency
-    s_kde_lf = np.array(Parallel(n_jobs=-1)(
-        delayed(dw.assoc.fast_kde_rect)(s_delayed_picks_lf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=sSNRlf)
-        for i in range(s_shape_x)
-    ))
-
-    # Reduced the number of grid points to speed up the process 
-    if iteration == 0:  
-        sum_kde = n_kde_hf + n_kde_lf + s_kde_hf + s_kde_lf
-        maxsum = np.max(sum_kde, axis=1)
-        binary = np.ones_like(maxsum)
-        threshold = np.percentile(maxsum, 40)  # keep top 55%
-        grid_mask = maxsum >= threshold
-        n_arr_tg = n_arr_tg[grid_mask]
-        s_arr_tg = s_arr_tg[grid_mask]
-        n_shape_x = n_arr_tg.shape[0]
-        s_shape_x = s_arr_tg.shape[0]
-
-    # PART 2: FIND MAXIMA AND COMPUTE THEORETICAL ARRIVALS
-    # ===================================================
-    
-    # Combine KDEs for high and low frequencies
-    hf_kde = n_kde_hf + s_kde_hf  # Combined HF KDE from north and south
-    lf_kde = n_kde_lf + s_kde_lf  # Combined LF KDE from north and south
-
-    # Find maxima for HF KDE
-    hf_max_idx = np.argmax(hf_kde)
-    hf_imax, hf_tmax = np.unravel_index(hf_max_idx, hf_kde.shape)
-    max_time_hf = t_kde[hf_tmax]
-
-    # Get values from individual KDEs at that time
-    # north_vals = n_kde_hf[:, hf_tmax]
-    # south_vals = s_kde_hf[:, hf_tmax]
-    # if np.max(north_vals) > np.max(south_vals):
-    #     hf_imax = np.argmax(north_vals)
-    # else:
-    #     hf_imax = np.argmax(south_vals)
-
-    # Find maxima for LF KDE
-    lf_max_idx = np.argmax(lf_kde)
-    lf_imax, lf_tmax = np.unravel_index(lf_max_idx, lf_kde.shape)
-    max_time_lf = t_kde[lf_tmax]
-
-    # Get values from individual KDEs at that time
-    # north_vals = n_kde_lf[:, lf_tmax]
-    # south_vals = s_kde_lf[:, lf_tmax]
-    # if np.max(north_vals) > np.max(south_vals):
-    #     lf_imax = np.argmax(north_vals)
-    # else:
-    #     lf_imax = np.argmax(south_vals)
-
-    # Compute theoretical arrival times (hyperbolas)
-    nhf_hyperbola = max_time_hf + n_arr_tg[hf_imax, :]  # North HF theoretical arrivals
-    shf_hyperbola = max_time_hf + s_arr_tg[hf_imax, :]  # South HF theoretical arrivals
-    nlf_hyperbola = max_time_lf + n_arr_tg[lf_imax, :]  # North LF theoretical arrivals
-    slf_hyperbola = max_time_lf + s_arr_tg[lf_imax, :]  # South LF theoretical arrivals
-
-    # PART 3: SELECT PICKS AND COMPUTE RESIDUALS
-    # =========================================
-    
-    # Select picks around each hyperbola within +/- dt_sel
-    nhf_idx_dist, nhf_idx_time = dw.assoc.select_picks(n_up_peaks_hf, nhf_hyperbola, dt_sel, fs)
-    shf_idx_dist, shf_idx_time = dw.assoc.select_picks(s_up_peaks_hf, shf_hyperbola, dt_sel, fs)
-    nlf_idx_dist, nlf_idx_time = dw.assoc.select_picks(n_up_peaks_lf, nlf_hyperbola, dt_sel, fs)
-    slf_idx_dist, slf_idx_time = dw.assoc.select_picks(s_up_peaks_lf, slf_hyperbola, dt_sel, fs)
-
-    # Calculate time indices
-    nhf_times = nhf_idx_time / fs
-    shf_times = shf_idx_time / fs
-    nlf_times = nlf_idx_time / fs
-    slf_times = slf_idx_time / fs
-
-    # Define evaluation windows
-    nhf_window_mask = dw.assoc.get_window_mask(nhf_times, w_eval)
-    shf_window_mask = dw.assoc.get_window_mask(shf_times, w_eval)
-    nlf_window_mask = dw.assoc.get_window_mask(nlf_times, w_eval)
-    slf_window_mask = dw.assoc.get_window_mask(slf_times, w_eval)
-
-    # nhf_window_mask = (nhf_times >= np.min(nhf_times)) & (nhf_times < np.min(nhf_times) + w_eval)
-    # shf_window_mask = (shf_times >= np.min(shf_times)) & (shf_times < np.min(shf_times) + w_eval)
-    # nlf_window_mask = (nlf_times >= np.min(nlf_times)) & (nlf_times < np.min(nlf_times) + w_eval)
-    # slf_window_mask = (slf_times >= np.min(slf_times)) & (slf_times < np.min(slf_times) + w_eval)
-
-    # nhf_idxmin_t = np.argmin(nhf_idx_time)
-    # shf_idxmin_t = np.argmin(shf_idx_time)
-    # nlf_idxmin_t = np.argmin(nlf_idx_time)
-    # slf_idxmin_t = np.argmin(slf_idx_time)
-
-    # nhf_distances = (n_longi_offset + nhf_idx_dist) * dx * 1e-3
-    # shf_distances = (s_longi_offset + shf_idx_dist) * dx * 1e-3
-    # nlf_distances = (n_longi_offset + nlf_idx_dist) * dx * 1e-3
-    # slf_distances = (s_longi_offset + slf_idx_dist) * dx * 1e-3
-
-    # nhf_mask_dist = abs(nhf_distances - nhf_distances[nhf_idxmin_t]) < 40 # Distance mask, 40 km from the minimum
-    # shf_mask_dist = abs(shf_distances - shf_distances[shf_idxmin_t]) < 40 # Distance mask, 40 km from the minimum
-    # nlf_mask_dist = abs(nlf_distances - nlf_distances[nlf_idxmin_t]) < 40 # Distance mask, 40 km from the minimum
-    # slf_mask_dist = abs(slf_distances - slf_distances[slf_idxmin_t]) < 40 # Distance mask, 40 km from the minimum
-
-    # Compute locations and residuals
-    nhf_n, nhf_residuals = dw.assoc.loc_picks(nhf_idx_dist, nhf_idx_time, n_cable_pos, c0, fs)
-    shf_n, shf_residuals = dw.assoc.loc_picks(shf_idx_dist, shf_idx_time, s_cable_pos, c0, fs)
-    nlf_n, nlf_residuals = dw.assoc.loc_picks(nlf_idx_dist, nlf_idx_time, n_cable_pos, c0, fs)
-    slf_n, slf_residuals = dw.assoc.loc_picks(slf_idx_dist, slf_idx_time, s_cable_pos, c0, fs)
-
-    # Calculate RMS residuals
-    nhf_rms = np.sqrt(np.mean(nhf_residuals[nhf_window_mask] ** 2))
-    shf_rms = np.sqrt(np.mean(shf_residuals[shf_window_mask] ** 2))
-    nlf_rms = np.sqrt(np.mean(nlf_residuals[nlf_window_mask] ** 2))
-    slf_rms = np.sqrt(np.mean(slf_residuals[slf_window_mask] ** 2))
-
-    # PART 4: ASSOCIATION LOGIC
-    # ========================
-
-    # Check all cases
-    hf_north_south_good = nhf_rms < rms_threshold and shf_rms < rms_threshold
-    only_hf_north_good = nhf_rms < rms_threshold and shf_rms >= rms_threshold
-    only_hf_south_good = nhf_rms >= rms_threshold and shf_rms < rms_threshold
-    
-    lf_north_south_good = nlf_rms < rms_threshold and slf_rms < rms_threshold
-    only_lf_north_good = nlf_rms < rms_threshold and slf_rms >= rms_threshold
-    only_lf_south_good = nlf_rms >= rms_threshold and slf_rms < rms_threshold
-
-    # HF and LF overlap
-    if abs(max_time_hf - max_time_lf) < 1.4:
-        if hf_kde[hf_imax, hf_tmax] > lf_kde[lf_imax, lf_tmax]:
-            # HF is better
-            lf_north_south_good = False
-            only_lf_north_good = False
-            only_lf_south_good = False
-        else:
-            # LF is better
-            hf_north_south_good = False
-            only_hf_north_good = False
-            only_hf_south_good = False
-
-    processed = False
-
-    # Best case: Both HF and LF are good for both north and south
-    # print(f"nhf_rms: {nhf_rms}, shf_rms: {shf_rms}, nlf_rms: {nlf_rms}, slf_rms: {slf_rms}")
-    if hf_north_south_good and lf_north_south_good:
-        # Process HF first (assuming it has priority)
-        # North cable processing for HF
-        #TODO: reselect picks using the new hyperbola ?
-        #TODO: Fix the logic error happening when max_time_hf == max_time_lf, or filter picks? 
-
-        if max_time_hf >= 0: # Do not associate the edge cases
-            # snr = dw.assoc.select_snr(n_up_peaks_hf, nhf_idx_dist, nhf_idx_time, nSNRhf)
-            mask_resi_n_hf = dw.assoc.filter_peaks(nhf_residuals, nhf_idx_dist, nhf_idx_time, n_longi_offset, dx)
-            # mask_resi_n_hf = np.ones_like(nhf_residuals, dtype=bool)
-            nhf_assoc_list_pair.append(np.asarray((nhf_idx_dist[mask_resi_n_hf], nhf_idx_time[mask_resi_n_hf])))
-            n_used_hyperbolas.append(n_arr_tg[hf_imax, :])
-            n_arr_tg[hf_imax, :] = dw.loc.calc_arrival_times(0, n_cable_pos, nhf_n[:3], c0)
-            
-            # South cable processing for HF
-            mask_resi_s_hf = dw.assoc.filter_peaks(shf_residuals, shf_idx_dist, shf_idx_time, s_longi_offset, dx)
-            # mask_resi_s_hf = np.ones_like(shf_residuals, dtype=bool)
-            shf_assoc_list_pair.append(np.asarray((shf_idx_dist[mask_resi_s_hf], shf_idx_time[mask_resi_s_hf])))
-            s_used_hyperbolas.append(s_arr_tg[hf_imax, :])
-            s_arr_tg[hf_imax, :] = dw.loc.calc_arrival_times(0, s_cable_pos, shf_n[:3], c0)
-        else:
-            mask_resi_n_hf = np.one_like(nhf_residuals, dtype=bool)
-            mask_resi_s_hf = np.one_like(shf_residuals, dtype=bool)
-        
-        # Then process LF
-        if max_time_lf >= 0: # Do not associate the edge cases
-            # North cable processing for LF
-            mask_resi_n_lf = dw.assoc.filter_peaks(nlf_residuals, nlf_idx_dist, nlf_idx_time, n_longi_offset, dx)
-            # mask_resi_n_lf = np.ones_like(nlf_residuals, dtype=bool)
-            nlf_assoc_list_pair.append(np.asarray((nlf_idx_dist[mask_resi_n_lf], nlf_idx_time[mask_resi_n_lf])))
-            n_used_hyperbolas.append(n_arr_tg[lf_imax, :])
-            n_arr_tg[lf_imax, :] = dw.loc.calc_arrival_times(0, n_cable_pos, nlf_n[:3], c0)
-            
-            # South cable processing for LF
-            mask_resi_s_lf = dw.assoc.filter_peaks(slf_residuals, slf_idx_dist, slf_idx_time, s_longi_offset, dx)
-            # mask_resi_s_lf = np.ones_like(slf_residuals, dtype=bool)
-            slf_assoc_list_pair.append(np.asarray((slf_idx_dist[mask_resi_s_lf], slf_idx_time[mask_resi_s_lf])))
-            s_used_hyperbolas.append(s_arr_tg[lf_imax, :])
-            s_arr_tg[lf_imax, :] = dw.loc.calc_arrival_times(0, s_cable_pos, slf_n[:3], c0)
-        else:
-            mask_resi_n_lf = np.ones_like(nlf_residuals, dtype=bool)
-            mask_resi_s_lf = np.ones_like(slf_residuals, dtype=bool)
-        
-        # Remove all selected picks from both frequencies and both cables
-        # Accurate indexes 
-        n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks(n_up_peaks_hf, nhf_idx_dist, nhf_idx_time, mask_resi_n_hf, nSNRhf)
-        n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks(n_up_peaks_lf, nlf_idx_dist, nlf_idx_time, mask_resi_n_lf, nSNRlf)
-        s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks(s_up_peaks_hf, shf_idx_dist, shf_idx_time, mask_resi_s_hf, sSNRhf)
-        s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks(s_up_peaks_lf, slf_idx_dist, slf_idx_time, mask_resi_s_lf, sSNRlf)
-
-        # Fuzzy indexes (For peaks that are associated to hf or lf but also have points in the other band)
-        n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks_tolerance(n_up_peaks_hf, nlf_idx_dist, nlf_idx_time, mask_resi_n_lf, nSNRhf, dt_tol=dt_tol)
-        n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks_tolerance(n_up_peaks_lf, nhf_idx_dist, nhf_idx_time, mask_resi_n_hf, nSNRlf, dt_tol=dt_tol)
-        s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks_tolerance(s_up_peaks_hf, slf_idx_dist, slf_idx_time, mask_resi_s_lf, sSNRhf, dt_tol=dt_tol)
-        s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks_tolerance(s_up_peaks_lf, shf_idx_dist, shf_idx_time, mask_resi_s_hf, sSNRlf, dt_tol=dt_tol)
-
-        processed = True
-
-    # First priority: Case 1 - HF North and South are good
-    elif hf_north_south_good:
-        # North cable processing
-        if max_time_hf >= 0: # Do not associate the edge cases
-            mask_resi_n = dw.assoc.filter_peaks(nhf_residuals, nhf_idx_dist, nhf_idx_time, n_longi_offset, dx)
-            # mask_resi_n = np.ones_like(nhf_residuals, dtype=bool)
-            nhf_assoc_list_pair.append(np.asarray((nhf_idx_dist[mask_resi_n], nhf_idx_time[mask_resi_n])))
-            n_used_hyperbolas.append(n_arr_tg[hf_imax, :])
-            n_arr_tg[hf_imax, :] = dw.loc.calc_arrival_times(0, n_cable_pos, nhf_n[:3], c0)
-        
-            # South cable processing
-            mask_resi_s = dw.assoc.filter_peaks(shf_residuals, shf_idx_dist, shf_idx_time, s_longi_offset, dx)
-            # mask_resi_s = np.ones_like(shf_residuals, dtype=bool)
-            shf_assoc_list_pair.append(np.asarray((shf_idx_dist[mask_resi_s], shf_idx_time[mask_resi_s])))
-            s_used_hyperbolas.append(s_arr_tg[hf_imax, :])
-            s_arr_tg[hf_imax, :] = dw.loc.calc_arrival_times(0, s_cable_pos, shf_n[:3], c0)
-        else:
-            mask_resi_n = np.ones_like(nhf_residuals, dtype=bool)
-            mask_resi_s = np.ones_like(shf_residuals, dtype=bool)
-        
-        # Remove selected picks from both frequency bands (north)
-        n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks(n_up_peaks_hf, nhf_idx_dist, nhf_idx_time, mask_resi_n, nSNRhf)
-        n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks_tolerance(n_up_peaks_lf, nhf_idx_dist, nhf_idx_time, mask_resi_n, nSNRlf, dt_tol=dt_tol)
-
-        # Remove selected picks from both frequency bands (south)
-        s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks(s_up_peaks_hf, shf_idx_dist, shf_idx_time, mask_resi_s, sSNRhf)
-        s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks_tolerance(s_up_peaks_lf, shf_idx_dist, shf_idx_time, mask_resi_s, sSNRlf, dt_tol=dt_tol)
-        
-        processed = True
-
-    # Second priority: Case 2 - LF North and South are good  
-    elif lf_north_south_good:
-        # North cable processing
-        if max_time_lf >= 0: # Do not associate the edge cases
-            mask_resi_n = dw.assoc.filter_peaks(nlf_residuals, nlf_idx_dist, nlf_idx_time, n_longi_offset, dx)
-            # mask_resi_n = np.ones_like(nlf_residuals, dtype=bool)
-            nlf_assoc_list_pair.append(np.asarray((nlf_idx_dist[mask_resi_n], nlf_idx_time[mask_resi_n])))
-            n_used_hyperbolas.append(n_arr_tg[lf_imax, :])
-            n_arr_tg[lf_imax, :] = dw.loc.calc_arrival_times(0, n_cable_pos, nlf_n[:3], c0)
-
-            # South cable processing
-            mask_resi_s = dw.assoc.filter_peaks(slf_residuals, slf_idx_dist, slf_idx_time, s_longi_offset, dx)
-            # mask_resi_s = np.ones_like(slf_residuals, dtype=bool)
-            slf_assoc_list_pair.append(np.asarray((slf_idx_dist[mask_resi_s], slf_idx_time[mask_resi_s])))
-            s_used_hyperbolas.append(s_arr_tg[lf_imax, :])
-            s_arr_tg[lf_imax, :] = dw.loc.calc_arrival_times(0, s_cable_pos, slf_n[:3], c0)
-        else:
-            mask_resi_n = np.ones_like(nlf_residuals, dtype=bool)
-            mask_resi_s = np.ones_like(slf_residuals, dtype=bool)
-
-        # Remove selected picks from both frequency bands (north)
-        n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks(n_up_peaks_lf, nlf_idx_dist, nlf_idx_time, mask_resi_n, nSNRlf)
-        n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks_tolerance(n_up_peaks_hf, nlf_idx_dist, nlf_idx_time, mask_resi_n, nSNRhf, dt_tol=dt_tol)
-
-        # Remove selected picks from both frequency bands (south)
-        s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks(s_up_peaks_lf, slf_idx_dist, slf_idx_time, mask_resi_s, sSNRlf)
-        s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks_tolerance(s_up_peaks_hf, slf_idx_dist, slf_idx_time, mask_resi_s, sSNRhf, dt_tol=dt_tol)
-        
-        processed = True
-    
-    # Lower priority cases - if neither combined case is good, try individual cables
-    if not processed:
-        # Case 3: Only HF North is good
-        if only_hf_north_good:
-            if max_time_hf >= 0:
-                mask_resi = dw.assoc.filter_peaks(nhf_residuals, nhf_idx_dist, nhf_idx_time, n_longi_offset, dx)
-                # mask_resi = np.ones_like(nhf_residuals, dtype=bool)
-                nhf_assoc_list.append(np.asarray((nhf_idx_dist[mask_resi], nhf_idx_time[mask_resi])))
-                n_used_hyperbolas.append(n_arr_tg[hf_imax, :])
-                n_arr_tg[hf_imax, :] = dw.loc.calc_arrival_times(0, n_cable_pos, nhf_n[:3], c0)
-            else:
-                mask_resi = np.ones_like(nhf_residuals, dtype=bool)
-
-            n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks(n_up_peaks_hf, nhf_idx_dist, nhf_idx_time, mask_resi, nSNRhf)
-            n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks_tolerance(n_up_peaks_lf, nhf_idx_dist, nhf_idx_time, mask_resi, nSNRlf, dt_tol=dt_tol)
-            processed = True
-            
-        # Case 4: Only HF South is good
-        elif only_hf_south_good:
-            if max_time_hf >= 0:
-                mask_resi = dw.assoc.filter_peaks(shf_residuals, shf_idx_dist, shf_idx_time, s_longi_offset, dx)
-                # mask_resi = np.ones_like(shf_residuals, dtype=bool)
-                shf_assoc_list.append(np.asarray((shf_idx_dist[mask_resi], shf_idx_time[mask_resi])))
-                s_used_hyperbolas.append(s_arr_tg[hf_imax, :])
-                s_arr_tg[hf_imax, :] = dw.loc.calc_arrival_times(0, s_cable_pos, shf_n[:3], c0)
-            else:
-                mask_resi = np.ones_like(shf_residuals, dtype=bool)
-            
-            s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks(s_up_peaks_hf, shf_idx_dist, shf_idx_time, mask_resi, sSNRhf)
-            s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks_tolerance(s_up_peaks_lf, shf_idx_dist, shf_idx_time, mask_resi, sSNRlf, dt_tol=dt_tol)
-            processed = True
-            
-        # Case 5: Only LF North is good
-        elif only_lf_north_good:
-            if max_time_lf >= 0:
-                mask_resi = dw.assoc.filter_peaks(nlf_residuals, nlf_idx_dist, nlf_idx_time, n_longi_offset, dx)
-                # mask_resi = np.ones_like(nlf_residuals, dtype=bool)
-                nlf_assoc_list.append(np.asarray((nlf_idx_dist[mask_resi], nlf_idx_time[mask_resi])))
-                n_used_hyperbolas.append(n_arr_tg[lf_imax, :])
-                n_arr_tg[lf_imax, :] = dw.loc.calc_arrival_times(0, n_cable_pos, nlf_n[:3], c0)
-            else:
-                mask_resi = np.ones_like(nlf_residuals, dtype=bool)
-            
-            n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks(n_up_peaks_lf, nlf_idx_dist, nlf_idx_time, mask_resi, nSNRlf)
-            n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks_tolerance(n_up_peaks_hf, nlf_idx_dist, nlf_idx_time, mask_resi, nSNRhf, dt_tol=dt_tol)
-            processed = True
-            
-        # Case 6: Only LF South is good
-        elif only_lf_south_good:
-            if max_time_lf >= 0:
-                mask_resi = dw.assoc.filter_peaks(slf_residuals, slf_idx_dist, slf_idx_time, s_longi_offset, dx)
-                # mask_resi = np.ones_like(slf_residuals, dtype=bool)
-                slf_assoc_list.append(np.asarray((slf_idx_dist[mask_resi], slf_idx_time[mask_resi])))
-                s_used_hyperbolas.append(s_arr_tg[lf_imax, :])
-                s_arr_tg[lf_imax, :] = dw.loc.calc_arrival_times(0, s_cable_pos, slf_n[:3], c0)
-            else:
-                mask_resi = np.ones_like(slf_residuals, dtype=bool)
-            
-            s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks(s_up_peaks_lf, slf_idx_dist, slf_idx_time, mask_resi, sSNRlf)
-            s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks_tolerance(s_up_peaks_hf, slf_idx_dist, slf_idx_time, mask_resi, sSNRhf, dt_tol=dt_tol)
-            processed = True
-    
-    # Case 7: No good residuals - reject the hyperbolas
-    if not processed:
-        # Add the rejected hyperbolas to rejection lists
-        n_rejected_list.append(np.asarray((nhf_idx_dist, nhf_idx_time)))
-        n_rejected_list.append(np.asarray((nlf_idx_dist, nlf_idx_time)))
-        n_rejected_hyperbolas.append(n_arr_tg[hf_imax, :])
-        n_rejected_hyperbolas.append(n_arr_tg[lf_imax, :])
-        
-        s_rejected_list.append(np.asarray((shf_idx_dist, shf_idx_time)))
-        s_rejected_list.append(np.asarray((slf_idx_dist, slf_idx_time)))
-        s_rejected_hyperbolas.append(s_arr_tg[hf_imax, :])
-        s_rejected_hyperbolas.append(s_arr_tg[lf_imax, :])
-        
-        # Remove the hyperbolas from the grid arrays
-        n_arr_tg = np.delete(n_arr_tg, hf_imax, axis=0)
-        s_arr_tg = np.delete(s_arr_tg, hf_imax, axis=0)
-        n_shape_x = n_arr_tg.shape[0]
-        s_shape_x = s_arr_tg.shape[0]
-
-    # Update the progress bar with the number of associated calls
-    association_lists = [
-        nhf_assoc_list_pair, nlf_assoc_list_pair, shf_assoc_list_pair, slf_assoc_list_pair,
-        nhf_assoc_list, shf_assoc_list, nlf_assoc_list, slf_assoc_list
-        ]
+    (n_up_peaks_hf, n_up_peaks_lf, s_up_peaks_hf, s_up_peaks_lf,
+    nSNRhf, nSNRlf, sSNRhf, sSNRlf,
+    n_arr_tg, s_arr_tg, n_shape_x, s_shape_x, 
+    association_lists, rejected_lists, hyperbolas) = results
 
     total_associations = sum(len(lst) for lst in association_lists)
     pbar.set_description(f"Associated calls: {total_associations}")
@@ -1483,12 +767,13 @@ fig = plot_pick_analysis(s_rejected_list[:5], fs, dx, s_longi_offset, s_cable_po
 fig = plot_pick_analysis(n_rejected_list[:5], fs, dx, n_longi_offset, n_cable_pos, n_dist, nSNRhf, npeakshf)
 plt.show()
 
+
 # +
 # Localize using the selected picks
-nSNRhf = n_ds["SNR_hf"].values
-nSNRlf = n_ds["SNR_lf"].values
-sSNRhf = s_ds["SNR_hf"].values
-sSNRlf = s_ds["SNR_lf"].values
+# nSNRhf = n_ds["SNR_hf"].values
+# nSNRlf = n_ds["SNR_lf"].values
+# sSNRhf = s_ds["SNR_hf"].values
+# sSNRlf = s_ds["SNR_lf"].values
 
 def select_snr(up_peaks, selected_peaks, snr):
     print(np.shape(up_peaks), np.shape(selected_peaks), np.shape(snr))
