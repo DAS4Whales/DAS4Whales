@@ -597,6 +597,51 @@ def get_window_mask(times, w_eval):
     return (times >= t0) & (times < t0 + w_eval)
 
 
+
+def apply_spatial_windows(peaks, snr, win):
+    """
+    Apply the spatial windows to the peaks.
+
+    Parameters
+    ----------
+    peaks : tuple of np.ndarray
+        The peaks indexes for the North and South cables.
+    win : list of float
+        The spatial window to apply.
+
+    Returns
+    -------
+    tuple of np.ndarray
+        The peaks indexes after applying the spatial window.
+    """
+    
+    npeakshf, npeakslf, speakshf, speakslf = peaks
+    nSNRhf, nSNRlf, sSNRhf, sSNRlf = snr
+    
+    # Apply the spatial window to the North cable peaks
+    mask_hf = (npeakshf[0, :] >= win[0]) & (npeakshf[0, :] <= win[1])
+    mask_lf = (npeakslf[0, :] >= win[0]) & (npeakslf[0, :] <= win[1])
+
+    # Filter columns (preserve 2D structure)
+    npeakshf = npeakshf[:, mask_hf]
+    nSNRhf = nSNRhf[mask_hf]
+    npeakslf = npeakslf[:, mask_lf]
+    nSNRlf = nSNRlf[mask_lf]
+
+    # Apply the spatial window to the South cable peaks
+    mask_hf = (speakshf[0, :] >= win[0]) & (speakshf[0, :] <= win[1])
+    mask_lf = (speakslf[0, :] >= win[0]) & (speakslf[0, :] <= win[1])
+
+    speakshf = speakshf[:, mask_hf]
+    sSNRhf = sSNRhf[mask_hf]
+    speakslf = speakslf[:, mask_lf]
+    sSNRlf = sSNRlf[mask_lf]
+
+    peaks = (npeakshf, npeakslf, speakshf, speakslf)
+    snr = (nSNRhf, nSNRlf, sSNRhf, sSNRlf)
+    return peaks, snr
+
+
 def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 5):
     idxmin_t = np.argmin(idx_time)
     distances = (longi_offset + idx_dist) * dx * 1e-3
