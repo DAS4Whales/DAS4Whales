@@ -437,9 +437,9 @@ peaks_far, snr_far = apply_spatial_windows(peaks, SNRs, win_far)
 # dw.assoc.plot_peaks(peaks_far, snr_far, selected_channels_m, dx, fs)
 
 # plt.show()
+# -
 
 
-# +
 dt_kde = 0.5 # [s] Time resolution of the KDE
 bin_width = 1
 # dt_kde = 0.25 # [s] Time resolution of the KDE (overlap)
@@ -452,18 +452,6 @@ w_eval = 5 # [s] Width of the evaluation window for curvature estimation
 rms_threshold = 0.5
 # Set the number of iterations for testing
 iterations = 5
-
-
-config = {
-    'fs': fs,
-    'dt_kde': dt_kde,
-    'bin_width': bin_width,
-    'dt_tol': dt_tol,
-    'dt_sel': dt_sel,
-    'w_eval': w_eval,
-    'rms_threshold': rms_threshold,
-    'iterations': iterations
-}
 
 # +
 n_up_peaks_hf = np.copy(npeakshf)

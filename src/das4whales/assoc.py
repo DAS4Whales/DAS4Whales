@@ -597,7 +597,6 @@ def get_window_mask(times, w_eval):
     return (times >= t0) & (times < t0 + w_eval)
 
 
-
 def apply_spatial_windows(peaks, snr, win):
     """
     Apply the spatial windows to the peaks.
