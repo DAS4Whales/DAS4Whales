@@ -355,7 +355,7 @@ for iteration in pbar:
     nlf_window_mask = dw.assoc.get_window_mask(nlf_times, w_eval)
     slf_window_mask = dw.assoc.get_window_mask(slf_times, w_eval)
 
-    # Compute locations and residuals
+    # Compute locations and residuals # TODO: try bicable localization here! 
     nhf_n, nhf_residuals = dw.assoc.loc_picks(nhf_idx_dist, nhf_idx_time, n_cable_pos, c0, fs)
     shf_n, shf_residuals = dw.assoc.loc_picks(shf_idx_dist, shf_idx_time, s_cable_pos, c0, fs)
     nlf_n, nlf_residuals = dw.assoc.loc_picks(nlf_idx_dist, nlf_idx_time, n_cable_pos, c0, fs)

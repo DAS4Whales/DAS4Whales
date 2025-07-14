@@ -405,7 +405,7 @@ def solve_lq_weight(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None, resid
 
         # Damping factor
         if j < 4:
-            n += 0.7 * dn
+            n += 0.7 * dn # Value from USGS trial and error #TODO: increase if the localiation is jumping 
         else:
             n += dn
             
