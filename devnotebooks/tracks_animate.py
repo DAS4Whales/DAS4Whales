@@ -1,11 +1,11 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:percent
+#     formats: ipynb,py:light
 #     text_representation:
 #       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
+#       format_name: light
+#       format_version: '1.5'
 #       jupytext_version: 1.17.2
 #   kernelspec:
 #     display_name: venv
@@ -13,7 +13,6 @@
 #     name: python3
 # ---
 
-# %%
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -32,7 +31,7 @@ import scipy.spatial as spa
 from IPython.display import HTML
 from datetime import datetime, timedelta
 
-# %%
+# +
 with open('../out/association_2021-11-04_02:00:02.pkl', 'rb') as f:
     # Load the association object
     association = pickle.load(f)
@@ -67,7 +66,7 @@ utc_str = association['metadata']['south']['fileBeginTimeUTC']
 # shf_assoc = association['assoc']['south']['hf']
 # slf_assoc = association['assoc']['south']['lf']
 
-# %%
+# +
 # pkl_dir = '../out'
 # for pkl in sorted(Path(pkl_dir).glob('association_*.pkl')):
 #     with open(pkl, 'rb') as f:
@@ -86,11 +85,11 @@ utc_str = association['metadata']['south']['fileBeginTimeUTC']
 
         
     
+# -
 
-# %% [markdown]
 # ## Statistics on time picks
 
-# %%
+# +
 # Directory containing pickle files
 pkl_dir = '../out/batch5_baseline/'
 
@@ -171,11 +170,11 @@ print(f"Total number of samples: {len(pick_counts)}")
 print(f"Mean number of picks: {np.mean(pick_counts):.2f}")
 print(f"Median number of picks: {np.median(pick_counts):.2f}")
 print(f"Range: {np.min(pick_counts)} to {np.max(pick_counts)}")
+# -
 
-# %% [markdown]
 # ## Cables Geometry
 
-# %%
+# +
 # Import the cable location
 df_north = pd.read_csv('../data/north_DAS_multicoord.csv')
 df_south = pd.read_csv('../data/south_DAS_multicoord.csv')
@@ -213,7 +212,7 @@ y = np.linspace(y0, yf, len(ylat))
 # dw.map.plot_cables2D(df_north, df_south, bathy, xlon, ylat)
 # dw.map.plot_cables2D_m(df_north, df_south, bathy, x, y)
 
-# %%
+# +
 # Cable geometry (make it correspond to x,y,z = cable_pos[:, 0], cable_pos[:, 1], cable_pos[:, 2])
 n_cable_pos = np.zeros((len(df_north_used), 3))
 s_cable_pos = np.zeros((len(df_south_used), 3))
@@ -242,7 +241,7 @@ bicable_pos = (n_cable_pos, s_cable_pos)
 # s_lf_loc = dw.loc.loc_from_picks(slf_assoc, s_cable_pos, c0, fs)
 
 
-# %%
+# +
 # def local_to_utm(localizations, utm_xf, utm_y0):
 #     loc_utm = []
 #     for loc in localizations:
@@ -272,7 +271,7 @@ bicable_pos = (n_cable_pos, s_cable_pos)
 # s_hf_loc_latlon = batch_utm_to_latlon(s_hf_loc_utm)
 # s_lf_loc_latlon = batch_utm_to_latlon(s_lf_loc_utm)
 
-# %%
+# +
 
 # utc = datetime.datetime.strptime(utc_str, "%Y-%m-%d_%H:%M:%S")
 # # Create the DataFrame with predefined columns
@@ -296,7 +295,7 @@ bicable_pos = (n_cable_pos, s_cable_pos)
 # # Optionally save to CSV
 # df_loc.to_csv('localization_results.csv', index=False)
 
-# %%
+# +
 # # Create two list of coordinates, for ponts every 10 km along the cables, the spatial resolution is 2m 
 # opticald_n = []
 # opticald_s = []
@@ -402,7 +401,7 @@ bicable_pos = (n_cable_pos, s_cable_pos)
 # plt.tight_layout()
 # plt.show()
 
-# %%
+# +
 # # Create two list of coordinates, for ponts every 10 km along the cables, the spatial resolution is 2m 
 # opticald_n = []
 # opticald_s = []
@@ -479,7 +478,7 @@ bicable_pos = (n_cable_pos, s_cable_pos)
 # # plt.tight_layout()
 # plt.show()
 
-# %%
+# +
 import pickle
 import datetime
 from pathlib import Path
@@ -636,7 +635,7 @@ df_all = process_all(
 df_all.to_csv('batch4gabor_localizations_with_coords.csv', index=False)
 
 
-# %%
+# +
 # Data paths
 # _______________________________________
 # csv_path    = 'all_localizations_with_coords.csv'   # your combined CSV
@@ -655,7 +654,7 @@ df_south = pd.read_csv(south_csv)
 bathy, xlon, ylat = dw.map.load_bathymetry(bathy_file)
 
 
-# %%
+# +
 # Distance filtering
 # _______________________________________
 
@@ -684,12 +683,12 @@ print(f"Number of localizations after filtering: {len(df_filtered)}")
 tri = spa.Delaunay(df_filtered[['x_local', 'y_local']].to_numpy())
 _ = spa.delaunay_plot_2d(tri)
 plt.show()
+# -
 
-# %%
 plt.rcParams['font.size'] = 20
 plt.rcParams['lines.linewidth'] = 2
 
-# %%
+# +
 # Compute UTM extents
 utm_x0, utm_y0 = dw.map.latlon_to_utm(xlon[0], ylat[0])
 utm_xf, utm_yf = dw.map.latlon_to_utm(xlon[-1], ylat[-1])
@@ -843,17 +842,16 @@ plt.savefig('localization_kilometers.pdf', format='pdf', bbox_inches='tight', tr
 # plt.savefig('localization_batch4_gabor.png', format='png', bbox_inches='tight', transparent=True)
 plt.show()
 
+# -
 
-# %% [markdown]
 # ### Animated track  
 #
 
-# %%
 plt.rcParams['font.size'] = 20
 plt.rcParams['lines.linewidth'] = 2
 plt.rcParams['savefig.bbox'] = 'tight' 
 
-# %%
+# +
 # Animate localization scatter over time with group‐specific markers and save as MP4
 
 from matplotlib.animation import FuncAnimation, FFMpegWriter
