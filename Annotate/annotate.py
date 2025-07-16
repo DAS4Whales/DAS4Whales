@@ -31,12 +31,12 @@ hv.extension('bokeh')
 pn.extension()
 # -
 
-batch_number = 3
+batch_number = 5
 output_dir = os.path.join('denoised_data', f'Batch_{batch_number}')
 north_files = sorted(glob.glob(os.path.join("..", output_dir, "Denoised_SNR_North_*.nc")))
 south_files = sorted(glob.glob(os.path.join("..", output_dir, "Denoised_SNR_South_*.nc")))
 
-id = 11 # 0 to 11 
+id = 6 # 0 to 11 
 print(f"Loading {north_files[id]}\n        {south_files[id]}")
 
 # +
