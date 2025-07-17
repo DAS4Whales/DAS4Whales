@@ -300,8 +300,8 @@ binary = np.ones_like(maxprod)
 
 threshold = np.percentile(maxsum, 40)  # keep top 3%
 binary[maxsum < threshold] = 0
-# fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, mu_t+sigma_t)
-fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, distances)
+fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, mu_t-3*sigma_t)
+# fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, distances)
 plt.show()
 
 print(f'ratio of points above the threshold: {np.sum(binary) / binary.size:.2f}')
