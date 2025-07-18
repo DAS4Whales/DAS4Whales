@@ -20,6 +20,9 @@ import scipy.signal as sp
 import das4whales as dw
 from joblib import Parallel, delayed
 import pandas as pd
+import cmocean.cm as cmo
+from matplotlib.colors import LightSource
+import matplotlib.colors as mcolors
 
 ## Main association function --------------------------------------------
 

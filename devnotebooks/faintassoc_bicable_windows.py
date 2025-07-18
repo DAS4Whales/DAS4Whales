@@ -83,12 +83,6 @@ s_longi_offset = s_selected_channels[0] // s_selected_channels[2]
 n_dist = (np.arange(nnx) * n_selected_channels[2] + n_selected_channels[0]) * dx
 s_dist = (np.arange(snx) * s_selected_channels[2] + s_selected_channels[0]) * dx
 dx = dx * n_selected_channels[2]
-# -
-
-dt_tol = int(0.5 * fs)  # 0.5 s
-dist_tol = int(10/dx)
-print('dt_tol: ', dt_tol)
-print('dist_tol: ', dist_tol)
 
 # +
 # load the peak indexes - North cable
@@ -174,12 +168,12 @@ s_cable_pos[:, 2] = df_south_used['depth']
 from scipy.interpolate import RegularGridInterpolator
 
 # Create a grid of coordinates, choosing the spacing of the grid
-dx_grid = 1500 # [m]
+dx_grid = 2000 # [m]
 dy_grid = 2000 # [m]
 xg, yg = np.meshgrid(np.arange(xf, x0, dx_grid), np.arange(y0, yf, dy_grid))
 
 ti = 0
-zg = -40
+zg = -30
 
 interpolator = RegularGridInterpolator((x, y),  bathy.T)
 bathy_interp = interpolator((xg, yg))
@@ -450,7 +444,8 @@ dt_kde = 0.5 # [s] Time resolution of the KDE
 bin_width = 1
 # dt_kde = 0.25 # [s] Time resolution of the KDE (overlap)
 # bin_width = 1.5
-dt_tol = int(0.8 * fs) # [samples] Tolerance for the time index when removing picks
+dt_tol = int(0.5 * fs) # [samples] Tolerance for the time index when removing picks
+# dist_tol = int(10/dx)
 n_shape_x = xg.shape[0]
 s_shape_x = xg.shape[0]
 dt_sel = 1.4 # [s] Selected time "distance" from the theoretical arrival time
