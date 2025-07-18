@@ -709,7 +709,7 @@ def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 15
     gaps = np.zeros_like(distances)
 
     rms_total = np.sqrt(np.mean(residuals**2))
-    mask_resi = abs(residuals) <  2 * rms_total
+    mask_resi = abs(residuals) <  1.5 * rms_total
     # Find the gaps only for the valid (masked) distances
     valid_distances = distances[mask_resi]
     if valid_distances.size > 1:
@@ -922,6 +922,7 @@ def save_assoc(
 
 
 def plot_peaks(peaks, SNR, selected_channels_m, dx, fs):
+    # Unpack the peaks and SNR data
     nhf_peaks, nlf_peaks, shf_peaks, slf_peaks = peaks
     nhf_SNR, nlf_SNR, shf_SNR, slf_SNR = SNR
     n_selected_channels_m, s_selected_channels_m = selected_channels_m
@@ -940,12 +941,14 @@ def plot_peaks(peaks, SNR, selected_channels_m, dx, fs):
                             c=nhf_SNR, cmap=cmap, norm=norm, s=nhf_SNR)
     axes[0, 0].set_title('North Cable - HF')
     axes[0, 0].set_ylabel('Distance [km]')
+    axes[0, 0].set_ylim(n_selected_channels_m[0] * 1e-3, n_selected_channels_m[1] * 1e-3)
     axes[0, 0].grid(linestyle='--', alpha=0.5)
 
     # Second subplot
     sc2 = axes[0, 1].scatter(nlf_peaks[1][:] / fs, (n_selected_channels_m[0] + nlf_peaks[0][:] * dx) * 1e-3, 
                             c=nlf_SNR, cmap=cmap, norm=norm, s=nlf_SNR)
     axes[0, 1].set_title('North Cable - LF')
+    axes[0, 1].set_ylim(n_selected_channels_m[0] * 1e-3, n_selected_channels_m[1] * 1e-3)
     axes[0, 1].grid(linestyle='--', alpha=0.5)
 
     # Third subplot
@@ -954,6 +957,7 @@ def plot_peaks(peaks, SNR, selected_channels_m, dx, fs):
     axes[1, 0].set_title('South Cable - HF')
     axes[1, 0].set_xlabel('Time [s]')
     axes[1, 0].set_ylabel('Distance [km]')
+    axes[1, 0].set_ylim(s_selected_channels_m[0] * 1e-3, s_selected_channels_m[1] * 1e-3)
     axes[1, 0].grid(linestyle='--', alpha=0.5)
 
     # Fourth subplot
@@ -961,6 +965,7 @@ def plot_peaks(peaks, SNR, selected_channels_m, dx, fs):
                             c=slf_SNR, cmap=cmap, norm=norm, s=slf_SNR)
     axes[1, 1].set_title('South Cable - LF')
     axes[1, 1].set_xlabel('Time [s]')
+    axes[1, 1].set_ylim(s_selected_channels_m[0] * 1e-3, s_selected_channels_m[1] * 1e-3)
     axes[1, 1].grid(linestyle='--', alpha=0.5)
 
     # Create a single colorbar for all subplots

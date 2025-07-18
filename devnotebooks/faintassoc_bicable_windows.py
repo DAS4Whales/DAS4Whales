@@ -104,11 +104,13 @@ sSNRhf = s_ds["SNR_hf"].values
 sSNRlf = s_ds["SNR_lf"].values
 
 # +
-speakshf = speakshf[:, sSNRhf > 5]
-speakslf = speakslf[:, sSNRlf > 5]
+snr_thresh = 4
 
-sSNRhf = sSNRhf[sSNRhf > 5]
-sSNRlf = sSNRlf[sSNRlf > 5]
+speakshf = speakshf[:, sSNRhf > snr_thresh]
+speakslf = speakslf[:, sSNRlf > snr_thresh]
+
+sSNRhf = sSNRhf[sSNRhf > snr_thresh]
+sSNRlf = sSNRlf[sSNRlf > snr_thresh]
 peaks = (npeakshf, npeakslf, speakshf, speakslf)
 SNRs = (nSNRhf, nSNRlf, sSNRhf, sSNRlf)
 selected_channels_m = (n_selected_channels_m, s_selected_channels_m)
@@ -1067,7 +1069,7 @@ localizations = (nhf_localizations, nlf_localizations, shf_localizations, slf_lo
 
 # -
 
-fig = plot_associated_bicable(npeakshf, speakshf, n_longi_offset, pair_assoc, pair_loc, associations, localizations, n_cable_pos, s_cable_pos, n_dist, s_dist, dx, c0, fs)
+fig = plot_associated_bicable(npeakshf, speakslf, n_longi_offset, pair_assoc, pair_loc, associations, localizations, n_cable_pos, s_cable_pos, n_dist, s_dist, dx, c0, fs)
 fig.savefig('../figs/associations_bicable.pdf', bbox_inches='tight', transparent=True)
 plt.show()
 
