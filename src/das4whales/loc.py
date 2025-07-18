@@ -405,7 +405,7 @@ def solve_lq_weight(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None, resid
 
         # Damping factor
         if j < 4:
-            n += 0.7 * dn # Value from USGS trial and error #TODO: increase if the localiation is jumping 
+            n += 0.7 * dn # Value from USGS trial and error #TODO: increase if the localization is jumping
         else:
             n += dn
             
@@ -520,7 +520,6 @@ def loc_from_picks(associated_list, cable_pos, c0, fs):
     # alt_localizations = []
 
     for select in associated_list:
-        # if len(select[0]) >= 3500: # Value determined by statistics of the associated picks
         idxmin_t = np.argmin(select[1][:])
         apex_loc = cable_pos[:, 0][select[0][idxmin_t]]
         Ti = select[1][:] / fs
@@ -576,7 +575,6 @@ def loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter=20):
     
     # Solve the least squares problem using the provided parameters
     n, residuals = solve_lq_weight(times, bicable_pos, c0, Nbiter, fix_z=True, ninit=init, residuals=True)
-    
     return n, residuals
 
 
@@ -586,15 +584,41 @@ def loc_picks_bicable_list(n_assoc_list, s_assoc_list, cable_pos, c0, fs, Nbiter
 
     localizations = []
     alt_localizations = []
-    for i in tqdm(range(len(n_assoc_list))):
+    for i in range(len(n_assoc_list)):
         n_assoc = n_assoc_list[i]
         s_assoc = s_assoc_list[i]
-        if len(n_assoc[0]) >= 3500 and len(s_assoc[0]) >= 3500:
-            # Solve the least squares problem
-            n_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter)
-            localizations.append(n_loc)
-            # alt_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter-1)
-        # n_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter)
-        # localizations.append(n_loc)
-        # alt_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter-1)
-    return localizations #, alt_localizations
+        n_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter)
+        localizations.append(n_loc)
+        alt_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter-1)
+    return localizations, alt_localizations
+
+
+def calc_rms(residuals, window_mask=None):
+    """Calculate the root mean square of the residuals.
+
+    Parameters
+    ----------
+    residuals : np.ndarray or None
+        Array of residuals. If None or empty, returns np.inf.
+    window_mask : np.ndarray, optional
+        Boolean mask to apply to the residuals, by default None.
+        If provided, only the residuals where the mask is True will be considered.
+
+    Returns
+    -------
+    float
+        Root mean square of the residuals, or np.inf if residuals are invalid or empty.
+    """
+    if residuals is None:
+        return np.inf
+
+    if window_mask is not None:
+        residuals = residuals[window_mask]
+
+    if residuals.size == 0:
+        return np.inf
+
+    return np.sqrt(np.mean(residuals ** 2))
+    
+
+    

@@ -18,10 +18,8 @@ import matplotlib.cm as cm
 import matplotlib.colors as colors
 import scipy.signal as sp
 import das4whales as dw
-import cmocean.cm as cmo
-import matplotlib.colors as mcolors
-import pandas as pd
 from joblib import Parallel, delayed
+import pandas as pd
 
 ## Main association function --------------------------------------------
 
@@ -71,9 +69,21 @@ def process_iteration(
 
     # Find the global min and max for KDE time range
     all_delayed_picks = [n_delayed_picks_hf, n_delayed_picks_lf, s_delayed_picks_hf, s_delayed_picks_lf]
-    global_min = min(np.min(arr) for arr in all_delayed_picks)
-    global_max = max(np.max(arr) for arr in all_delayed_picks)
-    
+
+    non_empty_delayed_picks = [arr for arr in all_delayed_picks if arr.size > 0]
+
+    if not non_empty_delayed_picks: # End loop if no delayed picks
+        print("No more delayed picks, ending association loop.")
+        return (
+            n_up_peaks_hf, n_up_peaks_lf, s_up_peaks_hf, s_up_peaks_lf,
+            nSNRhf, nSNRlf, sSNRhf, sSNRlf,
+            n_arr_tg, s_arr_tg, n_shape_x, s_shape_x,
+            association_lists, rejected_lists, hyperbolas
+        )
+        
+    global_min = min(np.min(arr) for arr in non_empty_delayed_picks)
+    global_max = max(np.max(arr) for arr in non_empty_delayed_picks)
+
     # Create time bins for KDE
     Nkde = np.ceil((global_max - global_min) / dt_kde).astype(int) + 1
     t_kde = np.linspace(global_min, global_max, Nkde)
@@ -81,39 +91,39 @@ def process_iteration(
     # Compute KDEs in parallel for each type
     # North high frequency
     n_kde_hf = np.array(Parallel(n_jobs=-1)(
-        delayed(dw.assoc.fast_kde_rect)(n_delayed_picks_hf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=nSNRhf) 
+        delayed(fast_kde_rect)(n_delayed_picks_hf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=nSNRhf) 
         for i in range(n_shape_x)
     ))
 
     # North low frequency
     n_kde_lf = np.array(Parallel(n_jobs=-1)(
-        delayed(dw.assoc.fast_kde_rect)(n_delayed_picks_lf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=nSNRlf)
+        delayed(fast_kde_rect)(n_delayed_picks_lf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=nSNRlf)
         for i in range(n_shape_x)
     ))
 
     # South high frequency
     s_kde_hf = np.array(Parallel(n_jobs=-1)(
-        delayed(dw.assoc.fast_kde_rect)(s_delayed_picks_hf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=sSNRhf)
+        delayed(fast_kde_rect)(s_delayed_picks_hf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=sSNRhf)
         for i in range(s_shape_x)
     ))
 
     # South low frequency
     s_kde_lf = np.array(Parallel(n_jobs=-1)(
-        delayed(dw.assoc.fast_kde_rect)(s_delayed_picks_lf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=sSNRlf)
+        delayed(fast_kde_rect)(s_delayed_picks_lf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=sSNRlf)
         for i in range(s_shape_x)
     ))
 
     # Reduced the number of grid points to speed up the process 
-    if iteration == 0:  
-        sum_kde = n_kde_hf + n_kde_lf + s_kde_hf + s_kde_lf
-        maxsum = np.max(sum_kde, axis=1)
-        binary = np.ones_like(maxsum)
-        threshold = np.percentile(maxsum, 40)  # keep top 55%
-        grid_mask = maxsum >= threshold
-        n_arr_tg = n_arr_tg[grid_mask]
-        s_arr_tg = s_arr_tg[grid_mask]
-        n_shape_x = n_arr_tg.shape[0]
-        s_shape_x = s_arr_tg.shape[0]
+    # if iteration == 0:  
+    #     sum_kde = n_kde_hf + n_kde_lf + s_kde_hf + s_kde_lf
+    #     maxsum = np.max(sum_kde, axis=1)
+    #     binary = np.ones_like(maxsum)
+    #     threshold = np.percentile(maxsum, 40)  # keep top 55%
+    #     grid_mask = maxsum >= threshold
+    #     n_arr_tg = n_arr_tg[grid_mask]
+    #     s_arr_tg = s_arr_tg[grid_mask]
+    #     n_shape_x = n_arr_tg.shape[0]
+    #     s_shape_x = s_arr_tg.shape[0]
 
     # PART 2: FIND MAXIMA AND COMPUTE THEORETICAL ARRIVALS
     # ===================================================
@@ -142,10 +152,10 @@ def process_iteration(
     # =========================================
     
     # Select picks around each hyperbola within +/- dt_sel
-    nhf_idx_dist, nhf_idx_time = dw.assoc.select_picks(n_up_peaks_hf, nhf_hyperbola, dt_sel, fs)
-    shf_idx_dist, shf_idx_time = dw.assoc.select_picks(s_up_peaks_hf, shf_hyperbola, dt_sel, fs)
-    nlf_idx_dist, nlf_idx_time = dw.assoc.select_picks(n_up_peaks_lf, nlf_hyperbola, dt_sel, fs)
-    slf_idx_dist, slf_idx_time = dw.assoc.select_picks(s_up_peaks_lf, slf_hyperbola, dt_sel, fs)
+    nhf_idx_dist, nhf_idx_time = select_picks(n_up_peaks_hf, nhf_hyperbola, dt_sel, fs)
+    shf_idx_dist, shf_idx_time = select_picks(s_up_peaks_hf, shf_hyperbola, dt_sel, fs)
+    nlf_idx_dist, nlf_idx_time = select_picks(n_up_peaks_lf, nlf_hyperbola, dt_sel, fs)
+    slf_idx_dist, slf_idx_time = select_picks(s_up_peaks_lf, slf_hyperbola, dt_sel, fs)
 
     # Calculate time indices
     nhf_times = nhf_idx_time / fs
@@ -154,22 +164,23 @@ def process_iteration(
     slf_times = slf_idx_time / fs
 
     # Define evaluation windows
-    nhf_window_mask = dw.assoc.get_window_mask(nhf_times, w_eval)
-    shf_window_mask = dw.assoc.get_window_mask(shf_times, w_eval)
-    nlf_window_mask = dw.assoc.get_window_mask(nlf_times, w_eval)
-    slf_window_mask = dw.assoc.get_window_mask(slf_times, w_eval)
+    nhf_window_mask = get_window_mask(nhf_times, w_eval)
+    shf_window_mask = get_window_mask(shf_times, w_eval)
+    nlf_window_mask = get_window_mask(nlf_times, w_eval)
+    slf_window_mask = get_window_mask(slf_times, w_eval)
 
     # Compute locations and residuals
-    nhf_n, nhf_residuals = dw.assoc.loc_picks(nhf_idx_dist, nhf_idx_time, n_cable_pos, c0, fs)
-    shf_n, shf_residuals = dw.assoc.loc_picks(shf_idx_dist, shf_idx_time, s_cable_pos, c0, fs)
-    nlf_n, nlf_residuals = dw.assoc.loc_picks(nlf_idx_dist, nlf_idx_time, n_cable_pos, c0, fs)
-    slf_n, slf_residuals = dw.assoc.loc_picks(slf_idx_dist, slf_idx_time, s_cable_pos, c0, fs)
+    nhf_n, nhf_residuals = loc_picks(nhf_idx_dist, nhf_idx_time, n_cable_pos, c0, fs)
+    shf_n, shf_residuals = loc_picks(shf_idx_dist, shf_idx_time, s_cable_pos, c0, fs)
+    nlf_n, nlf_residuals = loc_picks(nlf_idx_dist, nlf_idx_time, n_cable_pos, c0, fs)
+    slf_n, slf_residuals = loc_picks(slf_idx_dist, slf_idx_time, s_cable_pos, c0, fs)
 
     # Calculate RMS residuals
-    nhf_rms = np.sqrt(np.mean(nhf_residuals[nhf_window_mask] ** 2))
-    shf_rms = np.sqrt(np.mean(shf_residuals[shf_window_mask] ** 2))
-    nlf_rms = np.sqrt(np.mean(nlf_residuals[nlf_window_mask] ** 2))
-    slf_rms = np.sqrt(np.mean(slf_residuals[slf_window_mask] ** 2))
+
+    nhf_rms = dw.loc.calc_rms(nhf_residuals, nhf_window_mask)
+    shf_rms = dw.loc.calc_rms(shf_residuals, shf_window_mask)
+    nlf_rms = dw.loc.calc_rms(nlf_residuals, nlf_window_mask)
+    slf_rms = dw.loc.calc_rms(slf_residuals, slf_window_mask)
 
     # PART 4: ASSOCIATION LOGIC
     # ========================
@@ -205,34 +216,34 @@ def process_iteration(
         # North cable processing for HF
         #TODO: reselect picks using the new hyperbola ?
         if max_time_hf >= 0: # Do not associate the edge cases
-            # snr = dw.assoc.select_snr(n_up_peaks_hf, nhf_idx_dist, nhf_idx_time, nSNRhf)
-            mask_resi_n_hf = dw.assoc.filter_peaks(nhf_residuals, nhf_idx_dist, nhf_idx_time, n_longi_offset, dx)
+            # snr = select_snr(n_up_peaks_hf, nhf_idx_dist, nhf_idx_time, nSNRhf)
+            mask_resi_n_hf = filter_peaks(nhf_residuals, nhf_idx_dist, nhf_idx_time, n_longi_offset, dx)
             # mask_resi_n_hf = np.ones_like(nhf_residuals, dtype=bool)
             nhf_assoc_list_pair.append(np.asarray((nhf_idx_dist[mask_resi_n_hf], nhf_idx_time[mask_resi_n_hf])))
             n_used_hyperbolas.append(n_arr_tg[hf_imax, :])
             n_arr_tg[hf_imax, :] = dw.loc.calc_arrival_times(0, n_cable_pos, nhf_n[:3], c0)
             
             # South cable processing for HF
-            mask_resi_s_hf = dw.assoc.filter_peaks(shf_residuals, shf_idx_dist, shf_idx_time, s_longi_offset, dx)
+            mask_resi_s_hf = filter_peaks(shf_residuals, shf_idx_dist, shf_idx_time, s_longi_offset, dx)
             # mask_resi_s_hf = np.ones_like(shf_residuals, dtype=bool)
             shf_assoc_list_pair.append(np.asarray((shf_idx_dist[mask_resi_s_hf], shf_idx_time[mask_resi_s_hf])))
             s_used_hyperbolas.append(s_arr_tg[hf_imax, :])
             s_arr_tg[hf_imax, :] = dw.loc.calc_arrival_times(0, s_cable_pos, shf_n[:3], c0)
         else:
-            mask_resi_n_hf = np.one_like(nhf_residuals, dtype=bool)
-            mask_resi_s_hf = np.one_like(shf_residuals, dtype=bool)
+            mask_resi_n_hf = np.ones_like(nhf_residuals, dtype=bool)
+            mask_resi_s_hf = np.ones_like(shf_residuals, dtype=bool)
         
         # Then process LF
         if max_time_lf >= 0: # Do not associate the edge cases
             # North cable processing for LF
-            mask_resi_n_lf = dw.assoc.filter_peaks(nlf_residuals, nlf_idx_dist, nlf_idx_time, n_longi_offset, dx)
+            mask_resi_n_lf = filter_peaks(nlf_residuals, nlf_idx_dist, nlf_idx_time, n_longi_offset, dx)
             # mask_resi_n_lf = np.ones_like(nlf_residuals, dtype=bool)
             nlf_assoc_list_pair.append(np.asarray((nlf_idx_dist[mask_resi_n_lf], nlf_idx_time[mask_resi_n_lf])))
             n_used_hyperbolas.append(n_arr_tg[lf_imax, :])
             n_arr_tg[lf_imax, :] = dw.loc.calc_arrival_times(0, n_cable_pos, nlf_n[:3], c0)
             
             # South cable processing for LF
-            mask_resi_s_lf = dw.assoc.filter_peaks(slf_residuals, slf_idx_dist, slf_idx_time, s_longi_offset, dx)
+            mask_resi_s_lf = filter_peaks(slf_residuals, slf_idx_dist, slf_idx_time, s_longi_offset, dx)
             # mask_resi_s_lf = np.ones_like(slf_residuals, dtype=bool)
             slf_assoc_list_pair.append(np.asarray((slf_idx_dist[mask_resi_s_lf], slf_idx_time[mask_resi_s_lf])))
             s_used_hyperbolas.append(s_arr_tg[lf_imax, :])
@@ -243,16 +254,16 @@ def process_iteration(
         
         # Remove all selected picks from both frequencies and both cables
         # Accurate indexes 
-        n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks(n_up_peaks_hf, nhf_idx_dist, nhf_idx_time, mask_resi_n_hf, nSNRhf)
-        n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks(n_up_peaks_lf, nlf_idx_dist, nlf_idx_time, mask_resi_n_lf, nSNRlf)
-        s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks(s_up_peaks_hf, shf_idx_dist, shf_idx_time, mask_resi_s_hf, sSNRhf)
-        s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks(s_up_peaks_lf, slf_idx_dist, slf_idx_time, mask_resi_s_lf, sSNRlf)
+        n_up_peaks_hf, nSNRhf = remove_peaks(n_up_peaks_hf, nhf_idx_dist, nhf_idx_time, mask_resi_n_hf, nSNRhf)
+        n_up_peaks_lf, nSNRlf = remove_peaks(n_up_peaks_lf, nlf_idx_dist, nlf_idx_time, mask_resi_n_lf, nSNRlf)
+        s_up_peaks_hf, sSNRhf = remove_peaks(s_up_peaks_hf, shf_idx_dist, shf_idx_time, mask_resi_s_hf, sSNRhf)
+        s_up_peaks_lf, sSNRlf = remove_peaks(s_up_peaks_lf, slf_idx_dist, slf_idx_time, mask_resi_s_lf, sSNRlf)
 
         # Fuzzy indexes (For peaks that are associated to hf or lf but also have points in the other band)
-        n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks_tolerance(n_up_peaks_hf, nlf_idx_dist, nlf_idx_time, mask_resi_n_lf, nSNRhf, dt_tol=dt_tol)
-        n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks_tolerance(n_up_peaks_lf, nhf_idx_dist, nhf_idx_time, mask_resi_n_hf, nSNRlf, dt_tol=dt_tol)
-        s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks_tolerance(s_up_peaks_hf, slf_idx_dist, slf_idx_time, mask_resi_s_lf, sSNRhf, dt_tol=dt_tol)
-        s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks_tolerance(s_up_peaks_lf, shf_idx_dist, shf_idx_time, mask_resi_s_hf, sSNRlf, dt_tol=dt_tol)
+        n_up_peaks_hf, nSNRhf = remove_peaks_tolerance(n_up_peaks_hf, nlf_idx_dist, nlf_idx_time, mask_resi_n_lf, nSNRhf, dt_tol=dt_tol)
+        n_up_peaks_lf, nSNRlf = remove_peaks_tolerance(n_up_peaks_lf, nhf_idx_dist, nhf_idx_time, mask_resi_n_hf, nSNRlf, dt_tol=dt_tol)
+        s_up_peaks_hf, sSNRhf = remove_peaks_tolerance(s_up_peaks_hf, slf_idx_dist, slf_idx_time, mask_resi_s_lf, sSNRhf, dt_tol=dt_tol)
+        s_up_peaks_lf, sSNRlf = remove_peaks_tolerance(s_up_peaks_lf, shf_idx_dist, shf_idx_time, mask_resi_s_hf, sSNRlf, dt_tol=dt_tol)
 
         processed = True
 
@@ -260,14 +271,14 @@ def process_iteration(
     elif hf_north_south_good:
         # North cable processing
         if max_time_hf >= 0: # Do not associate the edge cases
-            mask_resi_n = dw.assoc.filter_peaks(nhf_residuals, nhf_idx_dist, nhf_idx_time, n_longi_offset, dx)
+            mask_resi_n = filter_peaks(nhf_residuals, nhf_idx_dist, nhf_idx_time, n_longi_offset, dx)
             # mask_resi_n = np.ones_like(nhf_residuals, dtype=bool)
             nhf_assoc_list_pair.append(np.asarray((nhf_idx_dist[mask_resi_n], nhf_idx_time[mask_resi_n])))
             n_used_hyperbolas.append(n_arr_tg[hf_imax, :])
             n_arr_tg[hf_imax, :] = dw.loc.calc_arrival_times(0, n_cable_pos, nhf_n[:3], c0)
         
             # South cable processing
-            mask_resi_s = dw.assoc.filter_peaks(shf_residuals, shf_idx_dist, shf_idx_time, s_longi_offset, dx)
+            mask_resi_s = filter_peaks(shf_residuals, shf_idx_dist, shf_idx_time, s_longi_offset, dx)
             # mask_resi_s = np.ones_like(shf_residuals, dtype=bool)
             shf_assoc_list_pair.append(np.asarray((shf_idx_dist[mask_resi_s], shf_idx_time[mask_resi_s])))
             s_used_hyperbolas.append(s_arr_tg[hf_imax, :])
@@ -277,12 +288,12 @@ def process_iteration(
             mask_resi_s = np.ones_like(shf_residuals, dtype=bool)
         
         # Remove selected picks from both frequency bands (north)
-        n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks(n_up_peaks_hf, nhf_idx_dist, nhf_idx_time, mask_resi_n, nSNRhf)
-        n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks_tolerance(n_up_peaks_lf, nhf_idx_dist, nhf_idx_time, mask_resi_n, nSNRlf, dt_tol=dt_tol)
+        n_up_peaks_hf, nSNRhf = remove_peaks(n_up_peaks_hf, nhf_idx_dist, nhf_idx_time, mask_resi_n, nSNRhf)
+        n_up_peaks_lf, nSNRlf = remove_peaks_tolerance(n_up_peaks_lf, nhf_idx_dist, nhf_idx_time, mask_resi_n, nSNRlf, dt_tol=dt_tol)
 
         # Remove selected picks from both frequency bands (south)
-        s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks(s_up_peaks_hf, shf_idx_dist, shf_idx_time, mask_resi_s, sSNRhf)
-        s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks_tolerance(s_up_peaks_lf, shf_idx_dist, shf_idx_time, mask_resi_s, sSNRlf, dt_tol=dt_tol)
+        s_up_peaks_hf, sSNRhf = remove_peaks(s_up_peaks_hf, shf_idx_dist, shf_idx_time, mask_resi_s, sSNRhf)
+        s_up_peaks_lf, sSNRlf = remove_peaks_tolerance(s_up_peaks_lf, shf_idx_dist, shf_idx_time, mask_resi_s, sSNRlf, dt_tol=dt_tol)
         
         processed = True
 
@@ -290,14 +301,14 @@ def process_iteration(
     elif lf_north_south_good:
         # North cable processing
         if max_time_lf >= 0: # Do not associate the edge cases
-            mask_resi_n = dw.assoc.filter_peaks(nlf_residuals, nlf_idx_dist, nlf_idx_time, n_longi_offset, dx)
+            mask_resi_n = filter_peaks(nlf_residuals, nlf_idx_dist, nlf_idx_time, n_longi_offset, dx)
             # mask_resi_n = np.ones_like(nlf_residuals, dtype=bool)
             nlf_assoc_list_pair.append(np.asarray((nlf_idx_dist[mask_resi_n], nlf_idx_time[mask_resi_n])))
             n_used_hyperbolas.append(n_arr_tg[lf_imax, :])
             n_arr_tg[lf_imax, :] = dw.loc.calc_arrival_times(0, n_cable_pos, nlf_n[:3], c0)
 
             # South cable processing
-            mask_resi_s = dw.assoc.filter_peaks(slf_residuals, slf_idx_dist, slf_idx_time, s_longi_offset, dx)
+            mask_resi_s = filter_peaks(slf_residuals, slf_idx_dist, slf_idx_time, s_longi_offset, dx)
             # mask_resi_s = np.ones_like(slf_residuals, dtype=bool)
             slf_assoc_list_pair.append(np.asarray((slf_idx_dist[mask_resi_s], slf_idx_time[mask_resi_s])))
             s_used_hyperbolas.append(s_arr_tg[lf_imax, :])
@@ -307,12 +318,12 @@ def process_iteration(
             mask_resi_s = np.ones_like(slf_residuals, dtype=bool)
 
         # Remove selected picks from both frequency bands (north)
-        n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks(n_up_peaks_lf, nlf_idx_dist, nlf_idx_time, mask_resi_n, nSNRlf)
-        n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks_tolerance(n_up_peaks_hf, nlf_idx_dist, nlf_idx_time, mask_resi_n, nSNRhf, dt_tol=dt_tol)
+        n_up_peaks_lf, nSNRlf = remove_peaks(n_up_peaks_lf, nlf_idx_dist, nlf_idx_time, mask_resi_n, nSNRlf)
+        n_up_peaks_hf, nSNRhf = remove_peaks_tolerance(n_up_peaks_hf, nlf_idx_dist, nlf_idx_time, mask_resi_n, nSNRhf, dt_tol=dt_tol)
 
         # Remove selected picks from both frequency bands (south)
-        s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks(s_up_peaks_lf, slf_idx_dist, slf_idx_time, mask_resi_s, sSNRlf)
-        s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks_tolerance(s_up_peaks_hf, slf_idx_dist, slf_idx_time, mask_resi_s, sSNRhf, dt_tol=dt_tol)
+        s_up_peaks_lf, sSNRlf = remove_peaks(s_up_peaks_lf, slf_idx_dist, slf_idx_time, mask_resi_s, sSNRlf)
+        s_up_peaks_hf, sSNRhf = remove_peaks_tolerance(s_up_peaks_hf, slf_idx_dist, slf_idx_time, mask_resi_s, sSNRhf, dt_tol=dt_tol)
         
         processed = True
     
@@ -321,7 +332,7 @@ def process_iteration(
         # Case 3: Only HF North is good
         if only_hf_north_good:
             if max_time_hf >= 0:
-                mask_resi = dw.assoc.filter_peaks(nhf_residuals, nhf_idx_dist, nhf_idx_time, n_longi_offset, dx)
+                mask_resi = filter_peaks(nhf_residuals, nhf_idx_dist, nhf_idx_time, n_longi_offset, dx)
                 # mask_resi = np.ones_like(nhf_residuals, dtype=bool)
                 nhf_assoc_list.append(np.asarray((nhf_idx_dist[mask_resi], nhf_idx_time[mask_resi])))
                 n_used_hyperbolas.append(n_arr_tg[hf_imax, :])
@@ -329,14 +340,14 @@ def process_iteration(
             else:
                 mask_resi = np.ones_like(nhf_residuals, dtype=bool)
 
-            n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks(n_up_peaks_hf, nhf_idx_dist, nhf_idx_time, mask_resi, nSNRhf)
-            n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks_tolerance(n_up_peaks_lf, nhf_idx_dist, nhf_idx_time, mask_resi, nSNRlf, dt_tol=dt_tol)
+            n_up_peaks_hf, nSNRhf = remove_peaks(n_up_peaks_hf, nhf_idx_dist, nhf_idx_time, mask_resi, nSNRhf)
+            n_up_peaks_lf, nSNRlf = remove_peaks_tolerance(n_up_peaks_lf, nhf_idx_dist, nhf_idx_time, mask_resi, nSNRlf, dt_tol=dt_tol)
             processed = True
             
         # Case 4: Only HF South is good
         elif only_hf_south_good:
             if max_time_hf >= 0:
-                mask_resi = dw.assoc.filter_peaks(shf_residuals, shf_idx_dist, shf_idx_time, s_longi_offset, dx)
+                mask_resi = filter_peaks(shf_residuals, shf_idx_dist, shf_idx_time, s_longi_offset, dx)
                 # mask_resi = np.ones_like(shf_residuals, dtype=bool)
                 shf_assoc_list.append(np.asarray((shf_idx_dist[mask_resi], shf_idx_time[mask_resi])))
                 s_used_hyperbolas.append(s_arr_tg[hf_imax, :])
@@ -344,14 +355,14 @@ def process_iteration(
             else:
                 mask_resi = np.ones_like(shf_residuals, dtype=bool)
             
-            s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks(s_up_peaks_hf, shf_idx_dist, shf_idx_time, mask_resi, sSNRhf)
-            s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks_tolerance(s_up_peaks_lf, shf_idx_dist, shf_idx_time, mask_resi, sSNRlf, dt_tol=dt_tol)
+            s_up_peaks_hf, sSNRhf = remove_peaks(s_up_peaks_hf, shf_idx_dist, shf_idx_time, mask_resi, sSNRhf)
+            s_up_peaks_lf, sSNRlf = remove_peaks_tolerance(s_up_peaks_lf, shf_idx_dist, shf_idx_time, mask_resi, sSNRlf, dt_tol=dt_tol)
             processed = True
             
         # Case 5: Only LF North is good
         elif only_lf_north_good:
             if max_time_lf >= 0:
-                mask_resi = dw.assoc.filter_peaks(nlf_residuals, nlf_idx_dist, nlf_idx_time, n_longi_offset, dx)
+                mask_resi = filter_peaks(nlf_residuals, nlf_idx_dist, nlf_idx_time, n_longi_offset, dx)
                 # mask_resi = np.ones_like(nlf_residuals, dtype=bool)
                 nlf_assoc_list.append(np.asarray((nlf_idx_dist[mask_resi], nlf_idx_time[mask_resi])))
                 n_used_hyperbolas.append(n_arr_tg[lf_imax, :])
@@ -359,14 +370,14 @@ def process_iteration(
             else:
                 mask_resi = np.ones_like(nlf_residuals, dtype=bool)
             
-            n_up_peaks_lf, nSNRlf = dw.assoc.remove_peaks(n_up_peaks_lf, nlf_idx_dist, nlf_idx_time, mask_resi, nSNRlf)
-            n_up_peaks_hf, nSNRhf = dw.assoc.remove_peaks_tolerance(n_up_peaks_hf, nlf_idx_dist, nlf_idx_time, mask_resi, nSNRhf, dt_tol=dt_tol)
+            n_up_peaks_lf, nSNRlf = remove_peaks(n_up_peaks_lf, nlf_idx_dist, nlf_idx_time, mask_resi, nSNRlf)
+            n_up_peaks_hf, nSNRhf = remove_peaks_tolerance(n_up_peaks_hf, nlf_idx_dist, nlf_idx_time, mask_resi, nSNRhf, dt_tol=dt_tol)
             processed = True
             
         # Case 6: Only LF South is good
         elif only_lf_south_good:
             if max_time_lf >= 0:
-                mask_resi = dw.assoc.filter_peaks(slf_residuals, slf_idx_dist, slf_idx_time, s_longi_offset, dx)
+                mask_resi = filter_peaks(slf_residuals, slf_idx_dist, slf_idx_time, s_longi_offset, dx)
                 # mask_resi = np.ones_like(slf_residuals, dtype=bool)
                 slf_assoc_list.append(np.asarray((slf_idx_dist[mask_resi], slf_idx_time[mask_resi])))
                 s_used_hyperbolas.append(s_arr_tg[lf_imax, :])
@@ -374,8 +385,8 @@ def process_iteration(
             else:
                 mask_resi = np.ones_like(slf_residuals, dtype=bool)
             
-            s_up_peaks_lf, sSNRlf = dw.assoc.remove_peaks(s_up_peaks_lf, slf_idx_dist, slf_idx_time, mask_resi, sSNRlf)
-            s_up_peaks_hf, sSNRhf = dw.assoc.remove_peaks_tolerance(s_up_peaks_hf, slf_idx_dist, slf_idx_time, mask_resi, sSNRhf, dt_tol=dt_tol)
+            s_up_peaks_lf, sSNRlf = remove_peaks(s_up_peaks_lf, slf_idx_dist, slf_idx_time, mask_resi, sSNRlf)
+            s_up_peaks_hf, sSNRhf = remove_peaks_tolerance(s_up_peaks_hf, slf_idx_dist, slf_idx_time, mask_resi, sSNRhf, dt_tol=dt_tol)
             processed = True
     
     # Case 7: No good residuals - reject the hyperbolas
@@ -498,80 +509,8 @@ def select_picks(peaks, hyperbola, dt_sel, fs):
             else:
                 selected_picks[0].append(dist_idx)
                 selected_picks[1].append(idx)
-    
+    # TODO: Add condition on number of picks compared to the hyperbola size ?
     return np.array(selected_picks[0]), np.array(selected_picks[1])
-
-
-def compute_curvature(w_times, w_distances):
-    """Computes curvature using second derivatives."""
-    ddx = np.diff(w_times)
-    ddy = np.diff(w_distances)
-    ddx2 = np.diff(ddx)
-    ddy2 = np.diff(ddy)
-    curvature = np.abs(ddx2 * ddy[1:] - ddx[1:] * ddy2) / (ddx[1:]**2 + ddy[1:]**2)**(3/2)
-    return np.mean(curvature)
-
-
-def loc_picks(idx_dist, idx_time, cable_pos, c0, fs, Nbiter=20):
-    """
-    Solve the least squares localization problem for a single cable using the picks' indices.
-    
-    Parameters
-    ----------
-    idx_dist : array-like
-        The indices for the cable positions.
-    idx_time : array-like
-        The times corresponding to the cable positions.
-    cable_pos : array-like
-        The positions of the cable.
-    c0 : float
-        The speed of sound or another relevant constant for localization.
-    fs : float
-        The sampling frequency.
-    Nbiter : int, optional
-        The number of iterations for the least squares solution, default is 20.
-    
-    Returns
-    -------
-    tuple
-        A tuple containing the solution and the residuals of the least squares problem.
-    """
-    idxmin_t = np.argmin(idx_time)  # Find the index of the minimum time
-    times = idx_time / fs
-    apex_loc = cable_pos[:, 0][idx_dist[idxmin_t]]  # Find the apex location from the minimum time index
-    init = [apex_loc, np.mean(cable_pos[:, 1]), -40, np.min(times)]  # Initial guess for the localization
-    
-    # Solve the least squares problem using the provided parameters
-    n, residuals = dw.loc.solve_lq_weight(times, cable_pos[idx_dist], c0, Nbiter, fix_z=True, ninit=init, residuals=True)
-    
-    return n, residuals
-
-
-def compute_cumsum(residuals, idx_t, threshold=1500):
-    """
-    Compute a mask based on the cumulative sum of residuals.
-
-    Parameters
-    ----------
-    residuals : array-like
-        The residuals for the localization.
-    idx_t : array-like
-        The time indices for the residuals.
-    threshold : float, optional
-        The threshold value for the cumulative sum to generate the mask (default is 1500).
-
-    Returns
-    -------
-    mask_resi : array-like
-        A boolean mask where cumulative residuals are less than the threshold.
-    """
-    idx_min_t = np.argmin(idx_t)  # Find the index of the minimum time
-    left_cs = np.cumsum(abs(residuals[idx_min_t::-1]))  # Cumulative sum for the left side
-    right_cs = np.cumsum(abs(residuals[idx_min_t:]))   # Cumulative sum for the right side
-    mod_cs = np.concatenate((left_cs[::-1], right_cs[1:]))  # Combine both sides
-    mask_resi = mod_cs < threshold  # Create the mask based on the threshold
-    
-    return mask_resi
 
 
 def get_window_mask(times, w_eval):
@@ -641,7 +580,128 @@ def apply_spatial_windows(peaks, snr, win):
     return peaks, snr
 
 
-def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 5):
+def compute_curvature(w_times, w_distances):
+    """Computes curvature using second derivatives."""
+    ddx = np.diff(w_times)
+    ddy = np.diff(w_distances)
+    ddx2 = np.diff(ddx)
+    ddy2 = np.diff(ddy)
+    curvature = np.abs(ddx2 * ddy[1:] - ddx[1:] * ddy2) / (ddx[1:]**2 + ddy[1:]**2)**(3/2)
+    return np.mean(curvature)
+    
+
+def loc_picks(idx_dist, idx_time, cable_pos, c0, fs, Nbiter=20):
+    """
+    Solve the least squares localization problem for a single cable using the picks' indices.
+    
+    Parameters
+    ----------
+    idx_dist : array-like
+        The indices for the cable positions.
+    idx_time : array-like
+        The times corresponding to the cable positions.
+    cable_pos : array-like
+        The positions of the cable.
+    c0 : float
+        The speed of sound or another relevant constant for localization.
+    fs : float
+        The sampling frequency.
+    Nbiter : int, optional
+        The number of iterations for the least squares solution, default is 20.
+    
+    Returns
+    -------
+    tuple
+        A tuple containing the solution and the residuals of the least squares problem.
+    """
+    # Check if the indices are empty
+    if len(idx_dist) == 0:
+        return None, None
+    
+    idxmin_t = np.argmin(idx_time)  # Find the index of the minimum time
+    times = idx_time / fs
+    apex_loc = cable_pos[:, 0][idx_dist[idxmin_t]]  # Find the apex location from the minimum time index
+    init = [apex_loc, np.mean(cable_pos[:, 1]), -40, np.min(times)]  # Initial guess for the localization
+    
+    # Solve the least squares problem using the provided parameters
+    n, residuals = dw.loc.solve_lq_weight(times, cable_pos[idx_dist], c0, Nbiter, fix_z=True, ninit=init, residuals=True)
+    
+    return n, residuals
+
+
+def loc_from_picks_list(associated_list, cable_pos, c0, fs):
+    localizations = []
+    alt_localizations = []
+
+    for select in associated_list:
+        if select is None or len(select[1]) == 0:
+            print("No picks selected, skipping localization.")
+            localizations.append(None)
+            alt_localizations.append(None)
+            continue  # Skip if no picks are selected
+        idxmin_t = np.argmin(select[1][:])
+        apex_loc = cable_pos[:, 0][select[0][idxmin_t]]
+        Ti = select[1][:] / fs
+        Nbiter = 20
+
+        # Initial guess (apex_loc, mean_y, -30m, min(Ti))
+        n_init = [apex_loc, np.mean(cable_pos[:,1]), -40, np.min(Ti)]
+        print(f'Initial guess: {n_init[0]:.2f} m, {n_init[1]:.2f} m, {n_init[2]:.2f} m, {n_init[3]:.2f} s')
+        # Solve the least squares problem
+        n = dw.loc.solve_lq_weight(Ti, cable_pos[select[0][:]], c0, Nbiter, fix_z=True, ninit=n_init)
+        nalt = dw.loc.solve_lq_weight(Ti, cable_pos[select[0][:]], c0, Nbiter-1, fix_z=True, ninit=n_init)
+
+        localizations.append(n)
+        alt_localizations.append(nalt)
+
+    return localizations, alt_localizations
+
+
+def compute_cumsum(residuals, idx_t, threshold=1500):
+    """
+    Compute a mask based on the cumulative sum of residuals.
+
+    Parameters
+    ----------
+    residuals : array-like
+        The residuals for the localization.
+    idx_t : array-like
+        The time indices for the residuals.
+    threshold : float, optional
+        The threshold value for the cumulative sum to generate the mask (default is 1500).
+
+    Returns
+    -------
+    mask_resi : array-like
+        A boolean mask where cumulative residuals are less than the threshold.
+    """
+    idx_min_t = np.argmin(idx_t)  # Find the index of the minimum time
+    left_cs = np.cumsum(abs(residuals[idx_min_t::-1]))  # Cumulative sum for the left side
+    right_cs = np.cumsum(abs(residuals[idx_min_t:]))   # Cumulative sum for the right side
+    mod_cs = np.concatenate((left_cs[::-1], right_cs[1:]))  # Combine both sides
+    mask_resi = mod_cs < threshold  # Create the mask based on the threshold
+    
+    return mask_resi
+
+
+def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 15):
+    """ Filters peaks based on distance and residuals.
+    Parameters
+    ----------
+    residuals : np.ndarray
+        Residuals of the least-square localization.
+    idx_dist : np.ndarray
+        Indices of the distances of the picks.
+    idx_time : np.ndarray   
+        Indices of the times of the picks.
+    longi_offset : float
+        Longitudinal offset for the distance calculation.
+    dx : float
+        Spatial step size in meters.
+    gap_tresh : float, optional
+        Threshold for the maximal gap accepted between the picks (default is 15 km). The closest picks to the minimum time will be kept.
+    """
+
     idxmin_t = np.argmin(idx_time)
     distances = (longi_offset + idx_dist) * dx * 1e-3
 
@@ -649,7 +709,7 @@ def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 5)
     gaps = np.zeros_like(distances)
 
     rms_total = np.sqrt(np.mean(residuals**2))
-    mask_resi = abs(residuals) <  1.5 * rms_total
+    mask_resi = abs(residuals) <  2 * rms_total
     # Find the gaps only for the valid (masked) distances
     valid_distances = distances[mask_resi]
     if valid_distances.size > 1:
@@ -659,7 +719,6 @@ def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 5)
         gaps[idx_valid[:-1]] = gaps_valid
 
     # Distance gaps evaluation
-    # gaps = np.diff(distances)
     # Remove points after a large gap from the minimum 
     for l, gap in enumerate(gaps[idxmin_t:]):
         if gap > gap_tresh:
@@ -671,7 +730,7 @@ def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 5)
         if gap > gap_tresh:
             mask_resi[:idxmin_t - l] = False
             break
-    return mask_resi & mask_dist
+    return mask_dist & mask_resi
 
 
 def select_snr(up_peaks, selected_peaks, snr):
@@ -692,6 +751,41 @@ def remove_peaks(up_peaks, idx_dist, idx_time, mask_resi, snr):
     for d, t in zip(idx_dist[mask_resi], idx_time[mask_resi]):
         mask &= ~((up_peaks[0, :] == d) & (up_peaks[1, :] == t))
     return up_peaks[:, mask], snr[mask]
+
+
+def clean_pairs(
+    primary: list[np.ndarray],
+    counterpart:list[np.ndarray],
+    counterpart_associated: list[np.ndarray],
+) -> None:
+    
+    """
+    """
+    empty_idx = [i for i, arr in enumerate(primary) if arr.size <= 1000]
+
+    for i in reversed(empty_idx):
+        counterpart_associated.append(counterpart.pop(i))
+        primary.pop(i)
+    return
+
+
+def clean_singles(associtations: list[np.ndarray]) -> None:
+    """
+    Cleans the single associations by removing empty arrays.
+    
+    Parameters
+    ----------
+    associtations : list of np.ndarray
+        List of associations to clean.
+    
+    Returns
+    -------
+    None
+    """
+    empty_idx = [i for i, arr in enumerate(associtations) if arr.size <= 1000]
+
+    for i in reversed(empty_idx):
+        associtations.pop(i)
 
 
 def remove_peaks_tolerance(up_peaks, idx_dist, idx_time, mask_resi, snr, dist_tol=0, dt_tol=10):
@@ -730,41 +824,6 @@ def remove_peaks_tolerance(up_peaks, idx_dist, idx_time, mask_resi, snr, dist_to
         mask &= ~(dist_match & time_match)
 
     return up_peaks[:, mask], snr[mask]
-
-
-def clean_pairs(
-    primary: list[np.ndarray],
-    counterpart:list[np.ndarray],
-    counterpart_associated: list[np.ndarray],
-) -> None:
-    
-    """
-    """
-    empty_idx = [i for i, arr in enumerate(primary) if arr.size <= 1000]
-
-    for i in reversed(empty_idx):
-        counterpart_associated.append(counterpart.pop(i))
-        primary.pop(i)
-    return
-
-
-def clean_singles(associtations: list[np.ndarray]) -> None:
-    """
-    Cleans the single associations by removing empty arrays.
-    
-    Parameters
-    ----------
-    associtations : list of np.ndarray
-        List of associations to clean.
-    
-    Returns
-    -------
-    None
-    """
-    empty_idx = [i for i, arr in enumerate(associtations) if arr.size <= 1000]
-
-    for i in reversed(empty_idx):
-        associtations.pop(i)
 
 
 def save_assoc(
@@ -859,7 +918,7 @@ def save_assoc(
         pickle.dump(results, f)
 
 
-## Plotting functions ----- ------------------------------------------------ 
+## Plotting functions ----------------------------------------------------- 
 
 
 def plot_peaks(peaks, SNR, selected_channels_m, dx, fs):
@@ -913,7 +972,7 @@ def plot_peaks(peaks, SNR, selected_channels_m, dx, fs):
 
 def plot_reject_pick(peaks, longi_offset, dist, dx, associated_list, rejected_list, rejected_hyperbolas, fs):
     # Plot the selected picks alongside the original picks
-    plt.figure(figsize=(20,8))
+    fig=plt.figure(figsize=(20,8))
     plt.subplot(2, 2, 1)
     plt.scatter(peaks[1][:] / fs, (longi_offset + peaks[0][:]) * dx * 1e-3, label='HF', s=0.5)
     plt.xlabel('Time [s]')
@@ -933,7 +992,7 @@ def plot_reject_pick(peaks, longi_offset, dist, dx, associated_list, rejected_li
     for select in rejected_list:
         plt.scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3, label='LF', s=0.5)
     plt.xlabel('Time [s]')
-    plt.show()
+    return fig
 
 
 def plot_associated_bicable(n_peaks, s_peaks, longi_offset, pair_assoc_list, pair_loc_list, associated_list, localizations,
@@ -1123,7 +1182,7 @@ def plot_associated_bicable(n_peaks, s_peaks, longi_offset, pair_assoc_list, pai
 
     # HF gradient bar (positioned in upper part of container)
     hf_gradient_ax = inset_axes(legend_container, width="80%", height="35%", loc='upper center',
-                            bbox_to_anchor=(0, 0.15, 1, 0.8), bbox_transform=legend_container.transAxes)
+                            bbox_to_anchor=(0, 0.1, 1, 0.8), bbox_transform=legend_container.transAxes)
     hf_gradient_ax.imshow(gradient_values, aspect='auto', cmap=hf_cmap_custom)
     hf_gradient_ax.set_xticks([])
     hf_gradient_ax.set_yticks([])
@@ -1131,7 +1190,7 @@ def plot_associated_bicable(n_peaks, s_peaks, longi_offset, pair_assoc_list, pai
 
     # LF gradient bar (positioned in lower part of container)
     lf_gradient_ax = inset_axes(legend_container, width="80%", height="35%", loc='lower center',
-                            bbox_to_anchor=(0, -0.05, 1, 0.8), bbox_transform=legend_container.transAxes)
+                            bbox_to_anchor=(0, 0.0, 1, 0.8), bbox_transform=legend_container.transAxes)
     lf_gradient_ax.imshow(gradient_values, aspect='auto', cmap=lf_cmap_custom)
     lf_gradient_ax.set_xticks([])
     lf_gradient_ax.set_yticks([])

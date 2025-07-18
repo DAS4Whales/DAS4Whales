@@ -42,8 +42,8 @@ dist_tol = 20   # meters
 # Batch4 2021-11-04_08:00:02
 # Batch5 2021-11-04_12:09:12
 
-batch = '4'
-timestamp = '2021-11-04_08:00:02'
+batch = '1'
+timestamp = '2021-11-04_02:00:02'
 
 def load_data(batch, timestamp):
     """Load the data for a specific batch and timestamp."""

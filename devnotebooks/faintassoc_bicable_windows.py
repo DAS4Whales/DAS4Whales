@@ -52,9 +52,13 @@ plt.rcParams['font.size'] = 14
 # n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc') 
 # s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
 
+# Gabor filtered data
+n_ds = xr.load_dataset('../out/sparse_picks_Gabor/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc')
+s_ds = xr.load_dataset('../out/sparse_picks_Gabor/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
+
 # Problematic data
-n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_08:00:02_ipi3_th_4.nc') 
-s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_08:00:02_ipi3_th_5.nc')
+# n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_08:00:02_ipi3_th_4.nc') 
+# s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_08:00:02_ipi3_th_5.nc')
 
 # +
 # Constants from the metadata
@@ -551,7 +555,7 @@ sSNRhf = np.copy(snr_far[2])
 sSNRlf = np.copy(snr_far[3])
 # -
 
-iterations = 15
+iterations = 10
 
 # +
 pbar = tqdm(range(iterations), desc="Associated calls: 0")
