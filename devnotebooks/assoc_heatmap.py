@@ -285,6 +285,32 @@ print(np.shape(t_kde))
 
 # -
 
+# Plot the kde values in time as a contour plot, with the mean and std
+plt.figure(figsize=(20,8))
+plt.subplot(1,2,1)
+plt.title('North Cable')
+plt.contourf(t_kde, n_dist/1e3, sum_kde,
+            levels=np.linspace(0, np.max(sum_kde), 100), cmap='viridis')
+plt.colorbar(label='KDE')
+plt.plot(t_kde, mu_t, color='red', label='Mean')
+plt.fill_between(t_kde, mu_t - sigma_t, mu_t + sigma_t,
+                 color='red', alpha=0.2, label='Std')
+plt.xlabel('Time [s]')
+plt.ylabel('Distance [km]')
+plt.legend()        
+plt.subplot(1,2,2)
+plt.title('South Cable')
+plt.contourf(t_kde, s_dist/1e3, sum_kde,
+            levels=np.linspace(0, np.max(sum_kde), 100), cmap='vir  idis')
+plt.colorbar(label='KDE')
+plt.plot(t_kde, mu_t, color='red', label='Mean')
+plt.fill_between(t_kde, mu_t - sigma_t, mu_t + sigma_t,
+                 color='red', alpha=0.2, label='Std')
+plt.xlabel('Time [s]')
+plt.ylabel('Distance [km]')
+plt.legend()
+plt.show()
+
 n_distances = np.sqrt((xg[:, None] - n_cable_pos[:, 0])**2 + (yg[:, None] - n_cable_pos[:, 1])**2 + 200*(zg - n_cable_pos[:, 2])**2)
 s_distances = np.sqrt((xg[:, None] - s_cable_pos[:, 0])**2 + (yg[:, None] - s_cable_pos[:, 1])**2 + 200*(zg - s_cable_pos[:, 2])**2)
 print(n_distances.shape, s_distances.shape)

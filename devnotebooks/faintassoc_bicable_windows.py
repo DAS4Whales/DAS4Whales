@@ -111,7 +111,95 @@ selected_channels_m = (n_selected_channels_m, s_selected_channels_m)
 
 dw.assoc.plot_peaks(peaks, SNRs, selected_channels_m, dx, fs)
 plt.show()
+
+
+# +
+def sort_hflf_bysnr(input_peaks, comp_peaks, input_SNR, comp_SNR, dt_tol, dx_tol):
+    """ Sort peaks that are at the same distance and time but keep the one with higher SNR 
+    to differentiate between HF and LF peaks.
+    
+    Parameters
+    ----------
+    input_peaks : np.ndarray
+        Array of shape (2, n_peaks) containing [distance_indices, time_indices] of the input peaks.
+    comp_peaks : np.ndarray
+        Array of shape (2, n_peaks) containing [distance_indices, time_indices] of the comparison peaks.
+    input_SNR : np.ndarray
+        Array of shape (n_peaks_input) containing the SNR values for the input peaks
+    comp_SNR : np.ndarray
+        Array of shape (n_peaks_comp) containing the SNR values for the comparison peaks
+    dt_tol : int
+        Tolerance in time index to consider peaks as matching.
+    dx_tol : int
+        Tolerance in distance index to consider peaks as matching.
+    """
+    # Make copies to avoid modifying input arrays
+    input_peaks = input_peaks.copy()
+    comp_peaks = comp_peaks.copy()
+    input_SNR = input_SNR.copy()
+    comp_SNR = comp_SNR.copy()
+    
+    ix = comp_peaks[0, :]
+    it = comp_peaks[1, :]
+    
+    for i, (d, t) in enumerate(zip(ix, it)):
+        # Skip if this comparison peak is already zeroed
+        if d == 0 and t == 0:
+            continue
+            
+        # Find matching input peaks within tolerance
+        dist_match = np.abs(input_peaks[0, :] - d) <= dx_tol
+        time_match = np.abs(input_peaks[1, :] - t) <= dt_tol
+        mask = dist_match & time_match
+        if np.sum(mask) > 0:
+            print(f"Found {np.sum(mask)} matching input peaks for comparison peak {i} at distance {d} and time {t}.")
+            # Get indices of matching input peaks
+            input_match_indices = np.where(mask)[0]
+            print(f"Found {len(input_match_indices)} matching input peaks for comparison peak {i} at distance {d} and time {t}.")
+            # Skip already zeroed input peaks
+            valid_matches = []
+            for idx in input_match_indices:
+                if not (input_peaks[0, idx] == 0 and input_peaks[1, idx] == 0):
+                    valid_matches.append(idx)
+            
+            if len(valid_matches) > 0:
+                # Compare with the first valid matching input peak
+                input_idx = valid_matches[0]
+                
+                if input_SNR[input_idx] > comp_SNR[i]:
+                    # Remove comparison peak
+                    comp_peaks[0, i] = 0
+                    comp_peaks[1, i] = 0
+                    comp_SNR[i] = 0
+                else:
+                    # Remove all matching input peaks
+                    for idx in valid_matches:
+                        input_peaks[0, idx] = 0
+                        input_peaks[1, idx] = 0
+                        input_SNR[idx] = 0
+    
+    return input_peaks, input_SNR, comp_peaks, comp_SNR
+
+# Sort the peaks based on SNR difference
+npeakshf, nSNRhf, npeakslf, nSNRlf = sort_hflf_bysnr(
+    npeakshf, npeakslf, nSNRhf, nSNRlf, dt_tol=100, dx_tol=10
+)
+
+speakshf, sSNRhf, speakslf, sSNRlf = sort_hflf_bysnr(
+    speakshf, speakslf, sSNRhf, sSNRlf, dt_tol=100, dx_tol=10
+)
+
+# Plot the sorted peaks
+peaks = (npeakshf, npeakslf, speakshf, speakslf)
+SNRs = (nSNRhf, nSNRlf, sSNRhf, sSNRlf)
+selected_channels_m = (n_selected_channels_m, s_selected_channels_m)
+dw.assoc.plot_peaks(peaks, SNRs, selected_channels_m, dx, fs)
+plt.show()
+
 # -
+
+print(f"North SNR difference shape: {diff_SNR_north.shape}")
+
 
 # ## Plot the map 
 

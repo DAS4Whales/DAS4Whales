@@ -55,6 +55,17 @@ def process_iteration(
     n_rejected_list, s_rejected_list, n_rejected_hyperbolas, s_rejected_hyperbolas = rejected_lists 
     n_used_hyperbolas, s_used_hyperbolas = hyperbolas
 
+    # Stop if not enough peaks
+    if (len(n_up_peaks_hf[0]) < 100 or len(n_up_peaks_lf[0]) < 100 or
+        len(s_up_peaks_hf[0]) < 100 or len(s_up_peaks_lf[0]) < 100):
+        print("Not enough peaks to process, ending association loop.")
+        return (
+            n_up_peaks_hf, n_up_peaks_lf, s_up_peaks_hf, s_up_peaks_lf,
+            nSNRhf, nSNRlf, sSNRhf, sSNRlf,
+            n_arr_tg, s_arr_tg, n_shape_x, s_shape_x,
+            association_lists, rejected_lists, hyperbolas
+        )
+
     # PART 1: PREPARE DATA AND COMPUTE KDEs
     # =====================================
     
@@ -115,6 +126,11 @@ def process_iteration(
         delayed(fast_kde_rect)(s_delayed_picks_lf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=sSNRlf)
         for i in range(s_shape_x)
     ))
+
+    # Stop criterion based on statistics of the KDEs
+    if iteration == 0:
+        # Calculate the sum of all KDEs
+        sum_kde = n_kde_hf + n_kde_lf + s_kde_hf + s_kde_lf
 
     # Reduced the number of grid points to speed up the process 
     # if iteration == 0:  
