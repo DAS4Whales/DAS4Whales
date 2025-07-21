@@ -769,3 +769,77 @@ def compute_cross_correlogram_spectrocorr(data, fs, flims, kernel, win_size, ove
         cross_correlogram[i, :] = xcorr2d(spectro, kernel)
 
     return cross_correlogram
+
+
+def sort_hflf_bysnr(input_peaks: np.ndarray, comp_peaks: np.ndarray, 
+                    input_SNR: np.ndarray, comp_SNR: np.ndarray, dt_tol: int, dx_tol: int):
+    #TODO: maybe add tqdm progress bar for large datasets
+    """ Sort peaks that are at the same distance and time but keep the one with higher SNR
+    to differentiate between HF and LF peaks.
+    
+    Parameters
+    ----------
+    input_peaks : np.ndarray
+        Array of shape (2, n_peaks) containing [distance_indices, time_indices] of the input peaks.
+    comp_peaks : np.ndarray
+        Array of shape (2, n_peaks) containing [distance_indices, time_indices] of the comparison peaks.
+    input_SNR : np.ndarray
+        Array of shape (n_peaks_input) containing the SNR values for the input peaks
+    comp_SNR : np.ndarray
+        Array of shape (n_peaks_comp) containing the SNR values for the comparison peaks
+    dt_tol : int
+        Tolerance in time index to consider peaks as matching.
+    dx_tol : int
+        Tolerance in distance index to consider peaks as matching.
+    """
+    # Make copies to avoid modifying input arrays
+    input_peaks = input_peaks.copy()
+    comp_peaks = comp_peaks.copy()
+    input_SNR = input_SNR.copy()
+    comp_SNR = comp_SNR.copy()
+    
+    # Track which peaks to keep (start with all True)
+    input_keep = np.ones(input_peaks.shape[1], dtype=bool)
+    comp_keep = np.ones(comp_peaks.shape[1], dtype=bool)
+    
+    ix = comp_peaks[0, :]
+    it = comp_peaks[1, :]
+    
+    for i, (d, t) in enumerate(zip(ix, it)):
+        # Skip if this comparison peak is already marked for removal
+        if not comp_keep[i]:
+            continue
+            
+        # Find matching input peaks within tolerance
+        dist_match = np.abs(input_peaks[0, :] - d) <= dx_tol
+        time_match = np.abs(input_peaks[1, :] - t) <= dt_tol
+        mask = dist_match & time_match
+        
+        # Only consider peaks that are still marked to keep
+        valid_mask = mask & input_keep
+        
+        if np.sum(valid_mask) > 0:
+            # print(f"Found {np.sum(valid_mask)} matching input peaks for comparison peak {i} at distance {d} and time {t}.")
+            
+            # Get indices of valid matching input peaks
+            input_match_indices = np.where(valid_mask)[0]
+            
+            # Compare with the first valid matching input peak
+            input_idx = input_match_indices[0]
+            
+            if input_SNR[input_idx] > comp_SNR[i]:
+                # Mark comparison peak for removal
+                comp_keep[i] = False
+                # print(f"Removing comparison peak {i} (SNR: {comp_SNR[i]:.2f}) in favor of input peak {input_idx} (SNR: {input_SNR[input_idx]:.2f})")
+            else:
+                # Mark all matching input peaks for removal
+                input_keep[input_match_indices] = False
+                # print(f"Removing {len(input_match_indices)} input peaks in favor of comparison peak {i} (SNR: {comp_SNR[i]:.2f})")
+    
+    # Filter arrays to keep only selected peaks
+    input_peaks_out = input_peaks[:, input_keep]
+    input_SNR_out = input_SNR[input_keep]
+    comp_peaks_out = comp_peaks[:, comp_keep]
+    comp_SNR_out = comp_SNR[comp_keep]
+    
+    return input_peaks_out, input_SNR_out, comp_peaks_out, comp_SNR_out
