@@ -771,7 +771,7 @@ def compute_cross_correlogram_spectrocorr(data, fs, flims, kernel, win_size, ove
     return cross_correlogram
 
 
-def sort_hflf_bysnr(input_peaks: np.ndarray, comp_peaks: np.ndarray, 
+def resolve_hf_lf_crosstalk(input_peaks: np.ndarray, comp_peaks: np.ndarray, 
                     input_SNR: np.ndarray, comp_SNR: np.ndarray, dt_tol: int, dx_tol: int):
     #TODO: maybe add tqdm progress bar for large datasets
     """ Sort peaks that are at the same distance and time but keep the one with higher SNR
@@ -805,7 +805,7 @@ def sort_hflf_bysnr(input_peaks: np.ndarray, comp_peaks: np.ndarray,
     ix = comp_peaks[0, :]
     it = comp_peaks[1, :]
     
-    for i, (d, t) in enumerate(zip(ix, it)):
+    for i, (d, t) in tqdm(enumerate(zip(ix, it)), total=len(ix), desc="Post-filtering hf/lf detections"):
         # Skip if this comparison peak is already marked for removal
         if not comp_keep[i]:
             continue

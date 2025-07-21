@@ -114,12 +114,12 @@ plt.show()
 
 # +
 # Sort the peaks based on SNR difference
-npeakshf, nSNRhf, npeakslf, nSNRlf = dw.detect.sort_hflf_bysnr(
-    npeakshf, npeakslf, nSNRhf, nSNRlf, dt_tol=100, dx_tol=10
+npeakshf, nSNRhf, npeakslf, nSNRlf = dw.detect.resolve_hf_lf_crosstalk(
+    npeakshf, npeakslf, nSNRhf, nSNRlf, dt_tol=100, dx_tol=30
 )
 
-speakshf, sSNRhf, speakslf, sSNRlf = dw.detect.sort_hflf_bysnr(
-    speakshf, speakslf, sSNRhf, sSNRlf, dt_tol=100, dx_tol=10
+speakshf, sSNRhf, speakslf, sSNRlf = dw.detect.resolve_hf_lf_crosstalk(
+    speakshf, speakslf, sSNRhf, sSNRlf, dt_tol=100, dx_tol=30
 )
 
 # Plot the sorted peaks
