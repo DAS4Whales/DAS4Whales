@@ -994,6 +994,52 @@ def plot_peaks(peaks, SNR, selected_channels_m, dx, fs):
     return fig
 
 
+def plot_tpicks_resolved(peaks, SNR, selected_channels_m, dx, fs):
+    # Unpack the peaks and SNR data
+    nhf_peaks, nlf_peaks, shf_peaks, slf_peaks = peaks
+    nhf_SNR, nlf_SNR, shf_SNR, slf_SNR = SNR
+    n_selected_channels_m, s_selected_channels_m = selected_channels_m
+
+    # Determine common color scale
+    vmin = min(np.min(nhf_SNR), np.min(nlf_SNR), np.min(shf_SNR), np.min(slf_SNR))
+    vmax = max(np.max(nhf_SNR), np.max(nlf_SNR), np.max(shf_SNR), np.max(slf_SNR))
+    cmap_hf = cm.plasma  # Define colormap
+    norm = colors.Normalize(vmin=vmin, vmax=vmax)  # Normalize color range
+    cmap_lf = cm.viridis  # Define a different colormap for LF
+
+    # Create figure
+    fig, axes = plt.subplots(2, 1, figsize=(10, 16), sharex=True, sharey=False)
+
+    # First subplot
+    sc1 = axes[0].scatter(nhf_peaks[1][:] / fs, (n_selected_channels_m[0] + nhf_peaks[0][:] * dx) * 1e-3, 
+                            c=nhf_SNR, cmap=cmap_hf, norm=norm, s=nhf_SNR)
+    sc2 = axes[0].scatter(nlf_peaks[1][:] / fs, (n_selected_channels_m[0] + nlf_peaks[0][:] * dx) * 1e-3, 
+                            c=nlf_SNR, cmap=cmap_lf, norm=norm, s=nlf_SNR)
+    axes[0].set_title('North Cable')
+    axes[0].set_ylabel('Distance [km]')
+    axes[0].set_ylim(n_selected_channels_m[0] * 1e-3, n_selected_channels_m[1] * 1e-3)
+    axes[0].grid(linestyle='--', alpha=0.5)
+
+    # Second subplot
+    sc3 = axes[1].scatter(shf_peaks[1][:] / fs, (s_selected_channels_m[0] + shf_peaks[0][:] * dx) * 1e-3, 
+                            c=shf_SNR, cmap=cmap_hf, norm=norm, s=shf_SNR)
+    sc4 = axes[1].scatter(slf_peaks[1][:] / fs, (s_selected_channels_m[0] + slf_peaks[0][:] * dx) * 1e-3, 
+                            c=slf_SNR, cmap=cmap_lf, norm=norm, s=slf_SNR)
+    axes[1].set_title('South Cable')
+    axes[1].set_xlabel('Time [s]')
+    axes[1].set_ylabel('Distance [km]')
+    axes[1].set_ylim(s_selected_channels_m[0] * 1e-3, s_selected_channels_m[1] * 1e-3)
+    axes[1].grid(linestyle='--', alpha=0.5)
+
+    # Create a single colorbar for all subplots
+    cbar1 = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap_hf), ax=axes[0], orientation='vertical', fraction=0.04, pad=0.02)
+    cbar1.set_label('SNR - hf picks')
+    cbar2 = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap_lf), ax=axes[1], orientation='vertical', fraction=0.04, pad=0.02)
+    cbar2.set_label('SNR - lf picks')
+
+    return fig
+
+
 def plot_reject_pick(peaks, longi_offset, dist, dx, associated_list, rejected_list, rejected_hyperbolas, fs):
     # Plot the selected picks alongside the original picks
     fig=plt.figure(figsize=(20,8))

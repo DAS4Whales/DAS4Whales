@@ -773,7 +773,7 @@ def compute_cross_correlogram_spectrocorr(data, fs, flims, kernel, win_size, ove
 
 def resolve_hf_lf_crosstalk(input_peaks: np.ndarray, comp_peaks: np.ndarray, 
                     input_SNR: np.ndarray, comp_SNR: np.ndarray, dt_tol: int, dx_tol: int):
-    #TODO: maybe add tqdm progress bar for large datasets
+    #TODO: maybe parallelize this function to speed up the process
     """ Sort peaks that are at the same distance and time but keep the one with higher SNR
     to differentiate between HF and LF peaks.
     

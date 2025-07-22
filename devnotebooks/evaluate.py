@@ -62,6 +62,7 @@ def get_time_dist(pairs, fs, dx, selected_channels, selected_channel_m):
     return np.vstack([times, dists]).T
 
 
+
 # +
 association, n_annotations, s_annotations = load_data(batch, timestamp)
 
@@ -95,8 +96,8 @@ for array, annots, sel_ch, sel_ch_m in [
         # Get all detection points for this call type and array
         pairs_list = assoc_pair[array][call_type]
         single_list = assoc[array][call_type]
-        all_pairs = [get_time_dist(pairs, fs, dx, sel_ch, sel_ch_m) for pairs in pairs_list]
-        all_single = [get_time_dist(single, fs, dx, sel_ch, sel_ch_m) for single in single_list]
+        all_pairs = [get_time_dist(pairs, fs, dx, sel_ch, sel_ch_m) for pairs in pairs_list if pairs[0].size >= 500]
+        all_single = [get_time_dist(single, fs, dx, sel_ch, sel_ch_m) for single in single_list if single[0].size >= 500]
         detected = np.vstack(all_pairs + all_single)  if all_pairs or all_single else np.empty((0, 2))
 
         TP, FP, FN = 0, 0, 0

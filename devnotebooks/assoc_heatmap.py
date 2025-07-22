@@ -40,9 +40,13 @@ from scipy.stats import gaussian_kde
 from sklearn.neighbors import KernelDensity
 from scipy.optimize import curve_fit
 
+# +
 # Load the peak indexes and the metadata
-n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc') 
-s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
+# n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc') 
+# s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
+
+n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_08:00:02_ipi3_th_4.nc') 
+s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_08:00:02_ipi3_th_5.nc')
 
 # +
 # Constants from the metadata
@@ -87,6 +91,26 @@ SNRs = (nSNRhf, nSNRlf, sSNRhf, sSNRlf)
 selected_channels_m = (n_selected_channels_m, s_selected_channels_m)
 
 dw.assoc.plot_peaks(peaks, SNRs, selected_channels_m, dx, fs)
+plt.show()
+
+# +
+# Sort the peaks based on SNR difference
+npeakshf, nSNRhf, npeakslf, nSNRlf = dw.detect.resolve_hf_lf_crosstalk(
+    npeakshf, npeakslf, nSNRhf, nSNRlf, dt_tol=100, dx_tol=30
+)
+
+speakshf, sSNRhf, speakslf, sSNRlf = dw.detect.resolve_hf_lf_crosstalk(
+    speakshf, speakslf, sSNRhf, sSNRlf, dt_tol=100, dx_tol=30
+)
+
+# -
+
+# Plot the sorted peaks
+peaks = (npeakshf, npeakslf, speakshf, speakslf)
+SNRs = (nSNRhf, nSNRlf, sSNRhf, sSNRlf)
+selected_channels_m = (n_selected_channels_m, s_selected_channels_m)
+# dw.assoc.plot_peaks(peaks, SNRs, selected_channels_m, dx, fs)
+dw.assoc.plot_tpicks_resolved(peaks, SNRs, selected_channels_m, dx, fs)
 plt.show()
 
 # +
@@ -273,43 +297,110 @@ sum_kde = n_kde_hf + s_kde_hf + n_kde_lf + s_kde_lf
 # Hadamard product of the two kdes
 prod_kde = n_kde_hf * s_kde_hf * n_kde_lf * s_kde_lf
 
+sum_north = n_kde_hf + n_kde_lf
+sum_south = s_kde_hf + s_kde_lf
+
 mu = np.mean(sum_kde)
-mu_t = np.mean(sum_kde, axis=1)
-mu_sp= np.mean(sum_kde, axis=0)
+mu_t = np.mean(sum_kde, axis=0)
+mu_sp= np.mean(sum_kde, axis=1)
 
 sigma = np.std(sum_kde)
-sigma_t = np.std(sum_kde, axis=1)
-sigma_sp = np.std(sum_kde, axis=0)
+sigma_t = np.std(sum_kde, axis=0)
+sigma_sp = np.std(sum_kde, axis=1)
 
-print(np.shape(t_kde))
+# Stats 
+mu_north = np.mean(sum_north)
+mu_south = np.mean(sum_south)
+mu_north_t = np.mean(sum_north, axis=0)
+mu_south_t = np.mean(sum_south, axis=0)
+sigma_north = np.std(sum_north)
+sigma_south = np.std(sum_south)
+sigma_north_t = np.std(sum_north, axis=0)
+sigma_south_t = np.std(sum_south, axis=0)
 
-# -
+print(sum_kde.shape)
 
-# Plot the kde values in time as a contour plot, with the mean and std
-plt.figure(figsize=(20,8))
-plt.subplot(1,2,1)
-plt.title('North Cable')
-plt.contourf(t_kde, n_dist/1e3, sum_kde,
-            levels=np.linspace(0, np.max(sum_kde), 100), cmap='viridis')
-plt.colorbar(label='KDE')
-plt.plot(t_kde, mu_t, color='red', label='Mean')
-plt.fill_between(t_kde, mu_t - sigma_t, mu_t + sigma_t,
-                 color='red', alpha=0.2, label='Std')
-plt.xlabel('Time [s]')
-plt.ylabel('Distance [km]')
-plt.legend()        
-plt.subplot(1,2,2)
-plt.title('South Cable')
-plt.contourf(t_kde, s_dist/1e3, sum_kde,
-            levels=np.linspace(0, np.max(sum_kde), 100), cmap='vir  idis')
-plt.colorbar(label='KDE')
-plt.plot(t_kde, mu_t, color='red', label='Mean')
-plt.fill_between(t_kde, mu_t - sigma_t, mu_t + sigma_t,
-                 color='red', alpha=0.2, label='Std')
-plt.xlabel('Time [s]')
-plt.ylabel('Distance [km]')
-plt.legend()
+
+# +
+plt.rcParams.update({'font.size': 16})
+# Shared parameters for north and south plots
+# Create bins for the amplitude values
+n_bins = 16
+amp_min, amp_max = np.min(sum_north), np.max(sum_north)
+vmin = 0.04
+vmax = 0.4
+vdelta = 0.025
+beta = 1 # Number of stds 
+
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20,8), sharex=True, sharey=True, tight_layout=True)
+ax1.set_title('North Cable')
+# Create bins for the amplitude values
+cbarticks = np.arange(vmin, vmax+vdelta, vdelta)
+amp_bins = np.linspace(amp_min, amp_max, n_bins)
+
+# Create 2D histogram (PDF) for each time point
+pdf_north = np.zeros((len(amp_bins)-1, len(t_kde)))
+
+for i, t in enumerate(t_kde):
+    hist, _ = np.histogram(sum_north[:, i], bins=amp_bins, density=True)
+    pdf_north[:, i] = hist / np.sum(hist)  # Normalize the histogram to get Normalized spatial density 
+
+# Create contour plot of the PDF
+T_mesh, A_mesh = np.meshgrid(t_kde, amp_bins[:-1])
+levels = np.linspace(0, np.max(pdf_north), 50)
+im = ax1.contourf(T_mesh, A_mesh, pdf_north, levels=cbarticks, cmap='viridis', extend='max', norm=colors.Normalize(vmin=vmin, vmax=vmax))
+fig.colorbar(im, label='Normalized spatial density', ax=ax1)
+
+# Plot percentiles over the contours
+p5_north = np.percentile(sum_north, 5, axis=0)
+p50_north = np.percentile(sum_north, 50, axis=0)  # median
+p95_north = np.percentile(sum_north, 95, axis=0)
+
+ax1.plot(t_kde, p50_north, color='black', linewidth=2, label='50%')
+ax1.plot(t_kde, p5_north, color='black', linewidth=1, label='5%')
+ax1.plot(t_kde, p95_north, color='black', linewidth=1, label='95%')
+ax1.plot(t_kde, mu_north_t, color='red', label='$\\mu_t$')
+ax1.hlines(mu_north, t_kde[0], t_kde[-1], color='grey', linestyle='--', linewidth=3, label='$\\mu$')
+ax1.hlines(mu_north + beta * sigma_north, t_kde[0], t_kde[-1], color='green', linestyle='--', linewidth=2, label=f'$\\mu + {beta} \\sigma$')
+
+ax1.set_xlabel('Time [s]')
+ax1.set_ylabel('Density [-]')
+ax1.legend()
+
+ax2.set_title('South Cable')
+# Create bins for the amplitude values
+amp_min, amp_max = np.min(sum_south), np.max(sum_south)
+cbarticks = np.arange(vmin, vmax+vdelta, vdelta)
+amp_bins = np.linspace(amp_min, amp_max, n_bins)
+# Create 2D histogram (PDF) for each time point
+pdf_south = np.zeros((len(amp_bins)-1, len(t_kde)))
+for i, t in enumerate(t_kde):
+    hist, _ = np.histogram(sum_south[:, i], bins=amp_bins, density=True)
+    pdf_south[:, i] = hist / np.sum(hist)  # Normalize the histogram to get PDF
+# Create contour plot of the PDF
+T_mesh, A_mesh = np.meshgrid(t_kde, amp_bins[:-1])
+levels = np.linspace(0, np.max(pdf_south), 50)
+im = ax2.contourf(T_mesh, A_mesh, pdf_south, levels=cbarticks, cmap='viridis', extend='max', norm=colors.Normalize(vmin=vmin, vmax=vmax))
+fig.colorbar(im, label='Normalized spatial density', ax=ax2)
+
+# Plot percentiles over the contours
+p5_south = np.percentile(sum_south, 5, axis=0)
+p50_south = np.percentile(sum_south, 50, axis=0)
+p95_south = np.percentile(sum_south, 95, axis=0)
+ax2.plot(t_kde, p50_south, color='black', linewidth=2, label='50%')
+ax2.plot(t_kde, p5_south, color='black', linewidth=1, label='5%')
+ax2.plot(t_kde, p95_south, color='black', linewidth=1, label='95%')
+ax2.plot(t_kde, mu_south_t, color='red', label='$\\mu_t$')
+ax2.hlines(mu_south, t_kde[0], t_kde[-1], color='grey', linestyle='--', linewidth=3, label='$\\mu$')
+ax2.hlines(mu_south + beta * sigma_south, t_kde[0], t_kde[-1], color='green', linestyle='--', linewidth=2, label=f'$\\mu + {beta} \\sigma$')
+ax2.set_xlabel('Time [s]')
+ax2.set_ylabel('Density [-]')
+ax2.set_xlim(t_kde[0], t_kde[-1])
+ax2.set_ylim((0, max(np.max(p95_north), np.max(p95_south))))
+ax2.legend()
 plt.show()
+# -
 
 n_distances = np.sqrt((xg[:, None] - n_cable_pos[:, 0])**2 + (yg[:, None] - n_cable_pos[:, 1])**2 + 200*(zg - n_cable_pos[:, 2])**2)
 s_distances = np.sqrt((xg[:, None] - s_cable_pos[:, 0])**2 + (yg[:, None] - s_cable_pos[:, 1])**2 + 200*(zg - s_cable_pos[:, 2])**2)
@@ -326,7 +417,7 @@ binary = np.ones_like(maxprod)
 
 threshold = np.percentile(maxsum, 40)  # keep top 3%
 binary[maxsum < threshold] = 0
-fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, mu_t-3*sigma_t)
+fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, mu_sp-3*sigma_sp)
 # fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, distances)
 plt.show()
 
