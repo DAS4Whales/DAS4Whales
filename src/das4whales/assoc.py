@@ -127,11 +127,6 @@ def process_iteration(
         for i in range(s_shape_x)
     ))
 
-    # Stop criterion based on statistics of the KDEs
-    if iteration == 0:
-        # Calculate the sum of all KDEs
-        sum_kde = n_kde_hf + n_kde_lf + s_kde_hf + s_kde_lf
-
     # Reduced the number of grid points to speed up the process 
     # if iteration == 0:  
     #     sum_kde = n_kde_hf + n_kde_lf + s_kde_hf + s_kde_lf
@@ -150,6 +145,15 @@ def process_iteration(
     # Combine KDEs for high and low frequencies
     hf_kde = n_kde_hf + s_kde_hf  # Combined HF KDE from north and south
     lf_kde = n_kde_lf + s_kde_lf  # Combined LF KDE from north and south
+
+    if iteration == 0:
+        mu_hf = np.mean(hf_kde)
+        mu_lf = np.mean(lf_kde)
+        sigma_hf = np.std(hf_kde)
+        sigma_lf = np.std(lf_kde)
+
+    if np.max(hf_kde) < mu_hf and np.max(lf_kde) < mu_lf:
+        return None  # No significant peak found
 
     # Find maxima for HF KDE
     hf_max_idx = np.argmax(hf_kde)

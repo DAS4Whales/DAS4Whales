@@ -474,7 +474,7 @@ dt_sel = 1.4 # [s] Selected time "distance" from the theoretical arrival time
 w_eval = 5 # [s] Width of the evaluation window for curvature estimation
 rms_threshold = 0.5
 # Set the number of iterations for testing
-iterations = 10
+iterations = 50
 
 # +
 n_up_peaks_hf = np.copy(npeakshf)
@@ -535,6 +535,10 @@ for iteration in pbar:
     fs, dt_kde, bin_width, dt_sel, w_eval, rms_threshold, c0, dx, dt_tol,
     # Iteration info
     iteration)
+
+    if results is None:
+        print(f"Stopped association at iteration {iteration}.")
+        break  # Skip to the next iteration if no results are returned
 
     (n_up_peaks_hf, n_up_peaks_lf, s_up_peaks_hf, s_up_peaks_lf,
     nSNRhf, nSNRlf, sSNRhf, sSNRlf,
@@ -598,6 +602,10 @@ for iteration in pbar:
     fs, dt_kde, bin_width, dt_sel, w_eval, rms_threshold, c0, dx, dt_tol,
     # Iteration info
     iteration)
+
+    if results is None:
+        print(f"Stopped association at iteration {iteration}.")
+        break  # Exit the loop if no results are returned
 
     (n_up_peaks_hf, n_up_peaks_lf, s_up_peaks_hf, s_up_peaks_lf,
     nSNRhf, nSNRlf, sSNRhf, sSNRlf,
