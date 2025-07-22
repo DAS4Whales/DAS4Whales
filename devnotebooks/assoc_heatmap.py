@@ -299,6 +299,8 @@ prod_kde = n_kde_hf * s_kde_hf * n_kde_lf * s_kde_lf
 
 sum_north = n_kde_hf + n_kde_lf
 sum_south = s_kde_hf + s_kde_lf
+sum_hf = n_kde_hf + s_kde_hf
+sum_lf = n_kde_lf + s_kde_lf
 
 mu = np.mean(sum_kde)
 mu_t = np.mean(sum_kde, axis=0)
@@ -317,6 +319,16 @@ sigma_north = np.std(sum_north)
 sigma_south = np.std(sum_south)
 sigma_north_t = np.std(sum_north, axis=0)
 sigma_south_t = np.std(sum_south, axis=0)
+
+# Stats per call type
+mu_hf = np.mean(sum_hf)
+mu_lf = np.mean(sum_lf)
+mu_hf_t = np.mean(sum_hf, axis=0)
+mu_lf_t = np.mean(sum_lf, axis=0)
+sigma_hf = np.std(sum_hf)
+sigma_lf = np.std(sum_lf)
+sigma_hf_t = np.std(sum_hf, axis=0)
+sigma_lf_t = np.std(sum_lf, axis=0)
 
 print(sum_kde.shape)
 
@@ -398,6 +410,87 @@ ax2.set_xlabel('Time [s]')
 ax2.set_ylabel('Density [-]')
 ax2.set_xlim(t_kde[0], t_kde[-1])
 ax2.set_ylim((0, max(np.max(p95_north), np.max(p95_south))))
+ax2.legend()
+plt.show()
+
+# +
+# Same but sorting by call type
+plt.rcParams.update({'font.size': 16})
+# Shared parameters for north and south plots
+# Create bins for the amplitude values
+n_bins = 16
+amp_min, amp_max = np.min(sum_hf), np.max(sum_hf)
+vmin = 0.04
+vmax = 0.4
+vdelta = 0.025
+beta = 1 # Number of stds 
+
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20,8), sharex=True, sharey=True, tight_layout=True)
+ax1.set_title('HF calls')
+# Create bins for the amplitude values
+cbarticks = np.arange(vmin, vmax+vdelta, vdelta)
+amp_bins = np.linspace(amp_min, amp_max, n_bins)
+
+# Create 2D histogram (PDF) for each time point
+pdf_hf = np.zeros((len(amp_bins)-1, len(t_kde)))
+
+for i, t in enumerate(t_kde):
+    hist, _ = np.histogram(sum_hf[:, i], bins=amp_bins, density=True)
+    pdf_hf[:, i] = hist / np.sum(hist)  # Normalize the histogram to get Normalized spatial density
+
+# Create contour plot of the PDF
+T_mesh, A_mesh = np.meshgrid(t_kde, amp_bins[:-1])
+levels = np.linspace(0, np.max(pdf_hf), 50)
+im = ax1.contourf(T_mesh, A_mesh, pdf_hf, levels=cbarticks, cmap='viridis', extend='max', norm=colors.Normalize(vmin=vmin, vmax=vmax))
+fig.colorbar(im, label='Normalized spatial density', ax=ax1)
+
+# Plot percentiles over the contours
+p5_hf = np.percentile(sum_hf, 5, axis=0)
+p50_hf = np.percentile(sum_hf, 50, axis=0)  # median
+p95_hf = np.percentile(sum_hf, 95, axis=0)
+
+ax1.plot(t_kde, p50_hf, color='black', linewidth=2, label='50%')
+ax1.plot(t_kde, p5_hf, color='black', linewidth=1, label='5%')
+ax1.plot(t_kde, p95_hf, color='black', linewidth=1, label='95%')
+ax1.plot(t_kde, mu_hf_t, color='red', label='$\\mu_t$')
+ax1.hlines(mu_hf, t_kde[0], t_kde[-1], color='grey', linestyle='--', linewidth=3, label='$\\mu$')
+ax1.hlines(mu_hf + beta * sigma_hf, t_kde[0], t_kde[-1], color='green', linestyle='--', linewidth=2, label=f'$\\mu + {beta} \\sigma$')
+
+ax1.set_xlabel('Time [s]')
+ax1.set_ylabel('Density [-]')
+ax1.legend()
+
+ax2.set_title('LF Calls')
+# Create bins for the amplitude values
+amp_min, amp_max = np.min(sum_lf), np.max(sum_lf)
+cbarticks = np.arange(vmin, vmax+vdelta, vdelta)
+amp_bins = np.linspace(amp_min, amp_max, n_bins)
+# Create 2D histogram (PDF) for each time point
+pdf_lf = np.zeros((len(amp_bins)-1, len(t_kde)))
+for i, t in enumerate(t_kde):
+    hist, _ = np.histogram(sum_lf[:, i], bins=amp_bins, density=True)
+    pdf_lf[:, i] = hist / np.sum(hist)  # Normalize the histogram to get PDF
+# Create contour plot of the PDF
+T_mesh, A_mesh = np.meshgrid(t_kde, amp_bins[:-1])
+levels = np.linspace(0, np.max(pdf_lf), 50)
+im = ax2.contourf(T_mesh, A_mesh, pdf_lf, levels=cbarticks, cmap='viridis', extend='max', norm=colors.Normalize(vmin=vmin, vmax=vmax))
+fig.colorbar(im, label='Normalized spatial density', ax=ax2)
+
+# Plot percentiles over the contours
+p5_lf = np.percentile(sum_lf, 5, axis=0)
+p50_lf = np.percentile(sum_lf, 50, axis=0)
+p95_lf = np.percentile(sum_lf, 95, axis=0)
+ax2.plot(t_kde, p50_lf, color='black', linewidth=2, label='50%')
+ax2.plot(t_kde, p5_lf, color='black', linewidth=1, label='5%')
+ax2.plot(t_kde, p95_lf, color='black', linewidth=1, label='95%')
+ax2.plot(t_kde, mu_lf_t, color='red', label='$\\mu_t$')
+ax2.hlines(mu_lf, t_kde[0], t_kde[-1], color='grey', linestyle='--', linewidth=3, label='$\\mu$')
+ax2.hlines(mu_lf + beta * sigma_lf, t_kde[0], t_kde[-1], color='green', linestyle='--', linewidth=2, label=f'$\\mu + {beta} \\sigma$')
+ax2.set_xlabel('Time [s]')
+ax2.set_ylabel('Density [-]')
+ax2.set_xlim(t_kde[0], t_kde[-1])
+ax2.set_ylim((0, max(np.max(p95_hf), np.max(p95_lf))))
 ax2.legend()
 plt.show()
 # -
