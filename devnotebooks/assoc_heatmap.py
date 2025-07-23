@@ -42,11 +42,11 @@ from scipy.optimize import curve_fit
 
 # +
 # Load the peak indexes and the metadata
-# n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc') 
-# s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
+n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc') 
+s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
 
-n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_08:00:02_ipi3_th_4.nc') 
-s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_08:00:02_ipi3_th_5.nc')
+# n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_08:00:02_ipi3_th_4.nc') 
+# s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_08:00:02_ipi3_th_5.nc')
 
 # +
 # Constants from the metadata
@@ -94,7 +94,7 @@ dw.assoc.plot_peaks(peaks, SNRs, selected_channels_m, dx, fs)
 plt.show()
 
 # +
-# Sort the peaks based on SNR difference
+# # Sort the peaks based on SNR difference
 npeakshf, nSNRhf, npeakslf, nSNRlf = dw.detect.resolve_hf_lf_crosstalk(
     npeakshf, npeakslf, nSNRhf, nSNRlf, dt_tol=100, dx_tol=30
 )
@@ -105,7 +105,7 @@ speakshf, sSNRhf, speakslf, sSNRlf = dw.detect.resolve_hf_lf_crosstalk(
 
 # -
 
-# Plot the sorted peaks
+# # Plot the sorted peaks
 peaks = (npeakshf, npeakslf, speakshf, speakslf)
 SNRs = (nSNRhf, nSNRlf, sSNRhf, sSNRlf)
 selected_channels_m = (n_selected_channels_m, s_selected_channels_m)
@@ -456,7 +456,7 @@ ax1.plot(t_kde, p95_hf, color='black', linewidth=1, label='95%')
 ax1.plot(t_kde, mu_hf_t, color='red', label='$\\mu_t$')
 ax1.hlines(mu_hf, t_kde[0], t_kde[-1], color='grey', linestyle='--', linewidth=3, label='$\\mu$')
 ax1.hlines(mu_hf + beta * sigma_hf, t_kde[0], t_kde[-1], color='green', linestyle='--', linewidth=2, label=f'$\\mu + {beta} \\sigma$')
-
+ax1.hlines(mu, t_kde[0], t_kde[-1], color='pink', linestyle='--', linewidth=3, label='$\\mu_g$')
 ax1.set_xlabel('Time [s]')
 ax1.set_ylabel('Density [-]')
 ax1.legend()
@@ -487,6 +487,7 @@ ax2.plot(t_kde, p95_lf, color='black', linewidth=1, label='95%')
 ax2.plot(t_kde, mu_lf_t, color='red', label='$\\mu_t$')
 ax2.hlines(mu_lf, t_kde[0], t_kde[-1], color='grey', linestyle='--', linewidth=3, label='$\\mu$')
 ax2.hlines(mu_lf + beta * sigma_lf, t_kde[0], t_kde[-1], color='green', linestyle='--', linewidth=2, label=f'$\\mu + {beta} \\sigma$')
+ax2.hlines(mu, t_kde[0], t_kde[-1], color='pink', linestyle='--', linewidth=3, label='$\\mu_g$')
 ax2.set_xlabel('Time [s]')
 ax2.set_ylabel('Density [-]')
 ax2.set_xlim(t_kde[0], t_kde[-1])
