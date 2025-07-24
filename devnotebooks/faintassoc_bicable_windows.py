@@ -49,12 +49,12 @@ plt.rcParams['font.size'] = 14
 # Load the peak indexes and the metadata
 
 # Well-behaving data 
-n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc') 
-s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
+# n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc') 
+# s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
 
 # Gabor filtered data
-# n_ds = xr.load_dataset('../out/sparse_picks_Gabor/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc')
-# s_ds = xr.load_dataset('../out/sparse_picks_Gabor/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
+n_ds = xr.load_dataset('../out/sparse_picks_Gabor/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc')
+s_ds = xr.load_dataset('../out/sparse_picks_Gabor/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
 
 # Problematic data
 # n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_08:00:02_ipi3_th_4.nc') 
@@ -578,10 +578,10 @@ sSNRhf = np.copy(snr_far[2])
 sSNRlf = np.copy(snr_far[3])
 # -
 
-iterations = 10
+iterations_far = 25
 
 # +
-pbar = tqdm(range(iterations), desc="Associated calls: 0")
+pbar = tqdm(range(iterations_far), desc="Associated calls, far window: 0")
 
 for iteration in pbar:
     results = dw.assoc.process_iteration(
@@ -613,7 +613,7 @@ for iteration in pbar:
     association_lists, rejected_lists, hyperbolas) = results
 
     total_associations = sum(len(lst) for lst in association_lists)
-    pbar.set_description(f"Associated calls: {total_associations}")
+    pbar.set_description(f"Associated calls, far window: {total_associations}")
 
 # +
 dw.assoc.plot_reject_pick(npeakshf, n_longi_offset, n_dist, dx, nhf_assoc_list_pair, n_rejected_list, n_rejected_hyperbolas, fs)
