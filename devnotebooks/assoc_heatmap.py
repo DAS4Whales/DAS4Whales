@@ -334,102 +334,22 @@ print(sum_kde.shape)
 
 
 # +
-plt.rcParams.update({'font.size': 16})
-# Shared parameters for north and south plots
-# Create bins for the amplitude values
-n_bins = 16
-amp_min, amp_max = np.min(sum_north), np.max(sum_north)
-vmin = 0.04
-vmax = 0.4
-vdelta = 0.025
-beta = 1 # Number of stds 
-
-
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20,8), sharex=True, sharey=True, tight_layout=True)
-ax1.set_title('North Cable')
-# Create bins for the amplitude values
-cbarticks = np.arange(vmin, vmax+vdelta, vdelta)
-amp_bins = np.linspace(amp_min, amp_max, n_bins)
-
-# Create 2D histogram (PDF) for each time point
-pdf_north = np.zeros((len(amp_bins)-1, len(t_kde)))
-
-for i, t in enumerate(t_kde):
-    hist, _ = np.histogram(sum_north[:, i], bins=amp_bins, density=True)
-    pdf_north[:, i] = hist / np.sum(hist)  # Normalize the histogram to get Normalized spatial density 
-
-# Create contour plot of the PDF
-T_mesh, A_mesh = np.meshgrid(t_kde, amp_bins[:-1])
-levels = np.linspace(0, np.max(pdf_north), 50)
-im = ax1.contourf(T_mesh, A_mesh, pdf_north, levels=cbarticks, cmap='viridis', extend='max', norm=colors.Normalize(vmin=vmin, vmax=vmax))
-fig.colorbar(im, label='Normalized spatial density', ax=ax1)
-
-# Plot percentiles over the contours
-p5_north = np.percentile(sum_north, 5, axis=0)
-p50_north = np.percentile(sum_north, 50, axis=0)  # median
-p95_north = np.percentile(sum_north, 95, axis=0)
-
-ax1.plot(t_kde, p50_north, color='black', linewidth=2, label='50%')
-ax1.plot(t_kde, p5_north, color='black', linewidth=1, label='5%')
-ax1.plot(t_kde, p95_north, color='black', linewidth=1, label='95%')
-ax1.plot(t_kde, mu_north_t, color='red', label='$\\mu_t$')
-ax1.hlines(mu_north, t_kde[0], t_kde[-1], color='grey', linestyle='--', linewidth=3, label='$\\mu$')
-ax1.hlines(mu_north + beta * sigma_north, t_kde[0], t_kde[-1], color='green', linestyle='--', linewidth=2, label=f'$\\mu + {beta} \\sigma$')
-
-ax1.set_xlabel('Time [s]')
-ax1.set_ylabel('Density [-]')
-ax1.legend()
-
-ax2.set_title('South Cable')
-# Create bins for the amplitude values
-amp_min, amp_max = np.min(sum_south), np.max(sum_south)
-cbarticks = np.arange(vmin, vmax+vdelta, vdelta)
-amp_bins = np.linspace(amp_min, amp_max, n_bins)
-# Create 2D histogram (PDF) for each time point
-pdf_south = np.zeros((len(amp_bins)-1, len(t_kde)))
-for i, t in enumerate(t_kde):
-    hist, _ = np.histogram(sum_south[:, i], bins=amp_bins, density=True)
-    pdf_south[:, i] = hist / np.sum(hist)  # Normalize the histogram to get PDF
-# Create contour plot of the PDF
-T_mesh, A_mesh = np.meshgrid(t_kde, amp_bins[:-1])
-levels = np.linspace(0, np.max(pdf_south), 50)
-im = ax2.contourf(T_mesh, A_mesh, pdf_south, levels=cbarticks, cmap='viridis', extend='max', norm=colors.Normalize(vmin=vmin, vmax=vmax))
-fig.colorbar(im, label='Normalized spatial density', ax=ax2)
-
-# Plot percentiles over the contours
-p5_south = np.percentile(sum_south, 5, axis=0)
-p50_south = np.percentile(sum_south, 50, axis=0)
-p95_south = np.percentile(sum_south, 95, axis=0)
-ax2.plot(t_kde, p50_south, color='black', linewidth=2, label='50%')
-ax2.plot(t_kde, p5_south, color='black', linewidth=1, label='5%')
-ax2.plot(t_kde, p95_south, color='black', linewidth=1, label='95%')
-ax2.plot(t_kde, mu_south_t, color='red', label='$\\mu_t$')
-ax2.hlines(mu_south, t_kde[0], t_kde[-1], color='grey', linestyle='--', linewidth=3, label='$\\mu$')
-ax2.hlines(mu_south + beta * sigma_south, t_kde[0], t_kde[-1], color='green', linestyle='--', linewidth=2, label=f'$\\mu + {beta} \\sigma$')
-ax2.set_xlabel('Time [s]')
-ax2.set_ylabel('Density [-]')
-ax2.set_xlim(t_kde[0], t_kde[-1])
-ax2.set_ylim((0, max(np.max(p95_north), np.max(p95_south))))
-ax2.legend()
-plt.show()
-
-# +
 # Same but sorting by call type
 plt.rcParams.update({'font.size': 16})
 # Shared parameters for north and south plots
 # Create bins for the amplitude values
 n_bins = 16
 amp_min, amp_max = np.min(sum_hf), np.max(sum_hf)
-vmin = 0.04
-vmax = 0.4
-vdelta = 0.025
-beta = 1 # Number of stds 
+vmin = 0.001
+vmax = 1
+vdelta = 0.05
+beta = 3 # Number of stds 
 
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20,8), sharex=True, sharey=True, tight_layout=True)
 ax1.set_title('HF calls')
 # Create bins for the amplitude values
-cbarticks = np.arange(vmin, vmax+vdelta, vdelta)
+cbarticks = np.arange(vmin, vmax-vmin+vdelta, vdelta)
 amp_bins = np.linspace(amp_min, amp_max, n_bins)
 
 # Create 2D histogram (PDF) for each time point
@@ -442,8 +362,8 @@ for i, t in enumerate(t_kde):
 # Create contour plot of the PDF
 T_mesh, A_mesh = np.meshgrid(t_kde, amp_bins[:-1])
 levels = np.linspace(0, np.max(pdf_hf), 50)
-im = ax1.contourf(T_mesh, A_mesh, pdf_hf, levels=cbarticks, cmap='viridis', extend='max', norm=colors.Normalize(vmin=vmin, vmax=vmax))
-fig.colorbar(im, label='Normalized spatial density', ax=ax1)
+im = ax1.contourf(T_mesh, A_mesh, pdf_hf, levels=cbarticks, cmap='viridis', norm=colors.Normalize(vmin=vmin, vmax=vmax))
+# fig.colorbar(im, label='Normalized spatial density', ax=ax1)
 
 # Plot percentiles over the contours
 p5_hf = np.percentile(sum_hf, 5, axis=0)
@@ -455,16 +375,15 @@ ax1.plot(t_kde, p5_hf, color='black', linewidth=1, label='5%')
 ax1.plot(t_kde, p95_hf, color='black', linewidth=1, label='95%')
 ax1.plot(t_kde, mu_hf_t, color='red', label='$\\mu_t$')
 ax1.hlines(mu_hf, t_kde[0], t_kde[-1], color='grey', linestyle='--', linewidth=3, label='$\\mu$')
-ax1.hlines(mu_hf + beta * sigma_hf, t_kde[0], t_kde[-1], color='green', linestyle='--', linewidth=2, label=f'$\\mu + {beta} \\sigma$')
+ax1.hlines(mu_hf + beta * sigma_hf, t_kde[0], t_kde[-1], color='green', linestyle='--', linewidth=3, label=f'$\\mu + {beta} \\sigma$')
 ax1.hlines(mu, t_kde[0], t_kde[-1], color='pink', linestyle='--', linewidth=3, label='$\\mu_g$')
 ax1.set_xlabel('Time [s]')
-ax1.set_ylabel('Density [-]')
+ax1.set_ylabel('Occurrences [-]')
 ax1.legend()
 
 ax2.set_title('LF Calls')
 # Create bins for the amplitude values
 amp_min, amp_max = np.min(sum_lf), np.max(sum_lf)
-cbarticks = np.arange(vmin, vmax+vdelta, vdelta)
 amp_bins = np.linspace(amp_min, amp_max, n_bins)
 # Create 2D histogram (PDF) for each time point
 pdf_lf = np.zeros((len(amp_bins)-1, len(t_kde)))
@@ -474,7 +393,7 @@ for i, t in enumerate(t_kde):
 # Create contour plot of the PDF
 T_mesh, A_mesh = np.meshgrid(t_kde, amp_bins[:-1])
 levels = np.linspace(0, np.max(pdf_lf), 50)
-im = ax2.contourf(T_mesh, A_mesh, pdf_lf, levels=cbarticks, cmap='viridis', extend='max', norm=colors.Normalize(vmin=vmin, vmax=vmax))
+im = ax2.contourf(T_mesh, A_mesh, pdf_lf, levels=cbarticks, cmap='viridis', norm=colors.Normalize(vmin=vmin, vmax=vmax))
 fig.colorbar(im, label='Normalized spatial density', ax=ax2)
 
 # Plot percentiles over the contours
@@ -486,12 +405,12 @@ ax2.plot(t_kde, p5_lf, color='black', linewidth=1, label='5%')
 ax2.plot(t_kde, p95_lf, color='black', linewidth=1, label='95%')
 ax2.plot(t_kde, mu_lf_t, color='red', label='$\\mu_t$')
 ax2.hlines(mu_lf, t_kde[0], t_kde[-1], color='grey', linestyle='--', linewidth=3, label='$\\mu$')
-ax2.hlines(mu_lf + beta * sigma_lf, t_kde[0], t_kde[-1], color='green', linestyle='--', linewidth=2, label=f'$\\mu + {beta} \\sigma$')
+ax2.hlines(mu_lf + beta * sigma_lf, t_kde[0], t_kde[-1], color='green', linestyle='--', linewidth=3, label=f'$\\mu + {beta} \\sigma$')
 ax2.hlines(mu, t_kde[0], t_kde[-1], color='pink', linestyle='--', linewidth=3, label='$\\mu_g$')
 ax2.set_xlabel('Time [s]')
-ax2.set_ylabel('Density [-]')
+# ax2.set_ylabel('Occurrences [-]')
 ax2.set_xlim(t_kde[0], t_kde[-1])
-ax2.set_ylim((0, max(np.max(p95_hf), np.max(p95_lf))))
+ax2.set_ylim((0, 0.8 * max(np.max(sum_hf), np.max(sum_lf))))
 ax2.legend()
 plt.show()
 # -
@@ -511,7 +430,7 @@ binary = np.ones_like(maxprod)
 
 threshold = np.percentile(maxsum, 40)  # keep top 3%
 binary[maxsum < threshold] = 0
-fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, mu_sp-3*sigma_sp)
+fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, mu_sp+3*sigma_sp)
 # fig = dw.assoc.plot_kdesurf(df_north, df_south, bathy, x, y, xg, yg, distances)
 plt.show()
 

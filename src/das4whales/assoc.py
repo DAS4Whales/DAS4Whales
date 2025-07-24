@@ -155,9 +155,9 @@ def process_iteration(
         mu_lf = np.mean(lf_kde)
         sigma_hf = np.std(hf_kde)
         sigma_lf = np.std(lf_kde)
-    print(f'\nMax hf kde: {np.max(hf_kde)}, mu_hf: {mu_hf}, sigma_hf: {sigma_hf}, mu + 4*sigma_hf: {mu_hf + 4 * sigma_hf}\n')
-    print(f'Max lf kde: {np.max(lf_kde)}, mu_lf: {mu_lf}, sigma_lf: {sigma_lf}, mu + 4*sigma_lf: {mu_lf + 4 * sigma_lf}')
-    if np.max(hf_kde) < mu_hf + 4 * sigma_hf and np.max(lf_kde) < mu_lf + 4 * sigma_lf:
+    # print(f'\nMax hf kde: {np.max(hf_kde)}, mu_hf: {mu_hf}, sigma_hf: {sigma_hf}, mu + 4*sigma_hf: {mu_hf + 4 * sigma_hf}\n')
+    # print(f'Max lf kde: {np.max(lf_kde)}, mu_lf: {mu_lf}, sigma_lf: {sigma_lf}, mu + 4*sigma_lf: {mu_lf + 4 * sigma_lf}')
+    if np.max(hf_kde) < mu_hf + 3 * sigma_hf and np.max(lf_kde) < mu_lf + 3 * sigma_lf:
         return None  # No significant peak found
 
     # Find maxima for HF KDE
@@ -519,7 +519,7 @@ def fast_kde_rect(delayed_picks, t_kde, overlap=None, bin_width=None, weights=No
     kernel = np.ones(kernel_bins) / kernel_bins
     hist = sp.convolve(hist, kernel, mode="same")
     
-    return hist #/ np.trapezoid(hist, t_kde)  # Normalize to match KDE style
+    return hist #/ np.trapezoid(hist, t_kde)  # Normalize to match KDE style, but overrides the stop condition
 
 
 def select_picks(peaks, hyperbola, dt_sel, fs):
