@@ -49,12 +49,12 @@ plt.rcParams['font.size'] = 14
 # Load the peak indexes and the metadata
 
 # Well-behaving data 
-# n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc') 
-# s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
+n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc') 
+s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
 
 # Gabor filtered data
-n_ds = xr.load_dataset('../out/sparse_picks_Gabor/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc')
-s_ds = xr.load_dataset('../out/sparse_picks_Gabor/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
+# n_ds = xr.load_dataset('../out/sparse_picks_Gabor/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc')
+# s_ds = xr.load_dataset('../out/sparse_picks_Gabor/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
 
 # Problematic data
 # n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_08:00:02_ipi3_th_4.nc') 
@@ -122,18 +122,18 @@ speakshf, sSNRhf, speakslf, sSNRlf = dw.detect.resolve_hf_lf_crosstalk(
     speakshf, speakslf, sSNRhf, sSNRlf, dt_tol=100, dx_tol=30
 )
 
+# -
 
-# +
-
+plt.rcParams['font.size'] = 24
 # Plot the sorted peaks
 peaks = (npeakshf, npeakslf, speakshf, speakslf)
 SNRs = (nSNRhf, nSNRlf, sSNRhf, sSNRlf)
 selected_channels_m = (n_selected_channels_m, s_selected_channels_m)
 # dw.assoc.plot_peaks(peaks, SNRs, selected_channels_m, dx, fs)
-dw.assoc.plot_tpicks_resolved(peaks, SNRs, selected_channels_m, dx, fs)
+fig=dw.assoc.plot_tpicks_resolved(peaks, SNRs, selected_channels_m, dx, fs)
+plt.savefig('../figs/Figure2.pdf', bbox_inches='tight', transparent=True)
 plt.show()
 
-# -
 
 # ## Plot the map 
 
@@ -578,7 +578,7 @@ sSNRhf = np.copy(snr_far[2])
 sSNRlf = np.copy(snr_far[3])
 # -
 
-iterations_far = 25
+iterations_far = 50
 
 # +
 pbar = tqdm(range(iterations_far), desc="Associated calls, far window: 0")

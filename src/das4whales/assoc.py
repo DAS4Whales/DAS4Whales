@@ -1017,13 +1017,13 @@ def plot_tpicks_resolved(peaks, SNR, selected_channels_m, dx, fs):
     cmap_lf = cm.viridis  # Define a different colormap for LF
 
     # Create figure
-    fig, axes = plt.subplots(2, 1, figsize=(10, 16), sharex=True, sharey=False)
+    fig, axes = plt.subplots(2, 1, figsize=(10, 16), sharex=True, sharey=False, constrained_layout=True)
 
     # First subplot
     sc1 = axes[0].scatter(nhf_peaks[1][:] / fs, (n_selected_channels_m[0] + nhf_peaks[0][:] * dx) * 1e-3, 
-                            c=nhf_SNR, cmap=cmap_hf, norm=norm, s=nhf_SNR)
+                            c=nhf_SNR, cmap=cmap_hf, norm=norm, s=nhf_SNR, rasterized=True)
     sc2 = axes[0].scatter(nlf_peaks[1][:] / fs, (n_selected_channels_m[0] + nlf_peaks[0][:] * dx) * 1e-3, 
-                            c=nlf_SNR, cmap=cmap_lf, norm=norm, s=nlf_SNR)
+                            c=nlf_SNR, cmap=cmap_lf, norm=norm, s=nlf_SNR, rasterized=True)
     axes[0].set_title('North Cable')
     axes[0].set_ylabel('Distance [km]')
     axes[0].set_ylim(n_selected_channels_m[0] * 1e-3, n_selected_channels_m[1] * 1e-3)
@@ -1031,9 +1031,9 @@ def plot_tpicks_resolved(peaks, SNR, selected_channels_m, dx, fs):
 
     # Second subplot
     sc3 = axes[1].scatter(shf_peaks[1][:] / fs, (s_selected_channels_m[0] + shf_peaks[0][:] * dx) * 1e-3, 
-                            c=shf_SNR, cmap=cmap_hf, norm=norm, s=shf_SNR)
+                            c=shf_SNR, cmap=cmap_hf, norm=norm, s=shf_SNR, rasterized=True)
     sc4 = axes[1].scatter(slf_peaks[1][:] / fs, (s_selected_channels_m[0] + slf_peaks[0][:] * dx) * 1e-3, 
-                            c=slf_SNR, cmap=cmap_lf, norm=norm, s=slf_SNR)
+                            c=slf_SNR, cmap=cmap_lf, norm=norm, s=slf_SNR, rasterized=True)
     axes[1].set_title('South Cable')
     axes[1].set_xlabel('Time [s]')
     axes[1].set_ylabel('Distance [km]')
@@ -1042,9 +1042,9 @@ def plot_tpicks_resolved(peaks, SNR, selected_channels_m, dx, fs):
 
     # Create a single colorbar for all subplots
     cbar1 = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap_hf), ax=axes[0], orientation='vertical', fraction=0.04, pad=0.02)
-    cbar1.set_label('SNR - hf picks')
+    cbar1.set_label('SNR - HF picks')
     cbar2 = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap_lf), ax=axes[1], orientation='vertical', fraction=0.04, pad=0.02)
-    cbar2.set_label('SNR - lf picks')
+    cbar2.set_label('SNR - LF picks')
 
     return fig
 
