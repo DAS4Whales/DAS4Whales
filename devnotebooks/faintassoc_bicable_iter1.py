@@ -40,7 +40,7 @@ from scipy.stats import gaussian_kde
 from sklearn.neighbors import KernelDensity
 from scipy.optimize import curve_fit
 import scipy.signal as sp
-plt.rcParams['font.size'] = 30
+plt.rcParams['font.size'] = 40
 plt.rcParams['lines.linewidth'] = 3
 
 # Load the peak indexes and the metadata
@@ -149,7 +149,28 @@ cbar.set_label('SNR Estimation [dB]')
 plt.savefig('../figs/Sparse_peaks.pdf', bbox_inches='tight', transparent=True, format='pdf')
 plt.show()
 
+
+# +
+# Sort the peaks based on SNR difference
+npeakshf, nSNRhf, npeakslf, nSNRlf = dw.detect.resolve_hf_lf_crosstalk(
+    npeakshf, npeakslf, nSNRhf, nSNRlf, dt_tol=100, dx_tol=30
+)
+
+speakshf, sSNRhf, speakslf, sSNRlf = dw.detect.resolve_hf_lf_crosstalk(
+    speakshf, speakslf, sSNRhf, sSNRlf, dt_tol=100, dx_tol=30
+)
 # -
+
+plt.rcParams['font.size'] = 24
+# Plot the sorted peaks
+peaks = (npeakshf, npeakslf, speakshf, speakslf)
+SNRs = (nSNRhf, nSNRlf, sSNRhf, sSNRlf)
+selected_channels_m = (n_selected_channels_m, s_selected_channels_m)
+# dw.assoc.plot_peaks(peaks, SNRs, selected_channels_m, dx, fs)
+fig=dw.assoc.plot_tpicks_resolved(peaks, SNRs, selected_channels_m, dx, fs)
+plt.savefig('../figs/Figure2.pdf', bbox_inches='tight', transparent=True)
+plt.show()
+
 
 # ## Plot the map 
 
@@ -187,9 +208,9 @@ utm_y = np.linspace(utm_y0, utm_yf, len(ylat))
 x = np.linspace(x0, xf, len(xlon))
 y = np.linspace(y0, yf, len(ylat))
 
-# -
 
-dw.map.plot_cables2D(df_north, df_south, bathy, xlon, ylat)
+# +
+# dw.map.plot_cables2D(df_north, df_south, bathy, xlon, ylat)
 
 # +
 
@@ -265,38 +286,6 @@ def compute_kde(delayed_picks, t_kde, bin_width, weights=None):
     return density
 
 
-def fast_kde_rect(delayed_picks, t_kde, overlap=None, bin_width=None, weights=None):
-    """
-    Fast KDE approximation using histogram and optional rectangular smoothing.
-    
-    Parameters
-    ----------
-    delayed_picks : array-like
-        Delayed picks array.
-    t_kde : array-like
-        Time grid for the KDE.
-    """
-    # Histogram the picks
-    hist_range = (t_kde[0], t_kde[-1])
-    bins = len(t_kde)
-    
-    hist, _ = np.histogram(delayed_picks, bins=bins, range=hist_range, weights=weights)
-    
-    # Optional rectangular smoothing
-    if overlap is None:
-        overlap = np.diff(t_kde).mean()
-    if bin_width is None:
-        bin_width = 2 * overlap
-    kernel_bins = int(np.round(bin_width / overlap))
-    if kernel_bins % 2 == 0:
-        kernel_bins += 1  # Ensure odd length
-    kernel = np.ones(kernel_bins) / kernel_bins
-    hist = sp.convolve(hist, kernel, mode="same")
-    
-    return hist / np.trapezoid(hist, t_kde)  # Normalize to match KDE style
-
-
-
 def compute_selected_picks(peaks, hyperbola, dt_sel, fs):
     """Selects picks that are closest to the hyperbola within a given time window."""
     selected_picks = ([], [])
@@ -368,72 +357,71 @@ print(s_arr_tg.shape, snx, s_cable_pos.shape)
 
 # +
 # Plot the arrival times for the grid
-plt.figure(figsize=(20,8))
-plt.subplot(1,2,1)
-plt.title('North Cable')
-for i in range(xg.shape[0]):
-            plt.plot(n_arr_tg[i, :], n_dist/1e3, ls='-', lw=1, color='tab:blue', alpha=0.1)
-plt.xlabel('Time [s]')
-plt.ylabel('Distance [km]')
-plt.xlabel('Time [s]')
-# Remove the upper part of the bounding box 
-plt.gca().spines['top'].set_visible(False)
-plt.gca().spines['right'].set_visible(False)
-plt.grid(linestyle='--', alpha=0.5)
+# plt.figure(figsize=(20,8))
+# plt.subplot(1,2,1)
+# plt.title('North Cable')
+# for i in range(xg.shape[0]):
+#             plt.plot(n_arr_tg[i, :], n_dist/1e3, ls='-', lw=1, color='tab:blue', alpha=0.1)
+# plt.xlabel('Time [s]')
+# plt.ylabel('Distance [km]')
+# plt.xlabel('Time [s]')
+# # Remove the upper part of the bounding box 
+# plt.gca().spines['top'].set_visible(False)
+# plt.gca().spines['right'].set_visible(False)
+# plt.grid(linestyle='--', alpha=0.5)
 
-plt.subplot(1,2,2)
-plt.title('South Cable')
-for i in range(xg.shape[0]):
-            plt.plot(s_arr_tg[i, :], s_dist/1e3, ls='-', lw=1, color='tab:blue', alpha=0.1)
-plt.xlabel('Time [s]')
-# Remove the upper part of the bounding box 
-plt.gca().spines['top'].set_visible(False)
-plt.gca().spines['right'].set_visible(False)
-plt.grid(linestyle='--', alpha=0.5)
+# plt.subplot(1,2,2)
+# plt.title('South Cable')
+# for i in range(xg.shape[0]):
+#             plt.plot(s_arr_tg[i, :], s_dist/1e3, ls='-', lw=1, color='tab:blue', alpha=0.1)
+# plt.xlabel('Time [s]')
+# # Remove the upper part of the bounding box 
+# plt.gca().spines['top'].set_visible(False)
+# plt.gca().spines['right'].set_visible(False)
+# plt.grid(linestyle='--', alpha=0.5)
 
-plt.savefig('../figs/toa.pdf', bbox_inches='tight')
-plt.show()
+# plt.savefig('../figs/toa.pdf', bbox_inches='tight')
+# plt.show()
 # -
 
 print(xg.shape)
 
 # +
 # Plot the arrival times for the grid
-cmap = plt.get_cmap('plasma')
-examples= [6, 480, 700] # Example indices to plot
-plt.figure(figsize=(20,8))
-plt.subplot(1,2,1)
-plt.title('North Cable')
+examples = [421, 510, 800]  # Example indices to plot
+colors = cm.plasma(np.linspace(0, 0.75, len(examples)))
+
+print(f"Selected examples: {examples}")
+# Determine global limits
+
+# Plot
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 20), sharex=True, constrained_layout=True)
+
+# North
+ax1.set_title('North Cable')
 for i in range(xg.shape[0]):
-    plt.plot(n_arr_tg[i, :], n_dist/1e3, ls='-', lw=0.5, color='tab:blue', alpha=0.1)
-for i in examples:
-    color = cmap(i / xg.shape[0]) 
-    plt.plot(n_arr_tg[i, :], n_dist/1e3, ls='-', lw=2, color=color)
+    ax1.plot(n_arr_tg[i, :], n_dist/1e3, lw=0.5, color='tab:blue', alpha=0.1)
+for j, i in enumerate(examples):
+    ax1.plot(n_arr_tg[i, :], n_dist/1e3, lw=2, color=colors[j])
+ax1.set_ylabel('Distance [km]')
+ax1.spines[['top', 'right']].set_visible(False)
+ax1.grid(ls='--', alpha=0.5)
+ax1.set_aspect('equal')
 
-plt.xlabel('Time [s]')
-plt.ylabel('Distance [km]')
-plt.xlabel('Time [s]')
-# Remove the upper part of the bounding box 
-plt.gca().spines['top'].set_visible(False)
-plt.gca().spines['right'].set_visible(False)
-plt.grid(linestyle='--', alpha=0.5)
-
-plt.subplot(1,2,2)
-plt.title('South Cable')
+# South
+ax2.set_title('South Cable')
 for i in range(xg.shape[0]):
-            plt.plot(s_arr_tg[i, :], s_dist/1e3, ls='-', lw=0.5, color='tab:blue', alpha=0.1)
+    ax2.plot(s_arr_tg[i, :], s_dist/1e3, lw=0.5, color='tab:blue', alpha=0.1)
+for j, i in enumerate(examples):
+    ax2.plot(s_arr_tg[i, :], s_dist/1e3, lw=2, color=colors[j])
+ax2.set_ylabel('Distance [km]')
+ax2.set_xlabel('Time [s]')
+ax2.spines[['top', 'right']].set_visible(False)
+ax2.grid(ls='--', alpha=0.5)
+ax2.set_aspect('equal')
 
-for i in examples:
-    color = cmap(i / xg.shape[0]) 
-    plt.plot(s_arr_tg[i, :], s_dist/1e3, ls='-', lw=2, color=color)
-
-plt.xlabel('Time [s]')
-# Remove the upper part of the bounding box 
-plt.gca().spines['top'].set_visible(False)
-plt.gca().spines['right'].set_visible(False)
-plt.grid(linestyle='--', alpha=0.5)
-
-plt.savefig('../figs/toa.pdf', bbox_inches='tight')
+# plt.tight_layout()
+plt.savefig('../figs/toa_examples.pdf', bbox_inches='tight')
 plt.show()
 
 # +
@@ -483,19 +471,19 @@ print(Nkde)
 # -
 
 n_kde_hf = np.array(Parallel(n_jobs=-1)(
-    delayed(fast_kde_rect)(n_delayed_picks_hf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=nSNRhf) 
+    delayed(dw.assoc.fast_kde_rect)(n_delayed_picks_hf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=nSNRhf) 
     for i in range(n_shape_x)
 ))
 n_kde_lf = np.array(Parallel(n_jobs=-1)(
-    delayed(fast_kde_rect)(n_delayed_picks_lf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=nSNRlf)
+    delayed(dw.assoc.fast_kde_rect)(n_delayed_picks_lf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=nSNRlf)
     for i in range(n_shape_x)
 ))
 s_kde_hf = np.array(Parallel(n_jobs=-1)(
-    delayed(fast_kde_rect)(s_delayed_picks_hf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=sSNRhf)
+    delayed(dw.assoc.fast_kde_rect)(s_delayed_picks_hf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=sSNRhf)
     for i in range(s_shape_x)
 ))
 s_kde_lf = np.array(Parallel(n_jobs=-1)(
-    delayed(fast_kde_rect)(s_delayed_picks_lf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=sSNRlf)
+    delayed(dw.assoc.fast_kde_rect)(s_delayed_picks_lf[i, :], t_kde, overlap=dt_kde, bin_width=bin_width, weights=sSNRlf)
     for i in range(s_shape_x)
 ))
 
@@ -540,45 +528,45 @@ print(f'Combined LF max kde: {lf_max_kde}, max index: {lf_imax}, max time: {lf_t
 
 # +
 # Plot the KDE
-plt.figure(figsize=(20,12))
-plt.subplot(3,1,1)
-plt.title('North Cable')
-# plt.plot(n_t_grid_hf[nhf_imax, :], n_kde_hf[nhf_imax, :], color='tab:blue', lw=2, label='north HF')
-# plt.plot(n_t_grid_lf[nlf_imax, :], n_kde_lf[nlf_imax, :], color='tab:orange', lw=2, label='north LF')
-plt.plot(t_kde, n_kde_hf[nhf_imax, :], color='tab:blue', lw=2, label='north HF')
-plt.plot(t_kde, n_kde_lf[nlf_imax, :], color='tab:orange', lw=2, label='north LF')
-plt.plot(t_kde, n_kde_hf[hf_imax, :], color='tab:cyan', lw=2, ls='--', label='north HF, maxsingle')
-plt.plot(t_kde, n_kde_lf[lf_imax, :], color='tab:red', lw=2, ls='--', label='north LF, maxsingle')
-plt.xlim(0, 60)
-plt.ylim(0, max(np.max(hf_kde), np.max(lf_kde)) * 1.1)
-plt.ylabel('Probability density [-]')
+# plt.figure(figsize=(20,12))
+# plt.subplot(3,1,1)
+# plt.title('North Cable')
+# # plt.plot(n_t_grid_hf[nhf_imax, :], n_kde_hf[nhf_imax, :], color='tab:blue', lw=2, label='north HF')
+# # plt.plot(n_t_grid_lf[nlf_imax, :], n_kde_lf[nlf_imax, :], color='tab:orange', lw=2, label='north LF')
+# plt.plot(t_kde, n_kde_hf[nhf_imax, :], color='tab:blue', lw=2, label='north HF')
+# plt.plot(t_kde, n_kde_lf[nlf_imax, :], color='tab:orange', lw=2, label='north LF')
+# plt.plot(t_kde, n_kde_hf[hf_imax, :], color='tab:cyan', lw=2, ls='--', label='north HF, maxsingle')
+# plt.plot(t_kde, n_kde_lf[lf_imax, :], color='tab:red', lw=2, ls='--', label='north LF, maxsingle')
+# plt.xlim(0, 60)
+# plt.ylim(0, max(np.max(hf_kde), np.max(lf_kde)) * 1.1)
+# plt.ylabel('Probability density [-]')
 
-plt.grid(linestyle='--', alpha=0.5)
-plt.legend()
+# plt.grid(linestyle='--', alpha=0.5)
+# plt.legend()
 
-plt.subplot(3,1,2)
-plt.title('South Cable')
-plt.plot(t_kde, s_kde_hf[shf_imax, :], color='tab:blue', lw=2, label='south HF')
-plt.plot(t_kde, s_kde_lf[slf_imax, :], color='tab:orange', lw=2, label='south LF')
-plt.plot(t_kde, s_kde_hf[hf_imax, :], color='tab:cyan', lw=2, ls='--', label='south HF, maxsingle')
-plt.plot(t_kde, s_kde_lf[lf_imax, :], color='tab:red', lw=2, ls='--', label='south LF, maxsingle')
-plt.ylabel('Probability density [-]')
-plt.xlim(0, 60)
-plt.ylim(0, max(np.max(hf_kde), np.max(lf_kde)) * 1.1)
-plt.grid(linestyle='--', alpha=0.5)
-plt.legend()
+# plt.subplot(3,1,2)
+# plt.title('South Cable')
+# plt.plot(t_kde, s_kde_hf[shf_imax, :], color='tab:blue', lw=2, label='south HF')
+# plt.plot(t_kde, s_kde_lf[slf_imax, :], color='tab:orange', lw=2, label='south LF')
+# plt.plot(t_kde, s_kde_hf[hf_imax, :], color='tab:cyan', lw=2, ls='--', label='south HF, maxsingle')
+# plt.plot(t_kde, s_kde_lf[lf_imax, :], color='tab:red', lw=2, ls='--', label='south LF, maxsingle')
+# plt.ylabel('Probability density [-]')
+# plt.xlim(0, 60)
+# plt.ylim(0, max(np.max(hf_kde), np.max(lf_kde)) * 1.1)
+# plt.grid(linestyle='--', alpha=0.5)
+# plt.legend()
 
-plt.subplot(3,1,3)
-plt.title('Combined KDE')
-plt.plot(t_kde, hf_kde[hf_imax, :], color='tab:green', lw=2, label="Combined HF")
-plt.plot(t_kde, lf_kde[lf_imax, :], color='tab:purple', lw=2, label="Combined LF")
-plt.xlim(0, 60)
-plt.ylim(0, max(np.max(hf_kde), np.max(lf_kde)) * 1.1)
-plt.ylabel('Probability density [-]')
-plt.xlabel('Delayed time [s]')
-plt.grid(linestyle='--', alpha=0.5)
-plt.legend()
-plt.show()
+# plt.subplot(3,1,3)
+# plt.title('Combined KDE')
+# plt.plot(t_kde, hf_kde[hf_imax, :], color='tab:green', lw=2, label="Combined HF")
+# plt.plot(t_kde, lf_kde[lf_imax, :], color='tab:purple', lw=2, label="Combined LF")
+# plt.xlim(0, 60)
+# plt.ylim(0, max(np.max(hf_kde), np.max(lf_kde)) * 1.1)
+# plt.ylabel('Probability density [-]')
+# plt.xlabel('Delayed time [s]')
+# plt.grid(linestyle='--', alpha=0.5)
+# plt.legend()
+# plt.show()
 
 # plt.figure(figsize=(20,8))
 # plt.title('Combined KDE')
@@ -696,6 +684,53 @@ plt.grid(linestyle='--', alpha=0.5)
 plt.savefig('../figs/delayed_picks_LF.pdf', bbox_inches='tight', transparent=True, format='pdf')
 plt.show()
 
+# +
+# Print the delayed time for the maximum KDE on north and south cables, lf
+plt.figure(figsize=(10,16), constrained_layout=True)
+plt.subplot(8, 1, (1, 3))
+plt.title('North Cable')
+plt.scatter(n_delayed_picks_hf[nhf_imax, :], (n_longi_offset + npeakshf[0][:]) * dx * 1e-3, label='HF', c=nSNRhf, s=nSNRhf*0.8, cmap='plasma', rasterized=True)
+plt.scatter(n_delayed_picks_lf[nlf_imax, :], (n_longi_offset + npeakslf[0][:]) * dx * 1e-3, label='LF', c=nSNRlf, s=nSNRlf*0.8, cmap='viridis', rasterized=True)
+plt.xlim(min(s_delayed_picks_lf[nlf_imax, :]), max(s_delayed_picks_lf[nlf_imax, :]))
+plt.grid(linestyle='--', alpha=0.5)
+plt.ylabel('Distance [km]')
+
+plt.subplot(8, 1, (5, 7))
+plt.title('South Cable')
+plt.scatter(s_delayed_picks_hf[shf_imax, :], (s_longi_offset + speakshf[0][:]) * dx * 1e-3, label='HF', c=sSNRhf, s=sSNRhf*0.8, cmap='plasma', rasterized=True)
+plt.scatter(s_delayed_picks_lf[slf_imax, :], (s_longi_offset + speakslf[0][:]) * dx * 1e-3, label='LF', c=sSNRlf, s=sSNRlf*0.8, cmap='viridis', rasterized=True)
+plt.xlim(min(s_delayed_picks_lf[slf_imax, :]), max(s_delayed_picks_lf[slf_imax, :]))
+plt.grid(linestyle='--', alpha=0.5)
+plt.ylabel('Distance [km]')
+
+plt.subplot(8, 1, 4)
+plt.plot(t_kde, n_kde_hf[nlf_imax, :], color='tab:orange', lw=3, label='HF')
+plt.plot(t_kde, n_kde_lf[nlf_imax, :], color='tab:green', lw=3, label='LF')
+# plt.bar(lf_bin_edges[:-1], lf_hist, width=bin_width, alpha=0.5, label="Histogram", color='grey', edgecolor='black')
+plt.xlim(min(s_delayed_picks_lf[nlf_imax, :]), max(s_delayed_picks_lf[nlf_imax, :]))
+# plt.xlim(4, 8)
+plt.ylim(0, max(np.max(n_kde_hf), np.max(n_kde_lf)) * 1.1)
+plt.grid(linestyle='--', alpha=0.5)
+plt.legend()
+plt.ylabel('Weighted\n occurrence [-]')
+plt.xlabel('Delayed time [s]')
+
+plt.subplot(8, 1, 8)
+plt.plot(t_kde, s_kde_hf[shf_imax, :], color='tab:orange', lw=3, label='HF')
+plt.plot(t_kde, s_kde_lf[slf_imax, :], color='tab:green', lw=3, label='LF')
+# plt.bar(s_lf_bin_edges[:-1], s_lf_hist, width=bin_width, alpha=0.5, label="Histogram", color='grey', edgecolor='black')
+plt.xlim(min(s_delayed_picks_lf[slf_imax, :]), max(s_delayed_picks_lf[slf_imax, :]))
+plt.ylim(0, max(np.max(s_kde_hf), np.max(s_kde_lf)) * 1.1)
+plt.ylabel('Weighted\n occurrence [-]')
+plt.xlabel('Delayed time [s]')
+# plt.tight_layout()
+plt.grid(linestyle='--', alpha=0.5)
+plt.legend()
+plt.savefig('../figs/Figure3.pdf', bbox_inches='tight', transparent=True, format='pdf')
+plt.show()
+
+# -
+
 max_time_hf = t_kde[hf_tmax]
 max_time_lf = t_kde[lf_tmax]
 
@@ -756,6 +791,72 @@ axes[1, 1].set_yticklabels([])
 axes[1, 1].set_xticks(np.arange(0, max(speakslf[1][:] / fs)+10, 10))
 plt.savefig('../figs/associated_calls_1st.pdf', bbox_inches='tight', transparent=True, format='pdf')
 
+plt.show()
+
+# +
+# Plot the hyberbola on top of the picks 
+# Create figure
+fig, axes = plt.subplots(2, 1, figsize=(10, 16), sharex=True, sharey=False, constrained_layout=True)
+
+# First subplot
+sc1 = axes[0].scatter(npeakshf[1][:] / fs, (n_selected_channels_m[0] + npeakshf[0][:] * dx) * 1e-3, 
+                         c='grey',  s=nSNRhf, rasterized=True, alpha=0.7)
+sc1 = axes[0].scatter(npeakslf[1][:] / fs, (n_selected_channels_m[0] + npeakslf[0][:] * dx) * 1e-3,
+                         c='grey',  s=nSNRlf, rasterized=True, alpha=0.7)
+
+axes[0].plot(max_time_hf + n_arr_tg[hf_imax, :], n_dist/1e3, ls='-', lw=3, color='tab:orange', label='HF')
+# axes[0].plot(max_time_hf + n_arr_tg[hf_imax, :] + dt_sel, n_dist/1e3, ls='--', lw=3, color='k')
+# axes[0].plot(max_time_hf + n_arr_tg[hf_imax, :] - dt_sel, n_dist/1e3, ls='--', lw=3, color='k')
+
+axes[0].fill_betweenx(n_dist/1e3, max_time_hf + n_arr_tg[hf_imax, :] - dt_sel, max_time_hf + n_arr_tg[hf_imax, :] + dt_sel, color='tab:orange', alpha=0.3, \
+                      edgecolor='tab:orange', linewidth=1)
+
+axes[0].plot(max_time_lf + n_arr_tg[lf_imax, :], n_dist/1e3, ls='-', lw=3, color='tab:green', label='LF')
+# axes[0].plot(max_time_lf + n_arr_tg[lf_imax, :] + dt_sel, n_dist/1e3, ls='--', lw=3, color='k')
+# axes[0].plot(max_time_lf + n_arr_tg[lf_imax, :] - dt_sel, n_dist/1e3, ls='--', lw=3, color='k')
+
+axes[0].fill_betweenx(n_dist/1e3, max_time_lf + n_arr_tg[lf_imax, :] - dt_sel, max_time_lf + n_arr_tg[lf_imax, :] + dt_sel, color='tab:green', alpha=0.3, \
+                      edgecolor='tab:green', linewidth=1)
+
+axes[0].set_title('North Cable');
+axes[0].set_ylabel('Distance [km]')
+axes[0].grid(linestyle='--', alpha=0.5)
+axes[0].set_ylim(min(n_dist/1e3), max(n_dist/1e3))
+
+# Third subplot
+sc3 = axes[1].scatter(speakshf[1][:] / fs, (s_selected_channels_m[0] + speakshf[0][:] * dx) * 1e-3, 
+                         c='grey',  s=sSNRhf, rasterized=True, alpha=0.7)
+sc3 = axes[1].scatter(speakslf[1][:] / fs, (s_selected_channels_m[0] + speakslf[0][:] * dx) * 1e-3,
+                            c='grey',  s=sSNRlf, rasterized=True, alpha=0.7)
+
+axes[1].plot(max_time_hf + s_arr_tg[hf_imax, :], s_dist/1e3, ls='-', lw=3, color='tab:orange', label='HF')
+# axes[1].plot(max_time_hf + s_arr_tg[hf_imax, :] + dt_sel, s_dist/1e3, ls='--', lw=3, color='k')
+# axes[1].plot(max_time_hf + s_arr_tg[hf_imax, :] - dt_sel, s_dist/1e3, ls='--', lw=3, color='k')
+
+axes[1].fill_betweenx(s_dist/1e3, max_time_hf + s_arr_tg[hf_imax, :] - dt_sel, max_time_hf + s_arr_tg[hf_imax, :] + dt_sel, color='tab:orange', alpha=0.5, \
+                      edgecolor='tab:orange', linewidth=1)
+
+axes[1].plot(max_time_lf + s_arr_tg[lf_imax, :], s_dist/1e3, ls='-', lw=3, color='tab:green', label='LF')
+# axes[1].plot(max_time_lf + s_arr_tg[lf_imax, :] + dt_sel, s_dist/1e3, ls='--', lw=3, color='k')
+# axes[1].plot(max_time_lf + s_arr_tg[lf_imax, :] - dt_sel, s_dist/1e3, ls='--', lw=3, color='k')
+
+axes[1].fill_betweenx(s_dist/1e3, max_time_lf + s_arr_tg[lf_imax, :] - dt_sel, max_time_lf + s_arr_tg[lf_imax, :] + dt_sel, color='tab:green', alpha=0.5, \
+                      edgecolor='tab:green', linewidth=1)
+
+
+axes[1].set_title('South Cable')
+axes[1].set_xlabel('Time [s]')
+axes[1].set_ylabel('Distance [km]')
+axes[1].grid(linestyle='--', alpha=0.5)
+# set xlim to the same as the first subplot
+axes[1].set_xlim(min(npeakshf[1][:] / fs), max(npeakshf[1][:] / fs))
+axes[1].set_ylim(min(s_dist/1e3), max(s_dist/1e3))
+axes[1].set_xticks(np.arange(0, max(speakshf[1][:] / fs)+10, 10))
+
+for ax in axes:
+    ax.legend(loc='best', frameon=True, fancybox=True, shadow=True)
+
+plt.savefig('../figs/Figure5.pdf', bbox_inches='tight', transparent=True, format='pdf')
 plt.show()
 
 
