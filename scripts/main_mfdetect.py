@@ -87,8 +87,8 @@ def main(url):
     SNR_hf = dw.dsp.snr_tr_array(corr_m_HF)
     SNR_lf = dw.dsp.snr_tr_array(corr_m_LF)
 
-    dw.plot.snr_matrix(SNR_hf, time, dist, 20, fileBeginTimeUTC, title='mf detect: HF')
-    dw.plot.snr_matrix(SNR_lf, time, dist, 20, fileBeginTimeUTC, title ='mf detect: LF')
+    dw.plot.snr_matrix(SNR_hf, time, dist, 20, fileBeginTimeUTC, title_time_info=None)
+    dw.plot.snr_matrix(SNR_lf, time, dist, 20, fileBeginTimeUTC, title_time_info =None)
 
     # Find the local maximas using find peaks and a threshold
     print(f"The maximum correlation is {maxv}")
