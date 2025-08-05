@@ -288,7 +288,7 @@ def load_das_data(filename, selected_channels, metadata, interrogator='optasense
     if not os.path.exists(filename):
         raise FileNotFoundError(f'File {filename} not found')
 
-    if interrogator == 'optasense' or 'silixa' or 'onyx':
+    if interrogator in ['optasense', 'silixa', 'onyx']:
 
         with h5py.File(filename, 'r') as fp:
             # Data matrix
