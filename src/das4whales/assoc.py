@@ -1460,42 +1460,61 @@ def plot_associated_bicable_paper(n_peaks, s_peaks, longi_offset, pair_assoc_lis
     lf_cmap_custom = ListedColormap(lf_colors)
 
     # Create a parent container for the legend with frame
-    legend_container = inset_axes(axes[1], width="25%", height="20%", loc='lower left',
-                                bbox_to_anchor=(0, 0.02, 1, 1), bbox_transform=axes[1].transAxes)
+    legend_container = inset_axes(axes[1], width="25%", height="20%", loc='lower center',
+                                bbox_to_anchor=(-0.5, -0.01, 2, 0.6), bbox_transform=axes[1].transAxes)
+
     legend_container.set_xlim(0, 1)
     legend_container.set_ylim(0, 1)
     legend_container.set_xticks([])
     legend_container.set_yticks([])
+    legend_container.set_facecolor('white')
 
     # Add frame around the container
-    legend_container.spines['top'].set_visible(True)
-    legend_container.spines['right'].set_visible(True)
-    legend_container.spines['bottom'].set_visible(True)
-    legend_container.spines['left'].set_visible(True)
-    legend_container.spines['top'].set_linewidth(1.5)
-    legend_container.spines['right'].set_linewidth(1.5)
-    legend_container.spines['bottom'].set_linewidth(1.5)
-    legend_container.spines['left'].set_linewidth(1.5)
-    legend_container.spines['top'].set_color('black')
-    legend_container.spines['right'].set_color('black')
-    legend_container.spines['bottom'].set_color('black')
-    legend_container.spines['left'].set_color('black')
+    # legend_container.spines['top'].set_visible(True)
+    # legend_container.spines['right'].set_visible(True)
+    # legend_container.spines['bottom'].set_visible(True)
+    # legend_container.spines['left'].set_visible(True)
+    # legend_container.spines['top'].set_linewidth(1.5)
+    # legend_container.spines['right'].set_linewidth(1.5)
+    # legend_container.spines['bottom'].set_linewidth(1.5)
+    # legend_container.spines['left'].set_linewidth(1.5)
+    # legend_container.spines['top'].set_color('black')
+    # legend_container.spines['right'].set_color('black')
+    # legend_container.spines['bottom'].set_color('black')
+    # legend_container.spines['left'].set_color('black')
+
+    # Remove the default spines
+    # for spine in legend_container.spines.values():
+    #     spine.set_visible(False)
+
+    # Add rounded rectangle
+    rounded_box = patches.FancyBboxPatch((0, 0), 1, 1, 
+                                    boxstyle="round,pad=0.1", 
+                                    facecolor='white', 
+                                    edgecolor='gray', 
+                                    linewidth=1,
+                                    transform=legend_container.transAxes)
+    legend_container.add_patch(rounded_box)
 
     # HF gradient bar (positioned in upper part of container)
-    hf_gradient_ax = inset_axes(legend_container, width="80%", height="35%", loc='upper center',
-                            bbox_to_anchor=(0, 0.15, 1, 0.8), bbox_transform=legend_container.transAxes)
+    hf_gradient_ax = inset_axes(legend_container, width="80%", height="35%", loc='lower left',
+                            bbox_to_anchor=(0, 0, 0.5, 0.6), bbox_transform=legend_container.transAxes)
     hf_gradient_ax.imshow(gradient_values, aspect='auto', cmap=hf_cmap_custom)
     hf_gradient_ax.set_xticks([])
     hf_gradient_ax.set_yticks([])
     hf_gradient_ax.set_title('HF calls ▷', fontsize=24, pad=4)
 
     # LF gradient bar (positioned in lower part of container)
-    lf_gradient_ax = inset_axes(legend_container, width="80%", height="35%", loc='lower center',
-                            bbox_to_anchor=(0, -0.07, 1, 0.8), bbox_transform=legend_container.transAxes)
+    lf_gradient_ax = inset_axes(legend_container, width="80%", height="35%", loc='lower right',
+                            bbox_to_anchor=(0.5, 0, 0.5, 0.6), bbox_transform=legend_container.transAxes)
     lf_gradient_ax.imshow(gradient_values, aspect='auto', cmap=lf_cmap_custom)
     lf_gradient_ax.set_xticks([])
     lf_gradient_ax.set_yticks([])
     lf_gradient_ax.set_title('LF calls ●', fontsize=24, pad=4)
+
+    hf_gradient_ax.set_facecolor('white')
+    lf_gradient_ax.set_facecolor('white')
+
     for ax in axes.flat:
         ax.grid(linestyle='--', alpha=0.3, linewidth=0.5)
         ax.set_axisbelow(True)  # Put grid behind data
