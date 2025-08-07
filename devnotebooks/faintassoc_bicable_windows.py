@@ -49,12 +49,12 @@ plt.rcParams['font.size'] = 14
 # Load the peak indexes and the metadata
 
 # Well-behaving data 
-n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc') 
-s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
+# n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc') 
+# s_ds = xr.load_dataset('../out/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
 
 # Gabor filtered data
-# n_ds = xr.load_dataset('../out/sparse_picks_Gabor/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc')
-# s_ds = xr.load_dataset('../out/sparse_picks_Gabor/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
+n_ds = xr.load_dataset('../out/sparse_picks_Gabor/peaks_indexes_tp_North_2021-11-04_02:00:02_ipi3_th_4.nc')
+s_ds = xr.load_dataset('../out/sparse_picks_Gabor/peaks_indexes_tp_South_2021-11-04_02:00:02_ipi3_th_5.nc')
 
 # Problematic data
 # n_ds = xr.load_dataset('../out/peaks_indexes_tp_North_2021-11-04_08:00:02_ipi3_th_4.nc') 
@@ -236,18 +236,18 @@ from matplotlib.patches import Rectangle
 # plt.show()
 
 fig, ax = plt.subplots(figsize=(24, 5))
-ax.plot(n_dist, n_cable_pos[:, 2], color='orange', label='North cable')
-ax.plot(s_dist, s_cable_pos[:, 2], color='red', label='South cable')
+ax.plot(n_dist/1e3, n_cable_pos[:, 2], color='orange', lw=3, label='North cable')
+ax.plot(s_dist/1e3, s_cable_pos[:, 2], color='red', lw=3, label='South cable')
 # Plot overlapping spatial windows 
 
-ax.add_patch(Rectangle((np.min(n_dist), np.min(s_cable_pos[:, 2])), 56000 - np.min(n_dist), -np.min(s_cable_pos[:, 2]),
+ax.add_patch(Rectangle((np.min(n_dist/1e3), np.min(s_cable_pos[:, 2])), 56000/1e3 - np.min(n_dist/1e3), -np.min(s_cable_pos[:, 2]),
              edgecolor = 'black',
              facecolor='tab:grey',
              fill=True,
              alpha=0.3,
              lw=5))
 
-ax.add_patch(Rectangle((35000, np.min(s_cable_pos[:, 2])), np.max(n_dist) - 35000, -np.min(s_cable_pos[:, 2]),
+ax.add_patch(Rectangle((35000/1e3, np.min(s_cable_pos[:, 2])), np.max(n_dist/1e3) - 35000/1e3, -np.min(s_cable_pos[:, 2]),
              edgecolor = 'tab:blue',    
              facecolor='tab:blue',
              alpha=0.3,  
@@ -255,18 +255,20 @@ ax.add_patch(Rectangle((35000, np.min(s_cable_pos[:, 2])), np.max(n_dist) - 3500
              lw=5))
 
 
-ax.add_patch(Rectangle((56000, np.min(s_cable_pos[:, 2])), np.max(s_dist) - 56000, -np.min(s_cable_pos[:, 2]),
+ax.add_patch(Rectangle((56000/1e3, np.min(s_cable_pos[:, 2])), np.max(s_dist/1e3) - 56000/1e3, -np.min(s_cable_pos[:, 2]),
              edgecolor = 'tab:green',
                 facecolor='tab:green',
                 alpha=0.3,
              fill=True,
              lw=5))
 
-plt.xlabel('Distance along the cable (m)')
+plt.xlabel('Distance along the cable (km)')
 plt.ylabel('Depth (m)')
 plt.legend()
 plt.grid(alpha=0.5, linestyle='--')
 plt.ylim(-800, 0)
+fig.savefig('../figs/Figure7a.pdf', bbox_inches='tight', transparent=True)
+
 plt.show()
 
 # +
@@ -316,7 +318,7 @@ def plot_cables2D_m_rectPatches(df_north, df_south, bathy, xm, ym):
     # Set the light source
     ls = LightSource(azdeg=350, altdeg=45)
 
-    plt.figure(figsize=(14, 9))
+    fig = plt.figure(figsize=(14, 9))
     ax = plt.gca()
     # Plot the bathymetry relief in background
     rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay', vmin=np.min(bathy), vmax=0)
@@ -326,19 +328,19 @@ def plot_cables2D_m_rectPatches(df_north, df_south, bathy, xm, ym):
     ax.plot(df_south['x'], df_south['y'], 'tab:orange', label='South cable', lw=2.5)
 
     # Add dashed contours at selected depths with annotations
-    depth_levels = [-1500, -1000, -600, -250, -80]
+    # depth_levels = [-1500, -1000, -600, -250, -80]
 
-    contour_dashed = ax.contour(bathy, levels=depth_levels, colors='k', linestyles='--', extent=extent, alpha=0.6)
-    ax.clabel(contour_dashed, fmt='%d m', inline=True)
+    # contour_dashed = ax.contour(bathy, levels=depth_levels, colors='k', linestyles='--', extent=extent, alpha=0.6)
+    # ax.clabel(contour_dashed, fmt='%d m', inline=True)
 
     # Plot points along the cable every 10 km in terms of optical distance
     for i, point in enumerate(opticald_n, start=1):
         ax.plot(point[0], point[1], '.', color='k')
-        ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, 8), ha='center', fontsize=12)
+        ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, 10), ha='center')
 
     for i, point in enumerate(opticald_s, start=1):
         ax.plot(point[0], point[1], '.', color='k')
-        ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, -15), ha='center', fontsize=12)
+        ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, -30), ha='center')
 
     # Plot the three rectangles representing the spatial windows
     ax.add_patch(Rectangle((np.min(df_north['x']), np.min(df_south['y'])), 
@@ -384,11 +386,22 @@ def plot_cables2D_m_rectPatches(df_north, df_south, bathy, xm, ym):
     plt.legend(loc='upper left')
     plt.grid(linestyle='--', alpha=0.6, color='k')
     plt.tight_layout()
-    plt.show()
+    # Get current tick locations and convert to km
+    x_ticks = ax.get_xticks()
+    y_ticks = ax.get_yticks()
 
-    return
+    # Set new tick labels in km
+    ax.set_xticklabels([f'{int(tick/1000)}' for tick in x_ticks])
+    ax.set_yticklabels([f'{int(tick/1000)}' for tick in y_ticks])
 
-plot_cables2D_m_rectPatches(df_north, df_south, bathy, x, y)
+    # Update axis labels
+    plt.xlabel('x [km]')
+    plt.ylabel('y [km]')
+
+    return fig
+
+fig2 = plot_cables2D_m_rectPatches(df_north, df_south, bathy, x, y)
+fig2.savefig('../figs/Figure7b.pdf', bbox_inches='tight', transparent=True)
 
 # +
 # apply the spatial windows to the peaks
@@ -579,6 +592,8 @@ sSNRlf = np.copy(snr_far[3])
 # -
 
 iterations_far = 50
+w_eval_far = 2 
+rms_threshold_far = 0.25
 
 # +
 pbar = tqdm(range(iterations_far), desc="Associated calls, far window: 0")
@@ -599,7 +614,7 @@ for iteration in pbar:
     # Rejected lists
     rejected_lists,
     # Parameters
-    fs, dt_kde, bin_width, dt_sel, w_eval, rms_threshold, c0, dx, dt_tol,
+    fs, dt_kde, bin_width, dt_sel, w_eval_far, rms_threshold, c0, dx, dt_tol,
     # Iteration info
     iteration)
 
@@ -1094,8 +1109,8 @@ localizations = (nhf_localizations, nlf_localizations, shf_localizations, slf_lo
 
 # -
 
-fig = plot_associated_bicable(npeakshf, speakslf, n_longi_offset, pair_assoc, pair_loc, associations, localizations, n_cable_pos, s_cable_pos, n_dist, s_dist, dx, c0, fs)
-fig.savefig('../figs/associations_bicable.pdf', bbox_inches='tight', transparent=True)
+fig = dw.assoc.plot_associated_bicable_paper(npeakshf, speakslf, n_longi_offset, pair_assoc, pair_loc, associations, localizations, n_cable_pos, s_cable_pos, n_dist, s_dist, dx, c0, fs)
+fig.savefig('../figs/associations_bicable.pdf', bbox_inches=None, transparent=True)
 plt.show()
 
 # +
