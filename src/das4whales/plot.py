@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as tkr
 import numpy as np
 import scipy.signal as sp
+import das4whales as dw
 
 from das4whales.dsp import get_fx, instant_freq
 
