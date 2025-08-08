@@ -235,7 +235,7 @@ from matplotlib.patches import Rectangle
 # # plt.axis('equal')       
 # plt.show()
 
-fig, ax = plt.subplots(figsize=(24, 5))
+fig, ax = plt.subplots(figsize=(14, 5))
 ax.plot(n_dist/1e3, n_cable_pos[:, 2], color='orange', lw=3, label='North cable')
 ax.plot(s_dist/1e3, s_cable_pos[:, 2], color='red', lw=3, label='South cable')
 # Plot overlapping spatial windows 

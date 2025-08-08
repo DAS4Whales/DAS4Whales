@@ -8,28 +8,33 @@ Authors: Léa Bouffaut, Quentin Goestchel, Erfan Horeh
 Date: 2023-2024-2025
 """
 
-import h5py
-import wget
-import os
-import numpy as np
+from __future__ import annotations
+
 import csv
-import dask.array as da
-from datetime import datetime, timezone, timedelta
-from simpledas import simpleDASreader as sd
-import pandas as pd
-from nptdms import TdmsFile
+import os
 import re
+from datetime import datetime, timezone, timedelta
+from typing import Dict, List, Optional, Tuple, Union, Any
 from urllib.parse import urljoin
+
+import dask.array as da
+import h5py
+import numpy as np
+import pandas as pd
+import wget
+from nptdms import TdmsFile
+from simpledas import simpleDASreader as sd
 
 
 # Test for the package
-def hello_world_das_package():
+def hello_world_das_package() -> None:
+    """Print a hello world message for the package."""
     print("Yepee! You now have access to all the functionalities of the das4whale python package!")
 
 
 # Read metadata
 # Definition of the functions for DAS data conditioning
-def get_acquisition_parameters(filepath, interrogator='optasense'):
+def get_acquisition_parameters(filepath: str, interrogator: str = 'optasense') -> Optional[Dict[str, Any]]:
     """
     Retrieve acquisition parameters based on the specified interrogator.
 
@@ -78,7 +83,7 @@ def get_acquisition_parameters(filepath, interrogator='optasense'):
 
     return metadata
 
-def get_metadata_optasense(filepath):
+def get_metadata_optasense(filepath: str) -> Dict[str, Any]:
     """Gets DAS acquisition parameters for the optasense interrogator e.g., OOI South C1 data
 
     Parameters
@@ -119,7 +124,7 @@ def get_metadata_optasense(filepath):
 
     return meta_data
 
-def get_metadata_silixa(filepath):
+def get_metadata_silixa(filepath: str) -> Dict[str, Any]:
     """
     Gets DAS acquisition parameters for the silixa interrogator
 
@@ -163,7 +168,7 @@ def get_metadata_silixa(filepath):
     
     return meta_data
 
-def get_metadata_asn(filepath):
+def get_metadata_asn(filepath: str) -> Dict[str, Any]:
     """
     Gets DAS acquisition parameters for the ASN interrogator e.g., Svalbard data
 
@@ -199,12 +204,12 @@ def get_metadata_asn(filepath):
     metadata = {'fs': fs, 'dx': dx, 'ns': ns, 'GL': gauge_length, 'nx': nx, 'scale_factor': scale_factor}
     return metadata
 
-def get_metadata_onyx(filepath):
+def get_metadata_onyx(filepath: str) -> Dict[str, Any]:
     """Gets DAS acquisition parameters for the onyx interrogator 
 
     Parameters
     ----------
-    filepath : string
+    filepath : str
         a string containing the full path to the data to load
 
     Returns
@@ -240,7 +245,7 @@ def get_metadata_onyx(filepath):
     return meta_data
 
 # Load/download das data as strain
-def raw2strain(trace, metadata):
+def raw2strain(trace: np.ndarray, metadata: Dict[str, Any]) -> np.ndarray:
     """
     Transform the amplitude of raw das data from strain-rate to strain according to scale factor
 
@@ -263,7 +268,7 @@ def raw2strain(trace, metadata):
     trace *= metadata["scale_factor"] 
     return trace
 
-def load_das_data(filename, selected_channels, metadata, interrogator='optasense'):
+def load_das_data(filename: str, selected_channels: List[int], metadata: Dict[str, Any], interrogator: str = 'optasense') -> Tuple[np.ndarray, np.ndarray, np.ndarray, datetime]:
     """
     Load the DAS data corresponding to the input file name as strain according to the selected channels.
 
@@ -343,7 +348,7 @@ def load_das_data(filename, selected_channels, metadata, interrogator='optasense
 
     return trace, tx, dist, file_begin_time_utc
 
-def load_mtpl_das_data(filepaths, selected_channels, metadata, timestamp, time_window):
+def load_mtpl_das_data(filepaths: List[str], selected_channels: List[int], metadata: Dict[str, Any], timestamp: str, time_window: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray, datetime]:
     """
     Load the DAS data corresponding to the input file names as strain according to the selected channels. Takes multiple files as input and concatenates them along the time axis starting from the input timestamp for the input time window.
 
@@ -425,7 +430,7 @@ def load_mtpl_das_data(filepaths, selected_channels, metadata, timestamp, time_w
     return tr.compute(), time, dist, file_begin_time_utc
 
 
-def dl_file(url):
+def dl_file(url: str) -> Tuple[str, str]:
     """Download the file at the given url
 
     Parameters
@@ -450,7 +455,7 @@ def dl_file(url):
     return filepath, filename
 
 # Load cable position information
-def load_cable_coordinates(filepath, dx):
+def load_cable_coordinates(filepath: str, dx: float) -> pd.DataFrame:
     """
     Load the cable coordinates from a text file.
 
@@ -475,7 +480,7 @@ def load_cable_coordinates(filepath, dx):
     return df
 
 
-def get_cable_lat_lon_depth(file, selected_channels):
+def get_cable_lat_lon_depth(file: str, selected_channels: Tuple[int, int, int]) -> Dict[str, List[float]]:
     """
     Extract latitude, longitude, and depth information from a CSV or TXT file for selected cable channels.
 
@@ -529,7 +534,7 @@ def get_cable_lat_lon_depth(file, selected_channels):
     return position
 
 # Load annotation files
-def load_annotation_csv(filepath):
+def load_annotation_csv(filepath: str) -> pd.DataFrame:
     """
     Load the annotation data from a CSV file. The file must include the following columns:
     'file_name', 'apex', 'offset', 'start_time', 'whale_side', as output from the DAS Source Locator
@@ -558,7 +563,7 @@ def load_annotation_csv(filepath):
     return annotations
 
 
-def calc_dist_to_xidx(x, selected_channels_m, selected_channels, dx):
+def calc_dist_to_xidx(x: float, selected_channels_m: List[float], selected_channels: List[int], dx: float) -> int:
     """
     Calculate the index of the channel closest to the given distance.
 
@@ -581,7 +586,7 @@ def calc_dist_to_xidx(x, selected_channels_m, selected_channels, dx):
     return int((x-selected_channels_m[0]) / (dx * selected_channels[2]))
 
 
-def get_selected_channels(selected_channels_m, dx):
+def get_selected_channels(selected_channels_m: List[float], dx: float) -> List[int]:
     """
     Get the selected channels in channel numbers.
 
@@ -605,14 +610,14 @@ def get_selected_channels(selected_channels_m, dx):
     return selected_channels
 
 
-def extract_timestamp(filename):
+def extract_timestamp(filename: str) -> Optional[datetime]:
     """Extract timestamp from filename in format YYYY-MM-DDTHHMMSSZ."""
     match = re.search(r'(\d{4}-\d{2}-\d{2}T\d{6})Z', filename)
     if match:
         return datetime.strptime(match.group(1), '%Y-%m-%dT%H%M%S').replace(tzinfo=timezone.utc)
     return None
 
-def generate_file_list(base_url, start_file, duration):
+def generate_file_list(base_url: str, start_file: str, duration: int) -> List[str]:
     """
     Generate a list of file URLs that correspond to a given time range, starting from a known file.
     

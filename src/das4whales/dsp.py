@@ -7,18 +7,22 @@ Authors: Léa Bouffaut, Quentin Goestchel
 Date: 2023-2024-2025
 """
 
-import numpy as np
-import scipy.signal as sp
-import scipy.fft as sfft
-import librosa
-import sparse
-from scipy import ndimage
-from numpy.fft import fft2, fftfreq, fftshift, ifft2, ifftshift
+from __future__ import annotations
+
+from typing import Dict, List, Tuple, Union, Optional, Any
+
 import cv2
-import deprecation  
+import deprecation
+import librosa
+import numpy as np
+import scipy.fft as sfft
+import scipy.signal as sp
+import sparse
+from numpy.fft import fft2, fftfreq, fftshift, ifft2, ifftshift
+from scipy import ndimage  
 
 # Digital sampling
-def resample(tr, fs, desired_fs):
+def resample(tr: np.ndarray, fs: int, desired_fs: int) -> Tuple[np.ndarray, int, np.ndarray]:
     """
     Resample a multi-channel signal to a desired sampling frequency.
 
@@ -59,7 +63,7 @@ def resample(tr, fs, desired_fs):
     return tr_downsampled, fs_downsampled, tx_downsampled
 
 # Transformations
-def get_fx(trace, nfft):
+def get_fx(trace: np.ndarray, nfft: int) -> np.ndarray:
     """
     Apply a fast Fourier transform (FFT) to each channel of the strain data matrix.
 
@@ -82,7 +86,7 @@ def get_fx(trace, nfft):
     return fx
 
 
-def get_spectrogram(waveform, fs, nfft=128, overlap_pct=0.8):
+def get_spectrogram(waveform: np.ndarray, fs: float, nfft: int = 128, overlap_pct: float = 0.8) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Get the spectrogram of a single channel
 

@@ -7,22 +7,24 @@ Authors: Quentin Goestchel
 Date: 2024
 """
 
-import numpy as np
-import das4whales as dw
-from sklearn.neighbors import KernelDensity
-from scipy.stats import gaussian_kde
+from __future__ import annotations
+
 import pickle
-import matplotlib.pyplot as plt
-from matplotlib.colors import LightSource
+from typing import Dict, List, Tuple, Union, Optional, Any
+
+import cmocean.cm as cmo
+import das4whales as dw
 import matplotlib.cm as cm
 import matplotlib.colors as colors
-import scipy.signal as sp
-import das4whales as dw
-from joblib import Parallel, delayed
-import pandas as pd
-import cmocean.cm as cmo
-from matplotlib.colors import LightSource
 import matplotlib.colors as mcolors
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import scipy.signal as sp
+from joblib import Parallel, delayed
+from matplotlib.colors import LightSource
+from scipy.stats import gaussian_kde
+from sklearn.neighbors import KernelDensity
 
 ## Main association function --------------------------------------------
 

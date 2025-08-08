@@ -7,12 +7,17 @@ Author: Quentin Goestchel, Léa Bouffaut
 Date: 2024-06-18/2025-03-05
 """
 
+from __future__ import annotations
+
 import sys
+from typing import Dict, List, Tuple, Union, Optional, Any
+
 import numpy as np
-from das4whales.spatial import calc_das_section_bearing, calc_source_position_lat_lon, calc_dist_lat_lon
 from tqdm import tqdm
 
-def calc_arrival_times(t0, cable_pos, pos, c0):
+from das4whales.spatial import calc_das_section_bearing, calc_source_position_lat_lon, calc_dist_lat_lon
+
+def calc_arrival_times(t0: Union[float, np.ndarray], cable_pos: np.ndarray, pos: Union[Tuple[np.ndarray, np.ndarray, float], Tuple[float, float, float]], c0: float) -> np.ndarray:
     """
     Calculate theoretical arrival times of a whale call at a grid of positions or a single point.
 

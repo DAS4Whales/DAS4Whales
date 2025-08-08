@@ -7,14 +7,20 @@ Authors: Léa Bouffaut, Quentin Goestchel
 Date: 2023-2024
 """
 
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Dict, List, Tuple, Union, Optional, Any
+
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tkr
 import numpy as np
 import scipy.signal as sp
-from das4whales.dsp import get_fx, instant_freq
-from datetime import datetime
 
-def plot_rawdata(trace, time, dist, fig_size=(12, 10)):
+from das4whales.dsp import get_fx, instant_freq
+
+
+def plot_rawdata(trace: np.ndarray, time: np.ndarray, dist: np.ndarray, fig_size: Tuple[int, int] = (12, 10)) -> None:
     """
     Plot the raw DAS data.
 
@@ -40,7 +46,7 @@ def plot_rawdata(trace, time, dist, fig_size=(12, 10)):
     plt.show()
 
 
-def plot_tx(trace, time, dist, title_time_info=0, fig_size=(12, 10), v_min=None, v_max=None, cbar_label='Strain Envelope (x$10^{-9}$)'):
+def plot_tx(trace: np.ndarray, time: np.ndarray, dist: np.ndarray, title_time_info: float = 0, fig_size: Tuple[int, int] = (12, 10), v_min: Optional[float] = None, v_max: Optional[float] = None, cbar_label: str = 'Strain Envelope (x$10^{-9}$)') -> None:
     """
     Spatio-temporal representation (t-x plot) of the strain data
 

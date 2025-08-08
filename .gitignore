@@ -68,3 +68,6 @@ figs/
 denoised_data/
 # Evaluation figures 
 evaluation/
+
+# Housekeeping files
+HOUSEKEEPING_SUMMARY.md

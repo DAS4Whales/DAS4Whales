@@ -7,17 +7,22 @@ Author: Quentin Goestchel
 Date: 2023-2024
 """
 
+from __future__ import annotations
+
+import concurrent.futures
+from typing import Dict, List, Tuple, Union, Optional, Any
+
 import librosa
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import scipy.signal as sp
 import scipy.stats as st
 from tqdm import tqdm
-from das4whales.plot import import_roseus 
-import concurrent.futures
+
+from das4whales.plot import import_roseus
 
 ## Matched filter detection functions:
-def gen_linear_chirp(fmin, fmax, duration, sampling_rate):
+def gen_linear_chirp(fmin: float, fmax: float, duration: float, sampling_rate: int) -> np.ndarray:
     """Generate a linear chirp signal.
 
     Parameters
@@ -41,7 +46,7 @@ def gen_linear_chirp(fmin, fmax, duration, sampling_rate):
     return y
 
 
-def gen_hyperbolic_chirp(fmin, fmax, duration, sampling_rate):
+def gen_hyperbolic_chirp(fmin: float, fmax: float, duration: float, sampling_rate: int) -> np.ndarray:
     """Generate a hyperbolic chirp signal.
 
     Parameters
@@ -65,7 +70,7 @@ def gen_hyperbolic_chirp(fmin, fmax, duration, sampling_rate):
     return y
 
 
-def gen_template_fincall(time, fs, fmin = 15., fmax = 25., duration = 1., window=True):
+def gen_template_fincall(time: np.ndarray, fs: float, fmin: float = 15., fmax: float = 25., duration: float = 1., window: bool = True) -> np.ndarray:
     """ generate template of a fin whale call
 
     Parameters
@@ -93,7 +98,7 @@ def gen_template_fincall(time, fs, fmin = 15., fmax = 25., duration = 1., window
     return template
 
 
-def shift_xcorr(x, y):
+def shift_xcorr(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     """compute the shifted (positive lags only) cross correlation between two 1D arrays
 
     Parameters
@@ -113,7 +118,7 @@ def shift_xcorr(x, y):
     return corr[len(x)-1 :]
 
 
-def shift_nxcorr(x, y):
+def shift_nxcorr(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     """Compute the shifted (positive lags only) normalized cross-correlation with standard deviation normalization.
 
     Parameters
@@ -138,7 +143,7 @@ def shift_nxcorr(x, y):
     return normalized_corr[len(x)-1 :]
 
 
-def compute_cross_correlogram(data, template):
+def compute_cross_correlogram(data: np.ndarray, template: np.ndarray) -> np.ndarray:
     """
     Compute the cross correlogram between the given data and template.
 
@@ -167,7 +172,7 @@ def compute_cross_correlogram(data, template):
     return cross_correlogram
 
 
-def calc_nmf(data, template):
+def calc_nmf(data: np.ndarray, template: np.ndarray) -> np.ndarray:
     """
     Calculate the normalized matched filter between the input data and the template.
 
@@ -187,7 +192,7 @@ def calc_nmf(data, template):
     return nmf
 
 
-def calc_nmf_correlogram(data, template):
+def calc_nmf_correlogram(data: np.ndarray, template: np.ndarray) -> np.ndarray:
     """
     Calculate the normalized matched filter correlogram between the input data and the template.
 
@@ -223,7 +228,7 @@ def calc_nmf_correlogram(data, template):
     return nmf_correlogram
 
 
-def pick_times_env(corr_m, threshold):
+def pick_times_env(corr_m: np.ndarray, threshold: float) -> List[np.ndarray]:
     """Detects the peak times in a correlation matrix. Parallelized version : pick_times_par
 
     This function takes a correlation matrix, computes the Hilbert transform of each correlation,
@@ -253,7 +258,7 @@ def pick_times_env(corr_m, threshold):
     return peaks_indexes_m
 
 
-def process_corr(corr, threshold):
+def process_corr(corr: np.ndarray, threshold: float) -> np.ndarray:
     """Detects the peak times in a correlation serie, kernel for parallelization.
 
     This function takes a correlation serie, computes the Hilbert transform of the correlation, and detects the peak times based on a given threshold.
@@ -276,7 +281,7 @@ def process_corr(corr, threshold):
     return peaks_indexes
 
 
-def pick_times_par(corr_m, threshold):
+def pick_times_par(corr_m: np.ndarray, threshold: float) -> List[np.ndarray]:
     """Detects the peak times in a correlation matrix using parallel processing.
 
     This function takes a correlation matrix, computes the Hilbert transform of each correlation,
@@ -304,7 +309,7 @@ def pick_times_par(corr_m, threshold):
     return peaks_indexes_m
 
 
-def pick_times(corr_m, threshold, ipi_idx):
+def pick_times(corr_m: np.ndarray, threshold: float, ipi_idx: int) -> List[np.ndarray]:
     """Detects the peak times in a correlation matrix.
 
     This function takes a correlation matrix, computes the Hilbert transform of each correlation,
@@ -334,7 +339,7 @@ def pick_times(corr_m, threshold, ipi_idx):
     return peaks_indexes_m
 
 
-def convert_pick_times(peaks_indexes_m):
+def convert_pick_times(peaks_indexes_m: List[np.ndarray]) -> Tuple[np.ndarray, np.ndarray]:
     """
     Convert pick times from a list of lists to a numpy array.
 
