@@ -594,8 +594,8 @@ def loc_picks_bicable_list(n_assoc_list, s_assoc_list, cable_pos, c0, fs, Nbiter
         s_assoc = s_assoc_list[i]
         n_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter)
         localizations.append(n_loc)
-        alt_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter-1)
-    return localizations, alt_localizations
+        # alt_loc, _ = loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter-1)
+    return localizations# , alt_localizations
 
 
 def calc_rms(residuals, window_mask=None):

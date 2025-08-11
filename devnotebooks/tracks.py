@@ -33,7 +33,7 @@ from IPython.display import HTML
 from datetime import datetime, timedelta
 
 # %%
-with open('../out/association_2021-11-04_02:00:02.pkl', 'rb') as f:
+with open('../out/batch1_baseline/association_2021-11-04_02:00:02.pkl', 'rb') as f:
     # Load the association object
     association = pickle.load(f)
 
@@ -92,7 +92,7 @@ utc_str = association['metadata']['south']['fileBeginTimeUTC']
 
 # %%
 # Directory containing pickle files
-pkl_dir = '../out/batch5_baseline/'
+pkl_dir = '../out/batch1_baseline/'
 
 # Initialize list to hold all pick counts
 pick_counts = []
@@ -627,20 +627,20 @@ utm_x0, utm_y0 = dw.map.latlon_to_utm(xlon[0], ylat[0])
 utm_xf, utm_yf = dw.map.latlon_to_utm(xlon[-1], ylat[-1])
 
 df_all = process_all(
-    pkl_dir    = '../out/batch4_gabor/',
+    pkl_dir    = '../out/batch1_baseline/',
     north_csv  = '../data/north_DAS_multicoord.csv',
     south_csv  = '../data/south_DAS_multicoord.csv',
     utm_xf     = utm_xf - utm_x0,
     utm_y0     = utm_y0
 )
-df_all.to_csv('batch4gabor_localizations_with_coords.csv', index=False)
+df_all.to_csv('batch1_localizations_with_coords.csv', index=False)
 
 
 # %%
 # Data paths
 # _______________________________________
 # csv_path    = 'all_localizations_with_coords.csv'   # your combined CSV
-csv_path   = 'batch4_localizations_with_coords.csv'
+csv_path   = 'batch1_localizations_with_coords.csv'
 north_csv   = '../data/north_DAS_multicoord.csv'
 south_csv   = '../data/south_DAS_multicoord.csv'
 bathy_file  = '../data/GMRT_OOI_RCA_Cables.grd'
@@ -686,7 +686,7 @@ _ = spa.delaunay_plot_2d(tri)
 plt.show()
 
 # %%
-plt.rcParams['font.size'] = 20
+plt.rcParams['font.size'] = 24
 plt.rcParams['lines.linewidth'] = 2
 
 # %%
@@ -795,7 +795,7 @@ ax.clabel(cnt, fmt='%d m', inline=True)
 
 # colorbar for zoom 2
 cbar = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap='plasma'),
-                   ax=ax, pad=0.015, aspect=30, fraction=0.02)
+                   ax=ax, pad=0.015, aspect=30, fraction=0.017)
 
 cbar.set_label('Time [minutes]')  # Change label to minutes
 
@@ -813,6 +813,10 @@ plt.savefig('localization_kilometers.pdf', format='pdf', bbox_inches='tight', tr
 # Zoom 1
 # plt.xlim(62, 50)
 # plt.ylim(20, 36)
+
+# Zoom figure 8b
+# plt.ylim(28, 30)
+# plt.xlim(58, 56)
 # plt.savefig('localization_zoom1.pdf', format='pdf', bbox_inches='tight', transparent=True)
 
 # Zoom 2
@@ -820,6 +824,10 @@ plt.savefig('localization_kilometers.pdf', format='pdf', bbox_inches='tight', tr
 # plt.ylim(19, 22.6)
 # plt.xlim(41, 33)
 # plt.ylim(16, 24.5)
+
+# Zoom figure 8c
+# plt.xlim(37.5, 36.5)
+# plt.ylim(22, 23)
 # plt.savefig('localization_zoom2.pdf', format='pdf', bbox_inches='tight', transparent=True)
 
 # Zoom 3
@@ -827,10 +835,20 @@ plt.savefig('localization_kilometers.pdf', format='pdf', bbox_inches='tight', tr
 # plt.ylim(11.9, 14.5)  
 # plt.savefig('localization_zoom3.pdf', format='pdf', bbox_inches='tight', transparent=True)
 
+# Zoom figure 8d
+# plt.xlim(86.5, 82.5)
+# plt.ylim(12, 14.5)  
+# plt.savefig('Figure8d.pdf', format='pdf', bbox_inches='tight', transparent=True)
+
 # Zoom 4
 # plt.xlim(80, 70)
 # plt.ylim(25, 30)
 # plt.savefig('localization_zoom4.pdf', format='pdf', bbox_inches='tight', transparent=True)
+
+# Zoom figure 8e
+# plt.xlim(80, 70)
+# plt.ylim(25, 30)
+# plt.savefig('Figure8e.pdf', format='pdf', bbox_inches='tight', transparent=True)
 
 # Zoom 5
 # plt.xlim(89.5, 79)
