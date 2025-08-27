@@ -216,6 +216,10 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../_static/DAS4Whales_logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../_static/DAS4Whales_logo.png" alt="Dark Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">DAS4Whales  documentation</span>
   
@@ -284,7 +288,7 @@
 <p>This module provides various functions to handle DAS data, including loading, downloading, and conditioning.
 It aims at having specific functions for each interrogator type.</p>
 <p>Authors: Léa Bouffaut, Quentin Goestchel, Erfan Horeh
-Date: 2023-2024</p>
+Date: 2023-2024-2025</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.data_handle.calc_dist_to_xidx">
 <span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">calc_dist_to_xidx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#calc_dist_to_xidx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.calc_dist_to_xidx" title="Link to this definition">¶</a></dt>
@@ -332,7 +336,7 @@ Date: 2023-2024</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The file path to the data file.</p></li>
-<li><p><strong>interrogator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The interrogator type, one of {‘optasense’, ‘silixa’, ‘mars’, ‘alcatel’}.
+<li><p><strong>interrogator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The interrogator type, one of {‘optasense’, ‘silixa’, ‘mars’, ‘alcatel’, ‘onyx’}.
 Defaults to ‘optasense’.</p></li>
 </ul>
 </dd>
@@ -350,9 +354,82 @@ interrogator is found.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="das4whales.data_handle.get_cable_lat_lon_depth">
+<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">get_cable_lat_lon_depth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#get_cable_lat_lon_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.get_cable_lat_lon_depth" title="Link to this definition">¶</a></dt>
+<dd><p>Extract latitude, longitude, and depth information from a CSV or TXT file for selected cable channels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The file path to the CSV or TXT file containing latitude, longitude, and depth information.</p></li>
+<li><p><strong>selected_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a>) – A tuple containing three integers: (start, stop, step) used to slice and select cable channels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>position</strong> – A dictionary containing the extracted information for the selected channels:
+- ‘chan_idx_oj’: list of floats, representing the selected cable channel indices.
+- ‘lat’: list of floats, representing the selected latitude values.
+- ‘lon’: list of floats, representing the selected longitude values.
+- ‘depth’: list of floats, representing the selected depth values in absolute magnitude.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.data_handle.get_metadata_asn">
+<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">get_metadata_asn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#get_metadata_asn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.get_metadata_asn" title="Link to this definition">¶</a></dt>
+<dd><p>Gets DAS acquisition parameters for the ASN interrogator e.g., Svalbard data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>string</em>) – a string containing the full path to the data to load</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p><strong>metadata</strong> – Dictionary filled with metadata, key’s breakdown:</p>
+<p>fs: the sampling frequency (Hz)</p>
+<p>dx: interval between two virtual sensing points also called channel spacing (m)</p>
+<p>nx: the number of spatial samples also called channels</p>
+<p>ns: the number of time samples</p>
+<p>GL: the gauge length (m)</p>
+<p>scale_factor: the value to convert DAS data from strain rate to strain</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.data_handle.get_metadata_onyx">
+<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">get_metadata_onyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#get_metadata_onyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.get_metadata_onyx" title="Link to this definition">¶</a></dt>
+<dd><p>Gets DAS acquisition parameters for the onyx interrogator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>string</em>) – a string containing the full path to the data to load</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p><strong>metadata</strong> – dictionary filled with metadata, key’s breakdown:</p>
+<p>fs: the sampling frequency (Hz)</p>
+<p>dx: interval between two virtual sensing points also called channel spacing (m)</p>
+<p>nx: the number of spatial samples also called channels</p>
+<p>ns: the number of time samples</p>
+<p>n: refractive index of the fiber</p>
+<p>GL: the gauge length (m)</p>
+<p>scale_factor: the value to convert DAS data from strain rate to strain</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="das4whales.data_handle.get_metadata_optasense">
 <span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">get_metadata_optasense</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#get_metadata_optasense"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.get_metadata_optasense" title="Link to this definition">¶</a></dt>
-<dd><p>Gets DAS acquisition parameters for the optasense interrogator</p>
+<dd><p>Gets DAS acquisition parameters for the optasense interrogator e.g., OOI South C1 data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filepath</strong> (<em>string</em>) – a string containing the full path to the data to load</p>
@@ -425,6 +502,30 @@ interrogator is found.</p>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="das4whales.data_handle.load_annotation_csv">
+<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">load_annotation_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#load_annotation_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.load_annotation_csv" title="Link to this definition">¶</a></dt>
+<dd><p>Load the annotation data from a CSV file. The file must include the following columns:
+‘file_name’, ‘apex’, ‘offset’, ‘start_time’, ‘whale_side’, as output from the DAS Source Locator
+annotation application (<a class="reference external" href="https://github.com/leabouffaut/DASSourceLocator">https://github.com/leabouffaut/DASSourceLocator</a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The file path to the annotation CSV file to load.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>annotations</strong> – A DataFrame containing the following columns:
+- ‘file_name’: str, names of files
+- ‘apex’: int, apex values
+- ‘offset’: int, offset values
+- ‘start_time’: float, start times
+- ‘whale_side’: str, indicating the side of the whale (e.g., ‘left’ or ‘right’).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="das4whales.data_handle.load_cable_coordinates">
 <span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">load_cable_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#load_cable_coordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.load_cable_coordinates" title="Link to this definition">¶</a></dt>
 <dd><p>Load the cable coordinates from a text file.</p>
@@ -446,7 +547,7 @@ interrogator is found.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.data_handle.load_das_data">
-<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">load_das_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#load_das_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.load_das_data" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">load_das_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interrogator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'optasense'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#load_das_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.load_das_data" title="Link to this definition">¶</a></dt>
 <dd><p>Load the DAS data corresponding to the input file name as strain according to the selected channels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -454,6 +555,7 @@ interrogator is found.</p>
 <li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – A string containing the full path to the data to load.</p></li>
 <li><p><strong>selected_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – A list containing the selected channels.</p></li>
 <li><p><strong>metadata</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – A dictionary filled with metadata (sampling frequency, channel spacing, scale factor…).</p></li>
+<li><p><strong>interrogator</strong> (<em>name</em><em> of </em><em>used interrogators. Supports</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -575,10 +677,14 @@ interrogator is found.</p>
 <li><a class="reference internal" href="#das4whales.data_handle.calc_dist_to_xidx"><code class="docutils literal notranslate"><span class="pre">calc_dist_to_xidx()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.dl_file"><code class="docutils literal notranslate"><span class="pre">dl_file()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.get_acquisition_parameters"><code class="docutils literal notranslate"><span class="pre">get_acquisition_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.data_handle.get_cable_lat_lon_depth"><code class="docutils literal notranslate"><span class="pre">get_cable_lat_lon_depth()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.data_handle.get_metadata_asn"><code class="docutils literal notranslate"><span class="pre">get_metadata_asn()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.data_handle.get_metadata_onyx"><code class="docutils literal notranslate"><span class="pre">get_metadata_onyx()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.get_metadata_optasense"><code class="docutils literal notranslate"><span class="pre">get_metadata_optasense()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.get_metadata_silixa"><code class="docutils literal notranslate"><span class="pre">get_metadata_silixa()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.get_selected_channels"><code class="docutils literal notranslate"><span class="pre">get_selected_channels()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.hello_world_das_package"><code class="docutils literal notranslate"><span class="pre">hello_world_das_package()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.data_handle.load_annotation_csv"><code class="docutils literal notranslate"><span class="pre">load_annotation_csv()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.load_cable_coordinates"><code class="docutils literal notranslate"><span class="pre">load_cable_coordinates()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.load_das_data"><code class="docutils literal notranslate"><span class="pre">load_das_data()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.load_mtpl_das_data"><code class="docutils literal notranslate"><span class="pre">load_mtpl_das_data()</span></code></a></li>

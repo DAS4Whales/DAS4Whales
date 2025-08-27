@@ -216,6 +216,10 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../_static/DAS4Whales_logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../_static/DAS4Whales_logo.png" alt="Dark Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">DAS4Whales  documentation</span>
   
@@ -450,7 +454,7 @@ The compression ratio is 13.73 (92.7 %)
 <p>Different features are considered to identify the calling species such as the rhythmic or inter-call intervals, the intensity or received levels, the contours in the time-frequency domain. However, the decisive characteristics to classify baleen whales is the spectral content of the signal. We therefore propose a spatio-spectral representation of the DAS recordings or f-x plot to show the spectral signature and its evolution against the distance.</p>
 <p>In the following example, the FFT is applied to each channel of 2-s clips of the spatio-temporal DAS data. The clip duration is specified by the parameter <code class="docutils literal notranslate"><span class="pre">win_s</span></code></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Spatio-spectral plot</span>
-<span class="n">dw</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">plot_fx</span><span class="p">(</span><span class="n">trf_fk</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">file_begin_time_utc</span><span class="o">=</span><span class="n">fileBeginTimeUTC</span><span class="p">,</span> <span class="n">win_s</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="n">dw</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">plot_fx</span><span class="p">(</span><span class="n">trf_fk</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">title_time_info</span><span class="o">=</span><span class="n">fileBeginTimeUTC</span><span class="p">,</span> <span class="n">win_s</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                 <span class="n">nfft</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>  <span class="n">f_min</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">f_max</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> 
                 <span class="n">v_min</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">v_max</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">)</span>
 </pre></div>

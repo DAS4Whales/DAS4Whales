@@ -215,6 +215,10 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../../_static/DAS4Whales_logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../../_static/DAS4Whales_logo.png" alt="Dark Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">DAS4Whales  documentation</span>
   
@@ -279,19 +283,21 @@
 <span class="sd">It aims at having specific functions for each interrogator type.</span>
 
 <span class="sd">Authors: Léa Bouffaut, Quentin Goestchel, Erfan Horeh</span>
-<span class="sd">Date: 2023-2024</span>
+<span class="sd">Date: 2023-2024-2025</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">h5py</span>
 <span class="kn">import</span> <span class="nn">wget</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">csv</span>
 <span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span> <span class="nn">simpledas</span> <span class="kn">import</span> <span class="n">simpleDASreader</span> <span class="k">as</span> <span class="n">sd</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">nptdms</span> <span class="kn">import</span> <span class="n">TdmsFile</span>
 
-
+<span class="c1"># Test for the package</span>
 <div class="viewcode-block" id="hello_world_das_package">
 <a class="viewcode-back" href="../../src/data_handle.html#das4whales.data_handle.hello_world_das_package">[docs]</a>
 <span class="k">def</span> <span class="nf">hello_world_das_package</span><span class="p">():</span>
@@ -299,6 +305,7 @@
 
 
 
+<span class="c1"># Read metadata</span>
 <span class="c1"># Definition of the functions for DAS data conditioning</span>
 <div class="viewcode-block" id="get_acquisition_parameters">
 <a class="viewcode-back" href="../../src/data_handle.html#das4whales.data_handle.get_acquisition_parameters">[docs]</a>
@@ -326,7 +333,9 @@
 <span class="sd">        If the interrogator name is not in the predefined list.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># List the known used interrogators:</span>
-    <span class="n">interrogator_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;optasense&#39;</span><span class="p">,</span> <span class="s1">&#39;silixa&#39;</span><span class="p">,</span> <span class="s1">&#39;mars&#39;</span><span class="p">,</span> <span class="s1">&#39;alcatel&#39;</span><span class="p">,</span> <span class="s1">&#39;onyx&#39;</span><span class="p">]</span>
+
+    <span class="n">interrogator_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;optasense&#39;</span><span class="p">,</span> <span class="s1">&#39;silixa&#39;</span><span class="p">,</span> <span class="s1">&#39;mars&#39;</span><span class="p">,</span> <span class="s1">&#39;asn&#39;</span><span class="p">,</span> <span class="s1">&#39;onyx&#39;</span><span class="p">]</span>
+
     <span class="k">if</span> <span class="n">interrogator</span> <span class="ow">in</span> <span class="n">interrogator_list</span><span class="p">:</span>
 
         <span class="k">if</span> <span class="n">interrogator</span> <span class="o">==</span> <span class="s1">&#39;optasense&#39;</span><span class="p">:</span>
@@ -338,8 +347,8 @@
         <span class="k">elif</span> <span class="n">interrogator</span> <span class="o">==</span> <span class="s1">&#39;mars&#39;</span><span class="p">:</span>
             <span class="n">metadata</span> <span class="o">=</span> <span class="n">get_metadata_mars</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="n">interrogator</span> <span class="o">==</span> <span class="s1">&#39;alcatel&#39;</span><span class="p">:</span>
-            <span class="n">metadata</span> <span class="o">=</span> <span class="n">get_metadata_alcatel</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">interrogator</span> <span class="o">==</span> <span class="s1">&#39;asn&#39;</span><span class="p">:</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">get_metadata_asn</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         
         <span class="k">elif</span> <span class="n">interrogator</span> <span class="o">==</span> <span class="s1">&#39;onyx&#39;</span><span class="p">:</span>
             <span class="n">metadata</span> <span class="o">=</span> <span class="n">get_metadata_onyx</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
@@ -350,11 +359,10 @@
     <span class="k">return</span> <span class="n">metadata</span></div>
 
 
-
 <div class="viewcode-block" id="get_metadata_optasense">
 <a class="viewcode-back" href="../../src/data_handle.html#das4whales.data_handle.get_metadata_optasense">[docs]</a>
 <span class="k">def</span> <span class="nf">get_metadata_optasense</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gets DAS acquisition parameters for the optasense interrogator </span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gets DAS acquisition parameters for the optasense interrogator e.g., OOI South C1 data</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -395,11 +403,11 @@
     <span class="k">return</span> <span class="n">meta_data</span></div>
 
 
-
 <div class="viewcode-block" id="get_metadata_silixa">
 <a class="viewcode-back" href="../../src/data_handle.html#das4whales.data_handle.get_metadata_silixa">[docs]</a>
 <span class="k">def</span> <span class="nf">get_metadata_silixa</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gets DAS acquisition parameters for the silixa interrogator </span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets DAS acquisition parameters for the silixa interrogator</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -442,6 +450,44 @@
     <span class="k">return</span> <span class="n">meta_data</span></div>
 
 
+<div class="viewcode-block" id="get_metadata_asn">
+<a class="viewcode-back" href="../../src/data_handle.html#das4whales.data_handle.get_metadata_asn">[docs]</a>
+<span class="k">def</span> <span class="nf">get_metadata_asn</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets DAS acquisition parameters for the ASN interrogator e.g., Svalbard data</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath : string</span>
+<span class="sd">        a string containing the full path to the data to load</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    metadata : dict</span>
+<span class="sd">        Dictionary filled with metadata, key&#39;s breakdown:\n</span>
+<span class="sd">        fs: the sampling frequency (Hz)\n</span>
+<span class="sd">        dx: interval between two virtual sensing points also called channel spacing (m)\n</span>
+<span class="sd">        nx: the number of spatial samples also called channels\n</span>
+<span class="sd">        ns: the number of time samples\n</span>
+<span class="sd">        GL: the gauge length (m)\n</span>
+<span class="sd">        scale_factor: the value to convert DAS data from strain rate to strain</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+
+    <span class="n">fs</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">fp</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;dt&#39;</span><span class="p">][()]</span>  <span class="c1"># sampling rate in Hz</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;dx&#39;</span><span class="p">][()]</span><span class="o">*</span><span class="n">fp</span><span class="p">[</span><span class="s1">&#39;demodSpec&#39;</span><span class="p">][</span><span class="s1">&#39;roiDec&#39;</span><span class="p">][()]</span>  <span class="c1"># channel spacing in m</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">nx</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;dimensionRanges&#39;</span><span class="p">][</span><span class="s1">&#39;dimension1&#39;</span><span class="p">][</span><span class="s1">&#39;size&#39;</span><span class="p">][()]</span> <span class="c1"># number of channels</span>
+    <span class="n">nx</span> <span class="o">=</span> <span class="n">nx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ns</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;dimensionRanges&#39;</span><span class="p">][</span><span class="s1">&#39;dimension0&#39;</span><span class="p">][</span><span class="s1">&#39;size&#39;</span><span class="p">][()]</span>  <span class="c1"># number of samples</span>
+    <span class="n">gauge_length</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;gaugeLength&#39;</span><span class="p">][()]</span>  <span class="c1"># gauge length in m</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="s1">&#39;cableSpec&#39;</span><span class="p">][</span><span class="s1">&#39;refractiveIndex&#39;</span><span class="p">][()]</span>  <span class="c1"># refractive index of the fiber</span>
+    <span class="n">scale_factor</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="s1">&#39;sensitivities&#39;</span><span class="p">][()]</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;fs&#39;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span> <span class="s1">&#39;dx&#39;</span><span class="p">:</span> <span class="n">dx</span><span class="p">,</span> <span class="s1">&#39;ns&#39;</span><span class="p">:</span> <span class="n">ns</span><span class="p">,</span> <span class="s1">&#39;GL&#39;</span><span class="p">:</span> <span class="n">gauge_length</span><span class="p">,</span> <span class="s1">&#39;nx&#39;</span><span class="p">:</span> <span class="n">nx</span><span class="p">,</span> <span class="s1">&#39;scale_factor&#39;</span><span class="p">:</span> <span class="n">scale_factor</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">metadata</span></div>
+
 
 <div class="viewcode-block" id="get_metadata_onyx">
 <a class="viewcode-back" href="../../src/data_handle.html#das4whales.data_handle.get_metadata_onyx">[docs]</a>
@@ -476,7 +522,7 @@
         <span class="n">n</span> <span class="o">=</span> <span class="mf">1.4682</span> <span class="c1"># refractive index TODO: check if it is correct, it is not in the metadata</span>
         <span class="n">GL</span> <span class="o">=</span> <span class="n">fp1</span><span class="p">[</span><span class="s1">&#39;Acquisition&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;GaugeLength&#39;</span><span class="p">]</span> <span class="c1"># gauge length in m</span>
         <span class="n">nx</span> <span class="o">=</span> <span class="n">fp1</span><span class="p">[</span><span class="s1">&#39;Acquisition&#39;</span><span class="p">][</span><span class="s1">&#39;Raw[0]&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;NumberOfLoci&#39;</span><span class="p">]</span> <span class="c1"># number of channels</span>
-        <span class="n">scale_factor</span> <span class="o">=</span> <span class="mi">1</span><span class="c1">#  (2 * np.pi) / 2 ** 16 * (1550.12 * 1e-9) / (0.78 * 4 * np.pi * n * GL)</span>
+        <span class="n">scale_factor</span> <span class="o">=</span> <span class="mf">115e-9</span> <span class="c1"># According to Brad</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">scale_factor</span><span class="p">)</span>
 
         <span class="n">meta_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;fs&#39;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span> <span class="s1">&#39;dx&#39;</span><span class="p">:</span> <span class="n">dx</span><span class="p">,</span> <span class="s1">&#39;ns&#39;</span><span class="p">:</span> <span class="n">ns</span><span class="p">,</span><span class="s1">&#39;n&#39;</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span><span class="s1">&#39;GL&#39;</span><span class="p">:</span> <span class="n">GL</span><span class="p">,</span> <span class="s1">&#39;nx&#39;</span><span class="p">:</span><span class="n">nx</span> <span class="p">,</span> <span class="s1">&#39;scale_factor&#39;</span><span class="p">:</span> <span class="n">scale_factor</span><span class="p">}</span>
@@ -486,11 +532,12 @@
     <span class="k">return</span> <span class="n">meta_data</span></div>
 
 
-
+<span class="c1"># Load/download das data as strain</span>
 <div class="viewcode-block" id="raw2strain">
 <a class="viewcode-back" href="../../src/data_handle.html#das4whales.data_handle.raw2strain">[docs]</a>
 <span class="k">def</span> <span class="nf">raw2strain</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the amplitude of raw das data from strain-rate to strain according to scale factor</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transform the amplitude of raw das data from strain-rate to strain according to scale factor</span>
 
 
 <span class="sd">    Parameters</span>
@@ -506,27 +553,27 @@
 <span class="sd">        a [channel x time sample] nparray containing the strain data in the spatio-temporal domain</span>
 <span class="sd">    &quot;&quot;&quot;</span>    
     <span class="c1"># Remove the mean trend from each channel and scale</span>
-
-    <span class="n">trace</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">trace</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># using np.median() is also possible, depending on the nature of the noise</span>
     <span class="n">trace</span> <span class="o">*=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;scale_factor&quot;</span><span class="p">]</span> 
     <span class="k">return</span> <span class="n">trace</span></div>
 
 
-
 <div class="viewcode-block" id="load_das_data">
 <a class="viewcode-back" href="../../src/data_handle.html#das4whales.data_handle.load_das_data">[docs]</a>
-<span class="k">def</span> <span class="nf">load_das_data</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">load_das_data</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">interrogator</span><span class="o">=</span><span class="s1">&#39;optasense&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load the DAS data corresponding to the input file name as strain according to the selected channels.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
+
 <span class="sd">    filename : str</span>
 <span class="sd">        A string containing the full path to the data to load.</span>
 <span class="sd">    selected_channels : list</span>
 <span class="sd">        A list containing the selected channels.</span>
 <span class="sd">    metadata : dict</span>
 <span class="sd">        A dictionary filled with metadata (sampling frequency, channel spacing, scale factor...).</span>
+<span class="sd">    interrogator : name of used interrogators. Supports</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -542,39 +589,56 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> not found&#39;</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-        <span class="c1"># Data matrix</span>
-        <span class="n">raw_data</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="s1">&#39;Acquisition/Raw[0]/RawData&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">interrogator</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;optasense&#39;</span><span class="p">,</span> <span class="s1">&#39;silixa&#39;</span><span class="p">,</span> <span class="s1">&#39;onyx&#39;</span><span class="p">]:</span>
 
-        <span class="c1"># Check the orientation of the data compared to the metadata</span>
-        <span class="k">if</span> <span class="n">raw_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;nx&quot;</span><span class="p">]:</span>
-            <span class="c1"># Data is in the correct orientation</span>
-            <span class="k">pass</span>
-        <span class="k">elif</span> <span class="n">raw_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;nx&quot;</span><span class="p">]:</span>
-            <span class="c1"># Data is transposed without loading in memory</span>
-            <span class="n">raw_data</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[:,:]</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="c1"># Data matrix</span>
+            <span class="n">raw_data</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="s1">&#39;Acquisition/Raw[0]/RawData&#39;</span><span class="p">]</span>
 
-        <span class="c1"># Selection the traces corresponding to the desired channels</span>
-        <span class="c1"># Loaded as float64, float 32 might be sufficient?</span>
-        <span class="n">trace</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-        <span class="n">trace</span> <span class="o">=</span> <span class="n">raw2strain</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+            <span class="c1"># Check the orientation of the data compared to the metadata</span>
+            <span class="k">if</span> <span class="n">raw_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;nx&quot;</span><span class="p">]:</span>
+                <span class="c1"># Data is in the correct orientation</span>
+                <span class="k">pass</span>
+            <span class="k">elif</span> <span class="n">raw_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;nx&quot;</span><span class="p">]:</span>
+                <span class="c1"># Data is transposed without loading in memory</span>
+                <span class="n">raw_data</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[:,:]</span><span class="o">.</span><span class="n">T</span>
 
-        <span class="c1"># UTC Time vector for naming</span>
-        <span class="n">raw_data_time</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="s1">&#39;Acquisition&#39;</span><span class="p">][</span><span class="s1">&#39;Raw[0]&#39;</span><span class="p">][</span><span class="s1">&#39;RawDataTime&#39;</span><span class="p">]</span>
+            <span class="c1"># Selection the traces corresponding to the desired channels</span>
+            <span class="c1"># Loaded as float64, float 32 might be sufficient?</span>
+            <span class="n">trace</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">trace</span> <span class="o">=</span> <span class="n">raw2strain</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
+
+            <span class="c1"># UTC Time vector for naming</span>
+            <span class="n">raw_data_time</span> <span class="o">=</span> <span class="n">fp</span><span class="p">[</span><span class="s1">&#39;Acquisition&#39;</span><span class="p">][</span><span class="s1">&#39;Raw[0]&#39;</span><span class="p">][</span><span class="s1">&#39;RawDataTime&#39;</span><span class="p">]</span>
+
+            <span class="c1"># For future save</span>
+            <span class="n">file_begin_time_utc</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">raw_data_time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">interrogator</span> <span class="o">==</span> <span class="s1">&#39;asn&#39;</span><span class="p">:</span>
+        <span class="n">dfdas</span> <span class="o">=</span> <span class="n">sd</span><span class="o">.</span><span class="n">load_DAS_files</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">chIndex</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sensitivitySelect</span><span class="o">=-</span><span class="mi">3</span><span class="p">,</span>
+                                  <span class="n">userSensitivity</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;sensitivity&#39;</span><span class="p">:</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;scale_factor&#39;</span><span class="p">],</span>
+                                                   <span class="s1">&#39;sensitivityUnit&#39;</span><span class="p">:</span> <span class="s1">&#39;rad/(m*strain)&#39;</span><span class="p">},</span>
+                                  <span class="n">integrate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unwr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">trace</span> <span class="o">=</span> <span class="n">dfdas</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">trace</span> <span class="o">=</span> <span class="n">trace</span><span class="p">[</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
 
         <span class="c1"># For future save</span>
-        <span class="n">file_begin_time_utc</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">raw_data_time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">)</span>
+        <span class="n">file_begin_time_utc</span> <span class="o">=</span> <span class="n">dfdas</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
 
-        <span class="c1"># Store the following as the dimensions of our data block</span>
-        <span class="n">nnx</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">nns</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Interrogator name incorrect or not supported&#39;</span><span class="p">)</span>
 
-        <span class="c1"># Define new time and distance axes</span>
-        <span class="n">tx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nns</span><span class="p">)</span> <span class="o">/</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;fs&quot;</span><span class="p">]</span>
-        <span class="n">dist</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nnx</span><span class="p">)</span> <span class="o">*</span> <span class="n">selected_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">selected_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;dx&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Store the following as the dimensions of our data block</span>
+    <span class="n">nnx</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">nns</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># Define new time and distance axes</span>
+    <span class="n">tx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nns</span><span class="p">)</span> <span class="o">/</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;fs&#39;</span><span class="p">]</span>
+    <span class="n">dist</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nnx</span><span class="p">)</span> <span class="o">*</span> <span class="n">selected_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">selected_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;dx&#39;</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">trace</span><span class="p">,</span> <span class="n">tx</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">file_begin_time_utc</span></div>
-
 
 
 <div class="viewcode-block" id="load_mtpl_das_data">
@@ -611,7 +675,7 @@
     <span class="c1"># Print the input timestamp</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;timestamp_input: </span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     
-    <span class="c1"># Convert timestamp to microseconds since epoch</span>
+    <span class="c1"># Convert timestamp to microseconds</span>
     <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M:%S.</span><span class="si">%f</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="n">timestamp</span> <span class="o">=</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
     <span class="n">timestamp_us</span> <span class="o">=</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">*</span> <span class="mf">1e6</span>
@@ -689,7 +753,7 @@
     <span class="k">return</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">filename</span></div>
 
 
-
+<span class="c1"># Load cable position information</span>
 <div class="viewcode-block" id="load_cable_coordinates">
 <a class="viewcode-back" href="../../src/data_handle.html#das4whales.data_handle.load_cable_coordinates">[docs]</a>
 <span class="k">def</span> <span class="nf">load_cable_coordinates</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">dx</span><span class="p">):</span>
@@ -715,6 +779,95 @@
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;chan_m&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;chan_idx&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">dx</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="get_cable_lat_lon_depth">
+<a class="viewcode-back" href="../../src/data_handle.html#das4whales.data_handle.get_cable_lat_lon_depth">[docs]</a>
+<span class="k">def</span> <span class="nf">get_cable_lat_lon_depth</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">selected_channels</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract latitude, longitude, and depth information from a CSV or TXT file for selected cable channels.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file : str</span>
+<span class="sd">        The file path to the CSV or TXT file containing latitude, longitude, and depth information.</span>
+<span class="sd">    selected_channels : tuple</span>
+<span class="sd">        A tuple containing three integers: (start, stop, step) used to slice and select cable channels.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    position : dict</span>
+<span class="sd">        A dictionary containing the extracted information for the selected channels:</span>
+<span class="sd">        - &#39;chan_idx_oj&#39;: list of floats, representing the selected cable channel indices.</span>
+<span class="sd">        - &#39;lat&#39;: list of floats, representing the selected latitude values.</span>
+<span class="sd">        - &#39;lon&#39;: list of floats, representing the selected longitude values.</span>
+<span class="sd">        - &#39;depth&#39;: list of floats, representing the selected depth values in absolute magnitude.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Prepare lists</span>
+    <span class="n">channel</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">lat</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">lon</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Read the latitude, longitude, and depth data from the CSV/TXT file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">csv_file</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">lines</span> <span class="ow">in</span> <span class="n">csv_file</span><span class="p">:</span>
+            <span class="c1"># Filter out empty strings</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span> <span class="k">if</span> <span class="n">line</span><span class="p">]</span>
+            <span class="n">channel</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">lat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">lon</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="n">depth</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">3</span><span class="p">])))</span>
+
+    <span class="c1"># Select the specified channels</span>
+    <span class="n">channel</span> <span class="o">=</span> <span class="n">channel</span><span class="p">[</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+    <span class="n">lat</span> <span class="o">=</span> <span class="n">lat</span><span class="p">[</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+    <span class="n">lon</span> <span class="o">=</span> <span class="n">lon</span><span class="p">[</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span><span class="p">[</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">selected_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+
+    <span class="c1"># Store latitude, longitude, and depth in a dictionary</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;chan_idx_oj&#39;</span><span class="p">:</span> <span class="n">channel</span><span class="p">,</span>
+        <span class="s1">&#39;lat&#39;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span>
+        <span class="s1">&#39;lon&#39;</span><span class="p">:</span> <span class="n">lon</span><span class="p">,</span>
+        <span class="s1">&#39;depth&#39;</span><span class="p">:</span> <span class="n">depth</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">position</span></div>
+
+
+<span class="c1"># Load annotation files</span>
+<div class="viewcode-block" id="load_annotation_csv">
+<a class="viewcode-back" href="../../src/data_handle.html#das4whales.data_handle.load_annotation_csv">[docs]</a>
+<span class="k">def</span> <span class="nf">load_annotation_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the annotation data from a CSV file. The file must include the following columns:</span>
+<span class="sd">    &#39;file_name&#39;, &#39;apex&#39;, &#39;offset&#39;, &#39;start_time&#39;, &#39;whale_side&#39;, as output from the DAS Source Locator</span>
+<span class="sd">    annotation application (https://github.com/leabouffaut/DASSourceLocator).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath : str</span>
+<span class="sd">        The file path to the annotation CSV file to load.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    annotations : pandas.DataFrame</span>
+<span class="sd">        A DataFrame containing the following columns:</span>
+<span class="sd">        - &#39;file_name&#39;: str, names of files</span>
+<span class="sd">        - &#39;apex&#39;: int, apex values</span>
+<span class="sd">        - &#39;offset&#39;: int, offset values</span>
+<span class="sd">        - &#39;start_time&#39;: float, start times</span>
+<span class="sd">        - &#39;whale_side&#39;: str, indicating the side of the whale (e.g., &#39;left&#39; or &#39;right&#39;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># load the .csv file and create a pandas dataframe</span>
+    <span class="n">annotations</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keep_default_na</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">annotations</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;file_name&#39;</span><span class="p">,</span> <span class="s1">&#39;apex&#39;</span><span class="p">,</span> <span class="s1">&#39;offset&#39;</span><span class="p">,</span> <span class="s1">&#39;start_time&#39;</span><span class="p">,</span> <span class="s1">&#39;whale_side&#39;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">annotations</span></div>
 
 
 
@@ -768,6 +921,7 @@
                                            <span class="c1"># selected_channels = [ChannelStart, ChannelStop, ChannelStep] in channel</span>
                                            <span class="c1"># numbers</span>
     <span class="k">return</span> <span class="n">selected_channels</span></div>
+
 
 </pre></div>
         </article>

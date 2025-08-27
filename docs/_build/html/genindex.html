@@ -214,6 +214,10 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/DAS4Whales_logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/DAS4Whales_logo.png" alt="Dark Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">DAS4Whales  documentation</span>
   
@@ -273,7 +277,7 @@
           
 <section class="genindex-section">
   <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#X"><strong>X</strong></a></div>
+  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#K"><strong>K</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#X"><strong>X</strong></a></div>
 </section>
 <section id="A" class="genindex-section">
   <h2>A</h2>
@@ -323,6 +327,12 @@
 </li>
         <li><a href="api/das4whales.html#das4whales.loc.calc_covariance_matrix">calc_covariance_matrix() (in module das4whales.loc)</a>
 </li>
+        <li><a href="api/das4whales.html#das4whales.spatial.calc_cumulative_dist">calc_cumulative_dist() (in module das4whales.spatial)</a>
+</li>
+        <li><a href="api/das4whales.html#das4whales.spatial.calc_das_section_bearing">calc_das_section_bearing() (in module das4whales.spatial)</a>
+</li>
+        <li><a href="api/das4whales.html#das4whales.spatial.calc_dist_lat_lon">calc_dist_lat_lon() (in module das4whales.spatial)</a>
+</li>
         <li><a href="api/das4whales.html#das4whales.data_handle.calc_dist_to_xidx">calc_dist_to_xidx() (in module das4whales.data_handle)</a>, <a href="src/data_handle.html#das4whales.data_handle.calc_dist_to_xidx">[1]</a>
 </li>
         <li><a href="api/das4whales.html#das4whales.loc.calc_distance_matrix">calc_distance_matrix() (in module das4whales.loc)</a>
@@ -331,13 +341,17 @@
 </li>
         <li><a href="api/das4whales.html#das4whales.detect.calc_nmf_correlogram">calc_nmf_correlogram() (in module das4whales.detect)</a>, <a href="src/detect.html#das4whales.detect.calc_nmf_correlogram">[1]</a>
 </li>
-        <li><a href="api/das4whales.html#das4whales.loc.calc_phi_vector">calc_phi_vector() (in module das4whales.loc)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/das4whales.html#das4whales.loc.calc_phi_vector">calc_phi_vector() (in module das4whales.loc)</a>
+</li>
         <li><a href="api/das4whales.html#das4whales.loc.calc_radii_matrix">calc_radii_matrix() (in module das4whales.loc)</a>
 </li>
         <li><a href="api/das4whales.html#das4whales.dsp.calc_snr_median">calc_snr_median() (in module das4whales.dsp)</a>, <a href="src/dsp.html#das4whales.dsp.calc_snr_median">[1]</a>
+</li>
+        <li><a href="api/das4whales.html#das4whales.spatial.calc_source_position_lat_lon">calc_source_position_lat_lon() (in module das4whales.spatial)</a>
+</li>
+        <li><a href="api/das4whales.html#das4whales.loc.calc_theory_toa">calc_theory_toa() (in module das4whales.loc)</a>
 </li>
         <li><a href="api/das4whales.html#das4whales.loc.calc_theta_vector">calc_theta_vector() (in module das4whales.loc)</a>
 </li>
@@ -408,8 +422,6 @@
           <li><a href="api/das4whales.html#module-das4whales.loc">module</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     das4whales.map
 
@@ -417,11 +429,20 @@
           <li><a href="api/das4whales.html#module-das4whales.map">module</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     das4whales.plot
 
         <ul>
           <li><a href="api/das4whales.html#module-das4whales.plot">module</a>, <a href="src/plot.html#module-das4whales.plot">[1]</a>
+</li>
+        </ul></li>
+        <li>
+    das4whales.spatial
+
+        <ul>
+          <li><a href="api/das4whales.html#module-das4whales.spatial">module</a>
 </li>
         </ul></li>
         <li>
@@ -431,6 +452,8 @@
           <li><a href="api/das4whales.html#module-das4whales.tools">module</a>
 </li>
         </ul></li>
+        <li><a href="api/das4whales.html#das4whales.spatial.degree_to_km_at_latitude">degree_to_km_at_latitude() (in module das4whales.spatial)</a>
+</li>
         <li><a href="api/das4whales.html#das4whales.plot.design_mf">design_mf() (in module das4whales.plot)</a>, <a href="src/plot.html#das4whales.plot.design_mf">[1]</a>
 </li>
         <li><a href="api/das4whales.html#das4whales.improcess.detect_diagonal_edges">detect_diagonal_edges() (in module das4whales.improcess)</a>
@@ -511,10 +534,14 @@
 </li>
         <li><a href="api/das4whales.html#das4whales.data_handle.get_acquisition_parameters">get_acquisition_parameters() (in module das4whales.data_handle)</a>, <a href="src/data_handle.html#das4whales.data_handle.get_acquisition_parameters">[1]</a>
 </li>
+        <li><a href="api/das4whales.html#das4whales.data_handle.get_cable_lat_lon_depth">get_cable_lat_lon_depth() (in module das4whales.data_handle)</a>, <a href="src/data_handle.html#das4whales.data_handle.get_cable_lat_lon_depth">[1]</a>
+</li>
         <li><a href="api/das4whales.html#das4whales.dsp.get_fx">get_fx() (in module das4whales.dsp)</a>, <a href="src/dsp.html#das4whales.dsp.get_fx">[1]</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/das4whales.html#das4whales.data_handle.get_metadata_asn">get_metadata_asn() (in module das4whales.data_handle)</a>, <a href="src/data_handle.html#das4whales.data_handle.get_metadata_asn">[1]</a>
+</li>
         <li><a href="api/das4whales.html#das4whales.data_handle.get_metadata_onyx">get_metadata_onyx() (in module das4whales.data_handle)</a>, <a href="src/data_handle.html#das4whales.data_handle.get_metadata_onyx">[1]</a>
 </li>
         <li><a href="api/das4whales.html#das4whales.data_handle.get_metadata_optasense">get_metadata_optasense() (in module das4whales.data_handle)</a>, <a href="src/data_handle.html#das4whales.data_handle.get_metadata_optasense">[1]</a>
@@ -569,11 +596,23 @@
   </tr></table>
 </section>
 
+<section id="K" class="genindex-section">
+  <h2>K</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/das4whales.html#das4whales.spatial.km_to_degree_at_latitude">km_to_degree_at_latitude() (in module das4whales.spatial)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
 <section id="L" class="genindex-section">
   <h2>L</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/das4whales.html#das4whales.map.latlon_to_utm">latlon_to_utm() (in module das4whales.map)</a>
+</li>
+        <li><a href="api/das4whales.html#das4whales.data_handle.load_annotation_csv">load_annotation_csv() (in module das4whales.data_handle)</a>, <a href="src/data_handle.html#das4whales.data_handle.load_annotation_csv">[1]</a>
 </li>
         <li><a href="api/das4whales.html#das4whales.map.load_bathymetry">load_bathymetry() (in module das4whales.map)</a>
 </li>
@@ -622,6 +661,8 @@
           <li><a href="api/das4whales.html#module-das4whales.map">das4whales.map</a>
 </li>
           <li><a href="api/das4whales.html#module-das4whales.plot">das4whales.plot</a>, <a href="src/plot.html#module-das4whales.plot">[1]</a>
+</li>
+          <li><a href="api/das4whales.html#module-das4whales.spatial">das4whales.spatial</a>
 </li>
           <li><a href="api/das4whales.html#module-das4whales.tools">das4whales.tools</a>
 </li>
@@ -711,6 +752,10 @@
 </li>
         </ul></li>
     </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/das4whales.html#das4whales.dsp.resample">resample() (in module das4whales.dsp)</a>, <a href="src/dsp.html#das4whales.dsp.resample">[1]</a>
+</li>
+    </ul></td>
   </tr></table>
 </section>
 
@@ -746,9 +791,11 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/das4whales.html#das4whales.dsp.taper_data">taper_data() (in module das4whales.dsp)</a>, <a href="src/dsp.html#das4whales.dsp.taper_data">[1]</a>
 </li>
+        <li><a href="api/das4whales.html#das4whales.dsp.taper_data2d">taper_data2d() (in module das4whales.dsp)</a>, <a href="src/dsp.html#das4whales.dsp.taper_data2d">[1]</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/das4whales.html#das4whales.dsp.taper_data2d">taper_data2d() (in module das4whales.dsp)</a>, <a href="src/dsp.html#das4whales.dsp.taper_data2d">[1]</a>
+        <li><a href="api/das4whales.html#das4whales.spatial.to_rad">to_rad() (in module das4whales.spatial)</a>
 </li>
         <li><a href="api/das4whales.html#das4whales.improcess.trace2image">trace2image() (in module das4whales.improcess)</a>
 </li>
