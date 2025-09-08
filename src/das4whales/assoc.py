@@ -1011,6 +1011,11 @@ def plot_tpicks_resolved(peaks, SNR, selected_channels_m, dx, fs):
     nhf_SNR, nlf_SNR, shf_SNR, slf_SNR = SNR
     n_selected_channels_m, s_selected_channels_m = selected_channels_m
 
+    # Calculate height ratios based on y-range
+    y_range_north = (n_selected_channels_m[1] - n_selected_channels_m[0])  # meters
+    y_range_south = (s_selected_channels_m[1] - s_selected_channels_m[0])  # meters
+    height_ratio = y_range_south / y_range_north
+
     # Determine common color scale
     vmin = min(np.min(nhf_SNR), np.min(nlf_SNR), np.min(shf_SNR), np.min(slf_SNR))
     vmax = max(np.max(nhf_SNR), np.max(nlf_SNR), np.max(shf_SNR), np.max(slf_SNR))
@@ -1019,7 +1024,7 @@ def plot_tpicks_resolved(peaks, SNR, selected_channels_m, dx, fs):
     cmap_lf = cm.viridis  # Define a different colormap for LF
 
     # Create figure
-    fig, axes = plt.subplots(2, 1, figsize=(10, 16), sharex=True, sharey=False, constrained_layout=True)
+    fig, axes = plt.subplots(2, 1, figsize=(10, 16), sharex=True, sharey=False, constrained_layout=True, gridspec_kw={'height_ratios': [1, height_ratio]})
 
     # First subplot
     sc1 = axes[0].scatter(nhf_peaks[1][:] / fs, (n_selected_channels_m[0] + nhf_peaks[0][:] * dx) * 1e-3, 
@@ -1030,6 +1035,7 @@ def plot_tpicks_resolved(peaks, SNR, selected_channels_m, dx, fs):
     axes[0].set_ylabel('Distance [km]')
     axes[0].set_ylim(n_selected_channels_m[0] * 1e-3, n_selected_channels_m[1] * 1e-3)
     axes[0].grid(linestyle='--', alpha=0.5)
+    axes[0].set_aspect('equal', adjustable='box')
 
     # Second subplot
     sc3 = axes[1].scatter(shf_peaks[1][:] / fs, (s_selected_channels_m[0] + shf_peaks[0][:] * dx) * 1e-3, 
@@ -1041,12 +1047,14 @@ def plot_tpicks_resolved(peaks, SNR, selected_channels_m, dx, fs):
     axes[1].set_ylabel('Distance [km]')
     axes[1].set_ylim(s_selected_channels_m[0] * 1e-3, s_selected_channels_m[1] * 1e-3)
     axes[1].grid(linestyle='--', alpha=0.5)
+    axes[1].set_aspect('equal', adjustable='box')
 
     # Create a single colorbar for all subplots
-    cbar1 = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap_hf), ax=axes[0], orientation='vertical', fraction=0.04, pad=0.02)
-    cbar1.set_label('SNR - HF picks')
-    cbar2 = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap_lf), ax=axes[1], orientation='vertical', fraction=0.04, pad=0.02)
-    cbar2.set_label('SNR - LF picks')
+    cbar1 = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap_hf), ax=axes[1], orientation='horizontal', fraction=0.04, pad=0.02)
+    cbar1.set_label('SNR - HF picks', loc='left')
+    cbar2 = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap_lf), ax=axes[1], orientation='horizontal', fraction=0.04, pad=0.02)
+    cbar2.set_label('SNR - LF picks', loc='left')
+    cbar2.set_ticks([])  # Remove ticks from upper colorbar
 
     return fig
 
