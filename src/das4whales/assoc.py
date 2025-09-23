@@ -187,6 +187,24 @@ def process_iteration(
     nlf_idx_dist, nlf_idx_time = select_picks(n_up_peaks_lf, nlf_hyperbola, dt_sel, fs)
     slf_idx_dist, slf_idx_time = select_picks(s_up_peaks_lf, slf_hyperbola, dt_sel, fs)
 
+    # Compute locations and residuals
+    nhf_n, nhf_residuals = loc_picks(nhf_idx_dist, nhf_idx_time, n_cable_pos, c0, fs)
+    shf_n, shf_residuals = loc_picks(shf_idx_dist, shf_idx_time, s_cable_pos, c0, fs)
+    nlf_n, nlf_residuals = loc_picks(nlf_idx_dist, nlf_idx_time, n_cable_pos, c0, fs)
+    slf_n, slf_residuals = loc_picks(slf_idx_dist, slf_idx_time, s_cable_pos, c0, fs)
+
+    # Re-associate picks using location results
+    nhf_hyperbola_new = dw.loc.calc_arrival_times(0, n_cable_pos, nhf_n[:3], c0)
+    shf_hyperbola_new = dw.loc.calc_arrival_times(0, s_cable_pos, shf_n[:3], c0)
+    nlf_hyperbola_new = dw.loc.calc_arrival_times(0, n_cable_pos, nlf_n[:3], c0)
+    slf_hyperbola_new = dw.loc.calc_arrival_times(0, s_cable_pos, slf_n[:3], c0)
+
+    dt_sel_narrowed = 0.5
+    nhf_idx_dist, nhf_idx_time = select_picks(n_up_peaks_hf, nhf_hyperbola_new, dt_sel_narrowed, fs)
+    shf_idx_dist, shf_idx_time = select_picks(s_up_peaks_hf, shf_hyperbola_new, dt_sel_narrowed, fs)
+    nlf_idx_dist, nlf_idx_time = select_picks(n_up_peaks_lf, nlf_hyperbola_new, dt_sel_narrowed, fs)
+    slf_idx_dist, slf_idx_time = select_picks(s_up_peaks_lf, slf_hyperbola_new, dt_sel_narrowed, fs)
+
     # Calculate time indices
     nhf_times = nhf_idx_time / fs
     shf_times = shf_idx_time / fs
@@ -198,12 +216,6 @@ def process_iteration(
     shf_window_mask = get_window_mask(shf_times, w_eval)
     nlf_window_mask = get_window_mask(nlf_times, w_eval)
     slf_window_mask = get_window_mask(slf_times, w_eval)
-
-    # Compute locations and residuals
-    nhf_n, nhf_residuals = loc_picks(nhf_idx_dist, nhf_idx_time, n_cable_pos, c0, fs)
-    shf_n, shf_residuals = loc_picks(shf_idx_dist, shf_idx_time, s_cable_pos, c0, fs)
-    nlf_n, nlf_residuals = loc_picks(nlf_idx_dist, nlf_idx_time, n_cable_pos, c0, fs)
-    slf_n, slf_residuals = loc_picks(slf_idx_dist, slf_idx_time, s_cable_pos, c0, fs)
 
     # Calculate RMS residuals
 
