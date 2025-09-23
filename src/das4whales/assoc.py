@@ -1342,7 +1342,7 @@ def plot_kdesurf(df_north: pd.DataFrame, df_south: pd.DataFrame, bathy: np.ndarr
 
 
 def plot_associated_bicable_paper(n_peaks, s_peaks, longi_offset, pair_assoc_list, pair_loc_list, associated_list, localizations,
-                            n_cable_pos, s_cable_pos, n_dist, s_dist, dx, c0, fs):
+                            n_cable_pos, s_cable_pos, n_dist, s_dist, dx, c0, fs, height_ratio=1.537):
     
     nhf_assoc_pair, nlf_assoc_pair, shf_assoc_pair, slf_assoc_pair = pair_assoc_list
     nhf_assoc_list, nlf_assoc_list, shf_assoc_list, slf_assoc_list = associated_list
@@ -1350,10 +1350,10 @@ def plot_associated_bicable_paper(n_peaks, s_peaks, longi_offset, pair_assoc_lis
     nhf_localizations, nlf_localizations, shf_localizations, slf_localizations = localizations
 
     hyperbola_STYLE = {'color': 'tab:gray', 'ls': '-', 'lw': 2, 'alpha': 0.7}
-    hfassoc_STYLE = {'marker': '>', 's': 20, 'rasterized': True}
-    lfassoc_STYLE = {'marker': 'o', 's': 20, 'rasterized': True}
+    hfassoc_STYLE = {'marker': 'o', 's': 25, 'rasterized': True}  # Filled circle
+    lfassoc_STYLE = {'marker': 'o', 's': 25, 'rasterized': True}
 
-    fig, axes = plt.subplots(2, 1, figsize=(10, 16), sharex=True, sharey=False, constrained_layout=True)
+    fig, axes = plt.subplots(2, 1, figsize=(10, 16), sharex=True, sharey=False, constrained_layout=True, gridspec_kw={'height_ratios': [1, height_ratio]})
 
     # Get color palettes
     hf_palette = plt.get_cmap('YlOrRd_r')
@@ -1449,28 +1449,11 @@ def plot_associated_bicable_paper(n_peaks, s_peaks, longi_offset, pair_assoc_lis
     axes[1].set_xlabel('Time [s]')
 
     # Add a common legend
-    hf_handle = plt.Line2D([], [], marker='>', color='w', label='HF calls',
-                           markerfacecolor='tab:red', markersize=10)
-    lf_handle = plt.Line2D([], [], marker='o', color='w', label='LF calls',
-                           markerfacecolor='tab:blue', markersize=10)
-
-    # axes[0].text(0.02, 0.98, '(a)', transform=axes[0].transAxes, 
-    #         fontsize=14, fontweight='bold', va='top')
-    # axes[1].text(0.02, 0.98, '(b)', transform=axes[1].transAxes, 
-    #             fontsize=14, fontweight='bold', va='top')
-    
-
     from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-    from matplotlib.colors import ListedColormap
     import matplotlib.patches as patches
 
-    # Add gradient legend to one of your subplots
-    gradient_values = np.linspace(start, end, 100).reshape(1, -1)
-    hf_cmap_custom = ListedColormap(hf_colors)
-    lf_cmap_custom = ListedColormap(lf_colors)
-
     # Create a parent container for the legend with frame
-    legend_container = inset_axes(axes[1], width="25%", height="20%", loc='lower center',
+    legend_container = inset_axes(axes[1], width="25%", height="12%", loc='lower center',
                                 bbox_to_anchor=(-0.5, -0.01, 2, 0.6), bbox_transform=axes[1].transAxes)
 
     legend_container.set_xlim(0, 1)
@@ -1479,52 +1462,98 @@ def plot_associated_bicable_paper(n_peaks, s_peaks, longi_offset, pair_assoc_lis
     legend_container.set_yticks([])
     legend_container.set_facecolor('white')
 
-    # Add frame around the container
-    # legend_container.spines['top'].set_visible(True)
-    # legend_container.spines['right'].set_visible(True)
-    # legend_container.spines['bottom'].set_visible(True)
-    # legend_container.spines['left'].set_visible(True)
-    # legend_container.spines['top'].set_linewidth(1.5)
-    # legend_container.spines['right'].set_linewidth(1.5)
-    # legend_container.spines['bottom'].set_linewidth(1.5)
-    # legend_container.spines['left'].set_linewidth(1.5)
-    # legend_container.spines['top'].set_color('black')
-    # legend_container.spines['right'].set_color('black')
-    # legend_container.spines['bottom'].set_color('black')
-    # legend_container.spines['left'].set_color('black')
-
-    # Remove the default spines
-    # for spine in legend_container.spines.values():
-    #     spine.set_visible(False)
-
-    # Add rounded rectangle
+    # Make the background white in pdfs too 
     rounded_box = patches.FancyBboxPatch((0, 0), 1, 1, 
-                                    boxstyle="round,pad=0.1", 
-                                    facecolor='white', 
-                                    edgecolor='gray', 
-                                    linewidth=1,
-                                    transform=legend_container.transAxes)
+                                boxstyle="round,pad=0.1", 
+                                facecolor='white', 
+                                edgecolor='gray', 
+                                linewidth=1,
+                                transform=legend_container.transAxes)
     legend_container.add_patch(rounded_box)
 
-    # HF gradient bar (positioned in upper part of container)
-    hf_gradient_ax = inset_axes(legend_container, width="80%", height="35%", loc='lower left',
-                            bbox_to_anchor=(0, 0, 0.5, 0.6), bbox_transform=legend_container.transAxes)
-    hf_gradient_ax.imshow(gradient_values, aspect='auto', cmap=hf_cmap_custom)
-    hf_gradient_ax.set_xticks([])
-    hf_gradient_ax.set_yticks([])
-    hf_gradient_ax.set_title('HF calls ▷', fontsize=24, pad=4)
+    # Calculate spacing and number of markers
+    max_markers_per_type = 8
+    marker_spacing = 0.4 / max_markers_per_type if max_markers_per_type > 1 else 0.2
 
-    # LF gradient bar (positioned in lower part of container)
-    lf_gradient_ax = inset_axes(legend_container, width="80%", height="35%", loc='lower right',
-                            bbox_to_anchor=(0.5, 0, 0.5, 0.6), bbox_transform=legend_container.transAxes)
-    lf_gradient_ax.imshow(gradient_values, aspect='auto', cmap=lf_cmap_custom)
-    lf_gradient_ax.set_xticks([])
-    lf_gradient_ax.set_yticks([])
-    lf_gradient_ax.set_title('LF calls ●', fontsize=24, pad=4)
+    # HF section (left half)
+    hf_start_x = 0.08
+    hf_title_x = hf_start_x + (max_markers_per_type - 1) * marker_spacing / 2
 
-    hf_gradient_ax.set_facecolor('white')
-    lf_gradient_ax.set_facecolor('white')
+    # Add HF title
+    legend_container.text(hf_title_x, 0.6, 'HF calls', ha='center', va='center')
 
+    # Plot HF markers horizontally
+    n_hf_to_show = min(len(hf_colors), max_markers_per_type)
+    if len(hf_colors) <= max_markers_per_type:
+        # Show all markers if we have few enough
+        for i in range(n_hf_to_show):
+            x_pos = hf_start_x + i * marker_spacing
+            legend_container.scatter(x_pos, 0.2, color=hf_colors[i],
+                                marker='o', s=100, alpha=1)
+    else:
+        # Show first few, ellipsis in middle, then last few
+        markers_each_side = (max_markers_per_type - 1) // 2  # Save 1 spot for ellipsis
+        
+        # First markers
+        for i in range(markers_each_side):
+            x_pos = hf_start_x + i * marker_spacing
+            legend_container.scatter(x_pos, 0.2, color=hf_colors[i],
+                                marker='o', s=100, alpha=1)
+        
+        # Ellipsis in middle
+        middle_x = hf_start_x + markers_each_side * marker_spacing
+        legend_container.text(middle_x, 0.2, '...', ha='center', va='center', fontsize=12)
+        
+        # Last markers
+        for i in range(markers_each_side):
+            x_pos = hf_start_x + (markers_each_side + 1 + i) * marker_spacing
+            color_idx = len(hf_colors) - markers_each_side + i
+            legend_container.scatter(x_pos, 0.2, color=hf_colors[color_idx],
+                                marker='o', s=100, alpha=1)
+
+    # LF section (right half) - same logic
+    lf_start_x = 0.58
+    lf_title_x = lf_start_x + (max_markers_per_type - 1) * marker_spacing / 2
+
+    # Add LF title
+    legend_container.text(lf_title_x, 0.6, 'LF calls', ha='center', va='center')
+
+    # Plot LF markers horizontally
+    n_lf_to_show = min(len(lf_colors), max_markers_per_type)
+    if len(lf_colors) <= max_markers_per_type:
+        # Show all markers if we have few enough
+        for i in range(n_lf_to_show):
+            x_pos = lf_start_x + i * marker_spacing
+            legend_container.scatter(x_pos, 0.2, color=lf_colors[i],
+                                marker='o', s=100, alpha=1)
+    else:
+        # Show first few, ellipsis in middle, then last few
+        markers_each_side = (max_markers_per_type - 1) // 2  # Save 1 spot for ellipsis
+        
+        # First markers
+        for i in range(markers_each_side):
+            x_pos = lf_start_x + i * marker_spacing
+            legend_container.scatter(x_pos, 0.2, color=lf_colors[i],
+                                marker='o', s=100, alpha=1)
+        
+        # Ellipsis in middle
+        middle_x = lf_start_x + markers_each_side * marker_spacing
+        legend_container.text(middle_x, 0.2, '...', ha='center', va='center', fontsize=12)
+        
+        # Last markers  
+        for i in range(markers_each_side):
+            x_pos = lf_start_x + (markers_each_side + 1 + i) * marker_spacing
+            color_idx = len(lf_colors) - markers_each_side + i
+            legend_container.scatter(x_pos, 0.2, color=lf_colors[i],
+                                marker='o', s=100, alpha=1)
+
+    # Vertical separator line between HF and LF
+    separator_x = 0.5
+    legend_container.axvline(x=separator_x, ymin=0.2, ymax=0.8, 
+                            color='lightgray', linewidth=1, alpha=0.7,
+                            )
+    
+    # Modify the grid
     for ax in axes.flat:
         ax.grid(linestyle='--', alpha=0.3, linewidth=0.5)
         ax.set_axisbelow(True)  # Put grid behind data
