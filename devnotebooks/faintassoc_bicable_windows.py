@@ -1091,25 +1091,23 @@ def plot_associated_bicable(n_peaks, s_peaks, longi_offset, pair_assoc_list, pai
     return fig
 
 # +
-# Localize using the selected picks
-nhf_pair_loc, _ = loc_from_picks_list(nhf_assoc_list_pair, n_cable_pos, c0, fs)
-nlf_pair_loc, _ = loc_from_picks_list(nlf_assoc_list_pair, n_cable_pos, c0, fs)
-shf_pair_loc, _ = loc_from_picks_list(shf_assoc_list_pair, s_cable_pos, c0, fs)
-slf_pair_loc, _ = loc_from_picks_list(slf_assoc_list_pair, s_cable_pos, c0, fs)
+nhf_pair_loc = dw.loc.loc_from_picks(nhf_assoc_list_pair, n_cable_pos, c0, fs, return_uncertainty=False)
+nlf_pair_loc = dw.loc.loc_from_picks(nlf_assoc_list_pair, n_cable_pos, c0, fs, return_uncertainty=False)
+shf_pair_loc = dw.loc.loc_from_picks(shf_assoc_list_pair, s_cable_pos, c0, fs, return_uncertainty=False)
+slf_pair_loc = dw.loc.loc_from_picks(slf_assoc_list_pair, s_cable_pos, c0, fs, return_uncertainty=False)
 
-nhf_localizations, nhf_alt_localizations = loc_from_picks_list(nhf_assoc_list, n_cable_pos, c0, fs)
-nlf_localizations, nlf_alt_localizations = loc_from_picks_list(nlf_assoc_list, n_cable_pos, c0, fs)
-shf_localizations, shf_alt_localizations = loc_from_picks_list(shf_assoc_list, s_cable_pos, c0, fs)
-slf_localizations, slf_alt_localizations = loc_from_picks_list(slf_assoc_list, s_cable_pos, c0, fs)
+nhf_localizations = dw.loc.loc_from_picks(nhf_assoc_list, n_cable_pos, c0, fs, return_uncertainty=False)
+nlf_localizations = dw.loc.loc_from_picks(nlf_assoc_list, n_cable_pos, c0, fs, return_uncertainty=False)
+shf_localizations = dw.loc.loc_from_picks(shf_assoc_list, s_cable_pos, c0, fs, return_uncertainty=False)
+slf_localizations = dw.loc.loc_from_picks(slf_assoc_list, s_cable_pos, c0, fs, return_uncertainty=False)
 
 pair_assoc = (nhf_assoc_list_pair, nlf_assoc_list_pair, shf_assoc_list_pair, slf_assoc_list_pair)
 pair_loc = (nhf_pair_loc, nlf_pair_loc, shf_pair_loc, slf_pair_loc)
 associations = (nhf_assoc_list, nlf_assoc_list, shf_assoc_list, slf_assoc_list)
 localizations = (nhf_localizations, nlf_localizations, shf_localizations, slf_localizations)
-
 # -
 
-fig = dw.assoc.plot_associated_bicable_paper(npeakshf, speakslf, n_longi_offset, pair_assoc, pair_loc, associations, localizations, n_cable_pos, s_cable_pos, n_dist, s_dist, dx, c0, fs)
+fig = dw.assoc.plot_associated_bicable_paper(peaks, n_longi_offset, pair_assoc, pair_loc, associations, localizations, n_cable_pos, s_cable_pos, n_dist, s_dist, dx, c0, fs)
 fig.savefig('../figs/associations_bicable.pdf', bbox_inches=None, transparent=True)
 plt.show()
 

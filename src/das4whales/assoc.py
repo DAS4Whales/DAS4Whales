@@ -194,16 +194,25 @@ def process_iteration(
     slf_n, slf_residuals = loc_picks(slf_idx_dist, slf_idx_time, s_cable_pos, c0, fs)
 
     # Re-associate picks using location results
-    nhf_hyperbola_new = dw.loc.calc_arrival_times(0, n_cable_pos, nhf_n[:3], c0)
-    shf_hyperbola_new = dw.loc.calc_arrival_times(0, s_cable_pos, shf_n[:3], c0)
-    nlf_hyperbola_new = dw.loc.calc_arrival_times(0, n_cable_pos, nlf_n[:3], c0)
-    slf_hyperbola_new = dw.loc.calc_arrival_times(0, s_cable_pos, slf_n[:3], c0)
+    dt_sel_narrowed = 0.7
+    if nhf_n is not None:
+        nhf_hyperbola_new = dw.loc.calc_arrival_times(nhf_n[3], n_cable_pos, nhf_n[:3], c0)
+        nhf_idx_dist, nhf_idx_time = select_picks(n_up_peaks_hf, nhf_hyperbola_new, dt_sel_narrowed, fs)
+    if shf_n is not None:
+        shf_hyperbola_new = dw.loc.calc_arrival_times(shf_n[3], s_cable_pos, shf_n[:3], c0)
+        shf_idx_dist, shf_idx_time = select_picks(s_up_peaks_hf, shf_hyperbola_new, dt_sel_narrowed, fs)
+    if nlf_n is not None:
+        nlf_hyperbola_new = dw.loc.calc_arrival_times(nlf_n[3], n_cable_pos, nlf_n[:3], c0)
+        nlf_idx_dist, nlf_idx_time = select_picks(n_up_peaks_lf, nlf_hyperbola_new, dt_sel_narrowed, fs)
+    if slf_n is not None:
+        slf_hyperbola_new = dw.loc.calc_arrival_times(slf_n[3], s_cable_pos, slf_n[:3], c0)
+        slf_idx_dist, slf_idx_time = select_picks(s_up_peaks_lf, slf_hyperbola_new, dt_sel_narrowed, fs)
 
-    dt_sel_narrowed = 0.5
-    nhf_idx_dist, nhf_idx_time = select_picks(n_up_peaks_hf, nhf_hyperbola_new, dt_sel_narrowed, fs)
-    shf_idx_dist, shf_idx_time = select_picks(s_up_peaks_hf, shf_hyperbola_new, dt_sel_narrowed, fs)
-    nlf_idx_dist, nlf_idx_time = select_picks(n_up_peaks_lf, nlf_hyperbola_new, dt_sel_narrowed, fs)
-    slf_idx_dist, slf_idx_time = select_picks(s_up_peaks_lf, slf_hyperbola_new, dt_sel_narrowed, fs)
+    # Compute locations and residuals
+    nhf_n, nhf_residuals = loc_picks(nhf_idx_dist, nhf_idx_time, n_cable_pos, c0, fs)
+    shf_n, shf_residuals = loc_picks(shf_idx_dist, shf_idx_time, s_cable_pos, c0, fs)
+    nlf_n, nlf_residuals = loc_picks(nlf_idx_dist, nlf_idx_time, n_cable_pos, c0, fs)
+    slf_n, slf_residuals = loc_picks(slf_idx_dist, slf_idx_time, s_cable_pos, c0, fs)
 
     # Calculate time indices
     nhf_times = nhf_idx_time / fs
@@ -666,7 +675,7 @@ def loc_picks(idx_dist, idx_time, cable_pos, c0, fs, Nbiter=20):
     init = [apex_loc, np.mean(cable_pos[:, 1]), -40, np.min(times)]  # Initial guess for the localization
     
     # Solve the least squares problem using the provided parameters
-    n, residuals = dw.loc.solve_lq_weight(times, cable_pos[idx_dist], c0, Nbiter, fix_z=True, ninit=init, residuals=True)
+    n, residuals = dw.loc.solve_lq_weight(times, cable_pos[idx_dist], c0, Nbiter, fix_z=True, ninit=init, residuals=True, return_uncertainty=False)
     
     return n, residuals
 
@@ -751,7 +760,7 @@ def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 15
     gaps = np.zeros_like(distances)
 
     rms_total = np.sqrt(np.mean(residuals**2))
-    mask_resi = abs(residuals) <  1.5 * rms_total
+    mask_resi = abs(residuals) <  3 * rms_total
     # Find the gaps only for the valid (masked) distances
     valid_distances = distances[mask_resi]
     if valid_distances.size > 1:
@@ -1353,9 +1362,10 @@ def plot_kdesurf(df_north: pd.DataFrame, df_south: pd.DataFrame, bathy: np.ndarr
     return fig    
 
 
-def plot_associated_bicable_paper(n_peaks, s_peaks, longi_offset, pair_assoc_list, pair_loc_list, associated_list, localizations,
+def plot_associated_bicable_paper(peaks, longi_offset, pair_assoc_list, pair_loc_list, associated_list, localizations,
                             n_cable_pos, s_cable_pos, n_dist, s_dist, dx, c0, fs, height_ratio=1.537):
-    
+    # Unpack the peaks and associated data
+    n_peaks_hf, n_peaks_lf, s_peaks_hf, s_peaks_lf = peaks
     nhf_assoc_pair, nlf_assoc_pair, shf_assoc_pair, slf_assoc_pair = pair_assoc_list
     nhf_assoc_list, nlf_assoc_list, shf_assoc_list, slf_assoc_list = associated_list
     nhf_loc_pair, nlf_loc_pair, shf_loc_pair, slf_loc_pair = pair_loc_list
@@ -1382,7 +1392,9 @@ def plot_associated_bicable_paper(n_peaks, s_peaks, longi_offset, pair_assoc_lis
 
     # First subplot — North raw picks and associated
     # -- Raw picks --
-    axes[0].scatter(n_peaks[1][:] / fs, (longi_offset + n_peaks[0][:]) * dx * 1e-3,
+    axes[0].scatter(n_peaks_hf[1][:] / fs, (longi_offset + n_peaks_hf[0][:]) * dx * 1e-3,
+                     label='All peaks', s=0.5, alpha=0.2, color='tab:gray', rasterized=True)
+    axes[0].scatter(n_peaks_lf[1][:] / fs, (longi_offset + n_peaks_lf[0][:]) * dx * 1e-3,
                      label='All peaks', s=0.5, alpha=0.2, color='tab:gray', rasterized=True)
     # -- Associated picks - pairs --
     for i, select in enumerate(nhf_assoc_pair):
@@ -1422,7 +1434,9 @@ def plot_associated_bicable_paper(n_peaks, s_peaks, longi_offset, pair_assoc_lis
 
     # Second subplot — South raw picks and associated
     # -- Raw picks --
-    axes[1].scatter(s_peaks[1][:] / fs, (longi_offset + s_peaks[0][:]) * dx * 1e-3,
+    axes[1].scatter(s_peaks_hf[1][:] / fs, (longi_offset + s_peaks_hf[0][:]) * dx * 1e-3,
+                       label='All peaks', s=0.5, alpha=0.2, color='tab:gray', rasterized=True)
+    axes[1].scatter(s_peaks_lf[1][:] / fs, (longi_offset + s_peaks_lf[0][:]) * dx * 1e-3,
                        label='All peaks', s=0.5, alpha=0.2, color='tab:gray', rasterized=True)
     # -- Associated picks - pairs --
     for i, select in enumerate(shf_assoc_pair):
