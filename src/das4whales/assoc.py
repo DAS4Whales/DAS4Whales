@@ -1371,8 +1371,8 @@ def plot_associated_bicable_paper(peaks, longi_offset, pair_assoc_list, pair_loc
     lf_palette = plt.get_cmap('YlGnBu_r')
 
     # Assign color per HF/LF event
-    nbhf = len(nhf_assoc_pair) + len(nhf_assoc_list) + len(shf_assoc_list) # Number of HF events
-    nblf = len(nlf_assoc_pair) + len(nlf_assoc_list) + len(slf_assoc_list) # Number of LF events
+    nbhf = max(len(nhf_assoc_pair), len(shf_assoc_pair)) + len(nhf_assoc_list) + len(shf_assoc_list) # Number of HF events
+    nblf = max(len(nlf_assoc_pair), len(slf_assoc_pair)) + len(nlf_assoc_list) + len(slf_assoc_list) # Number of LF events
 
     start, end = 0.0, 0.6  # Avoids partplot_associated_bicable_paper of the coolormap that is too light
 
@@ -1444,7 +1444,7 @@ def plot_associated_bicable_paper(peaks, longi_offset, pair_assoc_list, pair_loc
 
     # -- Associated picks - single --
     for i, select in enumerate(shf_assoc_list):
-        idx_offset = len(nhf_assoc_pair) + len(shf_assoc_pair) + len(nhf_assoc_list)
+        idx_offset =  max(len(nhf_assoc_pair), len(shf_assoc_pair)) + len(nhf_assoc_list)
         axes[1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
                            color=hf_colors[i+idx_offset], **hfassoc_STYLE)
         axes[1].plot(dw.loc.calc_arrival_times(shf_localizations[i][-1], s_cable_pos,
@@ -1452,7 +1452,7 @@ def plot_associated_bicable_paper(peaks, longi_offset, pair_assoc_list, pair_loc
                                                     s_dist / 1e3, **hyperbola_STYLE)
 
     for i, select in enumerate(slf_assoc_list):
-        idx_offset = len(nlf_assoc_pair) + len(slf_assoc_pair) + len(nlf_assoc_list)
+        idx_offset = max(len(nlf_assoc_pair), len(slf_assoc_pair)) + len(nlf_assoc_list)
         axes[1].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
                            color=lf_colors[i+idx_offset], **lfassoc_STYLE)
         axes[1].plot(dw.loc.calc_arrival_times(slf_localizations[i][-1], s_cable_pos,
@@ -1559,7 +1559,7 @@ def plot_associated_bicable_paper(peaks, longi_offset, pair_assoc_list, pair_loc
         for i in range(markers_each_side):
             x_pos = lf_start_x + (markers_each_side + 1 + i) * marker_spacing
             color_idx = len(lf_colors) - markers_each_side + i
-            legend_container.scatter(x_pos, 0.2, color=lf_colors[i],
+            legend_container.scatter(x_pos, 0.2, color=lf_colors[color_idx],
                                 marker='o', s=100, alpha=1)
 
     # Vertical separator line between HF and LF
