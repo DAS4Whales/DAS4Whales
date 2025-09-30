@@ -792,7 +792,7 @@ nSNRlf = n_ds["SNR_lf"].values
 # fig = plot_pick_analysis(slf_assoc_list_pair, fs, dx, s_longi_offset, s_cable_pos, s_dist, sSNRlf, speakslf)
 # fig = plot_pick_analysis(nhf_assoc_list_pair, fs, dx, n_longi_offset, n_cable_pos, n_dist, nSNRhf, npeakshf)
 # fig = plot_pick_analysis(nlf_assoc_list_pair, fs, dx, n_longi_offset, n_cable_pos, n_dist, nSNRlf, npeakslf)
-fig = plot_pick_analysis(nhf_assoc_list, fs, dx, n_longi_offset, n_cable_pos, n_dist, nSNRhf, npeakshf)
+# fig = plot_pick_analysis(nhf_assoc_list, fs, dx, n_longi_offset, n_cable_pos, n_dist, nSNRhf, npeakshf)
 plt.show()
 
 # -

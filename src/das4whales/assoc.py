@@ -61,13 +61,8 @@ def process_iteration(
     if (len(n_up_peaks_hf[0]) < 100 or len(n_up_peaks_lf[0]) < 100 or
         len(s_up_peaks_hf[0]) < 100 or len(s_up_peaks_lf[0]) < 100):
         print("Not enough peaks to process, ending association loop.")
-        return (
-            n_up_peaks_hf, n_up_peaks_lf, s_up_peaks_hf, s_up_peaks_lf,
-            nSNRhf, nSNRlf, sSNRhf, sSNRlf,
-            n_arr_tg, s_arr_tg, n_shape_x, s_shape_x,
-            association_lists, rejected_lists, hyperbolas
-        )
-
+        return None
+    
     # PART 1: PREPARE DATA AND COMPUTE KDEs
     # =====================================
     
@@ -90,12 +85,7 @@ def process_iteration(
 
     if not non_empty_delayed_picks: # End loop if no delayed picks
         print("No more delayed picks, ending association loop.")
-        return (
-            n_up_peaks_hf, n_up_peaks_lf, s_up_peaks_hf, s_up_peaks_lf,
-            nSNRhf, nSNRlf, sSNRhf, sSNRlf,
-            n_arr_tg, s_arr_tg, n_shape_x, s_shape_x,
-            association_lists, rejected_lists, hyperbolas
-        )
+        return None
         
     global_min = min(np.min(arr) for arr in non_empty_delayed_picks)
     global_max = max(np.max(arr) for arr in non_empty_delayed_picks)
@@ -159,7 +149,7 @@ def process_iteration(
         sigma_lf = np.std(lf_kde)
     # print(f'\nMax hf kde: {np.max(hf_kde)}, mu_hf: {mu_hf}, sigma_hf: {sigma_hf}, mu + 4*sigma_hf: {mu_hf + 4 * sigma_hf}\n')
     # print(f'Max lf kde: {np.max(lf_kde)}, mu_lf: {mu_lf}, sigma_lf: {sigma_lf}, mu + 4*sigma_lf: {mu_lf + 4 * sigma_lf}')
-    if np.max(hf_kde) < mu_hf + 3 * sigma_hf and np.max(lf_kde) < mu_lf + 3 * sigma_lf:
+    if np.max(hf_kde) < mu_hf + 1.5 * sigma_hf and np.max(lf_kde) < mu_lf + 1.5 * sigma_lf:  # 3sig for not Gabor, 1sig for Gabor
         return None  # No significant peak found
 
     # Find maxima for HF KDE
@@ -193,7 +183,7 @@ def process_iteration(
     nlf_n, nlf_residuals = loc_picks(nlf_idx_dist, nlf_idx_time, n_cable_pos, c0, fs)
     slf_n, slf_residuals = loc_picks(slf_idx_dist, slf_idx_time, s_cable_pos, c0, fs)
 
-    # Re-associate picks using location results
+    # Narrow down the selection window for re-association
     dt_sel_narrowed = 0.7
     if nhf_n is not None:
         nhf_hyperbola_new = dw.loc.calc_arrival_times(nhf_n[3], n_cable_pos, nhf_n[:3], c0)
@@ -208,12 +198,6 @@ def process_iteration(
         slf_hyperbola_new = dw.loc.calc_arrival_times(slf_n[3], s_cable_pos, slf_n[:3], c0)
         slf_idx_dist, slf_idx_time = select_picks(s_up_peaks_lf, slf_hyperbola_new, dt_sel_narrowed, fs)
 
-    # Compute locations and residuals
-    nhf_n, nhf_residuals = loc_picks(nhf_idx_dist, nhf_idx_time, n_cable_pos, c0, fs)
-    shf_n, shf_residuals = loc_picks(shf_idx_dist, shf_idx_time, s_cable_pos, c0, fs)
-    nlf_n, nlf_residuals = loc_picks(nlf_idx_dist, nlf_idx_time, n_cable_pos, c0, fs)
-    slf_n, slf_residuals = loc_picks(slf_idx_dist, slf_idx_time, s_cable_pos, c0, fs)
-
     # Calculate time indices
     nhf_times = nhf_idx_time / fs
     shf_times = shf_idx_time / fs
@@ -226,8 +210,13 @@ def process_iteration(
     nlf_window_mask = get_window_mask(nlf_times, w_eval)
     slf_window_mask = get_window_mask(slf_times, w_eval)
 
-    # Calculate RMS residuals
+    # Compute locations and residuals again
+    nhf_n, nhf_residuals = loc_picks(nhf_idx_dist, nhf_idx_time, n_cable_pos, c0, fs)
+    shf_n, shf_residuals = loc_picks(shf_idx_dist, shf_idx_time, s_cable_pos, c0, fs)
+    nlf_n, nlf_residuals = loc_picks(nlf_idx_dist, nlf_idx_time, n_cable_pos, c0, fs)
+    slf_n, slf_residuals = loc_picks(slf_idx_dist, slf_idx_time, s_cable_pos, c0, fs)
 
+    # Calculate RMS residuals
     nhf_rms = dw.loc.calc_rms(nhf_residuals, nhf_window_mask)
     shf_rms = dw.loc.calc_rms(shf_residuals, shf_window_mask)
     nlf_rms = dw.loc.calc_rms(nlf_residuals, nlf_window_mask)
@@ -246,17 +235,17 @@ def process_iteration(
     only_lf_south_good = nlf_rms >= rms_threshold and slf_rms < rms_threshold
 
     # HF and LF overlap
-    if abs(max_time_hf - max_time_lf) < 1.4:
-        if hf_kde[hf_imax, hf_tmax] > lf_kde[lf_imax, lf_tmax]:
-            # HF is better
-            lf_north_south_good = False
-            only_lf_north_good = False
-            only_lf_south_good = False
-        else:
-            # LF is better
-            hf_north_south_good = False
-            only_hf_north_good = False
-            only_hf_south_good = False
+    # if abs(max_time_hf - max_time_lf) < 1.4:
+    #     if hf_kde[hf_imax, hf_tmax] > lf_kde[lf_imax, lf_tmax]:
+    #         # HF is better
+    #         lf_north_south_good = False
+    #         only_lf_north_good = False
+    #         only_lf_south_good = False
+    #     else:
+    #         # LF is better
+    #         hf_north_south_good = False
+    #         only_hf_north_good = False
+    #         only_hf_south_good = False
 
     processed = False
 
@@ -760,7 +749,7 @@ def filter_peaks(residuals, idx_dist, idx_time, longi_offset, dx, gap_tresh = 15
     gaps = np.zeros_like(distances)
 
     rms_total = np.sqrt(np.mean(residuals**2))
-    mask_resi = abs(residuals) <  3 * rms_total
+    mask_resi = abs(residuals) <  3 * rms_total # 1.5 or 3 makes a difference
     # Find the gaps only for the valid (masked) distances
     valid_distances = distances[mask_resi]
     if valid_distances.size > 1:
@@ -1382,8 +1371,8 @@ def plot_associated_bicable_paper(peaks, longi_offset, pair_assoc_list, pair_loc
     lf_palette = plt.get_cmap('YlGnBu_r')
 
     # Assign color per HF/LF event
-    nbhf = len(nhf_assoc_pair) + len(shf_assoc_pair) + len(nhf_assoc_list) + len(shf_assoc_list)
-    nblf = len(nlf_assoc_pair) + len(slf_assoc_pair) + len(nlf_assoc_list) + len(slf_assoc_list)
+    nbhf = len(nhf_assoc_pair) + len(nhf_assoc_list) + len(shf_assoc_list) # Number of HF events
+    nblf = len(nlf_assoc_pair) + len(nlf_assoc_list) + len(slf_assoc_list) # Number of LF events
 
     start, end = 0.0, 0.6  # Avoids partplot_associated_bicable_paper of the coolormap that is too light
 
@@ -1413,14 +1402,14 @@ def plot_associated_bicable_paper(peaks, longi_offset, pair_assoc_list, pair_loc
 
     # -- Associated picks - single --
     for i, select in enumerate(nhf_assoc_list):
-        idx_offset = len(nhf_assoc_pair) + len(shf_assoc_pair)
+        idx_offset = len(nhf_assoc_pair)
         axes[0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
                            color=hf_colors[i+idx_offset], **hfassoc_STYLE)
         axes[0].plot(dw.loc.calc_arrival_times(nhf_localizations[i][-1], n_cable_pos,
                                                   nhf_localizations[i][:3], c0),
                                                   n_dist / 1e3, **hyperbola_STYLE)
     for i, select in enumerate(nlf_assoc_list):
-        idx_offset = len(nlf_assoc_pair) + len(slf_assoc_pair)
+        idx_offset = len(nlf_assoc_pair)
         # print(i, idx_offset, len(nhf_assoc_pair), len(shf_assoc_pair), len(nhf_assoc_list)print(len(lf_colors), len(nlf_assoc_list)))
         axes[0].scatter(select[1][:] / fs, (longi_offset + select[0][:]) * dx * 1e-3,
                            color=lf_colors[i+idx_offset], **lfassoc_STYLE)
@@ -1498,7 +1487,7 @@ def plot_associated_bicable_paper(peaks, longi_offset, pair_assoc_list, pair_loc
     legend_container.add_patch(rounded_box)
 
     # Calculate spacing and number of markers
-    max_markers_per_type = 8
+    max_markers_per_type = 9
     marker_spacing = 0.4 / max_markers_per_type if max_markers_per_type > 1 else 0.2
 
     # HF section (left half)
