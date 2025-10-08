@@ -433,3 +433,30 @@ def latlon_to_utm(lon, lat, zone=10):
     utm_x, utm_y = transformer.transform(lon, lat)
 
     return utm_x, utm_y
+
+def latlon_to_xy(lat, lon, lat_ref=None, lon_ref=None, alt=0):
+    # This is simplified conversion, assuming earth's curvature is spherical at the scale of interest.
+    # It uses the estimated radius of the earth using WGS-84 ellipsoid flattening, and converts
+    # lat/lon differences to meters assuming a sphere with that radius.
+    
+    if lat_ref is None:
+        lat_ref = lat.mean()
+    
+    if lon_ref is None:
+        lon_ref = lon.mean()
+    
+    a = 6378137.0  # WGS-84 equatorial radius in meters
+    f = 1 / 298.257223563  # WGS-84 flattening factor
+    e2 = f * (2 - f)  # Square of eccentricity
+    lat_rad = np.radians(lat)
+    lon_rad = np.radians(lon)
+    lat_ref_rad = np.radians(lat_ref)
+    lon_ref_rad = np.radians(lon_ref)
+
+    N = a / np.sqrt(1 - e2 * np.sin(lat_ref_rad)**2)
+    M = a * (1 - e2) / (1 - e2 * np.sin(lat_ref_rad)**2)**1.5
+    d_lat = lat_rad - lat_ref_rad
+    d_lon = lon_rad - lon_ref_rad
+    x = np.array(d_lon * (N + alt) * np.cos(lat_ref_rad))
+    y = np.array(d_lat * (M + alt))
+    return x, y
