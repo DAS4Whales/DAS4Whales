@@ -420,7 +420,6 @@ def load_mtpl_das_data(filepaths, selected_channels, metadata, timestamp, time_w
     # Return dask arrays for lazy evaluation
     return tr.compute(), time, dist, file_begin_time_utc
 
-
 def dl_file(url):
     """Download the file at the given url
 
@@ -600,3 +599,96 @@ def get_selected_channels(selected_channels_m, dx):
                                            # numbers
     return selected_channels
 
+class iterativeLoader:
+    """
+    Class for loading DAS directories in chunks
+    """
+    def __init__(self, dirpath, selected_channels, metadata=None, interrogator='optasense', start_file_index=0, end_file_index=None, time_window_s=30):
+        """
+        Initialize the iterativeLoader class.
+
+        Parameters
+        ----------
+        dirpath : str
+            The directory path to the DAS data files.
+        selected_channels : list
+            A list containing the selected channels.
+        metadata : dict
+            A dictionary filled with metadata (sampling frequency, channel spacing, scale factor...).
+        interrogator : str, optional
+            The interrogator type, one of {'optasense', 'silixa', 'mars', 'alcatel', 'onyx'}.
+            Defaults to 'optasense'.
+        """
+        self.dirpath = dirpath
+        self.selected_channels = selected_channels
+        if metadata==None:
+            metadata_loader = MetadataLoader(dirpath)
+            metadata = metadata_loader.load_metadata()
+        else:
+        self.metadata = metadata
+        self.interrogator = interrogator
+        self.file_list = [os.path.join(dirpath, f) for f in os.listdir(dirpath) if f.endswith('.h5') or f.endswith('.hdf5') or f.endswith('.tdms') ]
+        self.file_list.sort()
+        self.current_file_index = start_file_index
+        self.start_file_index = start_file_index
+        self.end_file_index = end_file_index if end_file_index is not None else len(self.file_list)
+        self.time_window_s = time_window_s
+        
+        self.data_in_memory = {}
+
+        # load first file to get signal dimensions
+        trace, tx, dist, file_begin_time_utc = load_das_data(self.file_list[self.current_file_index], self.selected_channels, self.metadata, self.interrogator)
+        self.nx, self.ns = trace.shape
+        self.data_in_memory['trace'] = trace
+        self.data_in_memory['tx'] = tx
+        self.data_in_memory['dist'] = dist
+        self.data_in_memory['file_begin_time_utc'] = file_begin_time_utc
+        self.section_begin_time_utc = file_begin_time_utc
+
+        while self.data_in_memory['tx'][-1] < self.time_window_s: # not enough data loaded in to cover the time window
+            # load next file and concatenate to current data
+            self.current_file_index += 1
+            trace_next, tx_next, dist_next, file_begin_time_utc_next = load_das_data(self.file_list[self.current_file_index], self.selected_channels, self.metadata, self.interrogator)
+            self.data_in_memory['trace'] = np.concatenate((self.data_in_memory['trace'], trace_next), axis=1)
+            self.data_in_memory['tx'] = np.concatenate((self.data_in_memory['tx'], tx_next + self.tx[-1] + 1/self.metadata['fs']))
+
+        idx = self.data_in_memory['tx'] <= self.time_window_s
+        trace = self.data_in_memory['trace'][:, idx]
+        tx = self.data_in_memory['tx'][idx]
+        dist = self.data_in_memory['dist']
+        section_begin_time_utc = self.data_in_memory['file_begin_time_utc']
+
+        self.data_in_memory['trace'] = self.data_in_memory['trace'][:, ~idx]
+        self.data_in_memory['tx'] = self.data_in_memory['tx'][~idx]
+        self.section_begin_time_utc = section_begin_time_utc + pd.to_timedelta(tx[-1] + 1/self.metadata['fs'], unit='s')
+
+        return trace, tx, dist, section_begin_time_utc
+
+    def load_next_chunk(self, new_time_window_s=None):
+        """
+        Load the next chunk of DAS data.
+
+        Returns
+        -------
+        trace : np.ndarray
+            A [channel x sample] nparray containing the strain data.
+        tx : np.ndarray
+            The corresponding time axis (s).
+        dist : np.ndarray
+            The corresponding distance along the FO cable axis (m).
+        file_begin_time_utc : datetime.datetime
+            The beginning time of the file, can be printed using file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S").
+        """
+        if new_time_window_s is not None:
+            self.time_window_s = new_time_window_s
+
+        if self.current_file_index >= len(self.file_list):
+            raise StopIteration("No more files to load.")
+
+        # 
+        filename = self.file_list[self.current_file_index]
+        trace, tx, dist, file_begin_time_utc = load_das_data(filename, self.selected_channels, self.metadata, self.interrogator)
+        
+        self.current_file_index += 1
+        
+        return trace, tx, dist, section_begin_time_utc
