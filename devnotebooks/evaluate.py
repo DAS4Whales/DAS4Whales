@@ -29,6 +29,7 @@ plt.rcParams['font.size'] = 16
 # Directory and batch setup
 batches = ['Batch_1', 'Batch_2', 'Batch_3', 'Batch_4', 'Batch_5']
 data_root = '../denoised_data'
+method = 'FarWin'  # Options: 'Baseline', 'FarWin', 'Gabor_Farwin'
 annot_root = '../Annotate'
 
 # Parameters
@@ -47,7 +48,7 @@ timestamp = '2021-11-04_02:00:02'
 
 def load_data(batch, timestamp):
     """Load the data for a specific batch and timestamp."""
-    data_file = f'{data_root}/Batch_{batch}/association_{timestamp}.pkl'
+    data_file = f'{data_root}/Batch_{batch}/{method}/association_{timestamp}.pkl'
     with open(data_file, 'rb') as f:
         assoc = pickle.load(f)
     
@@ -81,7 +82,7 @@ assoc = association['assoc']
 confusion = defaultdict(lambda: {'TP': 0, 'FP': 0, 'FN': 0})
 totals = {'TP': 0, 'FP': 0, 'FN': 0}
 
-fig, axs = plt.subplots(2, 2, figsize=(15, 10))
+fig, axs = plt.subplots(2, 2, figsize=(15, 10), constrained_layout=True)
 axs = axs.flatten()
 plot_idx = 0
 
@@ -169,7 +170,7 @@ for k, v in confusion.items():
 
 # Print totals
 print(f"\nTotal           {totals['TP']:>5} {totals['FP']:>5} {totals['FN']:>5}")
-
+plt.savefig(f'../figs/evaluation_{method}_{timestamp}_batch{batch}.pdf', bbox_inches=None, transparent=True)
 
 # +
 confusion = defaultdict(lambda: {'TP': 0, 'FP': 0, 'FN': 0})
@@ -177,7 +178,7 @@ totals = {'TP': 0, 'FP': 0, 'FN': 0}
 plot_figs = True
 
 for batch in tqdm(batches, desc=f'Processing annotated batches'):
-    assoc_files = sorted(glob(f'{data_root}/{batch}/association_*.pkl'))
+    assoc_files = sorted(glob(f'{data_root}/{batch}/{method}/association_*.pkl'))
     # Dictionary for batch-level confusion
     total_batch = defaultdict(lambda: {'TP': 0, 'FP': 0, 'FN': 0})
 
@@ -382,7 +383,7 @@ for ax, vals, bars in zip(axs, [precision_vals, recall_vals, f1_vals], [bars1, b
     for bar, val in zip(bars, vals):
         height = bar.get_height()
         ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                f'{val:.3f}', ha='center', va='bottom', fontweight='bold', fontsize=10)
+                f'{val:.2f}', ha='center', va='bottom', fontweight='bold', fontsize=10)
 
 # Customize axes
 titles = ['Precision', 'Recall', 'F1 Score']
