@@ -659,9 +659,8 @@ class iterativeLoader:
         section_begin_time_utc = self.data_in_memory['file_begin_time_utc']
 
         self.data_in_memory['trace'] = self.data_in_memory['trace'][:, ~idx]
-        self.data_in_memory['tx'] = self.data_in_memory['tx'][~idx]
-        self.section_begin_time_utc = section_begin_time_utc + pd.to_timedelta(tx[-1] + 1/self.metadata['fs'], unit='s')
-
+        self.data_in_memory['tx'] = self.data_in_memory['tx'][~idx]      
+        self.data_in_memory['time_since_file_start'] = 0 # initialize time since file start
         return trace, tx, dist, section_begin_time_utc
 
     def load_next_chunk(self, new_time_window_s=None):
@@ -684,11 +683,27 @@ class iterativeLoader:
 
         if self.current_file_index >= len(self.file_list):
             raise StopIteration("No more files to load.")
-
-        # 
-        filename = self.file_list[self.current_file_index]
-        trace, tx, dist, file_begin_time_utc = load_das_data(filename, self.selected_channels, self.metadata, self.interrogator)
         
-        self.current_file_index += 1
+        while self.data_in_memory['tx'][-1] < self.time_window_s: # not enough data loaded in to cover the time window
+            # load next file and concatenate to current data
+            self.current_file_index += 1
+            if self.current_file_index >= self.end_file_index:
+                break
+            try:
+                trace_next, tx_next, dist_next, file_begin_time_utc_next = load_das_data(self.file_list[self.current_file_index], self.selected_channels, self.metadata, self.interrogator)
+                self.data_in_memory['trace'] = np.concatenate((self.data_in_memory['trace'], trace_next), axis=1)
+                self.data_in_memory['tx'] = np.concatenate((self.data_in_memory['tx'], tx_next + self.data_in_memory['tx'][-1] + 1/self.metadata['fs']))
+                self.data_in_memory['time_since_file_start'] = 0 # reset time since file start
+            except Exception:
+                print(f'Error loading file {self.file_list[self.current_file_index]}, skipping...')
+                continue
         
+        idx = self.data_in_memory['tx'] <= self.time_window_s
+        trace = self.data_in_memory['trace'][:, idx]
+        tx = self.data_in_memory['tx'][idx]
+        dist = self.data_in_memory['dist']
+        section_begin_time_utc = self.data_in_memory['file_begin_time_utc'] + pd.to_timedelta(self.data_in_memory['time_since_file_start'], unit='s')
+        self.data_in_memory['trace'] = self.data_in_memory['trace'][:, ~idx]
+        self.data_in_memory['tx'] = self.data_in_memory['tx'][~idx]
+        self.data_in_memory['time_since_file_start'] += self.time_window_s
         return trace, tx, dist, section_begin_time_utc
