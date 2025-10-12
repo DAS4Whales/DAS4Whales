@@ -339,6 +339,26 @@ def load_das_data(filename, selected_channels, metadata, interrogator='optasense
 
     return trace, tx, dist, file_begin_time_utc
 
+def load_das_file_startTime(filename, interrogator='optasense')
+    """loads just the start time of a file
+    returns:
+        file_begin_time_utc : datetime.datetime"""
+    if interrogator in ['optasense', 'silixa', 'onyx']:
+        # UTC Time vector for naming
+        raw_data_time = fp['Acquisition']['Raw[0]']['RawDataTime']
+
+        # For future save
+        file_begin_time_utc = datetime.utcfromtimestamp(raw_data_time[0] * 1e-6)
+    elif interrogator == 'asn':
+        dfdas = sd.load_DAS_files(filename, chIndex=None, samples=None, sensitivitySelect=-3,
+                                  userSensitivity={'sensitivity': metadata['scale_factor'],
+                                                   'sensitivityUnit': 'rad/(m*strain)'},
+                                  integrate=True, unwr=True)
+        file_begin_time_utc = dfdas.meta['time']
+    else:
+        raise ValueError('Interrogator Name incorrect or not supported.')
+    return file_begin_time_utc
+
 def load_mtpl_das_data(filepaths, selected_channels, metadata, timestamp, time_window):
     """
     Load the DAS data corresponding to the input file names as strain according to the selected channels. Takes multiple files as input and concatenates them along the time axis starting from the input timestamp for the input time window.
@@ -599,13 +619,14 @@ def get_selected_channels(selected_channels_m, dx):
                                            # numbers
     return selected_channels
 
-class iterativeLoader:
+class iterative_loader:
     """
     Class for loading DAS directories in chunks
     """
-    def __init__(self, dirpath, selected_channels, metadata=None, interrogator='optasense', start_file_index=0, end_file_index=None, time_window_s=30):
+    def __init__(self, dirpath, selected_channels, metadata=None, interrogator='optasense', 
+                 start_file_index=0, end_file_index=None, time_window_s=30):
         """
-        Initialize the iterativeLoader class.
+        Initialize the iterative_loader class.
 
         Parameters
         ----------
@@ -618,92 +639,181 @@ class iterativeLoader:
         interrogator : str, optional
             The interrogator type, one of {'optasense', 'silixa', 'mars', 'alcatel', 'onyx'}.
             Defaults to 'optasense'.
+        start_file_index : int, optional
+            Index of first file to process. Defaults to 0.
+        end_file_index : int, optional
+            Index of last file to process. Defaults to None (process all files).
+        time_window_s : float, optional
+            Time window in seconds for each chunk. Defaults to 30.
         """
         self.dirpath = dirpath
         self.selected_channels = selected_channels
-        if metadata==None:
+        
+        if metadata is None:
             metadata_loader = MetadataLoader(dirpath)
             metadata = metadata_loader.load_metadata()
-        else:
         self.metadata = metadata
         self.interrogator = interrogator
-        self.file_list = [os.path.join(dirpath, f) for f in os.listdir(dirpath) if f.endswith('.h5') or f.endswith('.hdf5') or f.endswith('.tdms') ]
+        
+        # Get and sort file list
+        self.file_list = [os.path.join(dirpath, f) for f in os.listdir(dirpath) 
+                         if f.endswith(('.h5', '.hdf5', '.tdms'))]
         self.file_list.sort()
+        
         self.current_file_index = start_file_index
         self.start_file_index = start_file_index
         self.end_file_index = end_file_index if end_file_index is not None else len(self.file_list)
         self.time_window_s = time_window_s
         
+        # Validate file indices
+        if self.start_file_index >= len(self.file_list):
+            raise ValueError(f"start_file_index ({start_file_index}) exceeds number of files ({len(self.file_list)})")
+        if self.end_file_index > len(self.file_list):
+            raise ValueError(f"end_file_index ({end_file_index}) exceeds number of files ({len(self.file_list)})")
+        
         self.data_in_memory = {}
+        self._load_initial_data()
 
-        # load first file to get signal dimensions
-        trace, tx, dist, file_begin_time_utc = load_das_data(self.file_list[self.current_file_index], self.selected_channels, self.metadata, self.interrogator)
+    def _load_initial_data(self):
+        """Load initial data and prepare first chunk"""
+        if self.current_file_index >= self.end_file_index:
+            raise ValueError("No files to process in the specified range")
+            
+        # Load first file
+        trace, tx, dist, file_begin_time_utc = load_das_data(
+            self.file_list[self.current_file_index], 
+            self.selected_channels, 
+            self.metadata, 
+            self.interrogator
+        )
+        
         self.nx, self.ns = trace.shape
-        self.data_in_memory['trace'] = trace
-        self.data_in_memory['tx'] = tx
-        self.data_in_memory['dist'] = dist
-        self.data_in_memory['file_begin_time_utc'] = file_begin_time_utc
-        self.section_begin_time_utc = file_begin_time_utc
+        self.data_in_memory = {
+            'trace': trace,
+            'tx': tx,
+            'dist': dist,
+            'file_begin_time_utc': file_begin_time_utc
+        }
+        
+        # Keep track of absolute time offset from the very first file
+        self.absolute_time_offset = 0.0
+        
+        # Load additional files if needed to fill time window
+        self._ensure_sufficient_data()
 
-        while self.data_in_memory['tx'][-1] < self.time_window_s: # not enough data loaded in to cover the time window
-            # load next file and concatenate to current data
+    def _ensure_sufficient_data(self):
+        """Ensure we have enough data loaded to fill the current time window"""
+        while (len(self.data_in_memory['tx']) == 0 or 
+               self.data_in_memory['tx'][-1] < self.time_window_s):
+            
             self.current_file_index += 1
-            trace_next, tx_next, dist_next, file_begin_time_utc_next = load_das_data(self.file_list[self.current_file_index], self.selected_channels, self.metadata, self.interrogator)
-            self.data_in_memory['trace'] = np.concatenate((self.data_in_memory['trace'], trace_next), axis=1)
-            self.data_in_memory['tx'] = np.concatenate((self.data_in_memory['tx'], tx_next + self.tx[-1] + 1/self.metadata['fs']))
+            if self.current_file_index >= self.end_file_index:
+                break
+                
+            try:
+                trace_next, tx_next, dist_next, file_begin_time_utc_next = load_das_data(
+                    self.file_list[self.current_file_index], 
+                    self.selected_channels, 
+                    self.metadata, 
+                    self.interrogator
+                )
+                
+                # Calculate time offset for next file
+                if len(self.data_in_memory['tx']) > 0:
+                    time_offset = self.data_in_memory['tx'][-1] + 1/self.metadata['fs']
+                    tx_next_adjusted = tx_next + time_offset
+                else:
+                    tx_next_adjusted = tx_next
+                
+                # Concatenate data
+                self.data_in_memory['trace'] = np.concatenate(
+                    (self.data_in_memory['trace'], trace_next), axis=1
+                )
+                self.data_in_memory['tx'] = np.concatenate(
+                    (self.data_in_memory['tx'], tx_next_adjusted)
+                )
+                
+            except Exception as e:
+                print(f'Error loading file {self.file_list[self.current_file_index]}: {e}, skipping...')
+                continue
 
-        idx = self.data_in_memory['tx'] <= self.time_window_s
-        trace = self.data_in_memory['trace'][:, idx]
-        tx = self.data_in_memory['tx'][idx]
-        dist = self.data_in_memory['dist']
-        section_begin_time_utc = self.data_in_memory['file_begin_time_utc']
-
-        self.data_in_memory['trace'] = self.data_in_memory['trace'][:, ~idx]
-        self.data_in_memory['tx'] = self.data_in_memory['tx'][~idx]      
-        self.data_in_memory['time_since_file_start'] = 0 # initialize time since file start
-        return trace, tx, dist, section_begin_time_utc
-
-    def load_next_chunk(self, new_time_window_s=None):
+    def get_next_chunk(self, new_time_window_s=None):
         """
-        Load the next chunk of DAS data.
+        Get the next chunk of DAS data.
+
+        Parameters
+        ----------
+        new_time_window_s : float, optional
+            New time window size. If provided, updates the time window for subsequent calls.
 
         Returns
         -------
         trace : np.ndarray
-            A [channel x sample] nparray containing the strain data.
+            A [channel x sample] array containing the strain data.
         tx : np.ndarray
-            The corresponding time axis (s).
+            The corresponding time axis (s) relative to chunk start.
         dist : np.ndarray
             The corresponding distance along the FO cable axis (m).
-        file_begin_time_utc : datetime.datetime
-            The beginning time of the file, can be printed using file_begin_time_utc.strftime("%Y-%m-%d %H:%M:%S").
+        section_begin_time_utc : datetime.datetime
+            The beginning time of this chunk.
         """
         if new_time_window_s is not None:
             self.time_window_s = new_time_window_s
 
-        if self.current_file_index >= len(self.file_list):
-            raise StopIteration("No more files to load.")
+        # Check if we have any data left
+        if len(self.data_in_memory['tx']) == 0:
+            self._ensure_sufficient_data()
+            
+        if len(self.data_in_memory['tx']) == 0:
+            raise StopIteration("No more data available.")
+
+        # Ensure we have enough data for the time window
+        self._ensure_sufficient_data()
         
-        while self.data_in_memory['tx'][-1] < self.time_window_s: # not enough data loaded in to cover the time window
-            # load next file and concatenate to current data
-            self.current_file_index += 1
-            if self.current_file_index >= self.end_file_index:
-                break
-            try:
-                trace_next, tx_next, dist_next, file_begin_time_utc_next = load_das_data(self.file_list[self.current_file_index], self.selected_channels, self.metadata, self.interrogator)
-                self.data_in_memory['trace'] = np.concatenate((self.data_in_memory['trace'], trace_next), axis=1)
-                self.data_in_memory['tx'] = np.concatenate((self.data_in_memory['tx'], tx_next + self.data_in_memory['tx'][-1] + 1/self.metadata['fs']))
-                self.data_in_memory['time_since_file_start'] = 0 # reset time since file start
-            except Exception:
-                print(f'Error loading file {self.file_list[self.current_file_index]}, skipping...')
-                continue
+        # Determine how much data to extract
+        if len(self.data_in_memory['tx']) == 0:
+            raise StopIteration("No more data available.")
+            
+        # Find indices for the current time window
+        available_time = self.data_in_memory['tx'][-1] if len(self.data_in_memory['tx']) > 0 else 0
+        actual_window = min(self.time_window_s, available_time)
         
-        idx = self.data_in_memory['tx'] <= self.time_window_s
-        trace = self.data_in_memory['trace'][:, idx]
-        tx = self.data_in_memory['tx'][idx]
-        dist = self.data_in_memory['dist']
-        section_begin_time_utc = self.data_in_memory['file_begin_time_utc'] + pd.to_timedelta(self.data_in_memory['time_since_file_start'], unit='s')
+        idx = self.data_in_memory['tx'] <= actual_window
+        
+        if not np.any(idx):
+            raise StopIteration("No more data available.")
+        
+        # Extract data for this chunk
+        trace = self.data_in_memory['trace'][:, idx].copy()
+        tx_chunk = self.data_in_memory['tx'][idx].copy()
+        dist = self.data_in_memory['dist'].copy()
+        
+        # Calculate section begin time
+        section_begin_time_utc = (self.data_in_memory['file_begin_time_utc'] + 
+                                 pd.to_timedelta(self.absolute_time_offset, unit='s'))
+        
+        # Remove extracted data from memory
         self.data_in_memory['trace'] = self.data_in_memory['trace'][:, ~idx]
-        self.data_in_memory['tx'] = self.data_in_memory['tx'][~idx]
-        self.data_in_memory['time_since_file_start'] += self.time_window_s
-        return trace, tx, dist, section_begin_time_utc
+        self.data_in_memory['tx'] = self.data_in_memory['tx'][~idx] - actual_window
+        
+        # Update absolute time offset
+        self.absolute_time_offset += actual_window
+        
+        # Reset tx_chunk to start from 0
+        tx_chunk = tx_chunk - tx_chunk[0] if len(tx_chunk) > 0 else tx_chunk
+        
+        return trace, tx_chunk, dist, section_begin_time_utc
+
+    def __iter__(self):
+        """Make the class iterable"""
+        return self
+    
+    def __next__(self):
+        """Iterator protocol"""
+        return self.get_next_chunk()
+    
+    def reset(self):
+        """Reset the loader to the beginning"""
+        self.current_file_index = self.start_file_index
+        self.absolute_time_offset = 0.0
+        self._load_initial_data()
