@@ -231,9 +231,13 @@ def get_cable_pos(df_path: str, side_meta: dict) -> np.ndarray:
     return df_used[['x','y','depth']].to_numpy()
 
 # Coordinate transforms
-def local_to_utm(localizations: np.ndarray, utm_xf: float, utm_y0: float) -> np.ndarray:
-    return np.array([[utm_xf - x, utm_y0 + y, z, t] for x, y, z, t in localizations])
-
+def local_to_utm(localizations: dw.loc.LocalizationResult, utm_xf: float, utm_y0: float) -> np.ndarray:
+    # Localization is a list of objects with .position attribute
+    # utm_coord = np.empty((len(localizations), 4))
+    # for i, loc in enumerate(localizations):
+    #     x, y, z, t = loc.position
+    #     utm_coord[i, :] = [utm_xf - x, utm_y0 + y, z, t]
+    return np.array([[utm_xf - x, utm_y0 + y, z, t] for x, y, z, t in (loc.position for loc in localizations)])
 
 def batch_utm_to_latlon(loc_utm: np.ndarray) -> np.ndarray:
     out = []
@@ -282,26 +286,23 @@ def localize_calls(assoc: dict, fs: float, north_pos: np.ndarray, south_pos: np.
     }
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Row conversion
-# ──────────────────────────────────────────────────────────────────────────────
 def locs_to_rows(local_arr: np.ndarray, utm_arr: np.ndarray, latlon_arr: np.ndarray, sensor: str, call_type: str, utc0: datetime.datetime) -> list:
     rows = []
-    for (x_loc,y_loc,z_loc,t), (x_utm,y_utm,_,_), (lon,lat,_,_) in zip(local_arr, utm_arr, latlon_arr):
+    for (local_arr), (x_utm,y_utm,_,_), (lon,lat,_,_) in zip(local_arr, utm_arr, latlon_arr):
         rows.append({
-            'utc':       utc0 + datetime.timedelta(seconds=int(t)),
+            'utc':       utc0 + datetime.timedelta(seconds=int(local_arr.position[3])),
             'sensor':    sensor,
             'call_type': call_type,
-            'x_local':   x_loc, 'y_local': y_loc, 'z_local': z_loc,
-            'x_utm':     x_utm, 'y_utm':   y_utm, 'z_utm':   z_loc,
-            'lat':       lat,   'lon':     lon
+            'x_local':   local_arr.position[0], 'y_local': local_arr.position[1], 'z_local': local_arr.position[2],
+            'x_utm':     x_utm, 'y_utm':   y_utm, 'z_utm':   local_arr.position[2],
+            'lat':       lat,   'lon':     lon,
+            'wrms':      local_arr.weighted_rms, 'deltax': local_arr.uncertainties
         })
     return rows
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # File processing
-# ──────────────────────────────────────────────────────────────────────────────
 def process_one_file(pkl_path: Path, north_csv: str, south_csv: str, utm_xf: float, utm_y0: float) -> list:
     assoc = load_association(pkl_path)
     meta_n = assoc['metadata']['north']
@@ -329,19 +330,18 @@ def process_all(pkl_dir: str, north_csv: str, south_csv: str, utm_xf: float, utm
         'utc','sensor','call_type',
         'x_local','y_local','z_local',
         'x_utm','y_utm','z_utm',
-        'lat','lon'
+        'lat','lon',
+        'wrms','deltax'
     ])
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Main execution (uncomment & run when ready)
-# ──────────────────────────────────────────────────────────────────────────────
 bathy, xlon, ylat = dw.map.load_bathymetry('../data/GMRT_OOI_RCA_Cables.grd')
 utm_x0, utm_y0 = dw.map.latlon_to_utm(xlon[0], ylat[0])
 utm_xf, utm_yf = dw.map.latlon_to_utm(xlon[-1], ylat[-1])
 
 df_all = process_all(
-    pkl_dir    = '../out/batch1_baseline/',
+    pkl_dir    = '../denoised_data/Batch_1/Baseline',
     north_csv  = '../data/north_DAS_multicoord.csv',
     south_csv  = '../data/south_DAS_multicoord.csv',
     utm_xf     = utm_xf - utm_x0,
@@ -352,7 +352,6 @@ df_all.to_csv('batch1_localizations_with_coords.csv', index=False)
 
 # %%
 # Data paths
-# _______________________________________
 # csv_path    = 'all_localizations_with_coords.csv'   # your combined CSV
 csv_path   = 'batch1_localizations_with_coords.csv'
 north_csv   = '../data/north_DAS_multicoord.csv'
@@ -361,7 +360,6 @@ bathy_file  = '../data/GMRT_OOI_RCA_Cables.grd'
 
 
 # Load data
-# _______________________________________
 df_all   = pd.read_csv(csv_path, parse_dates=['utc'])
 df_north = pd.read_csv(north_csv)
 df_south = pd.read_csv(south_csv)
@@ -371,7 +369,6 @@ bathy, xlon, ylat = dw.map.load_bathymetry(bathy_file)
 
 # %%
 # Distance filtering
-# _______________________________________
 
 dist_matrix = spa.distance_matrix(df_all[['x_local', 'y_local']].to_numpy(), df_all[['x_local', 'y_local']].to_numpy())
 
@@ -385,7 +382,7 @@ tri = spa.Delaunay(df_all[['x_local', 'y_local']].to_numpy())
 _ = spa.delaunay_plot_2d(tri)
 plt.show()
 
-proximity_threshold = 500  # in meters - filter out points that are more than this distance from any other point
+proximity_threshold = 250  # in meters - filter out points that are more than this distance from any other point
 has_neighbor_mask = np.any((dist_matrix <= proximity_threshold) & (dist_matrix > 0), axis=1)
 
 df_filtered = df_all[has_neighbor_mask].copy()
@@ -409,13 +406,13 @@ utm_x0, utm_y0 = dw.map.latlon_to_utm(xlon[0], ylat[0])
 utm_xf, utm_yf = dw.map.latlon_to_utm(xlon[-1], ylat[-1])
 extent = [utm_xf - utm_x0, 0, 0, utm_yf - utm_y0]
 xmax, xmin, ymin, ymax = extent
-
+print(f'UTM extent: x from {xmin} to {xmax}, y from {ymin} to {ymax}')
 # Filter out bad localizations that are outside the bathymetry
 df_valid = df_all[
     (df_all['x_local'] >= xmin) & (df_all['x_local'] <= xmax) &
     (df_all['y_local'] >= ymin) & (df_all['y_local'] <= ymax)
 ]
-
+print(min(df_valid['y_local']), max(df_valid['y_local']))
 df_valid = df_filtered
 
 # Precompute "minutes since start" instead of seconds
@@ -462,6 +459,9 @@ rgb = ls.shade(bathy,
 norm = mcolors.Normalize(vmin=df_valid['minutes'].min(),
                          vmax=df_valid['minutes'].max())
 
+# Calculate statistics for textbox
+median_rms = np.median(df_valid['wrms']) if 'wrms' in df_valid.columns else np.nan
+median_deltax = np.median(df_valid['deltax']) if 'deltax' in df_valid.columns else np.nan
 
 # Plot
 # ______________________________________
@@ -490,7 +490,8 @@ for (sensor, call), grp in groups:
               cmap='plasma',
               norm=norm,
               marker=marker,
-              s=80,
+              s=250,
+              edgecolors='k',
               label=lbl)
 
 # contours (adjust extent for km)
@@ -499,6 +500,12 @@ cnt = ax.contour(bathy, levels=levels,
                 colors='k', linestyles='--',
                 extent=extent_km, alpha=0.6)  # Use kilometer extent
 ax.clabel(cnt, fmt='%d m', inline=True)
+
+# Add statistics textbox
+stats_text = f"Number of calls: {len(df_valid)}\nMedian $\\eta_{{RMS}}$: {median_rms:.2f}s\nMedian $\\delta$x: {median_deltax:.2f}m" if not np.isnan(median_rms) and not np.isnan(median_deltax) else "Statistics not available"
+ax.text(0.35, 0.14, stats_text, transform=ax.transAxes, fontsize=22,
+        verticalalignment='center', bbox=dict(boxstyle="round,pad=0.5", 
+        facecolor='white', alpha=0.8))
 
 # Colorbar management
 # _____________________________________
@@ -522,7 +529,7 @@ ax.set_title(f'UTC: {df_valid['utc'].min().strftime("%Y-%m-%d %H:%M")}')
 
 # plt.tight_layout()
 
-plt.savefig('localization_kilometers.pdf', format='pdf', bbox_inches='tight', transparent=True)
+plt.savefig('Figure7.pdf', format='pdf', bbox_inches='tight', transparent=True)
 
 # Zoom 1
 # plt.xlim(62, 50)
@@ -557,7 +564,7 @@ plt.savefig('localization_kilometers.pdf', format='pdf', bbox_inches='tight', tr
 # Zoom 4
 # plt.xlim(80, 70)
 # plt.ylim(25, 30)
-# plt.savefig('localization_zoom4.pdf', format='pdf', bbox_inches='tight', transparent=True)
+# plt.savefig('localization_zoom4.pdf', format='pdf', bbox_inches='tight transparent=True)
 
 # Zoom figure 8e
 # plt.xlim(80, 70)
@@ -575,3 +582,409 @@ plt.savefig('localization_kilometers.pdf', format='pdf', bbox_inches='tight', tr
 # plt.savefig('localization_batch4_gabor.png', format='png', bbox_inches='tight', transparent=True)
 plt.show()
 
+
+# %% [markdown]
+# ## Zoom Views for Figures 7b-e
+#
+# Individual zoom views with region-specific statistics
+
+# %%
+# Figure 7e: Zoom region 1 (y: 28-30, x: 56-58)
+fig, ax = plt.subplots(figsize=(10,8), constrained_layout=True)
+
+# Define zoom region
+x_min, x_max = 56, 58.3  # km
+y_min, y_max = 28, 30.5  # km
+xmax, xmin, ymin, ymax = extent
+
+# Filter data for this zoom region
+zoom_mask = ((df_valid['x_km'] >= x_min) & (df_valid['x_km'] <= x_max) & 
+             (df_valid['y_km'] >= y_min) & (df_valid['y_km'] <= y_max))
+df_zoom = df_valid[zoom_mask]
+
+# Calculate regional statistics
+if len(df_zoom) > 0:
+    median_rms_zoom = np.median(df_zoom['wrms']) if 'wrms' in df_zoom.columns else np.nan
+    median_deltax_zoom = np.median(df_zoom['deltax']) if 'deltax' in df_zoom.columns else np.nan
+    n_points = len(df_zoom)
+else:
+    median_rms_zoom = median_deltax_zoom = np.nan
+    n_points = 0
+
+# Plot bathymetry
+ax.imshow(rgb, extent=extent_km, aspect='equal')
+
+# Plot cables
+ax.plot(df_north.x_km, df_north.y_km, c='red', label='North cable', linewidth=1.5)
+ax.plot(df_south.x_km, df_south.y_km, c='orange', label='South cable', linewidth=1.5)
+
+# Plot data points in zoom region
+groups_zoom = df_zoom.groupby(['sensor','call_type'])
+norm_zoom = mcolors.Normalize(vmin=df_zoom['minutes'].min(), vmax=df_zoom['minutes'].max()) if len(df_zoom) > 0 else norm
+
+for (sensor, call), grp in groups:
+    lbl = f"{sensor}-{call}"
+    marker = markers.get(lbl)
+    ax.scatter(grp.x_km, grp.y_km,  # Use kilometer coordinates
+              c=grp.minutes,  # Use minutes for coloring
+              cmap='plasma',
+              norm=norm,
+              marker=marker,
+              s=250,
+              edgecolors='black',
+              label=lbl)
+
+# Add contours
+levels = [-1500, -1000, -600, -250, -80]
+cnt = ax.contour(bathy, levels=levels,
+                colors='k', linestyles='--',
+                extent=extent_km, alpha=0.6)
+ax.clabel(cnt, fmt='%d m', inline=True, fontsize=10)
+
+# Add regional statistics textbox
+stats_text = f"Number of calls: {n_points}\n"
+if not np.isnan(median_rms_zoom):
+    stats_text += f"Median $\\eta_{{RMS}}$: {median_rms_zoom:.2f}s\n"
+if not np.isnan(median_deltax_zoom):
+    stats_text += f"Median $\\delta$x: {median_deltax_zoom:.1f}m"
+
+ax.text(0.4, 0.96, stats_text, transform=ax.transAxes,
+        verticalalignment='top', bbox=dict(boxstyle="round,pad=0.5", 
+        facecolor='white', alpha=0.9))
+
+# Add uncertainty circle as a scale reference in bottom right corner
+if not np.isnan(median_deltax_zoom) and len(df_zoom) > 0:
+    # Convert uncertainty from meters to kilometers
+    uncertainty_radius_km = median_deltax_zoom / 1000.0
+    
+    # Position the circle in the bottom right area of the plot
+    circle_x = x_min + 0.10 * (x_max - x_min)
+    circle_y = y_min + 0.05 * (y_max - y_min)  
+    
+    # Create circle directly on the main axes
+    uncertainty_circle = plt.Circle((circle_x, circle_y), uncertainty_radius_km, 
+                                   fill=False, color='red', linewidth=4, 
+                                   linestyle='-', alpha=0.9)
+    ax.add_patch(uncertainty_circle)
+    
+
+# Set zoom limits
+ax.set_xlim(x_max, x_min)
+ax.set_ylim(y_min, y_max)
+
+# Add colorbar
+# cbar = fig.colorbar(plt.cm.ScalarMappable(norm=norm_zoom, cmap='plasma'),
+#                    ax=ax, pad=0.02, aspect=20, fraction=0.02)
+# cbar.set_label('Time [minutes]')
+
+# Labels and title
+ax.set_xlabel('x [km]')
+ax.set_ylabel('y [km]')
+# ax.legend(loc='upper right', fontsize='small')
+ax.grid(linestyle='--', alpha=0.6, color='gray')
+
+plt.savefig('Figure7e.pdf', format='pdf', bbox_inches='tight', transparent=True)
+plt.show()
+
+# %%
+# Figure 7b: Zoom region 2 (y: 22-23, x: 36.5-37.5)
+fig, ax = plt.subplots(figsize=(10,8), constrained_layout=True)
+
+# Define zoom region
+x_min, x_max = 36.8, 37.5  # km
+y_min, y_max = 22, 23  # km
+
+# Filter data for this zoom region
+zoom_mask = ((df_valid['x_km'] >= x_min) & (df_valid['x_km'] <= x_max) & 
+             (df_valid['y_km'] >= y_min) & (df_valid['y_km'] <= y_max))
+df_zoom = df_valid[zoom_mask]
+
+# Calculate regional statistics
+if len(df_zoom) > 0:
+    median_rms_zoom = df_zoom['wrms'].median() if 'wrms' in df_zoom.columns else np.nan
+    median_deltax_zoom = df_zoom['deltax'].median() if 'deltax' in df_zoom.columns else np.nan
+    n_points = len(df_zoom)
+else:
+    median_rms_zoom = median_deltax_zoom = mean_rms_zoom = mean_deltax_zoom = np.nan
+    n_points = 0
+
+# Plot bathymetry
+ax.imshow(rgb, extent=extent_km, aspect='equal')
+
+# Plot cables
+ax.plot(df_north.x_km, df_north.y_km, c='red', label='North cable', linewidth=1.5)
+ax.plot(df_south.x_km, df_south.y_km, c='orange', label='South cable', linewidth=1.5)
+
+# Plot data points in zoom region
+groups_zoom = df_zoom.groupby(['sensor','call_type'])
+norm_zoom = mcolors.Normalize(vmin=df_zoom['minutes'].min(), vmax=df_zoom['minutes'].max()) if len(df_zoom) > 0 else norm
+
+for (sensor, call), grp in groups:
+    lbl = f"{sensor}-{call}"
+    marker = markers.get(lbl)
+    ax.scatter(grp.x_km, grp.y_km,  # Use kilometer coordinates
+              c=grp.minutes,  # Use minutes for coloring
+              cmap='plasma',
+              norm=norm,
+              marker=marker,
+              s=250,
+              edgecolors='black',
+              label=lbl)
+
+# Add contours
+levels = [-1500, -1000, -600, -250, -80]
+cnt = ax.contour(bathy, levels=levels,
+                colors='k', linestyles='--',
+                extent=extent_km, alpha=0.6)
+ax.clabel(cnt, fmt='%d m', inline=True, fontsize=10)
+
+# Add regional statistics textbox
+stats_text = f"Number of calls: {n_points}\n"
+if not np.isnan(median_rms_zoom):
+    stats_text += f"Median $\\eta_{{RMS}}$: {median_rms_zoom:.2f}s\n"
+    stats_text += f"Median $\\delta$x: {median_deltax_zoom:.1f}m"
+
+ax.text(0.1, 0.86, stats_text, transform=ax.transAxes,
+        verticalalignment='center', bbox=dict(boxstyle="round,pad=0.5", 
+        facecolor='white', alpha=0.9))
+
+# Add uncertainty circle as a scale reference in bottom left corner
+if not np.isnan(median_deltax_zoom) and len(df_zoom) > 0:
+    # Convert uncertainty from meters to kilometers
+    uncertainty_radius_km = median_deltax_zoom / 1000.0
+    
+    # Position the circle in the bottom left area of the plot
+    circle_x = x_min + 0.15 * (x_max - x_min)  # 15% across from left
+    circle_y = y_min + 0.15 * (y_max - y_min)  # 15% up from bottom
+    
+    # Create circle directly on the main axes
+    uncertainty_circle = plt.Circle((circle_x, circle_y), uncertainty_radius_km, 
+                                   fill=False, color='red', linewidth=4, 
+                                   linestyle='-', alpha=0.9)
+    ax.add_patch(uncertainty_circle)
+    
+    # Add a label for the uncertainty circle
+    ax.text(circle_x, circle_y - 1.5*uncertainty_radius_km, 
+           f'σ = {median_deltax_zoom:.0f}m', 
+           ha='center', va='top', fontsize=12, 
+           bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8))
+
+# Set zoom limits
+ax.set_xlim(x_max, x_min)
+ax.set_ylim(y_min, y_max)
+
+# Add colorbar
+# cbar = fig.colorbar(plt.cm.ScalarMappable(norm=norm_zoom, cmap='plasma'),
+#                    ax=ax, pad=0.02, aspect=20, fraction=0.02)
+# cbar.set_label('Time [minutes]')
+
+# Labels and title
+ax.set_xlabel('x [km]')
+ax.set_ylabel('y [km]')
+# ax.legend(loc='upper right', fontsize='small')
+ax.grid(linestyle='-', alpha=0.6, color='gray')
+
+plt.savefig('Figure7b.pdf', format='pdf', bbox_inches='tight', transparent=True)
+plt.show()
+
+# %%
+# Figure 7d: Zoom region 3 (y: 12-14.5, x: 82.5-86.5)
+fig, ax = plt.subplots(figsize=(10,8), constrained_layout=True)
+
+# Define zoom region
+x_min, x_max = 82.5, 86.5  # km
+y_min, y_max = 12, 14.5  # km
+
+# Filter data for this zoom region
+zoom_mask = ((df_valid['x_km'] >= x_min) & (df_valid['x_km'] <= x_max) & 
+             (df_valid['y_km'] >= y_min) & (df_valid['y_km'] <= y_max))
+df_zoom = df_valid[zoom_mask]
+
+# Calculate regional statistics
+if len(df_zoom) > 0:
+    median_rms_zoom = df_zoom['wrms'].median() if 'wrms' in df_zoom.columns else np.nan
+    median_deltax_zoom = df_zoom['deltax'].median() if 'deltax' in df_zoom.columns else np.nan
+    n_points = len(df_zoom)
+else:
+    median_rms_zoom = median_deltax_zoom = np.nan
+    n_points = 0
+
+# Plot bathymetry
+ax.imshow(rgb, extent=extent_km, aspect='equal')
+
+# Plot cables
+ax.plot(df_north.x_km, df_north.y_km, c='red', label='North cable', linewidth=1.5)
+ax.plot(df_south.x_km, df_south.y_km, c='orange', label='South cable', linewidth=1.5)
+
+# Plot data points in zoom region
+groups_zoom = df_zoom.groupby(['sensor','call_type'])
+norm_zoom = mcolors.Normalize(vmin=df_zoom['minutes'].min(), vmax=df_zoom['minutes'].max()) if len(df_zoom) > 0 else norm
+
+for (sensor, call), grp in groups:
+    lbl = f"{sensor}-{call}"
+    marker = markers.get(lbl)
+    ax.scatter(grp.x_km, grp.y_km,  # Use kilometer coordinates
+              c=grp.minutes,  # Use minutes for coloring
+              cmap='plasma',
+              norm=norm,
+              marker=marker,
+              s=250,
+                edgecolors='black',
+              label=lbl)
+
+# Add contours
+levels = [-1500, -1000, -600, -250, -80]
+cnt = ax.contour(bathy, levels=levels,
+                colors='k', linestyles='--',
+                extent=extent_km, alpha=0.6)
+ax.clabel(cnt, fmt='%d m', inline=True, fontsize=10)
+
+# Add regional statistics textbox
+stats_text = f"Number of calls: {n_points}\n"
+if not np.isnan(median_rms_zoom):
+    stats_text += f"Median $\\eta_{{RMS}}$: {median_rms_zoom:.2f}s\n"
+    stats_text += f"Median $\\delta$x: {median_deltax_zoom:.1f}m"
+
+ax.text(0.34, 0.16, stats_text, transform=ax.transAxes,
+        verticalalignment='center', bbox=dict(boxstyle="round,pad=0.5", 
+        facecolor='white', alpha=0.9))
+
+# Add uncertainty circle as a scale reference in top left corner
+if not np.isnan(median_deltax_zoom) and len(df_zoom) > 0:
+    # Convert uncertainty from meters to kilometers
+    uncertainty_radius_km = median_deltax_zoom / 1000.0
+    
+    # Position the circle in the top left area of the plot
+    circle_x = x_min + 0.15 * (x_max - x_min)  # 15% across from left
+    circle_y = y_min + 0.85 * (y_max - y_min)  # 85% up from bottom
+    
+    # Create circle directly on the main axes
+    uncertainty_circle = plt.Circle((circle_x, circle_y), uncertainty_radius_km, 
+                                   fill=False, color='red', linewidth=4, 
+                                   linestyle='-', alpha=0.9)
+    ax.add_patch(uncertainty_circle)
+    
+    # Add a label for the uncertainty circle
+    ax.text(circle_x, circle_y - 1.5*uncertainty_radius_km, 
+           f'σ = {median_deltax_zoom:.0f}m', 
+           ha='center', va='top', fontsize=12, 
+           bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8))
+
+# Set zoom limits
+ax.set_xlim(x_max, x_min)
+ax.set_ylim(y_min, y_max)
+
+# Add colorbar
+# cbar = fig.colorbar(plt.cm.ScalarMappable(norm=norm_zoom, cmap='plasma'),
+#                    ax=ax, pad=0.02, aspect=20, fraction=0.02)
+# cbar.set_label('Time [minutes]')
+
+# Labels and title
+ax.set_xlabel('x [km]')
+ax.set_ylabel('y [km]')
+# ax.legend(loc='upper right', fontsize='small')
+ax.grid(linestyle='--', alpha=0.6, color='gray')
+
+plt.savefig('Figure7d.pdf', format='pdf', bbox_inches='tight', transparent=True)
+plt.show()
+
+# %%
+# Figure 7c: Zoom region 4 (y: 25-30, x: 70-80)
+fig, ax = plt.subplots(figsize=(10,8), constrained_layout=True)
+
+# Define zoom region
+x_min, x_max = 70, 80  # km
+y_min, y_max = 25, 30  # km
+
+# Filter data for this zoom region
+zoom_mask = ((df_valid['x_km'] >= x_min) & (df_valid['x_km'] <= x_max) & 
+             (df_valid['y_km'] >= y_min) & (df_valid['y_km'] <= y_max))
+df_zoom = df_valid[zoom_mask]
+
+# Calculate regional statistics
+if len(df_zoom) > 0:
+    median_rms_zoom = df_zoom['wrms'].median() if 'wrms' in df_zoom.columns else np.nan
+    median_deltax_zoom = df_zoom['deltax'].median() if 'deltax' in df_zoom.columns else np.nan
+    n_points = len(df_zoom)
+else:
+    median_rms_zoom = median_deltax_zoom = np.nan
+    n_points = 0
+
+# Plot bathymetry
+ax.imshow(rgb, extent=extent_km, aspect='equal')
+
+# Plot cables
+ax.plot(df_north.x_km, df_north.y_km, c='red', label='North cable', linewidth=1.5)
+ax.plot(df_south.x_km, df_south.y_km, c='orange', label='South cable', linewidth=1.5)
+
+# Plot data points in zoom region
+groups_zoom = df_zoom.groupby(['sensor','call_type'])
+norm_zoom = mcolors.Normalize(vmin=df_zoom['minutes'].min(), vmax=df_zoom['minutes'].max()) if len(df_zoom) > 0 else norm
+
+for (sensor, call), grp in groups:
+    lbl = f"{sensor}-{call}"
+    marker = markers.get(lbl)
+    ax.scatter(grp.x_km, grp.y_km,  # Use kilometer coordinates
+              c=grp.minutes,  # Use minutes for coloring
+              cmap='plasma',
+              norm=norm,
+              marker=marker,
+              s=250,
+              edgecolors='black',
+              label=lbl)
+
+# Add contours
+levels = [-1500, -1000, -600, -250, -80]
+cnt = ax.contour(bathy, levels=levels,
+                colors='k', linestyles='--',
+                extent=extent_km, alpha=0.6)
+ax.clabel(cnt, fmt='%d m', inline=True, fontsize=10)
+
+# Add regional statistics textbox
+stats_text = f"Number of calls: {n_points}\n"
+if not np.isnan(median_rms_zoom):
+    stats_text += f"Median $\\eta_{{RMS}}$: {median_rms_zoom:.2f}s\n"
+    stats_text += f"Median $\\delta$x: {median_deltax_zoom:.1f}m"
+
+ax.text(0.65, 0.85, stats_text, transform=ax.transAxes,
+        verticalalignment='center', bbox=dict(boxstyle="round,pad=0.5", 
+        facecolor='white', alpha=0.9))
+
+# Add uncertainty circle as a scale reference in bottom right corner
+if not np.isnan(median_deltax_zoom) and len(df_zoom) > 0:
+    # Convert uncertainty from meters to kilometers
+    uncertainty_radius_km = median_deltax_zoom / 1000.0
+    
+    # Position the circle in the bottom right area of the plot
+    circle_x = x_min + 0.85 * (x_max - x_min)  # 85% across from left
+    circle_y = y_min + 0.15 * (y_max - y_min)  # 15% up from bottom
+    
+    # Create circle directly on the main axes
+    uncertainty_circle = plt.Circle((circle_x, circle_y), uncertainty_radius_km, 
+                                   fill=False, color='red', linewidth=4, 
+                                   linestyle='-', alpha=0.9)
+    ax.add_patch(uncertainty_circle)
+    
+    # Add a label for the uncertainty circle
+    ax.text(circle_x, circle_y - 1.5*uncertainty_radius_km, 
+           f'σ = {median_deltax_zoom:.0f}m', 
+           ha='center', va='top', fontsize=12, 
+           bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8))
+
+# Set zoom limits
+ax.set_xlim(x_max, x_min)
+ax.set_ylim(y_min, y_max)
+
+# Add colorbar
+# cbar = fig.colorbar(plt.cm.ScalarMappable(norm=norm_zoom, cmap='plasma'),
+#                    ax=ax, pad=0.02, aspect=20, fraction=0.02)
+# cbar.set_label('Time [minutes]')
+
+# Labels and title
+ax.set_xlabel('x [km]')
+ax.set_ylabel('y [km]')
+# ax.legend(loc='upper right', fontsize='small')
+ax.grid(linestyle='--', alpha=0.6, color='gray')
+
+plt.savefig('Figure7c.pdf', format='pdf', bbox_inches='tight', transparent=True)
+plt.show()

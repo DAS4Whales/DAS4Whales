@@ -468,15 +468,16 @@ def solve_lq_weight(Ti, cable_pos, c0, Nbiter=10, fix_z=False, ninit=None,
             final_weights = None  # Don't pass equal weights to covariance calculation
         
         covariance = calc_covariance_matrix(cable_pos, n, c0, variance, fix_z, final_weights)
-        uncertainties = calc_uncertainty_position(cable_pos, n, c0, variance, fix_z, final_weights)
-        
+        err_ellipse = calc_error_ellipse_params(covariance)
+        uncertainty = 2 * np.sqrt(np.max(err_ellipse['eigenvals'])) 
+
         result = LocalizationResult(
             position=n,
             residuals=res,
             rms=rms_unweighted,
             weighted_rms=rms_weighted,
             covariance=covariance,
-            uncertainties=uncertainties,
+            uncertainties=uncertainty,
             weights=final_weights,
             n_iterations=Nbiter
         )
@@ -596,36 +597,6 @@ def calc_covariance_matrix(cable_pos, whale_pos, c0, var, fix_z=False, weights=N
         cov = var * np.linalg.inv(GtWG)
 
     return cov
-
-
-def calc_uncertainty_position(cable_pos, whale_pos, c0, var, fix_z=False, weights=None):
-    """Compute the uncertainties on the estimated whale position
-
-    Parameters
-    ----------
-    cable_pos : np.ndarray
-        Array of cable positions [channel x 3]
-    whale_pos : np.ndarray
-        Estimated whale position [x, y, z, t0]
-    c0 : float
-        Speed of sound in water considered constant
-    var : float
-        Variance of the residuals (should be weighted variance if weights provided)
-    fix_z : bool, optional
-        Whether to fix the z coordinate (default: False)
-    weights : np.ndarray, optional
-        Weight vector for weighted least-squares (default: None for unweighted)
-
-    Returns
-    -------
-    unc : np.ndarray
-        Uncertainties on the estimated whale position
-    """
-
-    cov = calc_covariance_matrix(cable_pos, whale_pos, c0, var, fix_z, weights)
-    unc = np.sqrt(np.diag(cov)) # Vector of square roots of the diagonal elements of the covariance matrix
-
-    return unc
 
 
 def loc_from_picks(associated_list, cable_pos, c0, fs, return_uncertainty=True):
@@ -856,7 +827,7 @@ def calc_error_ellipse_params(covariance_matrix, confidence_level=0.95):
         else:
             chi2_val = 5.991  # Default to 95%
     
-    # Calculate ellipse parameters
+    # Calculate ellipse parameters for the given confidence level
     semi_major_axis = np.sqrt(chi2_val * eigenvals[0])
     semi_minor_axis = np.sqrt(chi2_val * eigenvals[1])
     
@@ -871,8 +842,8 @@ def calc_error_ellipse_params(covariance_matrix, confidence_level=0.95):
         'semi_minor_axis': semi_minor_axis,
         'rotation_angle': rotation_angle,
         'area': area,
-        'eigenvalues': eigenvals,
-        'eigenvectors': eigenvecs
+        'eigenvals': eigenvals,
+        'eigenvects': eigenvecs
     }
 
 
