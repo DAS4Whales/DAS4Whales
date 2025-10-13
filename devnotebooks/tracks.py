@@ -611,12 +611,41 @@ else:
     median_rms_zoom = median_deltax_zoom = np.nan
     n_points = 0
 
+
+# Calculate consecutive call distances in this zoom region
+if len(df_zoom) > 1:
+    # Sort data by time
+    df_zoom_sorted = df_zoom.sort_values('utc').copy()
+    
+    # Calculate consecutive distances (only for calls within 1 minute)
+    consecutive_distances = []
+    max_time_gap_minutes = .42  # Maximum time gap in minutes (~25 seconds)
+    
+    for i in range(1, len(df_zoom_sorted)):
+        # Check time difference
+        t1 = df_zoom_sorted.iloc[i-1]['utc']
+        t2 = df_zoom_sorted.iloc[i]['utc']
+        time_gap_minutes = (t2 - t1).total_seconds() / 60.0
+        
+        # Only calculate distance if time gap is within limit
+        if time_gap_minutes <= max_time_gap_minutes:
+            x1, y1 = df_zoom_sorted.iloc[i-1][['x_local', 'y_local']]
+            x2, y2 = df_zoom_sorted.iloc[i][['x_local', 'y_local']]
+            distance = np.sqrt((x2-x1)**2 + (y2-y1)**2)
+            consecutive_distances.append(distance)
+    
+    # Calculate d̂ (median consecutive distance)
+    if consecutive_distances:
+        d_hat = np.median(consecutive_distances) / np.sqrt(2) 
+    else:
+        d_hat = np.nan
+
 # Plot bathymetry
 ax.imshow(rgb, extent=extent_km, aspect='equal')
 
 # Plot cables
-ax.plot(df_north.x_km, df_north.y_km, c='red', label='North cable', linewidth=1.5)
-ax.plot(df_south.x_km, df_south.y_km, c='orange', label='South cable', linewidth=1.5)
+ax.plot(df_north.x_km, df_north.y_km, c='red', label='North cable', linewidth=3)
+ax.plot(df_south.x_km, df_south.y_km, c='orange', label='South cable', linewidth=3)
 
 # Plot data points in zoom region
 groups_zoom = df_zoom.groupby(['sensor','call_type'])
@@ -647,6 +676,8 @@ if not np.isnan(median_rms_zoom):
     stats_text += f"Median $\\eta_{{RMS}}$: {median_rms_zoom:.2f}s\n"
 if not np.isnan(median_deltax_zoom):
     stats_text += f"Median $\\delta$x: {median_deltax_zoom:.1f}m"
+if not np.isnan(d_hat):
+    stats_text += f"\n$\\hat{{d}}$: {d_hat:.1f}m"
 
 ax.text(0.4, 0.96, stats_text, transform=ax.transAxes,
         verticalalignment='top', bbox=dict(boxstyle="round,pad=0.5", 
@@ -658,7 +689,7 @@ if not np.isnan(median_deltax_zoom) and len(df_zoom) > 0:
     uncertainty_radius_km = median_deltax_zoom / 1000.0
     
     # Position the circle in the bottom right area of the plot
-    circle_x = x_min + 0.10 * (x_max - x_min)
+    circle_x = x_min + 0.05 * (x_max - x_min)
     circle_y = y_min + 0.05 * (y_max - y_min)  
     
     # Create circle directly on the main axes
@@ -754,8 +785,8 @@ if not np.isnan(median_deltax_zoom) and len(df_zoom) > 0:
     uncertainty_radius_km = median_deltax_zoom / 1000.0
     
     # Position the circle in the bottom left area of the plot
-    circle_x = x_min + 0.15 * (x_max - x_min)  # 15% across from left
-    circle_y = y_min + 0.15 * (y_max - y_min)  # 15% up from bottom
+    circle_x = x_min + 0.05 * (x_max - x_min)  
+    circle_y = y_min + 0.05 * (y_max - y_min) 
     
     # Create circle directly on the main axes
     uncertainty_circle = plt.Circle((circle_x, circle_y), uncertainty_radius_km, 
@@ -763,12 +794,6 @@ if not np.isnan(median_deltax_zoom) and len(df_zoom) > 0:
                                    linestyle='-', alpha=0.9)
     ax.add_patch(uncertainty_circle)
     
-    # Add a label for the uncertainty circle
-    ax.text(circle_x, circle_y - 1.5*uncertainty_radius_km, 
-           f'σ = {median_deltax_zoom:.0f}m', 
-           ha='center', va='top', fontsize=12, 
-           bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8))
-
 # Set zoom limits
 ax.set_xlim(x_max, x_min)
 ax.set_ylim(y_min, y_max)
@@ -855,20 +880,14 @@ if not np.isnan(median_deltax_zoom) and len(df_zoom) > 0:
     uncertainty_radius_km = median_deltax_zoom / 1000.0
     
     # Position the circle in the top left area of the plot
-    circle_x = x_min + 0.15 * (x_max - x_min)  # 15% across from left
-    circle_y = y_min + 0.85 * (y_max - y_min)  # 85% up from bottom
+    circle_x = x_min + 0.05 * (x_max - x_min)  # 15% across from left
+    circle_y = y_min + 0.05 * (y_max - y_min)  # 85% up from bottom
     
     # Create circle directly on the main axes
     uncertainty_circle = plt.Circle((circle_x, circle_y), uncertainty_radius_km, 
                                    fill=False, color='red', linewidth=4, 
                                    linestyle='-', alpha=0.9)
     ax.add_patch(uncertainty_circle)
-    
-    # Add a label for the uncertainty circle
-    ax.text(circle_x, circle_y - 1.5*uncertainty_radius_km, 
-           f'σ = {median_deltax_zoom:.0f}m', 
-           ha='center', va='top', fontsize=12, 
-           bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8))
 
 # Set zoom limits
 ax.set_xlim(x_max, x_min)
@@ -893,7 +912,7 @@ plt.show()
 fig, ax = plt.subplots(figsize=(10,8), constrained_layout=True)
 
 # Define zoom region
-x_min, x_max = 70, 80  # km
+x_min, x_max = 70, 78  # km
 y_min, y_max = 25, 30  # km
 
 # Filter data for this zoom region
@@ -946,7 +965,7 @@ if not np.isnan(median_rms_zoom):
     stats_text += f"Median $\\eta_{{RMS}}$: {median_rms_zoom:.2f}s\n"
     stats_text += f"Median $\\delta$x: {median_deltax_zoom:.1f}m"
 
-ax.text(0.65, 0.85, stats_text, transform=ax.transAxes,
+ax.text(0.6, 0.85, stats_text, transform=ax.transAxes,
         verticalalignment='center', bbox=dict(boxstyle="round,pad=0.5", 
         facecolor='white', alpha=0.9))
 
@@ -956,7 +975,7 @@ if not np.isnan(median_deltax_zoom) and len(df_zoom) > 0:
     uncertainty_radius_km = median_deltax_zoom / 1000.0
     
     # Position the circle in the bottom right area of the plot
-    circle_x = x_min + 0.85 * (x_max - x_min)  # 85% across from left
+    circle_x = x_min + 0.1 * (x_max - x_min)  # 85% across from left
     circle_y = y_min + 0.15 * (y_max - y_min)  # 15% up from bottom
     
     # Create circle directly on the main axes
@@ -965,11 +984,6 @@ if not np.isnan(median_deltax_zoom) and len(df_zoom) > 0:
                                    linestyle='-', alpha=0.9)
     ax.add_patch(uncertainty_circle)
     
-    # Add a label for the uncertainty circle
-    ax.text(circle_x, circle_y - 1.5*uncertainty_radius_km, 
-           f'σ = {median_deltax_zoom:.0f}m', 
-           ha='center', va='top', fontsize=12, 
-           bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8))
 
 # Set zoom limits
 ax.set_xlim(x_max, x_min)
