@@ -37,9 +37,12 @@ with open('../out/batch1_baseline/association_2021-11-04_02:00:02.pkl', 'rb') as
     # Load the association object
     association = pickle.load(f)
 
+# Explore the keys
 print(association.keys())
 print(association['assoc_pair'].keys())
 print(association['assoc'].keys())
+print(len(association['assoc']['north']['hf']))
+print(np.shape(association['assoc']['north']['hf'][0]))
 print(association['metadata']['north'].keys())
 
 # Load the metadata
@@ -54,38 +57,6 @@ nnx = association['metadata']['north']['data_shape'][0]
 snx = association['metadata']['south']['data_shape'][0]
 
 utc_str = association['metadata']['south']['fileBeginTimeUTC']
-
-# # print(dx, n_selected_channel_m, s_selected_channel_m)   
-
-# nhf_pairs = association['assoc_pair']['north']['hf']
-# nlf_pairs = association['assoc_pair']['north']['lf']
-# nhf_assoc = association['assoc']['north']['hf']
-# nlf_assoc = association['assoc']['north']['lf']
-
-# shf_pairs = association['assoc_pair']['south']['hf']
-# slf_pairs = association['assoc_pair']['south']['lf']
-# shf_assoc = association['assoc']['south']['hf']
-# slf_assoc = association['assoc']['south']['lf']
-
-# %%
-# pkl_dir = '../out'
-# for pkl in sorted(Path(pkl_dir).glob('association_*.pkl')):
-#     with open(pkl, 'rb') as f:
-#         # Load the association object
-#         assoc = pickle.load(f)
-#     p_n_hf = assoc['assoc_pair']['north']['hf']
-#     p_s_hf = assoc['assoc_pair']['south']['hf']
-#     p_n_lf = assoc['assoc_pair']['north']['lf']
-#     p_s_lf = assoc['assoc_pair']['south']['lf']
-#     n_hf   = assoc['assoc']['north']['hf']
-#     n_lf   = assoc['assoc']['north']['lf']
-#     s_hf   = assoc['assoc']['south']['hf']
-#     s_lf   = assoc['assoc']['south']['lf']
-
-#     print(len(p_n_hf[0][-1]))
-
-        
-    
 
 # %% [markdown]
 # ## Statistics on time picks
