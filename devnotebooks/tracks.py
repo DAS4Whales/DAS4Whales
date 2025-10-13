@@ -594,7 +594,7 @@ fig, ax = plt.subplots(figsize=(10,8), constrained_layout=True)
 
 # Define zoom region
 x_min, x_max = 56, 58.3  # km
-y_min, y_max = 28, 30.5  # km
+y_min, y_max = 28, 30.7  # km
 xmax, xmin, ymin, ymax = extent
 
 # Filter data for this zoom region
@@ -723,7 +723,7 @@ fig, ax = plt.subplots(figsize=(10,8), constrained_layout=True)
 
 # Define zoom region
 x_min, x_max = 36.8, 37.5  # km
-y_min, y_max = 22, 23  # km
+y_min, y_max = 22, 22.7  # km
 
 # Filter data for this zoom region
 zoom_mask = ((df_valid['x_km'] >= x_min) & (df_valid['x_km'] <= x_max) & 
@@ -739,12 +739,41 @@ else:
     median_rms_zoom = median_deltax_zoom = mean_rms_zoom = mean_deltax_zoom = np.nan
     n_points = 0
 
+# Calculate consecutive call distances in this zoom region
+if len(df_zoom) > 1:
+    # Sort data by time
+    df_zoom_sorted = df_zoom.sort_values('utc').copy()
+    
+    # Calculate consecutive distances (only for calls within 1 minute)
+    consecutive_distances = []
+    max_time_gap_minutes = .42  # Maximum time gap in minutes (~25 seconds)
+    
+    for i in range(1, len(df_zoom_sorted)):
+        # Check time difference
+        t1 = df_zoom_sorted.iloc[i-1]['utc']
+        t2 = df_zoom_sorted.iloc[i]['utc']
+        time_gap_minutes = (t2 - t1).total_seconds() / 60.0
+        
+        # Only calculate distance if time gap is within limit
+        if time_gap_minutes <= max_time_gap_minutes:
+            x1, y1 = df_zoom_sorted.iloc[i-1][['x_local', 'y_local']]
+            x2, y2 = df_zoom_sorted.iloc[i][['x_local', 'y_local']]
+            distance = np.sqrt((x2-x1)**2 + (y2-y1)**2)
+            consecutive_distances.append(distance)
+    
+    # Calculate d̂ (median consecutive distance)
+    if consecutive_distances:
+        d_hat = np.median(consecutive_distances) / np.sqrt(2) 
+    else:
+        d_hat = np.nan
+
+
 # Plot bathymetry
 ax.imshow(rgb, extent=extent_km, aspect='equal')
 
 # Plot cables
-ax.plot(df_north.x_km, df_north.y_km, c='red', label='North cable', linewidth=1.5)
-ax.plot(df_south.x_km, df_south.y_km, c='orange', label='South cable', linewidth=1.5)
+ax.plot(df_north.x_km, df_north.y_km, c='red', label='North cable', linewidth=3)
+ax.plot(df_south.x_km, df_south.y_km, c='orange', label='South cable', linewidth=3)
 
 # Plot data points in zoom region
 groups_zoom = df_zoom.groupby(['sensor','call_type'])
@@ -774,8 +803,10 @@ stats_text = f"Number of calls: {n_points}\n"
 if not np.isnan(median_rms_zoom):
     stats_text += f"Median $\\eta_{{RMS}}$: {median_rms_zoom:.2f}s\n"
     stats_text += f"Median $\\delta$x: {median_deltax_zoom:.1f}m"
+if not np.isnan(d_hat):
+    stats_text += f"\n$\\hat{{d}}$: {d_hat:.1f}m"
 
-ax.text(0.1, 0.86, stats_text, transform=ax.transAxes,
+ax.text(0.2, 0.84, stats_text, transform=ax.transAxes,
         verticalalignment='center', bbox=dict(boxstyle="round,pad=0.5", 
         facecolor='white', alpha=0.9))
 
@@ -834,6 +865,90 @@ else:
     median_rms_zoom = median_deltax_zoom = np.nan
     n_points = 0
 
+# Calculate consecutive call distances in this zoom region with clustering
+from sklearn.cluster import DBSCAN
+
+if len(df_zoom) > 1:
+    # Sort data by time
+    df_zoom_sorted = df_zoom.sort_values('utc').copy()
+    
+    # For subplot 3 with multiple tracks, use clustering to separate them
+    if len(df_zoom_sorted) >= 4:  # Need minimum points for clustering
+        # Prepare features for clustering (spatial + temporal normalization)
+        X = df_zoom_sorted[['x_local', 'y_local', 'minutes']].values
+        # Normalize temporal dimension to match spatial scale
+        X_normalized = X.copy()
+        X_normalized[:, 2] = X_normalized[:, 2] * 100  # Scale time to meters
+        
+        # DBSCAN clustering
+        clustering = DBSCAN(eps=800, min_samples=2).fit(X_normalized[:, :2])  # Spatial only
+        labels = clustering.labels_
+        
+        # Calculate d̂ for each track separately
+        unique_labels = np.unique(labels[labels >= 0])  # Exclude noise (-1)
+        track_results = []
+        
+        for label in unique_labels:
+            track_mask = labels == label
+            track_data = df_zoom_sorted[track_mask].copy()
+            
+            if len(track_data) > 1:
+                # Calculate consecutive distances for this track
+                consecutive_distances = []
+                max_time_gap_minutes = 0.42  # 25 seconds
+                
+                for i in range(1, len(track_data)):
+                    t1 = track_data.iloc[i-1]['utc']
+                    t2 = track_data.iloc[i]['utc']
+                    time_gap_minutes = (t2 - t1).total_seconds() / 60.0
+                    
+                    if time_gap_minutes <= max_time_gap_minutes:
+                        x1, y1 = track_data.iloc[i-1][['x_local', 'y_local']]
+                        x2, y2 = track_data.iloc[i][['x_local', 'y_local']]
+                        distance = np.sqrt((x2-x1)**2 + (y2-y1)**2)
+                        consecutive_distances.append(distance)
+                
+                if consecutive_distances:
+                    track_d_hat = np.median(consecutive_distances) / np.sqrt(2)
+                    track_results.append((label, len(track_data), track_d_hat))
+        
+        # Display results
+        if track_results:
+            d_hat_values = [result[2] for result in track_results]
+            d_hat = np.mean(d_hat_values)  # Average for display
+            track_info = f"({len(track_results)} tracks) \n{', '.join([f'{d:.0f}m' for d in d_hat_values])})"
+            print(f"Subplot 3 clustering: Found {len(track_results)} tracks")
+            for label, n_calls, track_d_hat in track_results:
+                print(f"  Track {label}: {n_calls} calls, d̂ = {track_d_hat:.1f}m")
+        else:
+            d_hat = np.nan
+            track_info = ""
+    else:
+        # Fall back to standard calculation for small datasets
+        consecutive_distances = []
+        max_time_gap_minutes = 0.42
+        
+        for i in range(1, len(df_zoom_sorted)):
+            t1 = df_zoom_sorted.iloc[i-1]['utc']
+            t2 = df_zoom_sorted.iloc[i]['utc']
+            time_gap_minutes = (t2 - t1).total_seconds() / 60.0
+            
+            if time_gap_minutes <= max_time_gap_minutes:
+                x1, y1 = df_zoom_sorted.iloc[i-1][['x_local', 'y_local']]
+                x2, y2 = df_zoom_sorted.iloc[i][['x_local', 'y_local']]
+                distance = np.sqrt((x2-x1)**2 + (y2-y1)**2)
+                consecutive_distances.append(distance)
+        
+        if consecutive_distances:
+            d_hat = np.median(consecutive_distances) / np.sqrt(2)
+        else:
+            d_hat = np.nan
+        track_info = ""
+else:
+    d_hat = np.nan
+    track_info = ""
+
+
 # Plot bathymetry
 ax.imshow(rgb, extent=extent_km, aspect='equal')
 
@@ -869,8 +984,12 @@ stats_text = f"Number of calls: {n_points}\n"
 if not np.isnan(median_rms_zoom):
     stats_text += f"Median $\\eta_{{RMS}}$: {median_rms_zoom:.2f}s\n"
     stats_text += f"Median $\\delta$x: {median_deltax_zoom:.1f}m"
+if 'track_results' in locals() and track_results:
+    stats_text += f"\n$\\hat{{d}}$: {d_hat:.1f}m {track_info}"
+elif not np.isnan(d_hat):
+    stats_text += f"\n$\\hat{{d}}$: {d_hat:.1f}m"
 
-ax.text(0.34, 0.16, stats_text, transform=ax.transAxes,
+ax.text(0.34, 0.25, stats_text, transform=ax.transAxes,
         verticalalignment='center', bbox=dict(boxstyle="round,pad=0.5", 
         facecolor='white', alpha=0.9))
 
@@ -928,6 +1047,35 @@ if len(df_zoom) > 0:
 else:
     median_rms_zoom = median_deltax_zoom = np.nan
     n_points = 0
+
+# Calculate consecutive call distances in this zoom region
+if len(df_zoom) > 1:
+    # Sort data by time
+    df_zoom_sorted = df_zoom.sort_values('utc').copy()
+    
+    # Calculate consecutive distances (only for calls within 1 minute)
+    consecutive_distances = []
+    max_time_gap_minutes = .42  # Maximum time gap in minutes (~25 seconds)
+    
+    for i in range(1, len(df_zoom_sorted)):
+        # Check time difference
+        t1 = df_zoom_sorted.iloc[i-1]['utc']
+        t2 = df_zoom_sorted.iloc[i]['utc']
+        time_gap_minutes = (t2 - t1).total_seconds() / 60.0
+        
+        # Only calculate distance if time gap is within limit
+        if time_gap_minutes <= max_time_gap_minutes:
+            x1, y1 = df_zoom_sorted.iloc[i-1][['x_local', 'y_local']]
+            x2, y2 = df_zoom_sorted.iloc[i][['x_local', 'y_local']]
+            distance = np.sqrt((x2-x1)**2 + (y2-y1)**2)
+            consecutive_distances.append(distance)
+    
+    # Calculate d̂ (median consecutive distance)
+    if consecutive_distances:
+        d_hat = np.median(consecutive_distances) / np.sqrt(2) 
+    else:
+        d_hat = np.nan
+
 
 # Plot bathymetry
 ax.imshow(rgb, extent=extent_km, aspect='equal')
