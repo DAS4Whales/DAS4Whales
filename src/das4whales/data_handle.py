@@ -339,7 +339,7 @@ def load_das_data(filename, selected_channels, metadata, interrogator='optasense
 
     return trace, tx, dist, file_begin_time_utc
 
-def load_das_file_startTime(filename, interrogator='optasense')
+def load_das_file_startTime(filename, interrogator='optasense'):
     """loads just the start time of a file
     returns:
         file_begin_time_utc : datetime.datetime"""
@@ -350,7 +350,9 @@ def load_das_file_startTime(filename, interrogator='optasense')
         # For future save
         file_begin_time_utc = datetime.utcfromtimestamp(raw_data_time[0] * 1e-6)
     elif interrogator == 'asn':
-        dfdas = sd.load_DAS_files(filename, chIndex=None, samples=None, sensitivitySelect=-3,
+        print('WARNING: This is likely VERY slow!!!!')
+        # TODO: try to use get_filemeta(filepath: str, metaDetail: int = 1):
+        dfdas = sd.load_DAS_files(filename, chIndex=0, samples=0, sensitivitySelect=-3,
                                   userSensitivity={'sensitivity': metadata['scale_factor'],
                                                    'sensitivityUnit': 'rad/(m*strain)'},
                                   integrate=True, unwr=True)
