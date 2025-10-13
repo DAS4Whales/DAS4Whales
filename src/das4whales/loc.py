@@ -623,7 +623,7 @@ def calc_uncertainty_position(cable_pos, whale_pos, c0, var, fix_z=False, weight
     """
 
     cov = calc_covariance_matrix(cable_pos, whale_pos, c0, var, fix_z, weights)
-    unc = np.sqrt(np.diag(cov))
+    unc = np.sqrt(np.diag(cov)) # Vector of square roots of the diagonal elements of the covariance matrix
 
     return unc
 

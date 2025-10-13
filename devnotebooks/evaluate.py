@@ -28,8 +28,10 @@ plt.rcParams['font.size'] = 16
 # +
 # Directory and batch setup
 batches = ['Batch_1', 'Batch_2', 'Batch_3', 'Batch_4', 'Batch_5']
+# automated associations folder: 
 data_root = '../denoised_data'
 method = 'FarWin'  # Options: 'Baseline', 'FarWin', 'Gabor_Farwin'
+# manual annotations folder:
 annot_root = '../Annotate'
 
 # Parameters

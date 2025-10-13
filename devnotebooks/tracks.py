@@ -63,7 +63,7 @@ utc_str = association['metadata']['south']['fileBeginTimeUTC']
 
 # %%
 # Directory containing pickle files
-pkl_dir = '../out/batch1_baseline/'
+pkl_dir = '../denoised_data/Batch_1/Baseline'
 
 # Initialize list to hold all pick counts
 pick_counts = []
@@ -138,7 +138,7 @@ plt.tight_layout()
 
 
 # Print summary statistics
-print(f"Total number of samples: {len(pick_counts)}")
+print(f"Total number of associations: {len(pick_counts)}")
 print(f"Mean number of picks: {np.mean(pick_counts):.2f}")
 print(f"Median number of picks: {np.median(pick_counts):.2f}")
 print(f"Range: {np.min(pick_counts)} to {np.max(pick_counts)}")
@@ -199,256 +199,7 @@ s_cable_pos[:, 2] = df_south_used['depth']
 
 bicable_pos = (n_cable_pos, s_cable_pos)
 
-# # Localize the associated calls 
 
-# # Paired calls
-# hf_pair_loc = dw.loc.loc_picks_bicable_list(nhf_pairs, shf_pairs, bicable_pos, c0, fs)
-# lf_pair_loc = dw.loc.loc_picks_bicable_list(nlf_pairs, slf_pairs, bicable_pos, c0, fs)
-
-# # North calls
-# n_hf_loc = dw.loc.loc_from_picks(nhf_assoc, n_cable_pos, c0, fs)
-# n_lf_loc = dw.loc.loc_from_picks(nlf_assoc, n_cable_pos, c0, fs)
-# # South calls
-# s_hf_loc = dw.loc.loc_from_picks(shf_assoc, s_cable_pos, c0, fs)
-# s_lf_loc = dw.loc.loc_from_picks(slf_assoc, s_cable_pos, c0, fs)
-
-
-# %%
-# def local_to_utm(localizations, utm_xf, utm_y0):
-#     loc_utm = []
-#     for loc in localizations:
-#         loc_utm.append([utm_xf - loc[0], loc[1] + utm_y0, loc[2]])
-#     return loc_utm
-
-# def batch_utm_to_latlon(loc_utm):
-#     loc_latlon = []
-#     for loc in loc_utm:
-#         lon, lat = dw.map.utm_to_latlon(loc[0], loc[1])
-#         loc_latlon.append([lon, lat, loc[2]])
-#     return loc_latlon
-
-# hf_pair_loc_utm = local_to_utm(hf_pair_loc, utm_xf, utm_y0)
-# lf_pair_loc_utm = local_to_utm(lf_pair_loc, utm_xf, utm_y0)
-# hf_pair_loc_latlon = batch_utm_to_latlon(hf_pair_loc_utm)
-# lf_pair_loc_latlon = batch_utm_to_latlon(lf_pair_loc_utm)
-
-# n_hf_loc_utm = local_to_utm(n_hf_loc, utm_xf, utm_y0)
-# n_lf_loc_utm = local_to_utm(n_lf_loc, utm_xf, utm_y0)
-# s_hf_loc_utm = local_to_utm(s_hf_loc, utm_xf, utm_y0)
-# s_lf_loc_utm = local_to_utm(s_lf_loc, utm_xf, utm_y0)
-
-# # Convert to latlon
-# n_hf_loc_latlon = batch_utm_to_latlon(n_hf_loc_utm)
-# n_lf_loc_latlon = batch_utm_to_latlon(n_lf_loc_utm)
-# s_hf_loc_latlon = batch_utm_to_latlon(s_hf_loc_utm)
-# s_lf_loc_latlon = batch_utm_to_latlon(s_lf_loc_utm)
-
-# %%
-
-# utc = datetime.datetime.strptime(utc_str, "%Y-%m-%d_%H:%M:%S")
-# # Create the DataFrame with predefined columns
-# df_loc = pd.DataFrame(columns=['utc', 'sensor', 'call_type', 'x', 'y', 'z', 'lat', 'lon'])
-# rows = []
-# # Add localization results
-# for i, loc in enumerate(hf_pair_loc):
-#     line = {
-#         'utc': utc + datetime.timedelta(seconds=loc[3]),
-#         'sensor': 'pair',
-#         'call_type': 'hf',
-#         'x': loc[0],
-#         'y': loc[1],
-#         'z': loc[2],
-#         'lat': hf_pair_loc_latlon[i][1],
-#         'lon': hf_pair_loc_latlon[i][0]
-#     }
-#     rows.append(line)
-
-# df_loc = pd.DataFrame(rows, columns=['utc', 'sensor', 'call_type', 'x', 'y', 'z', 'lat', 'lon'])
-# # Optionally save to CSV
-# df_loc.to_csv('localization_results.csv', index=False)
-
-# %%
-# # Create two list of coordinates, for ponts every 10 km along the cables, the spatial resolution is 2m 
-# opticald_n = []
-# opticald_s = []
-
-# disp_step = 10000 # [m]
-# dx_ch = 2.0419 # [m]
-# idx_step = int(disp_step / dx_ch)
-
-# for i in range(int(idx_step-df_north["chan_idx"].iloc[0]), len(df_north), int(10000/2)):
-#     opticald_n.append((df_north['x'][i], df_north['y'][i]))
-
-# for i in range(int(idx_step-df_north["chan_idx"].iloc[0]), len(df_south), int(10000/2)):
-#     opticald_s.append((df_south['x'][i], df_south['y'][i]))
-# # Plot the grid points on the map
-# import cmocean.cm as cmo
-# colors_undersea = cmo.deep_r(np.linspace(0, 1, 256)) # blue colors for under the sea
-# colors_land = np.array([[0.5, 0.5, 0.5, 1]])  # Solid gray for above sea level
-
-# # Combine the color maps
-# all_colors = np.vstack((colors_undersea, colors_land))
-# custom_cmap = mcolors.LinearSegmentedColormap.from_list('custom_cmap', all_colors)
-
-# extent = [x[0], x[-1], y[0], y[-1]]
-
-# # Set the light source
-# ls = LightSource(azdeg=350, altdeg=45)
-
-# # Plot the location of the apex
-# plt.figure(figsize=(14, 7))
-# ax = plt.gca()
-# # Plot the bathymetry relief in background
-# rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay', vmin=np.min(bathy), vmax=0)
-# plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower', vmin=np.min(bathy), vmax=0)
-# # Plot the cable location in 2D
-# ax.plot(df_north['x'], df_north['y'], 'tab:red', label='North cable')
-# ax.plot(df_south['x'], df_south['y'], 'tab:orange', label='South cable')
-# # ax.plot(cable_pos[j_hf_call[i]][:,0], cable_pos[j_hf_call[i]][:,1], 'tab:green', label='used_cable')
-
-# # Add dashed contours at selected depths with annotations
-# depth_levels = [-1500, -1000, -600, -250, -80]
-
-# contour_dashed = ax.contour(bathy, levels=depth_levels, colors='k', linestyles='--', extent=extent, alpha=0.6)
-# ax.clabel(contour_dashed, fmt='%d m', inline=True)
-
-# # Plot points along the cable every 10 km in terms of optical distance
-# for i, point in enumerate(opticald_n, start=1):
-#     ax.plot(point[0], point[1], '.', color='k')
-#     ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, 8), ha='center', fontsize=12)
-
-# for i, point in enumerate(opticald_s, start=1):
-#     ax.plot(point[0], point[1], '.', color='k')
-#     ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, -15), ha='center', fontsize=12)
-
-# for i, loc in enumerate(hf_pair_loc):
-#     if i == 0:
-#         ax.plot(loc[0], loc[1], '>', c='tab:red', lw=4, label='Paired call - HF')
-#     ax.plot(loc[0], loc[1], '>', c='tab:red', lw=4)
-
-# for i, loc in enumerate(lf_pair_loc):
-#     if i == 0:
-#         ax.plot(loc[0], loc[1], 'o', c='tab:blue', lw=4, label='Paired call - LF')
-#     ax.plot(loc[0], loc[1], 'o', c='tab:blue', lw=4)
-
-# for i, loc in enumerate(n_hf_loc):
-#     # Put label only for the first point
-#     if i == 0:
-#         ax.plot(loc[0], loc[1], '^', c='tab:orange', label='Localized call - north - HF', lw=4)
-#     else:
-#         ax.plot(loc[0], loc[1], '^', c='tab:orange', lw=4)
-
-# for i, loc in enumerate(s_hf_loc):
-#     # Put label only for the first point
-#     if i == 0:
-#         ax.plot(loc[0], loc[1], 'v', c='tab:green', label='Localized call - south - HF', lw=4)
-#     else:
-#         ax.plot(loc[0], loc[1], 'v', c='tab:green', lw=4)
-# for i, loc in enumerate(n_lf_loc):
-#     # Put label only for the first point
-#     if i == 0:
-#         ax.plot(loc[0], loc[1], '2', c='tab:green', label='Localized call - north - LF', lw=4)
-#     else:
-#         ax.plot(loc[0], loc[1], '2', c='tab:green', lw=4)
-# for i, loc in enumerate(s_lf_loc):
-#     # Put label only for the first point
-#     if i == 0:
-#         ax.plot(loc[0], loc[1], '1', c='tab:orange', label='Localized call - south - LF', lw=4)
-#     else:
-#         ax.plot(loc[0], loc[1], '1', c='tab:orange', lw=4)
-
-# # Use a proxy artist for the color bar
-# im = ax.imshow(bathy, cmap=custom_cmap, extent=extent, aspect='equal', origin='lower', vmin=np.min(bathy), vmax=0)
-# # Calculate width of image over height
-# im_ratio = bathy.shape[1] / bathy.shape[0]
-# plt.colorbar(im, ax=ax, label='Depth [m]', pad=0.02, orientation='vertical', aspect=25, fraction=0.0195)
-# im.remove()
-# # Set the labels
-# plt.xlabel('x [m]')
-# plt.ylabel('y [m]')
-# # plt.xlim(40000, 34000)
-# # plt.ylim(15000, 25000)
-# plt.legend(loc='upper left')
-# plt.grid(linestyle='--', alpha=0.6, color='k')
-# plt.tight_layout()
-# plt.show()
-
-# %%
-# # Create two list of coordinates, for ponts every 10 km along the cables, the spatial resolution is 2m 
-# opticald_n = []
-# opticald_s = []
-
-# disp_step = 10000 # [m]
-# dx_ch = 2.0419 # [m]
-# idx_step = int(disp_step / dx_ch)
-# for i in range(int(10000/2-df_north["chan_idx"].iloc[0]), len(df_north), int(10000/2)):
-#     opticald_n.append((df_north['lon'][i], df_north['lat'][i]))
-
-# for i in range(int(10000/2-df_south["chan_idx"].iloc[0]), len(df_south), int(10000/2)):
-#     opticald_s.append((df_south['lon'][i], df_south['lat'][i]))
-
-# colors_undersea = cmo.deep_r(np.linspace(0, 1, 256)) # blue colors for under the sea
-# colors_land = np.array([[0.5, 0.5, 0.5, 1]])  # Solid gray for above sea level
-
-# # Combine the color maps
-# all_colors = np.vstack((colors_undersea, colors_land))
-# custom_cmap = mcolors.LinearSegmentedColormap.from_list('custom_cmap', all_colors)
-
-# # Set extent of the plot
-# extent = [xlon[0], xlon[-1], ylat[0], ylat[-1]]
-
-# # Set the light source
-# ls = LightSource(azdeg=350, altdeg=45)
-
-# plt.figure(figsize=(14,50))
-# ax = plt.gca()
-
-# # Plot the bathymetry relief in background
-# rgb = ls.shade(bathy, cmap=custom_cmap, vert_exag=0.1, blend_mode='overlay', vmin=np.min(bathy), vmax=0)
-# plot = ax.imshow(rgb, extent=extent, aspect='equal', origin='lower' , vmin=np.min(bathy), vmax=0)
-
-# # Plot the cable location in 2D
-# ax.plot(df_north['lon'], df_north['lat'], 'tab:red', label='North cable', lw=2.5)
-# ax.plot(df_south['lon'], df_south['lat'], 'tab:orange', label='South cable', lw=2.5)
-
-# # Add dashed contours at selected depths with annotations
-# depth_levels = [-500, -400, -300, -200, -100]
-
-# contour_dashed = ax.contour(bathy, levels=depth_levels, colors='k', linestyles='--', extent=extent, alpha=0.6)
-# ax.clabel(contour_dashed, fmt='%d m', inline=True)
-
-# # Plot points along the cable every 10 km in terms of optical distance
-# for i, point in enumerate(opticald_n, start=1):
-#     # Plot the points
-#     ax.plot(point[0], point[1], '.', color='k')
-#     # Annotate the points with the distance
-#     ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, 8), ha='center', fontsize=12)
-
-# for i, point in enumerate(opticald_s, start=1):
-#     ax.plot(point[0], point[1], '.', color='k')
-#     ax.annotate(f'{i*10}', (point[0], point[1]), textcoords='offset points', xytext=(5, -15), ha='center', fontsize=12)
-
-# # Plot the localized calls
-# for loc in n_hf_loc_latlon:
-#     ax.plot(loc[0], loc[1], 'o', label='Localized call')
-
-# # Use a proxy artist for the color bar
-# im = ax.imshow(bathy, cmap=custom_cmap, extent=extent, aspect='equal', origin='lower', vmin=np.min(bathy), vmax=0)
-# im_ratio = bathy.shape[1] / bathy.shape[0]
-# plt.colorbar(im, ax=ax, label='Depth [m]', pad=0.02, orientation='vertical', aspect=25, fraction=0.0145)
-
-# im.remove()
-
-# # Set the labels
-# plt.xlabel('Longitude [°]')
-# plt.ylabel('Latitude [°]')
-# plt.legend(loc='upper left')
-# plt.xlim()
-
-# # Dashed grid lines
-# plt.grid(linestyle='--', alpha=0.6, color='k')
-# # plt.tight_layout()
-# plt.show()
 
 # %%
 import pickle
@@ -459,15 +210,11 @@ import numpy as np
 import pandas as pd
 import das4whales as dw  # your toolbox
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Constants
-# ──────────────────────────────────────────────────────────────────────────────
+# Constant sound speed
 C0 = 1480  # sound speed (m/s)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# I/O & metadata utilities
-# ──────────────────────────────────────────────────────────────────────────────
+# Helper functions with metadata
 def load_association(pkl_path: Path) -> dict:
     with open(pkl_path, 'rb') as f:
         return pickle.load(f)
@@ -483,10 +230,7 @@ def get_cable_pos(df_path: str, side_meta: dict) -> np.ndarray:
     df_used = df.iloc[idx0:idxn:sel_step][:n_samp]
     return df_used[['x','y','depth']].to_numpy()
 
-
-# ──────────────────────────────────────────────────────────────────────────────
 # Coordinate transforms
-# ──────────────────────────────────────────────────────────────────────────────
 def local_to_utm(localizations: np.ndarray, utm_xf: float, utm_y0: float) -> np.ndarray:
     return np.array([[utm_xf - x, utm_y0 + y, z, t] for x, y, z, t in localizations])
 
@@ -505,18 +249,17 @@ def convert_coords(localizations: np.ndarray, utm_xf: float, utm_y0: float):
     return loc_utm, loc_latlon
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Localization wrapper
-# ──────────────────────────────────────────────────────────────────────────────
 def localize_calls(assoc: dict, fs: float, north_pos: np.ndarray, south_pos: np.ndarray, utm_xf: float, utm_y0: float) -> dict:
-    p_n_hf = assoc['assoc_pair']['north']['hf']
-    p_s_hf = assoc['assoc_pair']['south']['hf']
-    p_n_lf = assoc['assoc_pair']['north']['lf']
-    p_s_lf = assoc['assoc_pair']['south']['lf']
-    n_hf   = assoc['assoc']['north']['hf']
-    n_lf   = assoc['assoc']['north']['lf']
-    s_hf   = assoc['assoc']['south']['hf']
-    s_lf   = assoc['assoc']['south']['lf']
+    # list of (np.ndarray, np.ndarray) for (times, channels) of picks
+    p_n_hf = assoc['assoc_pair']['north']['hf'] # Paired picks, high frequency, north
+    p_s_hf = assoc['assoc_pair']['south']['hf'] # Paired picks, high frequency, south
+    p_n_lf = assoc['assoc_pair']['north']['lf'] # Paired picks, low frequency, north
+    p_s_lf = assoc['assoc_pair']['south']['lf'] # Paired picks, low frequency, south
+    n_hf   = assoc['assoc']['north']['hf'] # Single cable picks, high frequency, north
+    n_lf   = assoc['assoc']['north']['lf'] # Single cable picks, low frequency, north
+    s_hf   = assoc['assoc']['south']['hf'] # Single cable picks, high frequency, south
+    s_lf   = assoc['assoc']['south']['lf'] # Single cable picks, low frequency, south
 
     hf_pair_loc = dw.loc.loc_picks_bicable_list(p_n_hf, p_s_hf, (north_pos, south_pos), C0, fs)
     lf_pair_loc = dw.loc.loc_picks_bicable_list(p_n_lf, p_s_lf, (north_pos, south_pos), C0, fs)
