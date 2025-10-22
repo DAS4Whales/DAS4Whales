@@ -953,7 +953,6 @@ def hybrid_ninf_gs_filter_design(trace_shape, selected_channels, dx, fs, fk_para
 
     return sparse.COO.from_numpy(fk_filter_matrix)
 
-
 def taper_data(trace):
     """
     Apply a Tukey window to each line (time series) of the input matrix.
