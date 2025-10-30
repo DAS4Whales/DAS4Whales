@@ -49,12 +49,6 @@ dependencies = [
     "simpledas@git+https://github.com/qgoestch/simpleDAS" ## TODO: change to https://github.com/ASN-Norway/simpleDAS when https://github.com/ASN-Norway/simpleDAS/issues/9 is resolved
 ]
 
-[project.optional-dependencies]
-ml = [
-    "torch",
-    "torchvision"
-]
-
 [project.urls]
 Homepage = "https://github.com/DAS4Whales/DAS4Whales"
 
@@ -77,4 +71,7 @@ docs = [
   "sphinx-copybutton",
   "sphinx-autodoc-typehints",
 ]
-
+ml = [
+    "torch",
+    "torchvision"
+]
