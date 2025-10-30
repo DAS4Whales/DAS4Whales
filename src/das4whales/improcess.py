@@ -12,15 +12,17 @@ import numpy as np
 import cv2
 import scipy.signal as sp
 import matplotlib.pyplot as plt
-import torch
-import torch.nn.functional as F
-import torchvision.transforms as transforms
 from skimage.transform import radon, iradon
 from scipy.ndimage import gaussian_filter as scipy_gaussian_filter
 from scipy.ndimage import median_filter
 from joblib import Parallel, delayed
 from tqdm import tqdm
-
+try:
+    import torch
+    import torch.nn.functional as F
+    import torchvision.transforms as transforms
+except:
+    print('WARNING: optional dependencies torch and/or torchvision not installed. improcess.py functions may not be useable.')
 
 def scale_pixels(img, scale_factor=1):
     """Scale the pixel values of an image.
