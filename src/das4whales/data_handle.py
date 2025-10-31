@@ -367,7 +367,7 @@ def load_das_data(filename, selected_channels, metadata, interrogator='optasense
             # For future save
             file_begin_time_utc = datetime.utcfromtimestamp(raw_data_time[0] * 1e-6)
 
-    elif interrogator == 'asn':
+    elif interrogator in ['asn', 'asn_alt']:
         dfdas = sd.load_DAS_files(filename, chIndex=None, samples=None, sensitivitySelect=-3,
                                   userSensitivity={'sensitivity': metadata['scale_factor'],
                                                    'sensitivityUnit': 'rad/(m*strain)'},
