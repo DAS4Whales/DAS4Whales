@@ -404,7 +404,7 @@ def load_das_file_startTime(filename, interrogator='optasense'):
         raw_data_time = fp['Acquisition']['Raw[0]']['RawDataTime']
 
         file_begin_time_utc = datetime.utcfromtimestamp(raw_data_time[0] * 1e-6)
-    elif interrogator == 'asn':
+    elif interrogator in ['asn', 'asn_alt']:
         print('WARNING: This is likely VERY slow!!!!')
         # TODO: try to use get_filemeta(filepath: str, metaDetail: int = 1):
         dfdas = sd.load_DAS_files(filename, chIndex=0, samples=0, sensitivitySelect=-3,
