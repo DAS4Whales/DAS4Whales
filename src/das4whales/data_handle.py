@@ -51,7 +51,7 @@ def get_acquisition_parameters(filepath, interrogator='optasense'):
     """
     # List the known used interrogators:
 
-    interrogator_list = ['optasense', 'silixa', 'mars', 'asn', 'onyx']
+    interrogator_list = ['optasense', 'silixa', 'mars', 'asn', 'asn_alt', 'onyx']
 
     if interrogator in interrogator_list:
 
@@ -61,12 +61,15 @@ def get_acquisition_parameters(filepath, interrogator='optasense'):
         elif interrogator == 'silixa':
             metadata = get_metadata_silixa(filepath)
 
-        elif interrogator == 'mars':
-            metadata = get_metadata_mars(filepath)
+        # elif interrogator == 'mars':
+        #     metadata = get_metadata_mars(filepath)
 
         elif interrogator == 'asn':
             metadata = get_metadata_asn(filepath)
         
+        elif interrogator == 'asn_alt':
+            metadata = get_metadata_asn_alt(filepath)
+
         elif interrogator == 'onyx':
             metadata = get_metadata_onyx(filepath)
 
@@ -194,6 +197,57 @@ def get_metadata_asn(filepath):
     n = fp['cableSpec']['refractiveIndex'][()]  # refractive index of the fiber
     scale_factor = fp['header']['sensitivities'][()]
     metadata = {'fs': fs, 'dx': dx, 'ns': ns, 'GL': gauge_length, 'nx': nx, 'scale_factor': scale_factor}
+    return metadata
+
+def get_metadata_asn_alt(filepath):
+    basename = os.path.basename(filepath).lower()
+    fullpath = filepath.lower()
+    if "2020" in fullpath or "2020" in basename:
+        dataset = "2020"
+    elif "2022" in fullpath or "2022" in basename:
+        dataset = "2022"
+    else:
+        raise ValueError(f"Could not detect dataset year from {filepath}")
+    with h5py.File(filepath, "r", locking=False) as fp:
+        if dataset == "2020":
+            fs = 1 / fp["header"]["dt"][()]
+            dx = 1.021 * fp["demodSpec"]["roiDec"][()]
+            nx = fp["acqSpec"]["nChannels"][()]
+            ns = fp["acqSpec"]["nSamples"][()]
+            gauge_length = 2 * dx
+            n = 1.47
+        elif dataset == "2022":
+            fs = 1 / fp["header"]["dt"][()]
+            dx = fp["header"]["dx"][()] * fp["demodSpec"]["roiDec"][()]
+            dx = dx[0] if isinstance(dx, np.ndarray) else dx
+            nx = fp["header"]["dimensionRanges"]["dimension1"]["size"][()]
+            nx = nx[0] if isinstance(nx, np.ndarray) else nx
+            ns = fp["header"]["dimensionRanges"]["dimension0"]["size"][()]
+            gauge_length = fp["header"]["gaugeLength"][()]
+            n = fp["cableSpec"]["refractiveIndex"][()]
+        else:
+            raise ValueError(f"Unsupported dataset {dataset}")
+        scale_factor = (
+            (2 * np.pi) / 2 ** 16 * (1550.12e-9) / (0.78 * 4 * np.pi * n * gauge_length)
+        )
+        fs = float(np.squeeze(fs))
+        dx = float(np.squeeze(dx))
+        nx = int(np.squeeze(nx))
+        ns = int(np.squeeze(ns))
+        gauge_length = float(np.squeeze(gauge_length))
+        n = float(np.squeeze(n))
+        scale_factor = float(np.squeeze(scale_factor))
+        metadata = {
+            "fs": fs,
+            "dx": dx,
+            "nx": nx,
+            "ns": ns,
+            "GL": gauge_length,
+            "n": n,
+            "scale_factor": scale_factor,
+            "dataset": dataset,
+            "basename": os.path.splitext(os.path.basename(filepath))[0]
+        }
     return metadata
 
 def get_metadata_onyx(filepath):
