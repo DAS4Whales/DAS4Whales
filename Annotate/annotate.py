@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.17.2
+#       jupytext_version: 1.18.1
 #   kernelspec:
 #     display_name: venv
 #     language: python
@@ -31,10 +31,14 @@ hv.extension('bokeh')
 pn.extension()
 # -
 
+# ## Select your batch number
+
 batch_number = 1
 output_dir = os.path.join('denoised_data', f'Batch_{batch_number}')
 north_files = sorted(glob.glob(os.path.join("..", output_dir, "Denoised_SNR_North_*.nc")))
 south_files = sorted(glob.glob(os.path.join("..", output_dir, "Denoised_SNR_South_*.nc")))
+
+# ## Select the 70s window id (from 0 to 11)
 
 id = 0 # 0 to 11 
 print(f"Loading {north_files[id]}\n        {south_files[id]}")
