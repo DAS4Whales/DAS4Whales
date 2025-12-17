@@ -16,7 +16,6 @@ import re
 from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Tuple, Union, Any
 from urllib.parse import urljoin
-
 import dask.array as da
 import h5py
 import numpy as np
@@ -24,7 +23,6 @@ import pandas as pd
 import wget
 from nptdms import TdmsFile
 from simpledas import simpleDASreader as sd
-
 
 # Test for the package
 def hello_world_das_package() -> None:
@@ -615,6 +613,7 @@ def extract_timestamp(filename: str) -> Optional[datetime]:
     if match:
         return datetime.strptime(match.group(1), '%Y-%m-%dT%H%M%S').replace(tzinfo=timezone.utc)
     return None
+
 
 def generate_file_list(base_url: str, start_file: str, duration: int) -> List[str]:
     """
