@@ -1,6 +1,23 @@
 import numpy as np
 import pytest
-from das4whales.dsp import *
+from das4whales.dsp import (
+    resample,
+    get_fx,
+    get_spectrogram,
+    fk_filter_design,
+    hybrid_filter_design,
+    hybrid_ninf_filter_design,
+    hybrid_gs_filter_design,
+    hybrid_ninf_gs_filter_design,
+    taper_data,
+    # fk_filter_filt,
+    # fk_filter_sparsefilt,
+    butterworth_filter,
+    instant_freq,
+    # bp_filt,
+    fk_filt,
+    snr_tr_array
+)
 
 
 def test_resample():
