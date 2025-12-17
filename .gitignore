@@ -3,8 +3,8 @@
 DAS4Whales_ExampleNotebook.ipynb
 
 # Development jupyter notebooks
-devnotebooks/
 dev.ipynb
+*.ipynb
 
 # macOS system file
 .DS_Store
@@ -52,3 +52,22 @@ data/
 .vscode/
 
 main_dharriscollab.py
+
+# pdf files
+
+*.pdf
+
+# out and figs folders
+out/
+figs/
+
+# Animation files
+*.mp4
+
+# Denoised data files
+denoised_data/
+# Evaluation figures 
+evaluation/
+
+# GMT files
+*.conf

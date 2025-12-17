@@ -216,6 +216,10 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../_static/DAS4Whales_logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../_static/DAS4Whales_logo.png" alt="Dark Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">DAS4Whales  documentation</span>
   
@@ -344,7 +348,7 @@ Date: 2024</p>
 <p>This module provides various functions to handle DAS data, including loading, downloading, and conditioning.
 It aims at having specific functions for each interrogator type.</p>
 <p>Authors: Léa Bouffaut, Quentin Goestchel, Erfan Horeh
-Date: 2023-2024</p>
+Date: 2023-2024-2025</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.data_handle.calc_dist_to_xidx">
 <span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">calc_dist_to_xidx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#calc_dist_to_xidx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.calc_dist_to_xidx" title="Link to this definition">¶</a></dt>
@@ -392,7 +396,7 @@ Date: 2023-2024</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The file path to the data file.</p></li>
-<li><p><strong>interrogator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The interrogator type, one of {‘optasense’, ‘silixa’, ‘mars’, ‘alcatel’}.
+<li><p><strong>interrogator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The interrogator type, one of {‘optasense’, ‘silixa’, ‘mars’, ‘alcatel’, ‘onyx’}.
 Defaults to ‘optasense’.</p></li>
 </ul>
 </dd>
@@ -410,9 +414,82 @@ interrogator is found.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="das4whales.data_handle.get_cable_lat_lon_depth">
+<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">get_cable_lat_lon_depth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#get_cable_lat_lon_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.get_cable_lat_lon_depth" title="Link to this definition">¶</a></dt>
+<dd><p>Extract latitude, longitude, and depth information from a CSV or TXT file for selected cable channels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The file path to the CSV or TXT file containing latitude, longitude, and depth information.</p></li>
+<li><p><strong>selected_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a>) – A tuple containing three integers: (start, stop, step) used to slice and select cable channels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>position</strong> – A dictionary containing the extracted information for the selected channels:
+- ‘chan_idx_oj’: list of floats, representing the selected cable channel indices.
+- ‘lat’: list of floats, representing the selected latitude values.
+- ‘lon’: list of floats, representing the selected longitude values.
+- ‘depth’: list of floats, representing the selected depth values in absolute magnitude.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.data_handle.get_metadata_asn">
+<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">get_metadata_asn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#get_metadata_asn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.get_metadata_asn" title="Link to this definition">¶</a></dt>
+<dd><p>Gets DAS acquisition parameters for the ASN interrogator e.g., Svalbard data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>string</em>) – a string containing the full path to the data to load</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p><strong>metadata</strong> – Dictionary filled with metadata, key’s breakdown:</p>
+<p>fs: the sampling frequency (Hz)</p>
+<p>dx: interval between two virtual sensing points also called channel spacing (m)</p>
+<p>nx: the number of spatial samples also called channels</p>
+<p>ns: the number of time samples</p>
+<p>GL: the gauge length (m)</p>
+<p>scale_factor: the value to convert DAS data from strain rate to strain</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.data_handle.get_metadata_onyx">
+<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">get_metadata_onyx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#get_metadata_onyx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.get_metadata_onyx" title="Link to this definition">¶</a></dt>
+<dd><p>Gets DAS acquisition parameters for the onyx interrogator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>string</em>) – a string containing the full path to the data to load</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p><strong>metadata</strong> – dictionary filled with metadata, key’s breakdown:</p>
+<p>fs: the sampling frequency (Hz)</p>
+<p>dx: interval between two virtual sensing points also called channel spacing (m)</p>
+<p>nx: the number of spatial samples also called channels</p>
+<p>ns: the number of time samples</p>
+<p>n: refractive index of the fiber</p>
+<p>GL: the gauge length (m)</p>
+<p>scale_factor: the value to convert DAS data from strain rate to strain</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="das4whales.data_handle.get_metadata_optasense">
 <span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">get_metadata_optasense</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#get_metadata_optasense"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.get_metadata_optasense" title="Link to this definition">¶</a></dt>
-<dd><p>Gets DAS acquisition parameters for the optasense interrogator</p>
+<dd><p>Gets DAS acquisition parameters for the optasense interrogator e.g., OOI South C1 data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filepath</strong> (<em>string</em>) – a string containing the full path to the data to load</p>
@@ -485,6 +562,30 @@ interrogator is found.</p>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="das4whales.data_handle.load_annotation_csv">
+<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">load_annotation_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#load_annotation_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.load_annotation_csv" title="Link to this definition">¶</a></dt>
+<dd><p>Load the annotation data from a CSV file. The file must include the following columns:
+‘file_name’, ‘apex’, ‘offset’, ‘start_time’, ‘whale_side’, as output from the DAS Source Locator
+annotation application (<a class="reference external" href="https://github.com/leabouffaut/DASSourceLocator">https://github.com/leabouffaut/DASSourceLocator</a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The file path to the annotation CSV file to load.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>annotations</strong> – A DataFrame containing the following columns:
+- ‘file_name’: str, names of files
+- ‘apex’: int, apex values
+- ‘offset’: int, offset values
+- ‘start_time’: float, start times
+- ‘whale_side’: str, indicating the side of the whale (e.g., ‘left’ or ‘right’).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="das4whales.data_handle.load_cable_coordinates">
 <span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">load_cable_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#load_cable_coordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.load_cable_coordinates" title="Link to this definition">¶</a></dt>
 <dd><p>Load the cable coordinates from a text file.</p>
@@ -506,7 +607,7 @@ interrogator is found.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.data_handle.load_das_data">
-<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">load_das_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#load_das_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.load_das_data" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.data_handle.</span></span><span class="sig-name descname"><span class="pre">load_das_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interrogator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'optasense'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/data_handle.html#load_das_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.data_handle.load_das_data" title="Link to this definition">¶</a></dt>
 <dd><p>Load the DAS data corresponding to the input file name as strain according to the selected channels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -514,6 +615,7 @@ interrogator is found.</p>
 <li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – A string containing the full path to the data to load.</p></li>
 <li><p><strong>selected_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – A list containing the selected channels.</p></li>
 <li><p><strong>metadata</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – A dictionary filled with metadata (sampling frequency, channel spacing, scale factor…).</p></li>
+<li><p><strong>interrogator</strong> (<em>name</em><em> of </em><em>used interrogators. Supports</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -733,7 +835,8 @@ and the kernel.</p>
 <dd><p>Convert pick times from a list of lists to a numpy array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>peaks_indexes_m</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>lists</em>) – A list of lists containing the pick times.</p>
+<dd class="field-odd"><p><strong>peaks_indexes_m</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>lists</em>) – A list of lists containing the pick times. The indexes of each list correspond to the space index.
+[[t1, t2, t3, …], [t1, t2, t3, …], …]</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A numpy array containing a tuple (time index, spatial index) of the converted pick times.</p>
@@ -751,8 +854,8 @@ and the kernel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The starting frequency of the chirp signal.</p></li>
-<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The ending frequency of the chirp signal.</p></li>
+<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The ending frequency of the chirp signal.</p></li>
+<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The starting frequency of the chirp signal.</p></li>
 <li><p><strong>duration</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The duration of the chirp signal in seconds.</p></li>
 <li><p><strong>sampling_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The sampling rate of the chirp signal in Hz.</p></li>
 </ul>
@@ -773,8 +876,8 @@ and the kernel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The starting frequency of the chirp signal.</p></li>
-<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The ending frequency of the chirp signal.</p></li>
+<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The ending frequency of the chirp signal.</p></li>
+<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The starting frequency of the chirp signal.</p></li>
 <li><p><strong>duration</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The duration of the chirp signal in seconds.</p></li>
 <li><p><strong>sampling_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The sampling rate of the chirp signal in Hz.</p></li>
 </ul>
@@ -880,7 +983,7 @@ multiplied by the number of columns in the spectrogram.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.detect.pick_times">
-<span class="sig-prename descclassname"><span class="pre">das4whales.detect.</span></span><span class="sig-name descname"><span class="pre">pick_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corr_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/detect.html#pick_times"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.detect.pick_times" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.detect.</span></span><span class="sig-name descname"><span class="pre">pick_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corr_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ipi_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/detect.html#pick_times"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.detect.pick_times" title="Link to this definition">¶</a></dt>
 <dd><p>Detects the peak times in a correlation matrix.</p>
 <p>This function takes a correlation matrix, computes the Hilbert transform of each correlation,
 and detects the peak times based on a given threshold.</p>
@@ -889,6 +992,7 @@ and detects the peak times based on a given threshold.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>corr_m</strong> (<em>numpy.ndarray</em>) – The correlation matrix.</p></li>
 <li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – The threshold value for peak detection. Defaults to 0.3.</p></li>
+<li><p><strong>ipi_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The minimum inter-pulse interval in indexes.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1078,7 +1182,7 @@ and detects the peak times based on a given threshold using parallel processing.
 <p>dsp.py - Digital Signal Processing module for DAS4Whales</p>
 <p>This module provides various functions for digital signal processing of DAS strain data.</p>
 <p>Authors: Léa Bouffaut, Quentin Goestchel
-Date: 2023-2024</p>
+Date: 2023-2024-2025</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.dsp.bp_filt">
 <span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">bp_filt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#bp_filt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.bp_filt" title="Link to this definition">¶</a></dt>
@@ -1461,6 +1565,16 @@ Default is 3500 m/s.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="das4whales.dsp.moving_average">
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">moving_average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#moving_average"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.moving_average" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.dsp.moving_average_matrix">
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">moving_average_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#moving_average_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.moving_average_matrix" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="das4whales.dsp.normalize_median">
 <span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">normalize_median</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#normalize_median"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.normalize_median" title="Link to this definition">¶</a></dt>
 <dd><p>Normalize the input trace by its median.</p>
@@ -1490,6 +1604,35 @@ Default is 3500 m/s.</p></li>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.dsp.resample">
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_fs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#resample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.resample" title="Link to this definition">¶</a></dt>
+<dd><p>Resample a multi-channel signal to a desired sampling frequency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tr</strong> (<em>ndarray</em>) – Input signal with shape <cite>(n_channels, n_samples)</cite>, where <cite>n_channels</cite> is the number of channels
+and <cite>n_samples</cite> is the number of time samples.</p></li>
+<li><p><strong>fs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Original sampling frequency of the input signal (in Hz).</p></li>
+<li><p><strong>desired_fs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Desired sampling frequency after resampling (in Hz).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>A tuple containing:
+- tr_downsampled (ndarray): Downsampled signal with shape <cite>(n_channels, n_samples_downsampled)</cite>.
+- fs_downsampled (int): Sampling frequency after downsampling (equals <cite>desired_fs</cite>).
+- tx_downsampled (ndarray): New time vector corresponding to the downsampled signal,</p>
+<blockquote>
+<div><p>with shape <cite>(n_samples_downsampled,)</cite>.</p>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1834,8 +1977,8 @@ Inspired from <a class="reference external" href="https://github.com/Ocean-Data-
 <span id="das4whales-loc-module"></span><h2>das4whales.loc module<a class="headerlink" href="#module-das4whales.loc" title="Link to this heading">¶</a></h2>
 <p>loc.py - Localisation module for the das4whales package.</p>
 <p>This module provides functions for localizing the source of a sound source recorded by a DAS array.</p>
-<p>Author: Quentin Goestchel
-Date: 2024-06-18</p>
+<p>Author: Quentin Goestchel, Léa Bouffaut
+Date: 2024-06-18/2025-03-05</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.loc.cal_variance_residuals">
 <span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">cal_variance_residuals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arrtimes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predic_arrtimes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#cal_variance_residuals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.cal_variance_residuals" title="Link to this definition">¶</a></dt>
@@ -1860,7 +2003,26 @@ Date: 2024-06-18</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.loc.calc_arrival_times">
 <span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">calc_arrival_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cable_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#calc_arrival_times"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.calc_arrival_times" title="Link to this definition">¶</a></dt>
-<dd><p>Get the theoretical arrival times of a whale call at a given distance along the cable</p>
+<dd><p>Calculate theoretical arrival times of a whale call at a grid of positions or a single point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em> or </em><em>np.ndarray</em>) – Initial time offset. Can be a scalar or an array of time offsets.</p></li>
+<li><p><strong>cable_pos</strong> (<em>np.ndarray</em>) – Array of cable positions with shape (N, 3), where N is the number of channels.
+Each row represents [x, y, z] coordinates of a cable position.</p></li>
+<li><p><strong>pos</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a><em> of </em><em>np.ndarray</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – If a grid is used, provide a tuple (xg, yg, zg) with xg and yg as 2D arrays.
+For a single point, provide (x, y, z) as floats or 1D arrays.</p></li>
+<li><p><strong>c0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Speed of sound in water (in meters per second).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>th_arrtimes</strong> – Theoretical arrival times at each grid point or point source.
+Shape is (M, L, N) for a grid, or (N,) for a single point.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -1904,6 +2066,28 @@ Date: 2024-06-18</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="das4whales.loc.calc_theory_toa">
+<span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">calc_theory_toa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">das_position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">whale_position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1490</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#calc_theory_toa"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.calc_theory_toa" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate theoretical Time of Arrival (TOA) for a whale call with known position relative to the cable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>das_position</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – A dictionary containing latitude, longitude, and depth information of the cable (DAS) positions.</p></li>
+<li><p><strong>whale_position</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – A dictionary containing at least whale apex, offset, side and depth</p></li>
+<li><p><strong>dist</strong> (<em>numpy.ndarray</em>) – An array containing distances along the cable.</p></li>
+<li><p><strong>c0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – The speed of sound in water in meters per second. Defaults to 1490 m/s.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An array containing the theoretical TOAs for each position along the cable.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="das4whales.loc.calc_theta_vector">
 <span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">calc_theta_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cable_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">whale_pos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#calc_theta_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.calc_theta_vector" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the elevation angle between the cable and the whale for each cable position</p>
@@ -1933,7 +2117,7 @@ Date: 2024-06-18</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.loc.solve_lq">
-<span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">solve_lq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ti</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cable_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nbiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#solve_lq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.solve_lq" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.loc.</span></span><span class="sig-name descname"><span class="pre">solve_lq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ti</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cable_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nbiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ninit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residuals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/loc.html#solve_lq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.loc.solve_lq" title="Link to this definition">¶</a></dt>
 <dd><p>Solve the least squares problem to localize the whale</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2137,7 +2321,7 @@ Date: 2023-2024</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.plot.detection_grad">
-<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">detection_grad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#detection_grad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.detection_grad" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">detection_grad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_time_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#detection_grad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.detection_grad" title="Link to this definition">¶</a></dt>
 <dd><p>Plot the strain trace matrix [dist x time] with call detection above it</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2150,7 +2334,8 @@ Date: 2023-2024</p>
 <li><p><strong>fs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – sampling frequency</p></li>
 <li><p><strong>dx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – spatial step</p></li>
 <li><p><strong>selected_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – list of selected channels indexes [start, stop, step]</p></li>
-<li><p><strong>file_begin_time_utc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – time stamp of file, by default 0</p></li>
+<li><p><strong>title_time_info</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, or </em><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.13)"><em>datetime.datetime</em></a><em>, </em><em>optional</em>) – A time reference to display or the plot title. Can be a UTC timestamp (int),
+a formatted string, or a <cite>datetime.datetime</cite> object (default is 0).</p></li>
 </ul>
 </dd>
 </dl>
@@ -2158,7 +2343,7 @@ Date: 2023-2024</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.plot.detection_mf">
-<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">detection_mf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks_idx_HF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks_idx_LF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#detection_mf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.detection_mf" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">detection_mf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks_idx_HF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks_idx_LF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_time_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#detection_mf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.detection_mf" title="Link to this definition">¶</a></dt>
 <dd><p>Plot the strain trace matrix [dist x time] with call detection above it</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2171,7 +2356,8 @@ Date: 2023-2024</p>
 <li><p><strong>fs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – sampling frequency</p></li>
 <li><p><strong>dx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – spatial step</p></li>
 <li><p><strong>selected_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – list of selected channels indexes [start, stop, step]</p></li>
-<li><p><strong>file_begin_time_utc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – time stamp of file, by default 0</p></li>
+<li><p><strong>title_time_info</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, or </em><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.13)"><em>datetime.datetime</em></a><em>, </em><em>optional</em>) – A time reference to display or the plot title. Can be a UTC timestamp (int),
+a formatted string, or a <cite>datetime.datetime</cite> object (default is 0).</p></li>
 </ul>
 </dd>
 </dl>
@@ -2179,7 +2365,7 @@ Date: 2023-2024</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.plot.detection_spectcorr">
-<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">detection_spectcorr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks_idx_HF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks_idx_LF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectro_fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#detection_spectcorr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.detection_spectcorr" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">detection_spectcorr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks_idx_HF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks_idx_LF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectro_fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_time_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#detection_spectcorr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.detection_spectcorr" title="Link to this definition">¶</a></dt>
 <dd><p>Plot the strain trace matrix [dist x time] with call detection above it</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2192,7 +2378,8 @@ Date: 2023-2024</p>
 <li><p><strong>spectro_fs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – sampling frequency of the spectrograms</p></li>
 <li><p><strong>dx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – spatial step</p></li>
 <li><p><strong>selected_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – list of selected channels indexes [start, stop, step]</p></li>
-<li><p><strong>file_begin_time_utc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – time stamp of file, by default 0</p></li>
+<li><p><strong>title_time_info</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, or </em><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.13)"><em>datetime.datetime</em></a><em>, </em><em>optional</em>) – A time reference to display or the plot title. Can be a UTC timestamp (int),
+a formatted string, or a <cite>datetime.datetime</cite> object (default is 0).</p></li>
 </ul>
 </dd>
 </dl>
@@ -2248,7 +2435,7 @@ Date: 2023-2024</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.plot.plot_cross_correlogram">
-<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_cross_correlogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corr_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_cross_correlogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_cross_correlogram" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_cross_correlogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corr_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_time_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_cross_correlogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_cross_correlogram" title="Link to this definition">¶</a></dt>
 <dd><p>Plot the cross-correlogram between HF and LF notes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2258,7 +2445,8 @@ Date: 2023-2024</p>
 <li><p><strong>dist</strong> (<em>numpy.ndarray</em>) – The distance values.</p></li>
 <li><p><strong>maxv</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The maximum value for the colorbar.</p></li>
 <li><p><strong>minv</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The minimum value for the colorbar. Default is 0.</p></li>
-<li><p><strong>file_begin_time_utc</strong> (<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.13)"><em>datetime.datetime</em></a><em>, </em><em>optional</em>) – The beginning time of the file in UTC. Default is None.</p></li>
+<li><p><strong>title_time_info</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, or </em><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.13)"><em>datetime.datetime</em></a><em>, </em><em>optional</em>) – A time reference to display or the plot title. Can be a UTC timestamp (int),
+a formatted string, or a <cite>datetime.datetime</cite> object (default is 0).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -2269,7 +2457,7 @@ Date: 2023-2024</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.plot.plot_cross_correlogramHL">
-<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_cross_correlogramHL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corr_m_HF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr_m_LF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_cross_correlogramHL"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_cross_correlogramHL" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_cross_correlogramHL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corr_m_HF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr_m_LF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_time_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_cross_correlogramHL"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_cross_correlogramHL" title="Link to this definition">¶</a></dt>
 <dd><p>Plot the cross-correlogram between HF and LF notes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2280,7 +2468,8 @@ Date: 2023-2024</p>
 <li><p><strong>dist</strong> (<em>numpy.ndarray</em>) – The distance values.</p></li>
 <li><p><strong>maxv</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The maximum value for the colorbar.</p></li>
 <li><p><strong>minv</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The minimum value for the colorbar. Default is 0.</p></li>
-<li><p><strong>file_begin_time_utc</strong> (<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.13)"><em>datetime.datetime</em></a><em>, </em><em>optional</em>) – The beginning time of the file in UTC. Default is None.</p></li>
+<li><p><strong>title_time_info</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, or </em><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.13)"><em>datetime.datetime</em></a><em>, </em><em>optional</em>) – A time reference to display or the plot title. Can be a UTC timestamp (int),
+a formatted string, or a <cite>datetime.datetime</cite> object (default is 0).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -2291,7 +2480,7 @@ Date: 2023-2024</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.plot.plot_fk_domain">
-<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_fk_domain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fk_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_fk_domain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_fk_domain" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_fk_domain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_time_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fk_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_lims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_fk_domain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_fk_domain" title="Link to this definition">¶</a></dt>
 <dd><p>Spatio-spectral representation (f-k plot) of the strain data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2300,10 +2489,13 @@ Date: 2023-2024</p>
 <li><p><strong>fs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The sampling frequency (Hz)</p></li>
 <li><p><strong>dx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The spatial step (m)</p></li>
 <li><p><strong>selected_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – List of selected channels indexes [start, stop, step]</p></li>
-<li><p><strong>file_begin_time_utc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.13)"><em>datetime.datetime</em></a><em>, </em><em>optional</em>) – The time stamp of the represented file, by default 0</p></li>
+<li><p><strong>title_time_info</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, or </em><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.13)"><em>datetime.datetime</em></a><em>, </em><em>optional</em>) – A time reference to display or the plot title. Can be a UTC timestamp (int),
+a formatted string, or a <cite>datetime.datetime</cite> object (default is 0).</p></li>
 <li><p><strong>fig_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a><em>, </em><em>optional</em>) – Tuple of the figure dimensions, by default (12, 10)</p></li>
 <li><p><strong>v_min</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – Sets the min nano strain amplitudes of the colorbar, by default None</p></li>
 <li><p><strong>v_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – Sets the max nano strain amplitudes of the colorbar, by default None</p></li>
+<li><p><strong>fk_params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary containing the fmin, fmax, c_min, and c_max parameters, by default None</p></li>
+<li><p><strong>ax_lims</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>, </em><em>optional</em>) – List of the form [f_min, f_max, k_min, k_max] for zoomed plots, by default None</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -2317,14 +2509,14 @@ Date: 2023-2024</p>
 <li><p>The strain data is processed and plotted.</p></li>
 </ul>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plot_fk_domain</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">file_begin_time_utc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">v_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v_max</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plot_fk_domain</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">title_time_info</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">v_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v_max</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.plot.plot_fx">
-<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_fx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">win_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfft</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_fx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_fx" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_fx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_time_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">win_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfft</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_fx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_fx" title="Link to this definition">¶</a></dt>
 <dd><p>Spatio-spectral (f-k plot) of the strain data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2332,7 +2524,8 @@ Date: 2023-2024</p>
 <li><p><strong>trace</strong> (<em>np.ndarray</em>) – A [channel x time sample] nparray containing the strain data in the spatio-temporal domain</p></li>
 <li><p><strong>dist</strong> (<em>np.ndarray</em>) – The corresponding distance along the FO cable vector</p></li>
 <li><p><strong>fs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The sampling frequency (Hz)</p></li>
-<li><p><strong>file_begin_time_utc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.13)"><em>datetime.datetime</em></a><em>, </em><em>optional</em>) – The time stamp of the represented file, by default 0</p></li>
+<li><p><strong>title_time_info</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, or </em><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.13)"><em>datetime.datetime</em></a><em>, </em><em>optional</em>) – A time reference to display or the plot title. Can be a UTC timestamp (int),
+a formatted string, or a <cite>datetime.datetime</cite> object (default is 0).</p></li>
 <li><p><strong>win_s</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The duration of each f-k plot (s), by default 2</p></li>
 <li><p><strong>nfft</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – Number of time samples used for the FFT, by default 4096</p></li>
 <li><p><strong>fig_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a><em>, </em><em>optional</em>) – Tuple of the figure dimensions, by default (12, 10)</p></li>
@@ -2354,7 +2547,7 @@ Date: 2023-2024</p>
 <li><p>The strain data is processed and plotted for each subplot.</p></li>
 </ul>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plot_fx</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">file_begin_time_utc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">win_s</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">nfft</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">f_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plot_fx</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">title_time_info</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">win_s</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">nfft</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">f_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
 <span class="go">            f_max=100, v_min=None, v_max=None)</span>
 </pre></div>
 </div>
@@ -2378,7 +2571,7 @@ Date: 2023-2024</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.plot.plot_spectrogram">
-<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_spectrogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(17,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_spectrogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_spectrogram" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_spectrogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(20,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_spectrogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_spectrogram" title="Link to this definition">¶</a></dt>
 <dd><p>Plot a spectrogram.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2401,7 +2594,7 @@ Date: 2023-2024</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.plot.plot_tx">
-<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_tx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Strain</span> <span class="pre">Envelope</span> <span class="pre">(x$10^{-9}$)'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_tx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_tx" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_tx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_time_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Strain</span> <span class="pre">Envelope</span> <span class="pre">(x$10^{-9}$)'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_tx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_tx" title="Link to this definition">¶</a></dt>
 <dd><p>Spatio-temporal representation (t-x plot) of the strain data</p>
 <section id="id1">
 <h3>Parameters:<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
@@ -2412,7 +2605,8 @@ Date: 2023-2024</p>
 </dd>
 <dt>dist<span class="classifier">np.ndarray</span></dt><dd><p>The corresponding distance along the FO cable vector</p>
 </dd>
-<dt>file_begin_time_utc<span class="classifier">int or datetime.datetime, optional</span></dt><dd><p>The time stamp of the represented file (default is 0)</p>
+<dt>title_time_info<span class="classifier">int, str, or datetime.datetime, optional</span></dt><dd><p>A time reference to display or the plot title. Can be a UTC timestamp (int),
+a formatted string, or a <cite>datetime.datetime</cite> object (default is 0).</p>
 </dd>
 <dt>fig_size<span class="classifier">tuple, optional</span></dt><dd><p>Tuple of the figure dimensions (default is (12, 10))</p>
 </dd>
@@ -2431,7 +2625,7 @@ None</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.plot.plot_tx_env">
-<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_tx_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Strain</span> <span class="pre">Envelope</span> <span class="pre">(x$10^{-9}$)'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_tx_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_tx_env" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_tx_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_time_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Strain</span> <span class="pre">Envelope</span> <span class="pre">(x$10^{-9}$)'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_tx_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_tx_env" title="Link to this definition">¶</a></dt>
 <dd><p>Spatio-temporal representation (t-x plot) of the strain data envelope</p>
 <section id="id3">
 <h3>Parameters:<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
@@ -2442,7 +2636,8 @@ None</p>
 </dd>
 <dt>dist<span class="classifier">np.ndarray</span></dt><dd><p>The corresponding distance along the FO cable vector</p>
 </dd>
-<dt>file_begin_time_utc<span class="classifier">int or datetime.datetime, optional</span></dt><dd><p>The time stamp of the represented file (default is 0)</p>
+<dt>title_time_info<span class="classifier">int, str, or datetime.datetime, optional</span></dt><dd><p>A time reference to display or the plot title. Can be a UTC timestamp (int),
+a formatted string, or a <cite>datetime.datetime</cite> object (default is 0).</p>
 </dd>
 <dt>fig_size<span class="classifier">tuple, optional</span></dt><dd><p>Tuple of the figure dimensions (default is (12, 10))</p>
 </dd>
@@ -2461,7 +2656,7 @@ None</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.plot.plot_tx_lined">
-<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_tx_lined</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ln_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_tx_lined"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_tx_lined" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">plot_tx_lined</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ln_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_time_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#plot_tx_lined"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.plot_tx_lined" title="Link to this definition">¶</a></dt>
 <dd><p>Spatio-temporal representation (t-x plot) of the strain data</p>
 <section id="id5">
 <h3>Parameters:<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
@@ -2474,7 +2669,8 @@ None</p>
 </dd>
 <dt>dist<span class="classifier">np.ndarray</span></dt><dd><p>The corresponding distance along the FO cable vector</p>
 </dd>
-<dt>file_begin_time_utc<span class="classifier">int or datetime.datetime, optional</span></dt><dd><p>The time stamp of the represented file (default is 0)</p>
+<dt>title_time_info<span class="classifier">int, str, or datetime.datetime, optional</span></dt><dd><p>A time reference to display or the plot title. Can be a UTC timestamp (int),
+a formatted string, or a <cite>datetime.datetime</cite> object (default is 0).</p>
 </dd>
 <dt>fig_size<span class="classifier">tuple, optional</span></dt><dd><p>Tuple of the figure dimensions (default is (12, 10))</p>
 </dd>
@@ -2493,7 +2689,7 @@ None</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.plot.snr_matrix">
-<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">snr_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snr_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_begin_time_utc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#snr_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.snr_matrix" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.plot.</span></span><span class="sig-name descname"><span class="pre">snr_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snr_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_time_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/plot.html#snr_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.plot.snr_matrix" title="Link to this definition">¶</a></dt>
 <dd><p>Matrix plot of the local signal to noise ratio (SNR)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2503,6 +2699,171 @@ None</p>
 <li><p><strong>dist</strong> (<em>numpy.ndarray</em>) – distance vector along the cable</p></li>
 <li><p><strong>vmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – maximun value of the plot (dB)</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-das4whales.spatial">
+<span id="das4whales-spatial-module"></span><h2>das4whales.spatial module<a class="headerlink" href="#module-das4whales.spatial" title="Link to this heading">¶</a></h2>
+<p>spatial.py - Spatial calculations for DAS data analysis in DAS4Whales.</p>
+<p>Authors: Léa Bouffaut
+Date: 2025</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.spatial.calc_cumulative_dist">
+<span class="sig-prename descclassname"><span class="pre">das4whales.spatial.</span></span><span class="sig-name descname"><span class="pre">calc_cumulative_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/spatial.html#calc_cumulative_dist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.spatial.calc_cumulative_dist" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the cumulative distance along a path defined by latitude and longitude coordinates
+using the Haversine formula.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>position</strong> (<em>pandas.DataFrame</em>) – A DataFrame containing at least ‘lat’ and ‘lon’ columns, representing latitude and longitude
+coordinates respectively. Typically, this data is loaded from a CSV file with position data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dist</strong> – An array of cumulative distances (in meters), where each element represents the total distance
+traveled up to that point along the path.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.spatial.calc_das_section_bearing">
+<span class="sig-prename descclassname"><span class="pre">das4whales.spatial.</span></span><span class="sig-name descname"><span class="pre">calc_das_section_bearing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/spatial.html#calc_das_section_bearing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.spatial.calc_das_section_bearing" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the bearing between two geographic points on the Earth’s surface.
+This is used to calculate the orientation (bearing) of a section of the DAS cable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lat1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The latitude of the first point in degrees.</p></li>
+<li><p><strong>lon1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The longitude of the first point in degrees.</p></li>
+<li><p><strong>lat2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The latitude of the second point in degrees.</p></li>
+<li><p><strong>lon2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The longitude of the second point in degrees.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>das_bearing</strong> – The bearing in degrees from the first point to the second point, relative to true north.
+The bearing is normalized to a range of 0 to 360 degrees.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.spatial.calc_dist_lat_lon">
+<span class="sig-prename descclassname"><span class="pre">das4whales.spatial.</span></span><span class="sig-name descname"><span class="pre">calc_dist_lat_lon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position_2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/spatial.html#calc_dist_lat_lon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.spatial.calc_dist_lat_lon" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the distance between two sets of latitude and longitude positions using the Haversine formula.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position_1</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – A dictionary containing latitude and longitude values for the first position.
+Keys:
+- ‘lat’: float, the latitude (in degrees).
+- ‘lon’: float, the longitude (in degrees).</p></li>
+<li><p><strong>position_2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – A dictionary containing latitude and longitude values for the second position.
+It may contain either single values (float) or lists/numpy arrays for multiple positions.
+Keys:
+- ‘lat’: float, list, or numpy.ndarray, the latitude(s) (in degrees).
+- ‘lon’: float, list, or numpy.ndarray, the longitude(s) (in degrees).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p><strong>distance</strong> – The distance(s) between the positions in meters:
+- If <cite>position_2[‘lat’]</cite> and <cite>position_2[‘lon’]</cite> are lists or numpy arrays,</p>
+<blockquote>
+<div><p>returns a numpy array of distances for each corresponding position.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Otherwise, returns a single float distance in meters for the two positions.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.spatial.calc_source_position_lat_lon">
+<span class="sig-prename descclassname"><span class="pre">das4whales.spatial.</span></span><span class="sig-name descname"><span class="pre">calc_source_position_lat_lon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bearing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/spatial.html#calc_source_position_lat_lon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.spatial.calc_source_position_lat_lon" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the latitude and longitude of a point that lies perpendicular to a given bearing
+at a specified distance, relative to a reference point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lat_ref</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Latitude of the reference point in degrees.</p></li>
+<li><p><strong>lon_ref</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Longitude of the reference point in degrees.</p></li>
+<li><p><strong>distance_m</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Distance to the perpendicular point in meters.</p></li>
+<li><p><strong>bearing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The bearing of the line in degrees (relative to true north).</p></li>
+<li><p><strong>side</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Indicates the side of the bearing where the perpendicular point lies (‘right’ or ‘left’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>lat_lon</strong> – A tuple containing:
+- lat (float): The latitude of the perpendicular point in degrees.
+- lon (float): The longitude of the perpendicular point in degrees.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.spatial.degree_to_km_at_latitude">
+<span class="sig-prename descclassname"><span class="pre">das4whales.spatial.</span></span><span class="sig-name descname"><span class="pre">degree_to_km_at_latitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">latitude</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/spatial.html#degree_to_km_at_latitude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.spatial.degree_to_km_at_latitude" title="Link to this definition">¶</a></dt>
+<dd><p>Convert degrees of longitude to kilometers at a specific latitude.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>latitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The latitude in degrees where the conversion is calculated.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>distance_km</strong> – The distance in kilometers corresponding to one degree of longitude at the specified latitude.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.spatial.km_to_degree_at_latitude">
+<span class="sig-prename descclassname"><span class="pre">das4whales.spatial.</span></span><span class="sig-name descname"><span class="pre">km_to_degree_at_latitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">km</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latitude</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/spatial.html#km_to_degree_at_latitude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.spatial.km_to_degree_at_latitude" title="Link to this definition">¶</a></dt>
+<dd><p>Convert distance in kilometers to degrees of longitude at a specific latitude.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>km</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The distance in kilometers to convert.</p></li>
+<li><p><strong>latitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The latitude in degrees where the conversion is calculated.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>degrees</strong> – The equivalent distance in degrees of longitude at the specified latitude.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.spatial.to_rad">
+<span class="sig-prename descclassname"><span class="pre">das4whales.spatial.</span></span><span class="sig-name descname"><span class="pre">to_rad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/spatial.html#to_rad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.spatial.to_rad" title="Link to this definition">¶</a></dt>
+<dd><p>Convert angle from degrees to radians.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>degree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The angle value in degrees to be converted.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>radian</strong> – The corresponding angle value in radians.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -2699,10 +3060,14 @@ as per docs, [‘x’, ‘b’, and ‘a’] are required</p></li>
 <li><a class="reference internal" href="#das4whales.data_handle.calc_dist_to_xidx"><code class="docutils literal notranslate"><span class="pre">calc_dist_to_xidx()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.dl_file"><code class="docutils literal notranslate"><span class="pre">dl_file()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.get_acquisition_parameters"><code class="docutils literal notranslate"><span class="pre">get_acquisition_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.data_handle.get_cable_lat_lon_depth"><code class="docutils literal notranslate"><span class="pre">get_cable_lat_lon_depth()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.data_handle.get_metadata_asn"><code class="docutils literal notranslate"><span class="pre">get_metadata_asn()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.data_handle.get_metadata_onyx"><code class="docutils literal notranslate"><span class="pre">get_metadata_onyx()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.get_metadata_optasense"><code class="docutils literal notranslate"><span class="pre">get_metadata_optasense()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.get_metadata_silixa"><code class="docutils literal notranslate"><span class="pre">get_metadata_silixa()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.get_selected_channels"><code class="docutils literal notranslate"><span class="pre">get_selected_channels()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.hello_world_das_package"><code class="docutils literal notranslate"><span class="pre">hello_world_das_package()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.data_handle.load_annotation_csv"><code class="docutils literal notranslate"><span class="pre">load_annotation_csv()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.load_cable_coordinates"><code class="docutils literal notranslate"><span class="pre">load_cable_coordinates()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.load_das_data"><code class="docutils literal notranslate"><span class="pre">load_das_data()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.data_handle.load_mtpl_das_data"><code class="docutils literal notranslate"><span class="pre">load_mtpl_das_data()</span></code></a></li>
@@ -2749,8 +3114,11 @@ as per docs, [‘x’, ‘b’, and ‘a’] are required</p></li>
 <li><a class="reference internal" href="#das4whales.dsp.hybrid_ninf_filter_design"><code class="docutils literal notranslate"><span class="pre">hybrid_ninf_filter_design()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.hybrid_ninf_gs_filter_design"><code class="docutils literal notranslate"><span class="pre">hybrid_ninf_gs_filter_design()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.instant_freq"><code class="docutils literal notranslate"><span class="pre">instant_freq()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.dsp.moving_average"><code class="docutils literal notranslate"><span class="pre">moving_average()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.dsp.moving_average_matrix"><code class="docutils literal notranslate"><span class="pre">moving_average_matrix()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.normalize_median"><code class="docutils literal notranslate"><span class="pre">normalize_median()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.normalize_std"><code class="docutils literal notranslate"><span class="pre">normalize_std()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.dsp.resample"><code class="docutils literal notranslate"><span class="pre">resample()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.snr_tr_array"><code class="docutils literal notranslate"><span class="pre">snr_tr_array()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.taper_data"><code class="docutils literal notranslate"><span class="pre">taper_data()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.taper_data2d"><code class="docutils literal notranslate"><span class="pre">taper_data2d()</span></code></a></li>
@@ -2781,6 +3149,7 @@ as per docs, [‘x’, ‘b’, and ‘a’] are required</p></li>
 <li><a class="reference internal" href="#das4whales.loc.calc_distance_matrix"><code class="docutils literal notranslate"><span class="pre">calc_distance_matrix()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.loc.calc_phi_vector"><code class="docutils literal notranslate"><span class="pre">calc_phi_vector()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.loc.calc_radii_matrix"><code class="docutils literal notranslate"><span class="pre">calc_radii_matrix()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.loc.calc_theory_toa"><code class="docutils literal notranslate"><span class="pre">calc_theory_toa()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.loc.calc_theta_vector"><code class="docutils literal notranslate"><span class="pre">calc_theta_vector()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.loc.calc_uncertainty_position"><code class="docutils literal notranslate"><span class="pre">calc_uncertainty_position()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.loc.solve_lq"><code class="docutils literal notranslate"><span class="pre">solve_lq()</span></code></a></li>
@@ -2815,6 +3184,16 @@ as per docs, [‘x’, ‘b’, and ‘a’] are required</p></li>
 <li><a class="reference internal" href="#das4whales.plot.plot_tx_env"><code class="docutils literal notranslate"><span class="pre">plot_tx_env()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.plot.plot_tx_lined"><code class="docutils literal notranslate"><span class="pre">plot_tx_lined()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.plot.snr_matrix"><code class="docutils literal notranslate"><span class="pre">snr_matrix()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-das4whales.spatial">das4whales.spatial module</a><ul>
+<li><a class="reference internal" href="#das4whales.spatial.calc_cumulative_dist"><code class="docutils literal notranslate"><span class="pre">calc_cumulative_dist()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.spatial.calc_das_section_bearing"><code class="docutils literal notranslate"><span class="pre">calc_das_section_bearing()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.spatial.calc_dist_lat_lon"><code class="docutils literal notranslate"><span class="pre">calc_dist_lat_lon()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.spatial.calc_source_position_lat_lon"><code class="docutils literal notranslate"><span class="pre">calc_source_position_lat_lon()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.spatial.degree_to_km_at_latitude"><code class="docutils literal notranslate"><span class="pre">degree_to_km_at_latitude()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.spatial.km_to_degree_at_latitude"><code class="docutils literal notranslate"><span class="pre">km_to_degree_at_latitude()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.spatial.to_rad"><code class="docutils literal notranslate"><span class="pre">to_rad()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-das4whales.tools">das4whales.tools module</a><ul>

@@ -216,6 +216,10 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../_static/DAS4Whales_logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../_static/DAS4Whales_logo.png" alt="Dark Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">DAS4Whales  documentation</span>
   
@@ -283,7 +287,7 @@
 <p>dsp.py - Digital Signal Processing module for DAS4Whales</p>
 <p>This module provides various functions for digital signal processing of DAS strain data.</p>
 <p>Authors: Léa Bouffaut, Quentin Goestchel
-Date: 2023-2024</p>
+Date: 2023-2024-2025</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.dsp.bp_filt">
 <span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">bp_filt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#bp_filt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.bp_filt" title="Link to this definition">¶</a></dt>
@@ -666,6 +670,16 @@ Default is 3500 m/s.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="das4whales.dsp.moving_average">
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">moving_average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#moving_average"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.moving_average" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.dsp.moving_average_matrix">
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">moving_average_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#moving_average_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.moving_average_matrix" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="das4whales.dsp.normalize_median">
 <span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">normalize_median</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#normalize_median"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.normalize_median" title="Link to this definition">¶</a></dt>
 <dd><p>Normalize the input trace by its median.</p>
@@ -695,6 +709,35 @@ Default is 3500 m/s.</p></li>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="das4whales.dsp.resample">
+<span class="sig-prename descclassname"><span class="pre">das4whales.dsp.</span></span><span class="sig-name descname"><span class="pre">resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_fs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/dsp.html#resample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.dsp.resample" title="Link to this definition">¶</a></dt>
+<dd><p>Resample a multi-channel signal to a desired sampling frequency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tr</strong> (<em>ndarray</em>) – Input signal with shape <cite>(n_channels, n_samples)</cite>, where <cite>n_channels</cite> is the number of channels
+and <cite>n_samples</cite> is the number of time samples.</p></li>
+<li><p><strong>fs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Original sampling frequency of the input signal (in Hz).</p></li>
+<li><p><strong>desired_fs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Desired sampling frequency after resampling (in Hz).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>A tuple containing:
+- tr_downsampled (ndarray): Downsampled signal with shape <cite>(n_channels, n_samples_downsampled)</cite>.
+- fs_downsampled (int): Sampling frequency after downsampling (equals <cite>desired_fs</cite>).
+- tx_downsampled (ndarray): New time vector corresponding to the downsampled signal,</p>
+<blockquote>
+<div><p>with shape <cite>(n_samples_downsampled,)</cite>.</p>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -830,8 +873,11 @@ in the input trace.</p>
 <li><a class="reference internal" href="#das4whales.dsp.hybrid_ninf_filter_design"><code class="docutils literal notranslate"><span class="pre">hybrid_ninf_filter_design()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.hybrid_ninf_gs_filter_design"><code class="docutils literal notranslate"><span class="pre">hybrid_ninf_gs_filter_design()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.instant_freq"><code class="docutils literal notranslate"><span class="pre">instant_freq()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.dsp.moving_average"><code class="docutils literal notranslate"><span class="pre">moving_average()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.dsp.moving_average_matrix"><code class="docutils literal notranslate"><span class="pre">moving_average_matrix()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.normalize_median"><code class="docutils literal notranslate"><span class="pre">normalize_median()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.normalize_std"><code class="docutils literal notranslate"><span class="pre">normalize_std()</span></code></a></li>
+<li><a class="reference internal" href="#das4whales.dsp.resample"><code class="docutils literal notranslate"><span class="pre">resample()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.snr_tr_array"><code class="docutils literal notranslate"><span class="pre">snr_tr_array()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.taper_data"><code class="docutils literal notranslate"><span class="pre">taper_data()</span></code></a></li>
 <li><a class="reference internal" href="#das4whales.dsp.taper_data2d"><code class="docutils literal notranslate"><span class="pre">taper_data2d()</span></code></a></li>

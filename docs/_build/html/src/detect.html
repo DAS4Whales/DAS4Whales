@@ -216,6 +216,10 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../_static/DAS4Whales_logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../_static/DAS4Whales_logo.png" alt="Dark Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">DAS4Whales  documentation</span>
   
@@ -436,7 +440,8 @@ and the kernel.</p>
 <dd><p>Convert pick times from a list of lists to a numpy array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>peaks_indexes_m</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>lists</em>) – A list of lists containing the pick times.</p>
+<dd class="field-odd"><p><strong>peaks_indexes_m</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>lists</em>) – A list of lists containing the pick times. The indexes of each list correspond to the space index.
+[[t1, t2, t3, …], [t1, t2, t3, …], …]</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A numpy array containing a tuple (time index, spatial index) of the converted pick times.</p>
@@ -454,8 +459,8 @@ and the kernel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The starting frequency of the chirp signal.</p></li>
-<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The ending frequency of the chirp signal.</p></li>
+<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The ending frequency of the chirp signal.</p></li>
+<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The starting frequency of the chirp signal.</p></li>
 <li><p><strong>duration</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The duration of the chirp signal in seconds.</p></li>
 <li><p><strong>sampling_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The sampling rate of the chirp signal in Hz.</p></li>
 </ul>
@@ -476,8 +481,8 @@ and the kernel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The starting frequency of the chirp signal.</p></li>
-<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The ending frequency of the chirp signal.</p></li>
+<li><p><strong>fmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The ending frequency of the chirp signal.</p></li>
+<li><p><strong>fmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The starting frequency of the chirp signal.</p></li>
 <li><p><strong>duration</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The duration of the chirp signal in seconds.</p></li>
 <li><p><strong>sampling_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The sampling rate of the chirp signal in Hz.</p></li>
 </ul>
@@ -583,7 +588,7 @@ multiplied by the number of columns in the spectrogram.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="das4whales.detect.pick_times">
-<span class="sig-prename descclassname"><span class="pre">das4whales.detect.</span></span><span class="sig-name descname"><span class="pre">pick_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corr_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/detect.html#pick_times"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.detect.pick_times" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">das4whales.detect.</span></span><span class="sig-name descname"><span class="pre">pick_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corr_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ipi_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/das4whales/detect.html#pick_times"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#das4whales.detect.pick_times" title="Link to this definition">¶</a></dt>
 <dd><p>Detects the peak times in a correlation matrix.</p>
 <p>This function takes a correlation matrix, computes the Hilbert transform of each correlation,
 and detects the peak times based on a given threshold.</p>
@@ -592,6 +597,7 @@ and detects the peak times based on a given threshold.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>corr_m</strong> (<em>numpy.ndarray</em>) – The correlation matrix.</p></li>
 <li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – The threshold value for peak detection. Defaults to 0.3.</p></li>
+<li><p><strong>ipi_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The minimum inter-pulse interval in indexes.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

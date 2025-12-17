@@ -215,6 +215,10 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../../_static/DAS4Whales_logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../../_static/DAS4Whales_logo.png" alt="Dark Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">DAS4Whales  documentation</span>
   
@@ -278,7 +282,7 @@
 <span class="sd">This module provides various functions for digital signal processing of DAS strain data.</span>
 
 <span class="sd">Authors: Léa Bouffaut, Quentin Goestchel</span>
-<span class="sd">Date: 2023-2024</span>
+<span class="sd">Date: 2023-2024-2025</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -289,6 +293,50 @@
 <span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="kn">import</span> <span class="n">fft2</span><span class="p">,</span> <span class="n">fftfreq</span><span class="p">,</span> <span class="n">fftshift</span><span class="p">,</span> <span class="n">ifft2</span><span class="p">,</span> <span class="n">ifftshift</span>
 <span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">deprecation</span>  
+
+<span class="c1"># Digital sampling</span>
+<div class="viewcode-block" id="resample">
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.resample">[docs]</a>
+<span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">desired_fs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resample a multi-channel signal to a desired sampling frequency.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tr : ndarray</span>
+<span class="sd">        Input signal with shape `(n_channels, n_samples)`, where `n_channels` is the number of channels</span>
+<span class="sd">        and `n_samples` is the number of time samples.</span>
+<span class="sd">    fs : int</span>
+<span class="sd">        Original sampling frequency of the input signal (in Hz).</span>
+<span class="sd">    desired_fs : int</span>
+<span class="sd">        Desired sampling frequency after resampling (in Hz).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        A tuple containing:</span>
+<span class="sd">        - tr_downsampled (ndarray): Downsampled signal with shape `(n_channels, n_samples_downsampled)`.</span>
+<span class="sd">        - fs_downsampled (int): Sampling frequency after downsampling (equals `desired_fs`).</span>
+<span class="sd">        - tx_downsampled (ndarray): New time vector corresponding to the downsampled signal,</span>
+<span class="sd">          with shape `(n_samples_downsampled,)`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 1) Filter the signal if downsampling is needed</span>
+    <span class="k">if</span> <span class="n">desired_fs</span> <span class="o">&lt;</span> <span class="n">fs</span><span class="p">:</span>
+        <span class="c1"># Butterworth low-pass filter</span>
+        <span class="n">sos</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">butter</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">desired_fs</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;low&#39;</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;sos&#39;</span><span class="p">)</span>
+        <span class="n">tr</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">sosfiltfilt</span><span class="p">(</span><span class="n">sos</span><span class="p">,</span> <span class="n">tr</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># 2) Resample</span>
+    <span class="n">tr_downsampled</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span>
+        <span class="n">tr</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">orig_sr</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">target_sr</span><span class="o">=</span><span class="n">desired_fs</span><span class="p">,</span> <span class="n">res_type</span><span class="o">=</span><span class="s1">&#39;soxr_vhq&#39;</span><span class="p">)</span>  <span class="c1"># axis specifies the time axis</span>
+    <span class="n">fs_downsampled</span> <span class="o">=</span> <span class="n">desired_fs</span>
+    <span class="n">n_channels</span><span class="p">,</span> <span class="n">n_samples</span> <span class="o">=</span> <span class="n">tr_downsampled</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="c1"># 3) New time vector</span>
+    <span class="n">tx_downsampled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)</span> <span class="o">/</span> <span class="n">fs_downsampled</span>
+
+    <span class="k">return</span> <span class="n">tr_downsampled</span><span class="p">,</span> <span class="n">fs_downsampled</span><span class="p">,</span> <span class="n">tx_downsampled</span></div>
+
 
 <span class="c1"># Transformations</span>
 <div class="viewcode-block" id="get_fx">
@@ -636,7 +684,7 @@
             <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)],</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">)</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">knum</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">knum</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">420</span><span class="p">],</span> <span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:orange&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
-            <span class="n">ax1</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">freq</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1500</span><span class="p">],</span> <span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:blue&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">freq</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">100</span><span class="p">],</span> <span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:blue&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
             <span class="c1"># colorbar</span>
             <span class="c1"># cbar = plt.colorbar(ax1.imshow(fk_filter_matrix, extent=[min(freq), max(freq), min(knum), max(knum)], aspect=&#39;auto&#39;, origin=&#39;lower&#39;))</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
@@ -652,7 +700,7 @@
 
             <span class="c1"># Wavenumber slice display</span>
             <span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sharey</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
-            <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">[:,</span> <span class="nb">len</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1500</span><span class="p">],</span> <span class="n">knum</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:blue&#39;</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">[:,</span> <span class="nb">len</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">100</span><span class="p">],</span> <span class="n">knum</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:blue&#39;</span><span class="p">)</span>
             <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
             <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
             <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
@@ -1179,23 +1227,23 @@
             <span class="c1"># plt.rc(&#39;xtick&#39;, labelsize=16)  </span>
             <span class="c1"># plt.rc(&#39;ytick&#39;, labelsize=16)</span>
 
-            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">14.8</span><span class="p">,</span> <span class="mf">8.8</span><span class="p">))</span>
             <span class="n">gs</span> <span class="o">=</span> <span class="n">gridspec</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 
             <span class="c1"># Matrix display</span>
             <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)],</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">)</span>
-            <span class="n">ax1</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">knum</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">knum</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">420</span><span class="p">],</span> <span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:orange&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
-            <span class="n">ax1</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">freq</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1500</span><span class="p">],</span> <span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:blue&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">knum</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">knum</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">420</span><span class="p">],</span> <span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:orange&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">freq</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1500</span><span class="p">],</span> <span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:blue&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
             <span class="c1"># colorbar</span>
             <span class="c1"># cbar = plt.colorbar(ax1.imshow(fk_filter_matrix, extent=[min(freq), max(freq), min(knum), max(knum)], aspect=&#39;auto&#39;, origin=&#39;lower&#39;))</span>
-            <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
-            <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Wavenumber [m$^{-1}$]&#39;</span><span class="p">)</span>
+            <span class="c1"># ax1.set_xlabel(&#39;Frequency [Hz]&#39;)</span>
             
             <span class="c1"># Frequency slice display</span>
             <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sharex</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
             <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">fk_filter_matrix</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">knum</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">420</span><span class="p">,</span> <span class="p">:],</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:orange&#39;</span><span class="p">)</span>
-            <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f [Hz]&#39;</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency [Hz]&#39;</span><span class="p">)</span>
             <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
             <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq</span><span class="p">)])</span>
             <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
@@ -1204,7 +1252,7 @@
             <span class="n">ax3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sharey</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
             <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fk_filter_matrix</span><span class="p">[:,</span> <span class="nb">len</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1500</span><span class="p">],</span> <span class="n">knum</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:blue&#39;</span><span class="p">)</span>
             <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
-            <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;k [m$^{-1}$]&#39;</span><span class="p">)</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Wavenumber [m$^{-1}$]&#39;</span><span class="p">)</span>
             <span class="n">ax3</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
             <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">knum</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">knum</span><span class="p">)])</span>
             <span class="n">ax3</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
@@ -1318,7 +1366,7 @@
     <span class="k">return</span> <span class="n">trace</span><span class="o">.</span><span class="n">real</span></div>
 
 
-
+<span class="c1"># TODO: transfer function from private branche using parallel fft </span>
 <div class="viewcode-block" id="fk_filter_sparsefilt">
 <a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.fk_filter_sparsefilt">[docs]</a>
 <span class="k">def</span> <span class="nf">fk_filter_sparsefilt</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">fk_filter_matrix</span><span class="p">,</span> <span class="n">tapering</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -1345,8 +1393,12 @@
 
     <span class="c1"># Apply the filter</span>
     <span class="n">fk_filtered_trace</span> <span class="o">=</span> <span class="n">fk_trace</span> <span class="o">*</span> <span class="n">fk_filter_matrix</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fk_filtered_trace</span><span class="p">,</span> <span class="n">sparse</span><span class="o">.</span><span class="n">COO</span><span class="p">):</span>
+        <span class="c1"># Convert the sparse matrix to a dense format</span>
+        <span class="n">fk_filtered_trace</span> <span class="o">=</span> <span class="n">fk_filtered_trace</span><span class="o">.</span><span class="n">todense</span><span class="p">()</span>
     <span class="c1"># Back to the t-x domain</span>
-    <span class="n">trace</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft2</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">fk_filtered_trace</span><span class="o">.</span><span class="n">todense</span><span class="p">()))</span>
+    <span class="n">trace</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft2</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">fk_filtered_trace</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">trace</span><span class="o">.</span><span class="n">real</span></div>
 
@@ -1624,6 +1676,20 @@
 
     <span class="n">envelope</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">hilbert</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
     <span class="k">return</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">envelope</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">envelope</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="moving_average">
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.moving_average">[docs]</a>
+<span class="k">def</span> <span class="nf">moving_average</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">window_size</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">window_size</span><span class="p">)</span> <span class="o">/</span> <span class="n">window_size</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="moving_average_matrix">
+<a class="viewcode-back" href="../../src/dsp.html#das4whales.dsp.moving_average_matrix">[docs]</a>
+<span class="k">def</span> <span class="nf">moving_average_matrix</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">window_size</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">moving_average</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:],</span> <span class="n">window_size</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span></div>
 
 </pre></div>
         </article>

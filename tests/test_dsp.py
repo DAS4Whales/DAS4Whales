@@ -2,21 +2,74 @@ import numpy as np
 import pytest
 from das4whales.dsp import *
 
-# Test transformations
-#TODO: fix those tests
-# def test_get_fx():
-#     trace = np.array([1, 2, 3, 4, 5])
-#     nfft = 4
-#     fx = get_fx(trace, nfft)
-#     assert np.allclose(fx, np.array([1, 2, 3, 4]))
 
-# def test_get_spectrogram():
-#     waveform = np.array([1, 2, 3, 4, 5])
-#     fs = 10
-#     nfft = 4
-#     overlap_pct = 0.5
-#     spectrogram = get_spectrogram(waveform, fs, nfft, overlap_pct)
-#     assert spectrogram.shape == (3, 3)
+def test_resample():
+    """Test the resample function."""
+    # Test case 1: Downsampling
+    tr = np.random.randn(2, 1000)  # 2 channels, 1000 samples
+    fs = 1000
+    desired_fs = 500
+    
+    tr_resampled, fs_new, tx_new = resample(tr, fs, desired_fs)
+    
+    assert fs_new == desired_fs
+    assert tr_resampled.shape[0] == tr.shape[0]  # Same number of channels
+    assert tr_resampled.shape[1] == 500  # Half the samples
+    assert len(tx_new) == tr_resampled.shape[1]
+    
+    # Test case 2: Upsampling
+    tr = np.random.randn(3, 500)
+    fs = 500
+    desired_fs = 1000
+    
+    tr_resampled, fs_new, tx_new = resample(tr, fs, desired_fs)
+    
+    assert fs_new == desired_fs
+    assert tr_resampled.shape[0] == tr.shape[0]
+    assert tr_resampled.shape[1] == 1000  # Double the samples
+    assert len(tx_new) == tr_resampled.shape[1]
+
+
+def test_get_fx():
+    """Test the get_fx function."""
+    # Test case 1: Basic functionality
+    trace = np.random.randn(3, 512)
+    nfft = 512
+    
+    fx = get_fx(trace, nfft)
+    
+    assert fx.shape[0] == trace.shape[0]  # Same number of channels
+    assert fx.shape[1] == nfft  # FFT length
+    assert np.all(fx >= 0)  # Should be magnitude spectrum
+    
+    # Test case 2: Different FFT length
+    nfft = 256
+    fx = get_fx(trace, nfft)
+    assert fx.shape[1] == nfft
+
+
+def test_get_spectrogram():
+    """Test the get_spectrogram function."""
+    # Test case 1: Basic functionality
+    waveform = np.random.randn(1000)
+    fs = 1000.0
+    nfft = 128
+    overlap_pct = 0.8
+    
+    Sxx, t, f = get_spectrogram(waveform, fs, nfft, overlap_pct)
+    
+    assert len(f) == nfft // 2 + 1  # Frequency bins
+    assert len(t) > 0  # Time bins
+    assert Sxx.shape == (len(f), len(t))
+    assert np.all(f >= 0)  # Frequencies should be positive
+    
+    # Test case 2: Different parameters
+    nfft = 64
+    overlap_pct = 0.5
+    Sxx2, t2, f2 = get_spectrogram(waveform, fs, nfft, overlap_pct)
+    
+    assert len(f2) == nfft // 2 + 1
+    assert Sxx2.shape == (len(f2), len(t2))
 
 def test_fk_filter_design():
     trace_shape = (10, 10)

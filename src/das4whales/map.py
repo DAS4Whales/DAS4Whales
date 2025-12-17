@@ -141,10 +141,14 @@ def plot_cables2D(df_north, df_south, bathy, xlon, ylat):
     opticald_n = []
     opticald_s = []
 
-    for i in range(int(10000/2-df_north["chan_idx"].iloc[0]), len(df_north), int(10000/2)):
+
+    disp_step = 10000 # [m]
+    dx_ch = 2.0419 # [m]
+    idx_step = int(disp_step / dx_ch)
+    for i in range(int(idx_step-df_north["chan_idx"].iloc[0]), len(df_north), int(10000/2)):
         opticald_n.append((df_north['lon'][i], df_north['lat'][i]))
 
-    for i in range(int(10000/2-df_south["chan_idx"].iloc[0]), len(df_south), int(10000/2)):
+    for i in range(int(idx_step-df_south["chan_idx"].iloc[0]), len(df_south), int(10000/2)):
         opticald_s.append((df_south['lon'][i], df_south['lat'][i]))
 
     colors_undersea = cmo.deep_r(np.linspace(0, 1, 256)) # blue colors for under the sea
@@ -230,10 +234,14 @@ def plot_cables2D_m(df_north, df_south, bathy, xm, ym):
     opticald_n = []
     opticald_s = []
 
-    for i in range(int(10000/2), len(df_north), int(10000/2)):
+    disp_step = 10000 # [m]
+    dx_ch = 2.0419 # [m]
+    idx_step = int(disp_step / dx_ch)
+
+    for i in range(int(idx_step-df_north["chan_idx"].iloc[0]), len(df_north), int(10000/2)):
         opticald_n.append((df_north['x'][i], df_north['y'][i]))
 
-    for i in range(int(10000/2), len(df_south), int(10000/2)):
+    for i in range(int(idx_step-df_north["chan_idx"].iloc[0]), len(df_south), int(10000/2)):
         opticald_s.append((df_south['x'][i], df_south['y'][i]))
 
     # Chose a colormap to be sure that values above 0 are white, and values below 0 are blue
@@ -411,8 +419,8 @@ def latlon_to_utm(lon, lat, zone=10):
         The longitude.
     lat : float
         The latitude.
-    zone : int
-        The UTM zone.
+    zone : int, optional
+        The UTM zone (default is 10).
 
     Returns
     -------
@@ -433,3 +441,36 @@ def latlon_to_utm(lon, lat, zone=10):
     utm_x, utm_y = transformer.transform(lon, lat)
 
     return utm_x, utm_y
+
+
+def utm_to_latlon(utm_x, utm_y, zone=10):
+    """
+    Convert UTM coordinates to latitude and longitude for a specified zone.
+
+    Parameters
+    ----------
+    utm_x : float
+        The UTM x coordinate.
+    utm_y : float
+        The UTM y coordinate.
+    zone : int, optional
+        The UTM zone (default is 10).
+
+    Returns
+    -------
+    lon : float
+        The longitude.
+    lat : float
+        The latitude.
+    """
+    # Define the UTM coordinate system for the specified zone and the WGS84 coordinate system
+    utm_zone = pyproj.CRS(f"EPSG:326{zone:02d}")
+    wgs84 = pyproj.CRS("EPSG:4326")
+
+    # Create a transformer object to convert from UTM to WGS84
+    transformer = pyproj.Transformer.from_crs(utm_zone, wgs84, always_xy=True)
+
+    # Perform the transformation
+    lon, lat = transformer.transform(utm_x, utm_y)
+
+    return lon, lat

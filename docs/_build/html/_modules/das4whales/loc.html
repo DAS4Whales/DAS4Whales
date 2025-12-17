@@ -215,6 +215,10 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../../_static/DAS4Whales_logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../../_static/DAS4Whales_logo.png" alt="Dark Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">DAS4Whales  documentation</span>
   
@@ -277,29 +281,135 @@
 
 <span class="sd">This module provides functions for localizing the source of a sound source recorded by a DAS array.</span>
 
-<span class="sd">Author: Quentin Goestchel</span>
-<span class="sd">Date: 2024-06-18</span>
+<span class="sd">Author: Quentin Goestchel, Léa Bouffaut</span>
+<span class="sd">Date: 2024-06-18/2025-03-05</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">das4whales.spatial</span> <span class="kn">import</span> <span class="n">calc_das_section_bearing</span><span class="p">,</span> <span class="n">calc_source_position_lat_lon</span><span class="p">,</span> <span class="n">calc_dist_lat_lon</span>
 
 <div class="viewcode-block" id="calc_arrival_times">
 <a class="viewcode-back" href="../../api/das4whales.html#das4whales.loc.calc_arrival_times">[docs]</a>
 <span class="k">def</span> <span class="nf">calc_arrival_times</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">cable_pos</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">c0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the theoretical arrival times of a whale call at a given distance along the cable</span>
+<span class="sd">    Calculate theoretical arrival times of a whale call at a grid of positions or a single point.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    t0 : float or np.ndarray</span>
+<span class="sd">        Initial time offset. Can be a scalar or an array of time offsets.</span>
+
+<span class="sd">    cable_pos : np.ndarray</span>
+<span class="sd">        Array of cable positions with shape (N, 3), where N is the number of channels.</span>
+<span class="sd">        Each row represents [x, y, z] coordinates of a cable position.</span>
+
+<span class="sd">    pos : tuple of np.ndarray or float</span>
+<span class="sd">        If a grid is used, provide a tuple (xg, yg, zg) with xg and yg as 2D arrays.  </span>
+<span class="sd">        For a single point, provide (x, y, z) as floats or 1D arrays.</span>
+
+<span class="sd">    c0 : float</span>
+<span class="sd">        Speed of sound in water (in meters per second).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    th_arrtimes : np.ndarray</span>
+<span class="sd">        Theoretical arrival times at each grid point or point source.  </span>
+<span class="sd">        Shape is (M, L, N) for a grid, or (N,) for a single point.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Whale position or potential whale position</span>
-    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">pos</span>
-
-    <span class="c1"># Cable positions for each channel</span>
+    <span class="c1"># Extract cable positions</span>
     <span class="n">x_cable</span><span class="p">,</span> <span class="n">y_cable</span><span class="p">,</span> <span class="n">z_cable</span> <span class="o">=</span> <span class="n">cable_pos</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">cable_pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">cable_pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+    
+    <span class="c1"># Check if pos is a grid, a flattened grid or a single point</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c1"># Grid case (np.meshgrid)</span>
+        <span class="n">xg</span><span class="p">,</span> <span class="n">yg</span><span class="p">,</span> <span class="n">zg</span> <span class="o">=</span> <span class="n">pos</span>
+        <span class="n">x_exp</span> <span class="o">=</span> <span class="n">xg</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>  <span class="c1"># Shape (M, L, 1)</span>
+        <span class="n">y_exp</span> <span class="o">=</span> <span class="n">yg</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">z_exp</span> <span class="o">=</span> <span class="n">zg</span>  <span class="c1"># Scalar or array</span>
 
-    <span class="n">th_arrtimes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">x_cable</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">y_cable</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">z_cable</span> <span class="o">-</span> <span class="n">z</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">c0</span>
+        <span class="c1"># Calculate distances for grid</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">x_cable</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">x_exp</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span>
+                       <span class="p">(</span><span class="n">y_cable</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">y_exp</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span>
+                       <span class="p">(</span><span class="n">z_cable</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">z_exp</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="c1">#flattened grid case</span>
+        <span class="c1"># Flattened grid case</span>
+        <span class="n">xg</span><span class="p">,</span> <span class="n">yg</span><span class="p">,</span> <span class="n">zg</span> <span class="o">=</span> <span class="n">pos</span>
+        <span class="n">x_exp</span> <span class="o">=</span> <span class="n">xg</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">y_exp</span> <span class="o">=</span> <span class="n">yg</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">z_exp</span> <span class="o">=</span> <span class="n">zg</span>
 
-    <span class="k">return</span> <span class="n">t0</span> <span class="o">+</span> <span class="n">th_arrtimes</span></div>
+        <span class="c1"># Calculate distances for flattened grid</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">x_cable</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">x_exp</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span>
+                       <span class="p">(</span><span class="n">y_cable</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">y_exp</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span>
+                       <span class="p">(</span><span class="n">z_cable</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">z_exp</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Single point case</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">pos</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">x_cable</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span>
+                       <span class="p">(</span><span class="n">y_cable</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span>
+                       <span class="p">(</span><span class="n">z_cable</span> <span class="o">-</span> <span class="n">z</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
 
+    <span class="c1"># Calculate arrival times</span>
+    <span class="n">th_arrtimes</span> <span class="o">=</span> <span class="n">t0</span> <span class="o">+</span> <span class="n">dist</span> <span class="o">/</span> <span class="n">c0</span>
+
+    <span class="k">return</span> <span class="n">th_arrtimes</span></div>
+
+
+
+<div class="viewcode-block" id="calc_theory_toa">
+<a class="viewcode-back" href="../../api/das4whales.html#das4whales.loc.calc_theory_toa">[docs]</a>
+<span class="k">def</span> <span class="nf">calc_theory_toa</span><span class="p">(</span><span class="n">das_position</span><span class="p">,</span> <span class="n">whale_position</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">c0</span><span class="o">=</span><span class="mi">1490</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate theoretical Time of Arrival (TOA) for a whale call with known position relative to the cable.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        das_position (dict): A dictionary containing latitude, longitude, and depth information of the cable (DAS) positions.</span>
+<span class="sd">        whale_position (dict): A dictionary containing at least whale apex, offset, side and depth</span>
+<span class="sd">        dist (numpy.ndarray): An array containing distances along the cable.</span>
+<span class="sd">        c0 (float, optional): The speed of sound in water in meters per second. Defaults to 1490 m/s.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.ndarray: An array containing the theoretical TOAs for each position along the cable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Find the index of whale_apex_m in dist</span>
+    <span class="n">ind_whale_apex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">dist</span> <span class="o">&gt;=</span> <span class="n">whale_position</span><span class="p">[</span><span class="s1">&#39;apex&#39;</span><span class="p">])[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Get the bearing of the DAS cable around whale position</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">das_bearing</span> <span class="o">=</span> <span class="n">calc_das_section_bearing</span><span class="p">(</span>
+        <span class="n">das_position</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">][</span><span class="n">ind_whale_apex</span> <span class="o">-</span> <span class="n">step</span><span class="p">],</span>
+        <span class="n">das_position</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">][</span><span class="n">ind_whale_apex</span> <span class="o">-</span> <span class="n">step</span><span class="p">],</span>
+        <span class="n">das_position</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">][</span><span class="n">ind_whale_apex</span> <span class="o">+</span> <span class="n">step</span><span class="p">],</span>
+        <span class="n">das_position</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">][</span><span class="n">ind_whale_apex</span> <span class="o">+</span> <span class="n">step</span><span class="p">])</span>
+
+    <span class="c1"># Get the whale position</span>
+    <span class="n">whale_position</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">],</span> <span class="n">whale_position</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calc_source_position_lat_lon</span><span class="p">(</span>
+        <span class="n">das_position</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">][</span><span class="n">ind_whale_apex</span><span class="p">],</span>
+        <span class="n">das_position</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">][</span><span class="n">ind_whale_apex</span><span class="p">],</span>
+        <span class="n">whale_position</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">],</span>
+        <span class="n">das_bearing</span><span class="p">,</span>
+        <span class="n">whale_position</span><span class="p">[</span><span class="s1">&#39;side&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Create an updated whale position dictionary</span>
+    <span class="c1"># print(f&quot;whale position {whale_position}&quot;)</span>
+
+    <span class="c1"># Calculate 3D distance for each element in DAS_position</span>
+    <span class="n">distances</span> <span class="o">=</span> <span class="n">calc_dist_lat_lon</span><span class="p">(</span><span class="n">whale_position</span><span class="p">,</span> <span class="n">das_position</span><span class="p">)</span>
+
+    <span class="c1"># Calculate depth differences</span>
+    <span class="n">depth_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">das_position</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">])</span> <span class="o">-</span> <span class="n">whale_position</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Calculate total distance (3D)</span>
+    <span class="n">total_distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">distances</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">depth_diff</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Calculate theoretical TOAs</span>
+    <span class="n">toa</span> <span class="o">=</span> <span class="p">(</span><span class="n">total_distance</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">total_distance</span><span class="p">))</span> <span class="o">/</span> <span class="n">c0</span>
+
+    <span class="k">return</span> <span class="n">toa</span></div>
 
 
 <div class="viewcode-block" id="calc_distance_matrix">
@@ -345,7 +455,7 @@
 
 <div class="viewcode-block" id="solve_lq">
 <a class="viewcode-back" href="../../api/das4whales.html#das4whales.loc.solve_lq">[docs]</a>
-<span class="k">def</span> <span class="nf">solve_lq</span><span class="p">(</span><span class="n">Ti</span><span class="p">,</span> <span class="n">cable_pos</span><span class="p">,</span> <span class="n">c0</span><span class="p">,</span> <span class="n">Nbiter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fix_z</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ninit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">solve_lq</span><span class="p">(</span><span class="n">Ti</span><span class="p">,</span> <span class="n">cable_pos</span><span class="p">,</span> <span class="n">c0</span><span class="p">,</span> <span class="n">Nbiter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fix_z</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ninit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">residuals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Solve the least squares problem to localize the whale</span>
 
@@ -407,6 +517,7 @@
 
         <span class="n">dn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">G</span> <span class="o">+</span> <span class="n">lambda_identity</span><span class="p">)</span> <span class="o">@</span> <span class="n">G</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">dt</span>
 
+        <span class="c1"># Damping factor</span>
         <span class="k">if</span> <span class="n">j</span><span class="o">&lt;</span><span class="mi">4</span><span class="p">:</span>
             <span class="n">n</span> <span class="o">+=</span> <span class="mf">0.7</span> <span class="o">*</span> <span class="n">dn</span>
         <span class="k">else</span><span class="p">:</span>
@@ -414,13 +525,20 @@
 
         <span class="k">if</span> <span class="n">fix_z</span><span class="p">:</span>
             <span class="c1"># reappend z to n in index 2 (before index 3)</span>
-            <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dz</span><span class="p">)</span>            
+            <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dz</span><span class="p">)</span> 
+                       
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Iteration </span><span class="si">{</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">: x = </span><span class="si">{</span><span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1"> m, y = </span><span class="si">{</span><span class="n">n</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">, z = </span><span class="si">{</span><span class="n">n</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">, ti = </span><span class="si">{</span><span class="n">n</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Iteration </span><span class="si">{</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">: x = </span><span class="si">{</span><span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1"> m, y = </span><span class="si">{</span><span class="n">n</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">, z = </span><span class="si">{</span><span class="n">n</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">, ti = </span><span class="si">{</span><span class="n">n</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="c1"># Compute final residuals</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">Ti</span> <span class="o">-</span> <span class="n">calc_arrival_times</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">cable_pos</span><span class="p">,</span> <span class="n">n</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">c0</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">n</span></div>
+    <span class="k">if</span> <span class="n">residuals</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">n</span><span class="p">,</span> <span class="n">res</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">n</span></div>
 
-
+    
 
 <div class="viewcode-block" id="cal_variance_residuals">
 <a class="viewcode-back" href="../../api/das4whales.html#das4whales.loc.cal_variance_residuals">[docs]</a>
@@ -517,6 +635,7 @@
     <span class="n">unc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">cov</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">unc</span></div>
+
 
 </pre></div>
         </article>

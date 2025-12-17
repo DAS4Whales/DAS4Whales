@@ -49,8 +49,8 @@ exclude_patterns = [
 html_theme = 'furo' #'sphinx_rtd_theme'
 
 html_theme_options = {
-    # "light_logo": "images/light_logo.png",  # Path to your light theme logo
-    # "dark_logo": "images/dark_logo.png",    # Path to your dark theme logo
+    "light_logo": "DAS4Whales_logo.png",  # Path to your light theme logo
+    "dark_logo": "DAS4Whales_logo.png",    # Path to your dark theme logo
     "light_css_variables": {
         "color-brand-primary": "#005f73",  # Ocean Blue
         "color-brand-content": "#0a9396",  # Aqua/Turquoise

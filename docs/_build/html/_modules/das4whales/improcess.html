@@ -215,6 +215,10 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../../_static/DAS4Whales_logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../../_static/DAS4Whales_logo.png" alt="Dark Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">DAS4Whales  documentation</span>
   
@@ -318,8 +322,8 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">img</span> <span class="o">=</span> <span class="p">(</span><span class="n">img</span> <span class="o">-</span> <span class="n">img</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">/</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">img</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">*</span> <span class="n">scale_factor</span>
-    <span class="k">return</span> <span class="n">img</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span></div>
+    <span class="n">img</span> <span class="o">=</span> <span class="p">(</span><span class="n">img</span> <span class="o">-</span> <span class="n">img</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">img</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">*</span> <span class="n">scale_factor</span>
+    <span class="k">return</span> <span class="n">img</span></div>
 
 
 
@@ -401,6 +405,10 @@
 <span class="sd">        The Gabor filters.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Sampling frequency (CAUTION: only for visualization of the filter shape, not for the actual processing)</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="mi">200</span>
+    <span class="c1"># Spatial resolution (CAUTION: only for visualization of the filter shape, not for the actual processing)</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="mf">4.0838094</span>
 
     <span class="c1"># Define parameters for the Gabor filter</span>
     <span class="n">ksize</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># Kernel size </span>
@@ -414,17 +422,37 @@
     <span class="n">gabor_filtdown</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">gabor_filtup</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">gabor_filtup</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdBu_r&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time indices&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Distance indices&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">)</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+        <span class="c1"># Primary image</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">gabor_filtup</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdBu_r&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time indices&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Distance indices&#39;</span><span class="p">)</span>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">gabor_filtdown</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdBu_r&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time indices&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">)</span>
+        <span class="c1"># Filter ticks within visible range</span>
+        <span class="n">visible_xticks</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xticks</span><span class="p">()[(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xticks</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xticks</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">1</span><span class="p">])]</span>
+        <span class="n">visible_yticks</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_yticks</span><span class="p">()[(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_yticks</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_yticks</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">1</span><span class="p">])]</span>
+
+        <span class="c1"># Add a secondary x-axis (top) for time in seconds</span>
+        <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">secondary_xaxis</span><span class="p">(</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">visible_xticks</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ksize</span> <span class="o">/</span> <span class="n">fs</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">visible_xticks</span><span class="p">)),</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time [s]&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Add a secondary y-axis (right) for distance in meters</span>
+        <span class="n">ax3</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">secondary_yaxis</span><span class="p">(</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">visible_yticks</span><span class="p">)</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ksize</span> <span class="o">*</span> <span class="n">dx</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">visible_yticks</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Distance [m]&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Add a colorbar with adjusted padding</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;Gain []&#39;</span><span class="p">)</span>
+
+        <span class="c1"># xlims and ylims</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ksize</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ksize</span><span class="p">)</span>
+        
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">gabor_filtup</span><span class="p">,</span> <span class="n">gabor_filtdown</span></div>
@@ -727,7 +755,6 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># img = cv2.resize(image, (0, 0), fx=ft, fy=fx, interpolation=cv2.INTER_AREA)</span>
-
 
     <span class="n">imagebin</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">()(</span><span class="n">image</span><span class="p">)</span>    
     <span class="n">imagebin</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Resize</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">fx</span><span class="p">)</span> <span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">ft</span><span class="p">)))(</span><span class="n">imagebin</span><span class="p">)</span>
