@@ -12,10 +12,15 @@ import numpy as np
 import cv2
 import scipy.signal as sp
 import matplotlib.pyplot as plt
-import torch
-import torch.nn.functional as F
-import torchvision.transforms as transforms
 from skimage.transform import radon, iradon
+
+try:
+    import torch
+    import torch.nn.functional as F
+    import torchvision.transforms as transforms
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
 from scipy.ndimage import gaussian_filter as scipy_gaussian_filter
 from scipy.ndimage import median_filter
 from joblib import Parallel, delayed
@@ -274,6 +279,9 @@ def diagonal_edge_detection(img, threshold):
         The diagonal edges in the image.
 
     """
+    if not TORCH_AVAILABLE:
+        raise ImportError("torch and torchvision are required for diagonal_edge_detection. "
+                         "Install them with: pip install das4whales[improcess]")
 
     img = torch.tensor(img, dtype=torch.float32)
 
@@ -440,8 +448,9 @@ def binning(image, ft, fx):
     numpy.ndarray
         The binned image.
     """
-
-    # img = cv2.resize(image, (0, 0), fx=ft, fy=fx, interpolation=cv2.INTER_AREA)
+    if not TORCH_AVAILABLE:
+        raise ImportError("torch and torchvision are required for binning. "
+                         "Install them with: pip install das4whales[improcess]")
 
     imagebin = transforms.ToTensor()(image)    
     imagebin = transforms.Resize((int(image.shape[0] * fx) , int(image.shape[1] * ft)))(imagebin)

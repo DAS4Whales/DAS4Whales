@@ -38,11 +38,8 @@ dependencies = [
     "pytest",
     "xarray",
     "tqdm",
-    "torch",
     "opencv-python",
     "scikit-image",
-    "opencv-python",
-    "torchvision",
     "numpydoc",
     "pyproj",
     "pandas",
@@ -72,5 +69,14 @@ docs = [
   "sphinx >=4.0",
   "sphinx-copybutton",
   "sphinx-autodoc-typehints",
+]
+improcess = [
+  "torch",
+  "torchvision",
+]
+
+dev = [
+  "torch",
+  "torchvision",
 ]
 

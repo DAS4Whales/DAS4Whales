@@ -53,7 +53,7 @@ jobs:
 
       - name: Install package
         run: |
-          pip install dist/*.tar.gz
+          pip install dist/*.tar.gz[dev]
 
       - name: Run tests
         run: pytest
