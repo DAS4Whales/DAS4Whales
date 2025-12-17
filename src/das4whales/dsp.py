@@ -7,17 +7,22 @@ Authors: Léa Bouffaut, Quentin Goestchel
 Date: 2023-2024-2025
 """
 
-import numpy as np
-import scipy.signal as sp
-import librosa
-import sparse
-from scipy import ndimage
-from numpy.fft import fft2, fftfreq, fftshift, ifft2, ifftshift
+from __future__ import annotations
+
+from typing import Dict, List, Tuple, Union, Optional, Any
+
 import cv2
-import deprecation  
+import deprecation
+import librosa
+import numpy as np
+import scipy.fft as sfft
+import scipy.signal as sp
+import sparse
+from numpy.fft import fft2, fftfreq, fftshift, ifft2, ifftshift
+from scipy import ndimage  
 
 # Digital sampling
-def resample(tr, fs, desired_fs):
+def resample(tr: np.ndarray, fs: int, desired_fs: int) -> Tuple[np.ndarray, int, np.ndarray]:
     """
     Resample a multi-channel signal to a desired sampling frequency.
 
@@ -58,7 +63,7 @@ def resample(tr, fs, desired_fs):
     return tr_downsampled, fs_downsampled, tx_downsampled
 
 # Transformations
-def get_fx(trace, nfft):
+def get_fx(trace: np.ndarray, nfft: int) -> np.ndarray:
     """
     Apply a fast Fourier transform (FFT) to each channel of the strain data matrix.
 
@@ -81,7 +86,7 @@ def get_fx(trace, nfft):
     return fx
 
 
-def get_spectrogram(waveform, fs, nfft=128, overlap_pct=0.8):
+def get_spectrogram(waveform: np.ndarray, fs: float, nfft: int = 128, overlap_pct: float = 0.8) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Get the spectrogram of a single channel
 
@@ -1065,9 +1070,11 @@ def fk_filter_sparsefilt(trace, fk_filter_matrix, tapering=False):
     """
     if tapering:
         trace = taper_data(trace)
+    
+    trace = np.asarray(trace, dtype=np.complex64)
 
     # Calculate the frequency-wavenumber spectrum
-    fk_trace = np.fft.fftshift(np.fft.fft2(trace))
+    fk_trace = np.fft.fftshift(sfft.fft2(trace, workers=-1))
 
     # Apply the filter
     fk_filtered_trace = fk_trace * fk_filter_matrix
@@ -1076,7 +1083,7 @@ def fk_filter_sparsefilt(trace, fk_filter_matrix, tapering=False):
         # Convert the sparse matrix to a dense format
         fk_filtered_trace = fk_filtered_trace.todense()
     # Back to the t-x domain
-    trace = np.fft.ifft2(np.fft.ifftshift(fk_filtered_trace))
+    trace = sfft.ifft2(np.fft.ifftshift(fk_filtered_trace), workers=-1)
 
     return trace.real
 

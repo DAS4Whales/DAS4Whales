@@ -7,17 +7,22 @@ Author: Quentin Goestchel
 Date: 2023-2024
 """
 
+from __future__ import annotations
+
+import concurrent.futures
+from typing import Dict, List, Tuple, Union, Optional, Any
+
 import librosa
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import scipy.signal as sp
 import scipy.stats as st
 from tqdm import tqdm
-from das4whales.plot import import_roseus 
-import concurrent.futures
+
+from das4whales.plot import import_roseus
 
 ## Matched filter detection functions:
-def gen_linear_chirp(fmin, fmax, duration, sampling_rate):
+def gen_linear_chirp(fmin: float, fmax: float, duration: float, sampling_rate: int) -> np.ndarray:
     """Generate a linear chirp signal.
 
     Parameters
@@ -41,7 +46,7 @@ def gen_linear_chirp(fmin, fmax, duration, sampling_rate):
     return y
 
 
-def gen_hyperbolic_chirp(fmin, fmax, duration, sampling_rate):
+def gen_hyperbolic_chirp(fmin: float, fmax: float, duration: float, sampling_rate: int) -> np.ndarray:
     """Generate a hyperbolic chirp signal.
 
     Parameters
@@ -65,7 +70,7 @@ def gen_hyperbolic_chirp(fmin, fmax, duration, sampling_rate):
     return y
 
 
-def gen_template_fincall(time, fs, fmin = 15., fmax = 25., duration = 1., window=True):
+def gen_template_fincall(time: np.ndarray, fs: float, fmin: float = 15., fmax: float = 25., duration: float = 1., window: bool = True) -> np.ndarray:
     """ generate template of a fin whale call
 
     Parameters
@@ -93,7 +98,7 @@ def gen_template_fincall(time, fs, fmin = 15., fmax = 25., duration = 1., window
     return template
 
 
-def shift_xcorr(x, y):
+def shift_xcorr(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     """compute the shifted (positive lags only) cross correlation between two 1D arrays
 
     Parameters
@@ -113,7 +118,7 @@ def shift_xcorr(x, y):
     return corr[len(x)-1 :]
 
 
-def shift_nxcorr(x, y):
+def shift_nxcorr(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     """Compute the shifted (positive lags only) normalized cross-correlation with standard deviation normalization.
 
     Parameters
@@ -138,7 +143,7 @@ def shift_nxcorr(x, y):
     return normalized_corr[len(x)-1 :]
 
 
-def compute_cross_correlogram(data, template):
+def compute_cross_correlogram(data: np.ndarray, template: np.ndarray) -> np.ndarray:
     """
     Compute the cross correlogram between the given data and template.
 
@@ -167,7 +172,7 @@ def compute_cross_correlogram(data, template):
     return cross_correlogram
 
 
-def calc_nmf(data, template):
+def calc_nmf(data: np.ndarray, template: np.ndarray) -> np.ndarray:
     """
     Calculate the normalized matched filter between the input data and the template.
 
@@ -187,7 +192,7 @@ def calc_nmf(data, template):
     return nmf
 
 
-def calc_nmf_correlogram(data, template):
+def calc_nmf_correlogram(data: np.ndarray, template: np.ndarray) -> np.ndarray:
     """
     Calculate the normalized matched filter correlogram between the input data and the template.
 
@@ -223,7 +228,7 @@ def calc_nmf_correlogram(data, template):
     return nmf_correlogram
 
 
-def pick_times_env(corr_m, threshold):
+def pick_times_env(corr_m: np.ndarray, threshold: float) -> List[np.ndarray]:
     """Detects the peak times in a correlation matrix. Parallelized version : pick_times_par
 
     This function takes a correlation matrix, computes the Hilbert transform of each correlation,
@@ -253,7 +258,7 @@ def pick_times_env(corr_m, threshold):
     return peaks_indexes_m
 
 
-def process_corr(corr, threshold):
+def process_corr(corr: np.ndarray, threshold: float) -> np.ndarray:
     """Detects the peak times in a correlation serie, kernel for parallelization.
 
     This function takes a correlation serie, computes the Hilbert transform of the correlation, and detects the peak times based on a given threshold.
@@ -276,7 +281,7 @@ def process_corr(corr, threshold):
     return peaks_indexes
 
 
-def pick_times_par(corr_m, threshold):
+def pick_times_par(corr_m: np.ndarray, threshold: float) -> List[np.ndarray]:
     """Detects the peak times in a correlation matrix using parallel processing.
 
     This function takes a correlation matrix, computes the Hilbert transform of each correlation,
@@ -304,7 +309,7 @@ def pick_times_par(corr_m, threshold):
     return peaks_indexes_m
 
 
-def pick_times(corr_m, threshold, ipi_idx):
+def pick_times(corr_m: np.ndarray, threshold: float, ipi_idx: int) -> List[np.ndarray]:
     """Detects the peak times in a correlation matrix.
 
     This function takes a correlation matrix, computes the Hilbert transform of each correlation,
@@ -334,7 +339,7 @@ def pick_times(corr_m, threshold, ipi_idx):
     return peaks_indexes_m
 
 
-def convert_pick_times(peaks_indexes_m):
+def convert_pick_times(peaks_indexes_m: List[np.ndarray]) -> Tuple[np.ndarray, np.ndarray]:
     """
     Convert pick times from a list of lists to a numpy array.
 
@@ -360,6 +365,7 @@ def convert_pick_times(peaks_indexes_m):
             peaks_indexes_tp[1].append(el)
 
     peaks_indexes_tp = np.asarray(peaks_indexes_tp)
+    # TODO: test = np.column_stack((nlf_assoc_list[0][0], nlf_assoc_list[0][1]))
 
     return peaks_indexes_tp
 
@@ -768,3 +774,77 @@ def compute_cross_correlogram_spectrocorr(data, fs, flims, kernel, win_size, ove
         cross_correlogram[i, :] = xcorr2d(spectro, kernel)
 
     return cross_correlogram
+
+
+def resolve_hf_lf_crosstalk(input_peaks: np.ndarray, comp_peaks: np.ndarray, 
+                    input_SNR: np.ndarray, comp_SNR: np.ndarray, dt_tol: int, dx_tol: int):
+    #TODO: maybe parallelize this function to speed up the process
+    """ Sort peaks that are at the same distance and time but keep the one with higher SNR
+    to differentiate between HF and LF peaks.
+    
+    Parameters
+    ----------
+    input_peaks : np.ndarray
+        Array of shape (2, n_peaks) containing [distance_indices, time_indices] of the input peaks.
+    comp_peaks : np.ndarray
+        Array of shape (2, n_peaks) containing [distance_indices, time_indices] of the comparison peaks.
+    input_SNR : np.ndarray
+        Array of shape (n_peaks_input) containing the SNR values for the input peaks
+    comp_SNR : np.ndarray
+        Array of shape (n_peaks_comp) containing the SNR values for the comparison peaks
+    dt_tol : int
+        Tolerance in time index to consider peaks as matching.
+    dx_tol : int
+        Tolerance in distance index to consider peaks as matching.
+    """
+    # Make copies to avoid modifying input arrays
+    input_peaks = input_peaks.copy()
+    comp_peaks = comp_peaks.copy()
+    input_SNR = input_SNR.copy()
+    comp_SNR = comp_SNR.copy()
+    
+    # Track which peaks to keep (start with all True)
+    input_keep = np.ones(input_peaks.shape[1], dtype=bool)
+    comp_keep = np.ones(comp_peaks.shape[1], dtype=bool)
+    
+    ix = comp_peaks[0, :]
+    it = comp_peaks[1, :]
+    
+    for i, (d, t) in tqdm(enumerate(zip(ix, it)), total=len(ix), desc="Post-filtering hf/lf detections"):
+        # Skip if this comparison peak is already marked for removal
+        if not comp_keep[i]:
+            continue
+            
+        # Find matching input peaks within tolerance
+        dist_match = np.abs(input_peaks[0, :] - d) <= dx_tol
+        time_match = np.abs(input_peaks[1, :] - t) <= dt_tol
+        mask = dist_match & time_match
+        
+        # Only consider peaks that are still marked to keep
+        valid_mask = mask & input_keep
+        
+        if np.sum(valid_mask) > 0:
+            # print(f"Found {np.sum(valid_mask)} matching input peaks for comparison peak {i} at distance {d} and time {t}.")
+            
+            # Get indices of valid matching input peaks
+            input_match_indices = np.where(valid_mask)[0]
+            
+            # Compare with the first valid matching input peak
+            input_idx = input_match_indices[0]
+            
+            if input_SNR[input_idx] > comp_SNR[i]:
+                # Mark comparison peak for removal
+                comp_keep[i] = False
+                # print(f"Removing comparison peak {i} (SNR: {comp_SNR[i]:.2f}) in favor of input peak {input_idx} (SNR: {input_SNR[input_idx]:.2f})")
+            else:
+                # Mark all matching input peaks for removal
+                input_keep[input_match_indices] = False
+                # print(f"Removing {len(input_match_indices)} input peaks in favor of comparison peak {i} (SNR: {comp_SNR[i]:.2f})")
+    
+    # Filter arrays to keep only selected peaks
+    input_peaks_out = input_peaks[:, input_keep]
+    input_SNR_out = input_SNR[input_keep]
+    comp_peaks_out = comp_peaks[:, comp_keep]
+    comp_SNR_out = comp_SNR[comp_keep]
+    
+    return input_peaks_out, input_SNR_out, comp_peaks_out, comp_SNR_out

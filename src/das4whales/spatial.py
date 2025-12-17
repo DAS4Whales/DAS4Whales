@@ -6,9 +6,13 @@ Authors: Léa Bouffaut
 Date: 2025
 """
 
+from __future__ import annotations
+
+from typing import Dict, List, Tuple, Union, Optional, Any
+
 import numpy as np
 
-def to_rad(degree):
+def to_rad(degree: float) -> float:
     """
     Convert angle from degrees to radians.
 
@@ -24,7 +28,7 @@ def to_rad(degree):
     """
     return degree * np.pi / 180
 
-def degree_to_km_at_latitude(latitude):
+def degree_to_km_at_latitude(latitude: float) -> float:
     """
     Convert degrees of longitude to kilometers at a specific latitude.
 

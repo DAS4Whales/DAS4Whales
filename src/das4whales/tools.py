@@ -1,11 +1,16 @@
-import xarray as xr
-import numpy as np
-from matplotlib import pyplot as plt
-import pandas as pd
-from scipy import signal, ndimage
-import dask
+from __future__ import annotations
 
-def fk_filt_chunk(data,tint,fs,xint,dx,c_min,c_max):
+from typing import Dict, List, Tuple, Union, Optional, Any
+
+import dask
+import numpy as np
+import pandas as pd
+import xarray as xr
+from matplotlib import pyplot as plt
+from scipy import signal, ndimage
+
+
+def fk_filt_chunk(data: xr.DataArray, tint: float, fs: float, xint: float, dx: float, c_min: float, c_max: float) -> xr.DataArray:
     '''
     fk_filt_chunk - perform fk filtering on single chunk of DAS data
 
@@ -58,7 +63,7 @@ def fk_filt_chunk(data,tint,fs,xint,dx,c_min,c_max):
     return data_gx
 
 
-def fk_filt(data,tint,fs,xint,dx,c_min,c_max):
+def fk_filt(data: xr.DataArray, tint: float, fs: float, xint: float, dx: float, c_min: float, c_max: float) -> xr.DataArray:
     '''
     fk_filt - perform fk filtering on DAS data
 
@@ -81,7 +86,7 @@ def fk_filt(data,tint,fs,xint,dx,c_min,c_max):
     return data_gx
 
 
-def _energy_TimeDomain_chunk(da, time_dim='time'):
+def _energy_TimeDomain_chunk(da: xr.DataArray, time_dim: str = 'time') -> xr.DataArray:
     '''
     _energy_TimeDomain_chunk - chunkwise function for energy_TimeDomain
 
@@ -101,7 +106,7 @@ def _energy_TimeDomain_chunk(da, time_dim='time'):
     return (da**2).sum(time_dim, keepdims=True)
 
 
-def energy_TimeDomain(da, time_dim='time'):
+def energy_TimeDomain(da: xr.DataArray, time_dim: str = 'time') -> xr.DataArray:
     '''
     energy_TimeDomain - calculate energy in time domain using parsevals theorem
         energy is calculated for each chunk in time_dim
@@ -158,7 +163,7 @@ def energy_TimeDomain(da, time_dim='time'):
 
 
 # I think everything below this is implemented in xrsignal
-def filtfilt(da, dim, **kwargs):
+def filtfilt(da: xr.DataArray, dim: str, **kwargs) -> xr.DataArray:
     '''
     filtfilt - this is an implentation of [scipy.signal.fitlfilt](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.filtfilt.html)
     This will filter the DAS data in time for each chunk. This process maps chunks and will therefore have error at the end of chunks in time.
@@ -187,7 +192,7 @@ def filtfilt(da, dim, **kwargs):
     return da_filt
 
 
-def filtfilt_chunk(da, dim='time', **kwargs):
+def filtfilt_chunk(da: xr.DataArray, dim: str = 'time', **kwargs) -> xr.DataArray:
     '''
     converts dataarray to numpy, sends it to signal.filtfilt and then reinhereits all coordinates
 
@@ -209,7 +214,7 @@ def filtfilt_chunk(da, dim='time', **kwargs):
     return da_filtx
 
 
-def spec(da):
+def spec(da: xr.DataArray) -> xr.DataArray:
     '''
     very quick implementation to calculate spectrogram
         PSD is calculated for every chunk
@@ -225,7 +230,7 @@ def spec(da):
     return da.map_blocks(__spec_chunk, template=template)
 
 
-def __spec_chunk(da):
+def __spec_chunk(da: xr.DataArray) -> xr.DataArray:
     '''
     compute PSD for single chunk
 
@@ -236,7 +241,7 @@ def __spec_chunk(da):
     return xr.DataArray(Pxx, dims='frequency', coords={'frequency':f})
 
 
-def disp_comprate(fk_filter):
+def disp_comprate(fk_filter: Any) -> None:
     """Display the sizes of the f-k filter matrix (sparse and dense version) and print the compression ratio
 
     Parameters
