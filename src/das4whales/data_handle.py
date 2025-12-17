@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 import wget
 from nptdms import TdmsFile
-# Check if simpledas is installed #TODO: get rid of simpledas dependency?
+# Check if simpledas is installed (optional dependency for ASN interrogator support)
 try :
     from simpledas import simpleDASreader as sd
     SIMPLEDAS_AVAILABLE = True
@@ -326,7 +326,7 @@ def load_das_data(filename: str, selected_channels: List[int], metadata: Dict[st
 
     elif interrogator == 'asn':
         if not SIMPLEDAS_AVAILABLE:
-            raise ImportError("simpledas package is required to load ASN interrogator data. Please install it to proceed using pip install das4whales[dev].")
+            raise ImportError("simpledas package is required to load ASN interrogator data. Please install it using: pip install git+https://github.com/qgoestch/simpleDAS")
         
         dfdas = sd.load_DAS_files(filename, chIndex=None, samples=None, sensitivitySelect=-3,
                                   userSensitivity={'sensitivity': metadata['scale_factor'],
