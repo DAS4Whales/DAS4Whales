@@ -45,7 +45,6 @@ dependencies = [
     "pandas",
     "deprecation",
     "cmocean",
-    "simpledas@git+https://github.com/qgoestch/simpleDAS" ## TODO: change to https://github.com/ASN-Norway/simpleDAS when https://github.com/ASN-Norway/simpleDAS/issues/9 is resolved
 ]
 
 [project.urls]
@@ -78,5 +77,6 @@ improcess = [
 dev = [
   "torch",
   "torchvision",
+  "simpledas@git+https://github.com/qgoestch/simpleDAS", ## TODO: change to https://github.com/ASN-Norway/simpleDAS when https://github.com/ASN-Norway/simpleDAS/issues/9 is resolved
 ]
 
