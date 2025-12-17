@@ -77,6 +77,8 @@ improcess = [
 dev = [
   "torch",
   "torchvision",
-  "simpledas@git+https://github.com/qgoestch/simpleDAS", ## TODO: change to https://github.com/ASN-Norway/simpleDAS when https://github.com/ASN-Norway/simpleDAS/issues/9 is resolved
+  # Note: simpledas must be installed separately for ASN interrogator support
+  # pip install git+https://github.com/qgoestch/simpleDAS
+  # TODO: change to https://github.com/ASN-Norway/simpleDAS when https://github.com/ASN-Norway/simpleDAS/issues/9 is resolved
 ]
 
