@@ -46,7 +46,7 @@ def get_acquisition_parameters(filepath: str, interrogator: str = 'optasense') -
     filepath : str
         The file path to the data file.
     interrogator : str, optional
-        The interrogator type, one of {'optasense', 'silixa', 'mars', 'alcatel', 'onyx'}.
+        The interrogator type, one of {'optasense', 'silixa', 'mars', 'alcatel', 'onyx', }.
         Defaults to 'optasense'.
 
     Returns
@@ -62,7 +62,7 @@ def get_acquisition_parameters(filepath: str, interrogator: str = 'optasense') -
     """
     # List the known used interrogators:
 
-    interrogator_list = ['optasense', 'silixa', 'mars', 'asn', 'onyx']
+    interrogator_list = ['optasense', 'silixa', 'mars', 'asn', 'onyx', 'fosina', 'fosina_dxs', 'dxs']
 
     if interrogator in interrogator_list:
 
@@ -80,6 +80,9 @@ def get_acquisition_parameters(filepath: str, interrogator: str = 'optasense') -
         
         elif interrogator == 'onyx':
             metadata = get_metadata_onyx(filepath)
+            
+        elif interrogator in ('fosina', 'fosina_dxs', 'dxs'):
+            metadata = get_metadata_fosina_dxs(filepath)
 
     else:
         raise ValueError('Interrogator name incorrect')
@@ -247,6 +250,54 @@ def get_metadata_onyx(filepath: str) -> Dict[str, Any]:
     
     return meta_data
 
+def get_metadata_fosina_dxs(filepath):
+    """Gets DAS acquisition parameters for the Fosina DxS interrogator
+
+    Parameters
+    ----------
+    filepath : string
+        a string containing the full path to the data to load
+
+    Returns
+    -------
+    metadata : dict
+        dictionary filled with metadata, key's breakdown:\n
+        fs: the sampling frequency (Hz)\n
+        dx: interval between two virtual sensing points also called channel spacing (m)\n
+        nx: the number of spatial samples also called channels\n
+        ns: the number of time samples\n
+        n: refractive index of the fiber\n
+        GL: the gauge length (m)\n
+        scale_factor: the value to convert DAS data from strain rate to strain
+
+    """
+    # Make sure the file exists
+    if os.path.exists(filepath):
+        # Ensure the closure of the file after reading
+        with h5py.File(filepath, 'r') as fp1:
+
+            fs = fp1['Acquisition']['Raw[0]'].attrs['OutputDataRate']  # sampling rate in Hz
+            dx = fp1['Acquisition'].attrs['SpatialSamplingInterval']  # channel spacing in m
+            ns = fp1['Acquisition']['Raw[0]']['RawDataTime'].attrs['Count']
+            GL = fp1['Acquisition'].attrs['GaugeLength']  # gauge length in m
+            nx = fp1['Acquisition']['Raw[0]'].attrs['NumberOfLoci']  # number of channels
+            
+            wavelength = 1550.12e-9  # meters
+            n = 1.469 # refractive index
+            rho = 0.78  # photo-elastic scaling factor for longitudinal strain in isotropic material
+
+            # Compute scale factor to convert from strain rate to strain (formula from email from Fosina -- GL is incorporated in the interrogator's processing)
+            scale_factor = wavelength / (4 * np.pi * n * rho)  
+
+            # start_dist = fp1['Acquisition']["Raw[0]"].attrs["StartLocusIndex"] * dx # TODO remove start_dist and end_dist, only for debugging
+            # end_dist = (fp1['Acquisition']["Raw[0]"].attrs["StartLocusIndex"] + nx) * dx
+
+        meta_data = {'fs': fs, 'dx': dx, 'ns': ns, 'GL': GL, 'nx': nx, 'scale_factor': scale_factor} #, 'start_dist': start_dist, 'end_dist':end_dist}
+    else:
+        raise FileNotFoundError(f'File {filepath} not found')
+
+    return meta_data
+
 # Load/download das data as strain
 def raw2strain(trace: np.ndarray, metadata: Dict[str, Any]) -> np.ndarray:
     """
@@ -323,6 +374,36 @@ def load_das_data(filename: str, selected_channels: List[int], metadata: Dict[st
 
             # For future save
             file_begin_time_utc = datetime.utcfromtimestamp(raw_data_time[0] * 1e-6)
+
+    elif interrogator in ['fosina', 'fosina_dxs', 'dxs']:
+        with h5py.File(filename, 'r') as fp:
+            # Data matrix
+            raw_data = fp['Acquisition']['Raw[0]']['RawData']
+
+            # Check the orientation of the data compared to the metadata
+            if raw_data.shape[0] == metadata["nx"]:
+                # Data is in the correct orientation
+                pass
+            elif raw_data.shape[1] == metadata["nx"]:
+                # Data is transposed without loading in memory
+                raw_data = raw_data[:,:].T
+
+            # Selection the traces corresponding to the desired channels
+            # Loaded as float64, float 32 might be sufficient?
+            trace = raw_data[selected_channels[0]:selected_channels[1]:selected_channels[2], :].astype(np.float64)
+            trace = raw2strain(trace, metadata)
+
+            # Handle datetime
+            raw_data_time = str(fp['Acquisition']['Raw[0]']['RawDataTime'].attrs['PartStartTime'], encoding='ascii')
+            
+            try:
+                if 'T' in raw_data_time:
+                    file_begin_time_utc = datetime.fromisoformat(raw_data_time.replace('Z', '+00:00'))
+                else:
+                    file_begin_time_utc = datetime.strptime(raw_data_time, "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                print(f"Could not parse datetime: {raw_data_time}")
+                file_begin_time_utc = datetime(2000, 1, 1, 1, 10, 10)
 
     elif interrogator == 'asn':
         if not SIMPLEDAS_AVAILABLE:
