@@ -123,8 +123,11 @@ def get_metadata_optasense(filepath: str) -> Dict[str, Any]:
             GL = fp1['Acquisition'].attrs['GaugeLength'] # gauge length in m
             nx = fp1['Acquisition']['Raw[0]'].attrs['NumberOfLoci'] # number of channels
             scale_factor = (2 * np.pi) / 2 ** 16 * (1550.12 * 1e-9) / (0.78 * 4 * np.pi * n * GL)
+            
+            start_dist = fp1['Acquisition']['Custom'].attrs['Output Channel Start (CSU)'] * dx 
+            end_dist = start_dist + nx*dx
 
-        meta_data = {'fs': fs, 'dx': dx, 'ns': ns,'n': n,'GL': GL, 'nx':nx , 'scale_factor': scale_factor}
+        meta_data = {'fs': fs, 'dx': dx, 'ns': ns,'n': n,'GL': GL, 'nx':nx , 'scale_factor': scale_factor, 'start_dist': start_dist, 'end_dist':end_dist}
     else:
         raise FileNotFoundError(f'File {filepath} not found')
 
@@ -167,8 +170,11 @@ def get_metadata_silixa(filepath: str) -> Dict[str, Any]:
         GL =  props['GaugeLength'] # gauge length in m
         nx = acousticData.shape[0] # number of channels
         scale_factor = (116 * fs * 10**-9) / (GL * 2**13)
+        
+        start_dist = props['StartPosition[m]']
+        end_dist = start_dist + nx*dx
 
-        meta_data = {'fs': fs, 'dx': dx, 'ns': ns,'n': n,'GL': GL, 'nx':nx , 'scale_factor': scale_factor}
+        meta_data = {'fs': fs, 'dx': dx, 'ns': ns,'n': n,'GL': GL, 'nx':nx , 'scale_factor': scale_factor, 'start_dist': start_dist, 'end_dist':end_dist}
     else:
         raise FileNotFoundError(f'File {filepath} not found')
     
@@ -204,11 +210,15 @@ def get_metadata_asn(filepath: str) -> Dict[str, Any]:
     nx = fp['header']['dimensionRanges']['dimension1']['size'][()] # number of channels
     nx = nx[0]
     ns = fp['header']['dimensionRanges']['dimension0']['size'][()]  # number of samples
-    gauge_length = fp['header']['gaugeLength'][()]  # gauge length in m
+    GL = fp['header']['gaugeLength'][()]  # gauge length in m
     n = fp['cableSpec']['refractiveIndex'][()]  # refractive index of the fiber
     scale_factor = fp['header']['sensitivities'][()]
-    metadata = {'fs': fs, 'dx': dx, 'ns': ns, 'GL': gauge_length, 'nx': nx, 'scale_factor': scale_factor}
-    return metadata
+        
+    start_dist = fp['demodSpec']['roiStart'][()] * fp['header']['dx'][()]
+    end_dist = fp['demodSpec']['roiEnd'][()] * fp['header']['dx'][()] + dx
+
+    meta_data = {'fs': fs, 'dx': dx, 'ns': ns, 'GL': GL, 'nx': nx, 'scale_factor': scale_factor, 'start_dist': start_dist, 'end_dist':end_dist}
+    return meta_data
 
 def get_metadata_onyx(filepath: str) -> Dict[str, Any]:
     """Gets DAS acquisition parameters for the onyx interrogator 
@@ -244,7 +254,11 @@ def get_metadata_onyx(filepath: str) -> Dict[str, Any]:
         scale_factor = 115e-9 # According to Brad
         print(scale_factor)
 
-        meta_data = {'fs': fs, 'dx': dx, 'ns': ns,'n': n,'GL': GL, 'nx':nx , 'scale_factor': scale_factor}
+        start_dist = 0 # TODO: get this from metadata if possible, for now  assume it is 0
+        end_dist = nx*dx
+        print('WARNING: start_dist and end_dist are set to 0 and nx*dx respectively, please check if this is correct for your data')
+        print('contact esnyder@cornell.edu if you would like to have this implemented for your data')
+        meta_data = {'fs': fs, 'dx': dx, 'ns': ns, 'GL': GL, 'nx': nx, 'scale_factor': scale_factor, 'start_dist': start_dist, 'end_dist':end_dist}
     else:
         raise FileNotFoundError(f'File {filepath} not found')
     
@@ -289,10 +303,10 @@ def get_metadata_fosina_dxs(filepath):
             # Compute scale factor to convert from strain rate to strain (formula from email from Fosina -- GL is incorporated in the interrogator's processing)
             scale_factor = wavelength / (4 * np.pi * n * rho)  
 
-            # start_dist = fp1['Acquisition']["Raw[0]"].attrs["StartLocusIndex"] * dx # TODO remove start_dist and end_dist, only for debugging
-            # end_dist = (fp1['Acquisition']["Raw[0]"].attrs["StartLocusIndex"] + nx) * dx
+            start_dist = fp1['Acquisition']["Raw[0]"].attrs["StartLocusIndex"] * dx 
+            end_dist = (fp1['Acquisition']["Raw[0]"].attrs["StartLocusIndex"] + nx) * dx
 
-        meta_data = {'fs': fs, 'dx': dx, 'ns': ns, 'GL': GL, 'nx': nx, 'scale_factor': scale_factor} #, 'start_dist': start_dist, 'end_dist':end_dist}
+        meta_data = {'fs': fs, 'dx': dx, 'ns': ns, 'GL': GL, 'nx': nx, 'scale_factor': scale_factor, 'start_dist': start_dist, 'end_dist':end_dist}
     else:
         raise FileNotFoundError(f'File {filepath} not found')
 
