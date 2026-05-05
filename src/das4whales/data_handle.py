@@ -211,7 +211,7 @@ def get_metadata_asn(filepath: str) -> Dict[str, Any]:
     nx = nx[0]
     ns = fp['header']['dimensionRanges']['dimension0']['size'][()]  # number of samples
     GL = fp['header']['gaugeLength'][()]  # gauge length in m
-    n = fp['cableSpec']['refractiveIndex'][()]  # refractive index of the fiber
+    n = fp['cableSpec'].get('refractiveIndex', fp['cableSpec'].get('refractiveIndexes'))[()]  # refractive index of the fiber
     scale_factor = fp['header']['sensitivities'][()]
         
     start_dist = fp['demodSpec']['roiStart'][()] * fp['header']['dx'][()]
