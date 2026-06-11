@@ -239,7 +239,7 @@ def plot_tx_lined(trace, ln_idx, time, dist, title_time_info=0, fig_size=(12, 10
 def plot_fx(trace, dist, fs, title_time_info=0, win_s=2, nfft=4096, fig_size=(12, 10), f_min=0,
             f_max=100, v_min=None, v_max=None):
     """
-    Spatio-spectral (f-k plot) of the strain data
+    Spatio-spectral (f-x plot) of the strain data
 
     Parameters
     ----------
@@ -273,9 +273,9 @@ def plot_fx(trace, dist, fs, title_time_info=0, win_s=2, nfft=4096, fig_size=(12
 
     Notes
     -----
-    This function plots the spatio-spectral (f-k plot) of the strain data.
+    This function plots the spatio-spectral (f-x plot) of the strain data.
 
-    - The number of subplots is evaluated based on the duration of each f-k plot.
+    - The number of subplots is evaluated based on the duration of each f-x plot.
     - The frequency axis is created using the FFT.
     - The strain data is processed and plotted for each subplot.
 
