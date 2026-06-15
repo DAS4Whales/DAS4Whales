@@ -247,5 +247,76 @@ def generate_hourly_plots(csv_path: str, north_csv: str, south_csv: str, bathy_f
         plt.close(fig)
 
 
+# +
+def filter_global(csv_path: str, out_dir: str, window_minutes: int, deltax_threshold: float, spatial_proximity_m: float, time_proximity_s: int):
+    # Create output directory if not existing
+    Path(out_dir).mkdir(parents=True, exist_ok=True)
+    # Open the csv as a panda dataframe
+    df_all = pd.read_csv(csv_path, parse_dates=['utc'])
+    # Sort the value by emission time
+    df_all = df_all.sort_values('utc').reset_index(drop=True)
+    all_times = df_all['utc'].values.astype('datetime64[s]')
+
+    # compute time windows
+    start = df_all['utc'].min()
+    end = df_all['utc'].max()
+    total_minutes = int((end - start).total_seconds() / 60.0)
+    n_windows = max(1, (total_minutes // window_minutes) + 1)
+
+    # df_filtered = Initialize dataframe
+    # Iterate over each window
+    for w in range(n_windows):
+        t0 = start + datetime.timedelta(minutes=w*window_minutes)
+        t1 = t0 + datetime.timedelta(minutes=window_minutes)
+        df_win = df_all[(df_all['utc'] >= t0) & (df_all['utc'] < t1)]
+        if df_win.empty:
+            continue
+
+        # Apply deltax threshold filter if requested
+        if deltax_threshold is not None and 'deltax' in df_win.columns:
+            df_win = df_win[df_win['deltax'] <= deltax_threshold].copy()
+
+        # Apply spatial proximity filter first
+        # Remove isolated localizations that have no neighbor within spatial threshold
+        if spatial_proximity_m is not None and len(df_win) > 1:
+            try:
+                dist_matrix = spa.distance_matrix(df_win[['x_local', 'y_local']].to_numpy(), df_win[['x_local', 'y_local']].to_numpy())
+                has_spatial_neighbor_mask = np.any((dist_matrix <= spatial_proximity_m) & (dist_matrix > 0), axis=1)
+                df_win = df_win[has_spatial_neighbor_mask].copy()
+            except Exception:
+                pass
+
+        # Apply temporal validation on spatial neighbors
+        # If time_proximity_s is provided, require that spatial neighbors fall within this time window
+        if len(df_win) > 0 and (time_proximity_s is not None) and (spatial_proximity_m is not None):
+            keep_mask = np.zeros(len(df_win), dtype=bool)
+            for ii, (_, row) in enumerate(df_win.iterrows()):
+                t = np.datetime64(row['utc']).astype('datetime64[s]')
+                left = int(np.searchsorted(all_times, t - np.timedelta64(int(time_proximity_s), 's')))
+                right = int(np.searchsorted(all_times, t + np.timedelta64(int(time_proximity_s), 's'), side='right'))
+                if right <= left:
+                    continue
+                # Find spatial neighbors within time window
+                dx = all_x[left:right] - row['x_local']
+                dy = all_y[left:right] - row['y_local']
+                d2 = dx*dx + dy*dy
+                if np.any((d2 <= (spatial_proximity_m**2)) & (d2 > 0)):
+                    keep_mask[ii] = True
+            df_win = df_win[keep_mask].copy()
+
+        # Apply minimum time spacing to cluster tracks and eliminate rapid false positive bursts
+        if len(df_win) > 0 and (min_time_spacing_s is not None):
+            df_win = df_win.sort_values('utc').reset_index(drop=True)
+            keep_indices = [0] if len(df_win) > 0 else []
+            for i in range(1, len(df_win)):
+                time_diff = (df_win.iloc[i]['utc'] - df_win.iloc[keep_indices[-1]]['utc']).total_seconds()
+                if time_diff >= min_time_spacing_s:
+                    keep_indices.append(i)
+            df_win = df_win.iloc[keep_indices].copy()
+        df_filtered = pd.concat(df_filtered, df_win)
+
+
+# -
+
 generate_hourly_plots(csv_path, north_csv, south_csv, bathy_file, out_dir, window_minutes=60,
                       deltax_threshold=80, spatial_proximity_m=250, time_proximity_s=70, min_time_spacing_s=5)

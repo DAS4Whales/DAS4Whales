@@ -297,7 +297,7 @@ def generate_track_animation(df: pd.DataFrame, out_dir: str, bathy: np.ndarray, 
         init_func=init, blit=False, interval=interval
     )
 
-    out_path = Path(out_dir) / f"4d_tracks.mp4"
+    out_path = Path(out_dir) / f"4d_{window_minutes}win_{overlap_minutes}overlap_tracks.mp4"
     writer = FFMpegWriter(fps=8, bitrate=1800)
     anim.save(out_path, writer=writer, dpi=300, savefig_kwargs={'transparent': True, 'bbox_inches': 'tight', 'pad_inches': 0})
     plt.close(fig)
@@ -311,5 +311,5 @@ def generate_track_animation(df: pd.DataFrame, out_dir: str, bathy: np.ndarray, 
 
 # Animation with spatio-temporal filtering (optional)
 generate_track_animation(df_all, out_dir, bathy=bathy, xlon=xlon, ylat=ylat, interval=250,
-                         window_minutes=60, overlap_minutes=58,
+                         window_minutes=90, overlap_minutes=88,
                          deltax_threshold=80, spatial_proximity_m=250, time_proximity_s=70, min_time_spacing_s=5)
