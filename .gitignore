@@ -66,6 +66,7 @@ figs/
 
 # Denoised data files
 denoised_data/
+Associations/
 # Evaluation figures 
 evaluation/
 
