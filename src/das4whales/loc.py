@@ -630,7 +630,7 @@ def loc_from_picks(associated_list, cable_pos, c0, fs, return_uncertainty=True):
         Nbiter = 20
 
         # Initial guess (apex_loc, mean_y, -30m, min(Ti))
-        n_init = [apex_loc, np.mean(cable_pos[:,1]), -40, np.min(Ti)]
+        n_init = [apex_loc, np.mean(cable_pos[:,1]), -30, np.min(Ti)]
         
         # Solve the least squares problem with uncertainty
         result = solve_lq_weight(Ti, cable_pos[select[0][:]], c0, Nbiter, 
@@ -677,7 +677,7 @@ def loc_picks_bicable(n_assoc, s_assoc, cable_pos, c0, fs, Nbiter=20, return_unc
 
     times = idx_time / fs
     apex_loc = bicable_pos[idxmin_t, 0]  # Find the apex location from the minimum time index
-    init = [apex_loc, np.mean(bicable_pos[:, 1]), -40, np.min(times)]  # Initial guess for the localization
+    init = [apex_loc, np.mean(bicable_pos[:, 1]), -30, np.min(times)]  # Initial guess for the localization
     
     # Solve the least squares problem using the provided parameters
     if return_uncertainty:
