@@ -67,6 +67,7 @@ figs/
 # Denoised data files
 denoised_data/
 Associations/
+Associations_Param_unknown/
 # Evaluation figures 
 evaluation/
 
