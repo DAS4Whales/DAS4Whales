@@ -33,7 +33,7 @@ from IPython.display import HTML
 from datetime import datetime, timedelta
 
 # %%
-with open('../out/batch1_baseline/association_2021-11-04_02:00:02.pkl', 'rb') as f:
+with open('../Associations/Batch1_Associations/Baseline/association_2021-11-04_02:00:02.pkl', 'rb') as f:
     # Load the association object
     association = pickle.load(f)
 
@@ -41,8 +41,8 @@ with open('../out/batch1_baseline/association_2021-11-04_02:00:02.pkl', 'rb') as
 print(association.keys())
 print(association['assoc_pair'].keys())
 print(association['assoc'].keys())
-print(len(association['assoc']['north']['hf']))
-print(np.shape(association['assoc']['north']['hf'][0]))
+print(len(association['assoc_pair']['north']['hf']))
+print(np.shape(association['assoc_pair']['north']['hf'][0]))
 print(association['metadata']['north'].keys())
 
 # Load the metadata
@@ -63,7 +63,7 @@ utc_str = association['metadata']['south']['fileBeginTimeUTC']
 
 # %%
 # Directory containing pickle files
-pkl_dir = '../denoised_data/Batch_1/Baseline'
+pkl_dir = '../Associations/Batch1_Associations/Baseline/'
 
 # Initialize list to hold all pick counts
 pick_counts = []
@@ -341,7 +341,7 @@ utm_x0, utm_y0 = dw.map.latlon_to_utm(xlon[0], ylat[0])
 utm_xf, utm_yf = dw.map.latlon_to_utm(xlon[-1], ylat[-1])
 
 df_all = process_all(
-    pkl_dir    = '../denoised_data/Batch_1/Baseline',
+    pkl_dir    = '../Associations/Batch1_Associations/Baseline/',
     north_csv  = '../data/north_DAS_multicoord.csv',
     south_csv  = '../data/south_DAS_multicoord.csv',
     utm_xf     = utm_xf - utm_x0,
