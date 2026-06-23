@@ -192,12 +192,8 @@ def generate_hourly_plots(csv_path: str, north_csv: str, south_csv: str, bathy_f
         ax.plot(df_south.x_km, df_south.y_km, c='orange', label='South cable')
 
         markers = {
-            'hf-pair': '*',
-            'lf-pair': 'P',
-            'north-hf': '+', 
-            'north-lf': '2',
-            'south-hf': 'x',
-            'south-lf': '1'
+            'hf': 'o',
+            'lf': 'd'
         }
 
         # create minutes into window for coloring
@@ -206,7 +202,7 @@ def generate_hourly_plots(csv_path: str, north_csv: str, south_csv: str, bathy_f
 
         groups = df_win.groupby(['sensor','call_type'])
         for (sensor, call), grp in groups:
-            lbl = f"{sensor}-{call}"
+            lbl = f"{call}"
             marker = markers.get(lbl)
             ax.scatter(grp.x_km, grp.y_km,
                       c=grp.minutes_into_window,
@@ -215,7 +211,7 @@ def generate_hourly_plots(csv_path: str, north_csv: str, south_csv: str, bathy_f
                       marker=marker if marker is not None else 'o',
                       s=100,
                       edgecolors='k',
-                      label=lbl)
+                      label=f"{lbl} call")
 
         levels = [-1500, -1000, -600, -250, -80]
         if bathy is not None and 'bathy' in locals() and bathy is not None:
@@ -241,6 +237,8 @@ def generate_hourly_plots(csv_path: str, north_csv: str, south_csv: str, bathy_f
         ax.legend(loc='upper right', fontsize='small')
         ax.grid(linestyle='--', alpha=0.6, color='gray')
         ax.set_title(f"UTC window: {t0.strftime('%Y-%m-%d %H:%M')} to {t1.strftime('%Y-%m-%d %H:%M')}")
+        ax.set_xlim(extent[0]/1000.0, extent[1]/1000.0)
+        ax.set_ylim(extent[2]/1000.0, extent[3]/1000.0)
 
         out_path = Path(out_dir) / f"tracks_{t0.strftime('%Y%m%d_%H%M')}.pdf"
         fig.savefig(out_path, format='pdf', bbox_inches='tight', transparent=True)
@@ -318,5 +316,5 @@ def filter_global(csv_path: str, out_dir: str, window_minutes: int, deltax_thres
 
 # -
 
-generate_hourly_plots(csv_path, north_csv, south_csv, bathy_file, out_dir, window_minutes=60,
-                      deltax_threshold=80, spatial_proximity_m=250, time_proximity_s=70, min_time_spacing_s=5)
+generate_hourly_plots(csv_path, north_csv, south_csv, bathy_file, out_dir, window_minutes=5760,
+                      deltax_threshold=80, spatial_proximity_m=250, time_proximity_s=50, min_time_spacing_s=5)
