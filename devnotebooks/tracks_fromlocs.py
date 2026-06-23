@@ -38,7 +38,7 @@ csv_path   = '../data/4d_localizations_with_coords.csv'
 north_csv   = '../data/north_DAS_multicoord.csv'
 south_csv   = '../data/south_DAS_multicoord.csv'
 bathy_file  = '../data/GMRT_OOI_RCA_Cables.grd'
-out_dir     = '../figs/4dtracks/'
+out_dir     = '../figs/halfdaytracks/'
 os.makedirs(out_dir, exist_ok=True)
 
 # Load data
@@ -103,6 +103,8 @@ def generate_hourly_plots(csv_path: str, north_csv: str, south_csv: str, bathy_f
     end = df_all['utc'].max()
     total_minutes = int((end - start).total_seconds() / 60.0)
     n_windows = max(1, (total_minutes // window_minutes) + 1)
+
+    print(f"Generating plots for {n_windows} windows of {window_minutes} minutes each...")
 
     for w in range(n_windows):
         t0 = start + datetime.timedelta(minutes=w*window_minutes)
@@ -195,15 +197,25 @@ def generate_hourly_plots(csv_path: str, north_csv: str, south_csv: str, bathy_f
             'hf': 'o',
             'lf': 'd'
         }
+        legend_name_map = {
+            'hf': 'HF calls',
+            'lf': 'LF calls'
+        }
 
         # create minutes into window for coloring
         df_win = df_win.copy()
         df_win['minutes_into_window'] = (df_win['utc'] - t0).dt.total_seconds() / 60.0
 
         groups = df_win.groupby(['sensor','call_type'])
+        seen_call_labels = set()
         for (sensor, call), grp in groups:
-            lbl = f"{call}"
-            marker = markers.get(lbl)
+            call_key = str(call).lower()
+            marker = markers.get(call_key)
+            legend_label = legend_name_map.get(call_key, f"{str(call).upper()} calls")
+            if legend_label in seen_call_labels:
+                legend_label = None
+            else:
+                seen_call_labels.add(legend_label)
             ax.scatter(grp.x_km, grp.y_km,
                       c=grp.minutes_into_window,
                       cmap='plasma',
@@ -211,7 +223,7 @@ def generate_hourly_plots(csv_path: str, north_csv: str, south_csv: str, bathy_f
                       marker=marker if marker is not None else 'o',
                       s=100,
                       edgecolors='k',
-                      label=f"{lbl} call")
+                      label=legend_label)
 
         levels = [-1500, -1000, -600, -250, -80]
         if bathy is not None and 'bathy' in locals() and bathy is not None:
@@ -224,7 +236,7 @@ def generate_hourly_plots(csv_path: str, north_csv: str, south_csv: str, bathy_f
                 pass
 
         stats_text = f"Number of calls: {len(df_win)}\nMedian $\\eta_{{RMS}}$: {median_rms:.2f}s\nMedian $\\delta$x: {median_deltax:.2f}m" if not np.isnan(median_rms) and not np.isnan(median_deltax) else "Statistics not available"
-        ax.text(0.35, 0.14, stats_text, transform=ax.transAxes, fontsize=14,
+        ax.text(0.02, 0.9, stats_text, transform=ax.transAxes, fontsize=14,
                 verticalalignment='center', bbox=dict(boxstyle="round,pad=0.5", 
                 facecolor='white', alpha=0.8))
 
@@ -240,12 +252,13 @@ def generate_hourly_plots(csv_path: str, north_csv: str, south_csv: str, bathy_f
         ax.set_xlim(extent[0]/1000.0, extent[1]/1000.0)
         ax.set_ylim(extent[2]/1000.0, extent[3]/1000.0)
 
-        out_path = Path(out_dir) / f"tracks_{t0.strftime('%Y%m%d_%H%M')}.pdf"
-        fig.savefig(out_path, format='pdf', bbox_inches='tight', transparent=True)
+        # out_path = Path(out_dir) / f"tracks_{t0.strftime('%Y%m%d_%H%M')}.pdf"
+        # fig.savefig(out_path, format='pdf', bbox_inches='tight', transparent=True)
+        out_path = Path(out_dir) / f"tracks_{t0.strftime('%Y%m%d_%H%M')}.png"
+        fig.savefig(out_path, format='png', bbox_inches='tight', transparent=True, dpi=200)
         plt.close(fig)
 
 
-# +
 def filter_global(csv_path: str, out_dir: str, window_minutes: int, deltax_threshold: float, spatial_proximity_m: float, time_proximity_s: int):
     # Create output directory if not existing
     Path(out_dir).mkdir(parents=True, exist_ok=True)
@@ -314,7 +327,5 @@ def filter_global(csv_path: str, out_dir: str, window_minutes: int, deltax_thres
         df_filtered = pd.concat(df_filtered, df_win)
 
 
-# -
-
-generate_hourly_plots(csv_path, north_csv, south_csv, bathy_file, out_dir, window_minutes=5760,
+generate_hourly_plots(csv_path, north_csv, south_csv, bathy_file, out_dir, window_minutes=720,
                       deltax_threshold=80, spatial_proximity_m=250, time_proximity_s=50, min_time_spacing_s=5)
