@@ -10,7 +10,6 @@ import matplotlib.gridspec as gridspec
 import librosa
 from scipy.ndimage import convolve
 from datetime import datetime
-import torchvision.transforms as transforms
 import pandas as pd
 plt.rcParams['font.size'] = 20
 
@@ -31,7 +30,7 @@ url_next = 'http://piweb.ooirsn.uw.edu/das/data/Optasense/NorthCable/TransmitFib
 
 def main(url):
 
-    filepath = dw.data_handle.dl_file(url)
+    filepath, filename = dw.data_handle.dl_file(url)
 
     # ### Get information on the DAS data from the hdf5 metadata
 
@@ -70,9 +69,8 @@ def main(url):
 
     # load the .txt file and create a pandas dataframe
     df = pd.read_csv('data/north_DAS_latlondepth.txt', delimiter = ",", header = None)
-    df.columns = ['chan_idx','lat', 'lon', 'depth']
-    chan_m = df['chan_idx'] * dx
-    df
+    # df.columns = ['chan_idx','lat', 'lon', 'depth']
+    # chan_m = df['chan_idx'] * dx
 
     # Load raw DAS data
     # 
