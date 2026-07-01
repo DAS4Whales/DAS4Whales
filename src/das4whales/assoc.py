@@ -1572,13 +1572,14 @@ def plot_kdesurf(df_north: pd.DataFrame, df_south: pd.DataFrame, bathy: np.ndarr
 
 
 def plot_associated_bicable_paper(peaks, longi_offset, pair_assoc_list, pair_loc_list, associated_list, localizations,
-                            n_cable_pos, s_cable_pos, n_dist, s_dist, dx, c0, fs, height_ratio=1.537):
+                            n_cable_pos, s_cable_pos, n_dist, s_dist, sel_chan, dx, c0, fs, height_ratio=1.537, title=None):
     # Unpack the peaks and associated data
     n_peaks_hf, n_peaks_lf, s_peaks_hf, s_peaks_lf = peaks
     nhf_assoc_pair, nlf_assoc_pair, shf_assoc_pair, slf_assoc_pair = pair_assoc_list
     nhf_assoc_list, nlf_assoc_list, shf_assoc_list, slf_assoc_list = associated_list
     nhf_loc_pair, nlf_loc_pair, shf_loc_pair, slf_loc_pair = pair_loc_list
     nhf_localizations, nlf_localizations, shf_localizations, slf_localizations = localizations
+    n_selected_channels_m, s_selected_channels_m = sel_chan
 
     hyperbola_STYLE = {'color': 'tab:gray', 'ls': '-', 'lw': 2, 'alpha': 0.7}
     hfassoc_STYLE = {'marker': 'o', 's': 25, 'rasterized': True}  # Filled circle
@@ -1637,9 +1638,10 @@ def plot_associated_bicable_paper(peaks, longi_offset, pair_assoc_list, pair_loc
                                                   nlf_localizations[i][:3], c0),
                                                   n_dist / 1e3, **hyperbola_STYLE)
 
-    axes[0].set_title('North Cable - associations')
-    axes[0].set_ylabel('Distance [km]')
+    axes[0].set_title(f"Associations - {title}" if title else "Associations")
+    axes[0].set_ylabel(r'$\bf{North\ Cable}$' + '\nDistance [km]')
     axes[0].set_xlim(0, 70)
+    axes[0].set_ylim(n_selected_channels_m[0] * 1e-3, n_selected_channels_m[1] * 1e-3)
 
     # Second subplot — South raw picks and associated
     # -- Raw picks --
@@ -1679,9 +1681,10 @@ def plot_associated_bicable_paper(peaks, longi_offset, pair_assoc_list, pair_loc
                                                 slf_localizations[i][:3], c0),
                                                 s_dist / 1e3, **hyperbola_STYLE)
 
-    axes[1].set_title('South Cable - associations')
-    axes[1].set_ylabel('Distance [km]')
+    axes[1].set_title(f"Associations - {title}" if title else "Associations")
+    axes[1].set_ylabel(r'#\bf{South\ Cable}$'+ '\nDistance [km]')
     axes[1].set_xlabel('Time [s]')
+    axes[1].set_ylim(s_selected_channels_m[0] * 1e-3, s_selected_channels_m[1] * 1e-3)
 
     # Add a common legend
     from mpl_toolkits.axes_grid1.inset_locator import inset_axes
@@ -1791,5 +1794,7 @@ def plot_associated_bicable_paper(peaks, longi_offset, pair_assoc_list, pair_loc
     # Modify the grid
     for ax in axes.flat:
         ax.grid(linestyle='--', alpha=0.3, linewidth=0.5)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
         ax.set_axisbelow(True)  # Put grid behind data
     return fig
