@@ -1682,7 +1682,7 @@ def plot_associated_bicable_paper(peaks, longi_offset, pair_assoc_list, pair_loc
                                                 s_dist / 1e3, **hyperbola_STYLE)
 
     axes[1].set_title(f"Associations - {title}" if title else "Associations")
-    axes[1].set_ylabel(r'#\bf{South\ Cable}$'+ '\nDistance [km]')
+    axes[1].set_ylabel(r'$\bf{South\ Cable}$'+ '\nDistance [km]')
     axes[1].set_xlabel('Time [s]')
     axes[1].set_ylim(s_selected_channels_m[0] * 1e-3, s_selected_channels_m[1] * 1e-3)
 
