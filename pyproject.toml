@@ -45,6 +45,7 @@ dependencies = [
     "pandas",
     "deprecation",
     "cmocean",
+    "netcdf4",
 ]
 
 [project.urls]
