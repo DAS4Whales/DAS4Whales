@@ -1380,8 +1380,8 @@ def bp_filt(data, fs, fmin, fmax):
     tr_filt : array-like
         bandpass filtered data
     """
-    b, a = sp.butter(8, [fmin / (fs / 2), fmax / (fs / 2)], "bp")
-    tr_filt = sp.filtfilt(b, a, data, axis=1)
+    sos = sp.butter(8, [fmin / (fs / 2), fmax / (fs / 2)], "bp", output="sos")
+    tr_filt = sp.sosfiltfilt(sos, data, axis=1)
     return tr_filt
 
 
