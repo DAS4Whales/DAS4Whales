@@ -4,8 +4,8 @@ import pytest
 from das4whales.dsp import (
     # fk_filter_filt,
     # fk_filter_sparsefilt,
+    bp_filt,
     butterworth_filter,
-    # bp_filt,
     fk_filt,
     fk_filter_design,
     get_fx,
@@ -209,13 +209,25 @@ def test_instant_freq():
     assert len(inst_freq) == len(channel) - 1
 
 
-# def test_bp_filt():
-#     data = np.array([[1, 2, 3, 4, 5], [1, 2, 3, 4, 5]], dtype=float)
-#     fs = 5
-#     fmin = 1
-#     fmax = 2
-#     filtered_data = bp_filt(data, fs, fmin, fmax)
-#     assert np.shape(filtered_data) == np.shape(data)
+def test_bp_filt():
+    # Regression: the order-8 Butterworth was built in (b, a) transfer-function
+    # form, which is numerically unstable for narrow bands (poles land outside
+    # the unit circle) and silently destroyed the data for fs >= ~500 Hz.
+    fs = 1000
+    rng = np.random.default_rng(0)
+    data = rng.standard_normal((3, 4000))
+    filtered_data = bp_filt(data, fs, 15, 25)
+    assert np.shape(filtered_data) == np.shape(data)
+    assert np.all(np.isfinite(filtered_data))
+    assert np.max(np.abs(filtered_data)) <= np.max(np.abs(data))
+
+    # The filter still passes in-band content and rejects out-of-band content
+    t = np.arange(0, 10, 1 / fs)
+    tone_in = np.sin(2 * np.pi * 20 * t)[np.newaxis, :]
+    tone_out = np.sin(2 * np.pi * 60 * t)[np.newaxis, :]
+    assert np.max(np.abs(bp_filt(tone_in, fs, 15, 25))) > 0.9
+    # ignore the filtfilt edge transients at the abrupt tone onset/offset
+    assert np.max(np.abs(bp_filt(tone_out, fs, 15, 25)[:, fs:-fs])) < 0.01
 
 
 def test_fk_filt():

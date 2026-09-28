@@ -801,10 +801,13 @@ def compute_cross_correlogram_spectrocorr(
     bandwidth = kernel["bdwidth"]
 
     # check that hat function is within frequency range of spectrogram
-    if fmax - f1 < 2 * bandwidth:
-        fmax = f1 + 3 * bandwidth
-    if f0 - fmin < 2 * bandwidth:
-        fmin = f0 - 3 * bandwidth
+    # (f0 and f1 are the sweep's start/end frequencies; the sweep may go
+    # either way, so compare the band edges with the kernel's extremes)
+    f_hi, f_lo = max(f0, f1), min(f0, f1)
+    if fmax - f_hi < 2 * bandwidth:
+        fmax = f_hi + 3 * bandwidth
+    if f_lo - fmin < 2 * bandwidth:
+        fmin = f_lo - 3 * bandwidth
 
     # Compute correlation along axis 1
     spectro, ff, tt = get_sliced_nspectrogram(

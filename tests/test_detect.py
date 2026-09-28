@@ -5,6 +5,7 @@ from das4whales.detect import (
     calc_nmf,
     calc_nmf_correlogram,
     compute_cross_correlogram,
+    compute_cross_correlogram_spectrocorr,
     convert_pick_times,
     gen_hyperbolic_chirp,
     gen_linear_chirp,
@@ -255,6 +256,25 @@ def test_convert_pick_times():
 
     # Test case 2
     # Add more test cases here
+
+
+def test_compute_cross_correlogram_spectrocorr_band_guard():
+    # Regression: the band guard compared fmax with the sweep's END frequency
+    # (f1) and fmin with its START frequency (f0), so for a downsweep kernel
+    # (f0 > f1, as in the fin-whale examples) the spectrogram band was never
+    # widened. The kernel's tails were then truncated at the band edges, it
+    # lost its zero-mean property, and pure noise scored a high correlation
+    # baseline (mean ~0.9 with these parameters instead of ~0.2).
+    fs = 200
+    rng = np.random.default_rng(7)
+    data = rng.standard_normal((2, int(60 * fs)))
+    kernel = {"f0": 27.0, "f1": 17.0, "dur": 0.8, "bdwidth": 4.0}
+    correlogram = compute_cross_correlogram_spectrocorr(
+        data, fs, (14.0, 30.0), kernel, 0.8, 0.95
+    )
+    assert np.shape(correlogram)[0] == 2
+    assert np.all(np.isfinite(correlogram))
+    assert np.mean(correlogram) < 0.5
 
 
 if __name__ == "__main__":
