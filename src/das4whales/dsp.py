@@ -714,9 +714,14 @@ def hybrid_ninf_filter_design(
     knum = np.fft.fftshift(np.fft.fftfreq(nnx, d=selected_channels[2] * dx))
 
     # Replace the sine/cosine tapers by butterworth filters
-    b, a = sp.butter(8, [fmin / (fs / 2), fmax / (fs / 2)], "bp")
+    # (second-order sections: the (b, a) form of this order-8 bandpass is
+    # ill-conditioned and corrupts the response for fs >~ 500 Hz)
+    sos = sp.butter(8, [fmin / (fs / 2), fmax / (fs / 2)], "bp", output="sos")
     H = np.concatenate(
-        (np.zeros(len(freq) // 2), np.abs(sp.freqz(b, a, worN=len(freq) // 2)[1]) ** 2)
+        (
+            np.zeros(len(freq) // 2),
+            np.abs(sp.sosfreqz(sos, worN=len(freq) // 2)[1]) ** 2,
+        )
     )
 
     # 1st step: frequency bandpass filtering
